@@ -11,6 +11,11 @@ export const generateMarkersFromData = ({
   userLatitude: number;
   userLongitude: number;
 }): MarkerData[] => {
+  console.log("[map] generateMarkersFromData ▶", {
+    driversCount: data?.length,
+    userLatitude,
+    userLongitude,
+  });
   return data.map((driver) => {
     const latOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
     const lngOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
@@ -94,17 +99,31 @@ export const calculateDriverTimes = async ({
     return;
 
   try {
+    console.log("[map] calculateDriverTimes ▶", {
+      markersCount: markers?.length,
+      userLatitude,
+      userLongitude,
+      destinationLatitude,
+      destinationLongitude,
+    });
     const timesPromises = markers.map(async (marker) => {
+      console.log("[map] calculateDriverTimes ▶ marker", {
+        id: (marker as any)?.id,
+        latitude: marker.latitude,
+        longitude: marker.longitude,
+      });
       const responseToUser = await fetch(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${marker.latitude},${marker.longitude}&destination=${userLatitude},${userLongitude}&key=${directionsAPI}`,
       );
       const dataToUser = await responseToUser.json();
+      console.log("[map] directions to user ◀", dataToUser?.status, dataToUser?.routes?.[0]?.legs?.[0]?.duration);
       const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
 
       const responseToDestination = await fetch(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${userLatitude},${userLongitude}&destination=${destinationLatitude},${destinationLongitude}&key=${directionsAPI}`,
       );
       const dataToDestination = await responseToDestination.json();
+      console.log("[map] directions to destination ◀", dataToDestination?.status, dataToDestination?.routes?.[0]?.legs?.[0]?.duration);
       const timeToDestination =
         dataToDestination.routes[0].legs[0].duration.value; // Time in seconds
 
@@ -116,6 +135,6 @@ export const calculateDriverTimes = async ({
 
     return await Promise.all(timesPromises);
   } catch (error) {
-    console.error("Error calculating driver times:", error);
+    console.error("[map] ✖ Error calculating driver times", error);
   }
 };

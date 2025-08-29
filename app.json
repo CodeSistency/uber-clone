@@ -13,13 +13,20 @@
       "backgroundColor": "#2F80ED"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.codesistency-dev.uber"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8"
+        }
+      },
+      "package": "com.codesistency_dev.uber"
     },
     "web": {
       "bundler": "metro",

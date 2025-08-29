@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Text, View, Platform } from "react-native";
 import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
-import MapViewDirections from "react-native-maps-directions";
 
 import { icons } from "@/constants";
 import { useFetch } from "@/lib/fetch";
@@ -31,12 +30,18 @@ const Map = () => {
     if (Array.isArray(drivers)) {
       if (!userLatitude || !userLongitude) return;
 
+      console.log("[Map] drivers loaded", {
+        count: drivers.length,
+        userLatitude,
+        userLongitude,
+      });
       const newMarkers = generateMarkersFromData({
         data: drivers,
         userLatitude,
         userLongitude,
       });
 
+      console.log("[Map] markers generated", { count: newMarkers.length });
       setMarkers(newMarkers);
     }
   }, [drivers, userLatitude, userLongitude]);
@@ -47,6 +52,11 @@ const Map = () => {
       destinationLatitude !== undefined &&
       destinationLongitude !== undefined
     ) {
+      console.log("[Map] calculating driver times", {
+        markers: markers.length,
+        destinationLatitude,
+        destinationLongitude,
+      });
       calculateDriverTimes({
         markers,
         userLatitude,
@@ -54,6 +64,9 @@ const Map = () => {
         destinationLatitude,
         destinationLongitude,
       }).then((drivers) => {
+        console.log("[Map] driver times calculated", {
+          driversCount: drivers?.length,
+        });
         setDrivers(drivers as MarkerData[]);
       });
     }
@@ -65,6 +78,8 @@ const Map = () => {
     destinationLatitude,
     destinationLongitude,
   });
+
+  console.log("[Map] region", region);
 
   if (loading || (!userLatitude && !userLongitude))
     return (
@@ -85,7 +100,7 @@ const Map = () => {
       provider={PROVIDER_DEFAULT}
       className="w-full h-full rounded-2xl"
       tintColor="black"
-      mapType="mutedStandard"
+      mapType={Platform.OS === "ios" ? "mutedStandard" : "standard"}
       showsPointsOfInterest={false}
       initialRegion={region}
       showsUserLocation={true}
@@ -106,30 +121,15 @@ const Map = () => {
       ))}
 
       {destinationLatitude && destinationLongitude && (
-        <>
-          <Marker
-            key="destination"
-            coordinate={{
-              latitude: destinationLatitude,
-              longitude: destinationLongitude,
-            }}
-            title="Destination"
-            image={icons.pin}
-          />
-          <MapViewDirections
-            origin={{
-              latitude: userLatitude!,
-              longitude: userLongitude!,
-            }}
-            destination={{
-              latitude: destinationLatitude,
-              longitude: destinationLongitude,
-            }}
-            apikey={directionsAPI!}
-            strokeColor="#0286FF"
-            strokeWidth={2}
-          />
-        </>
+        <Marker
+          key="destination"
+          coordinate={{
+            latitude: destinationLatitude,
+            longitude: destinationLongitude,
+          }}
+          title="Destination"
+          image={icons.pin}
+        />
       )}
     </MapView>
   );

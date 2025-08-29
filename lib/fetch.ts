@@ -1,15 +1,39 @@
 import { useState, useEffect, useCallback } from "react";
 
 export const fetchAPI = async (url: string, options?: RequestInit) => {
+  const startMs = Date.now();
+  console.log("[fetchAPI] ▶ Request", { url, options });
   try {
     const response = await fetch(url, options);
+    console.log("[fetchAPI] ◀ ResponseMeta", {
+      url,
+      ok: response.ok,
+      status: response.status,
+      statusText: response.statusText,
+    });
+
+    let body: unknown = null;
+    try {
+      body = await response.json();
+    } catch (parseError) {
+      console.log("[fetchAPI] ⚠ Non-JSON response", { url });
+    }
+
+    console.log("[fetchAPI] ◀ Body", { url, body });
+
     if (!response.ok) {
+      // Keep original behavior (do not throw), just create an Error instance
+      // so callers relying on current semantics are not broken while debugging.
+      // eslint-disable-next-line no-new
       new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+
+    return body as any;
   } catch (error) {
-    console.error("Fetch error:", error);
+    console.error("[fetchAPI] ✖ Error", { url, error });
     throw error;
+  } finally {
+    console.log("[fetchAPI] ⏱ DurationMs", { url, ms: Date.now() - startMs });
   }
 };
 
@@ -23,9 +47,12 @@ export const useFetch = <T>(url: string, options?: RequestInit) => {
     setError(null);
 
     try {
+      console.log("[useFetch] ▶ Fetch", { url, options });
       const result = await fetchAPI(url, options);
-      setData(result.data);
+      console.log("[useFetch] ◀ Result", { url, result });
+      setData((result as any)?.data ?? (result as any));
     } catch (err) {
+      console.error("[useFetch] ✖ Error", { url, err });
       setError((err as Error).message);
     } finally {
       setLoading(false);

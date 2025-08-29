@@ -21,6 +21,11 @@ const GoogleTextInput = ({
         fetchDetails={true}
         placeholder="Search"
         debounce={200}
+        predefinedPlaces={[]}
+        onFail={(error) =>
+          console.error("[GooglePlacesAutocomplete] ✖ onFail", error)
+        }
+        onNotFound={() => console.log("[GooglePlacesAutocomplete] ⚠ onNotFound")}
         styles={{
           textInputContainer: {
             alignItems: "center",
@@ -53,6 +58,11 @@ const GoogleTextInput = ({
           },
         }}
         onPress={(data, details = null) => {
+          console.log("[GooglePlacesAutocomplete] ◀ onPress", {
+            description: data?.description,
+            placeId: data?.place_id,
+            hasDetails: !!details,
+          });
           handlePress({
             latitude: details?.geometry.location.lat!,
             longitude: details?.geometry.location.lng!,
