@@ -16,16 +16,26 @@ export const generateMarkersFromData = ({
     userLatitude,
     userLongitude,
   });
-  return data.map((driver) => {
+  return data.map((driver, index) => {
     const latOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
     const lngOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
 
-    return {
+    const markerData = {
       latitude: userLatitude + latOffset,
       longitude: userLongitude + lngOffset,
       title: `${driver.first_name} ${driver.last_name}`,
       ...driver,
+      id: driver.id || index + 1, // Ensure we have an ID (placed after spread to avoid override)
     };
+
+    console.log("[generateMarkersFromData] Creating marker:", {
+      originalDriverId: driver.id,
+      assignedId: markerData.id,
+      title: markerData.title,
+      index,
+    });
+
+    return markerData;
   });
 };
 

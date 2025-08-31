@@ -14,12 +14,20 @@ const Rides = () => {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(`/(api)/ride/${user?.id}`);
+  } = useFetch<Ride[]>(user?.id ? `/(api)/ride/${user.id}` : null);
+
+  console.log("[Rides] Page data:", {
+    userId: user?.id,
+    recentRides: Array.isArray(recentRides) ? recentRides.length : 0,
+    loading,
+    error,
+    firstRide: Array.isArray(recentRides) ? recentRides[0] : null,
+  });
 
   return (
     <SafeAreaView className="flex-1 bg-white">
       <FlatList
-        data={recentRides}
+        data={Array.isArray(recentRides) ? recentRides : []}
         renderItem={({ item }) => <RideCard ride={item} />}
         keyExtractor={(item, index) => index.toString()}
         className="px-5"

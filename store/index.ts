@@ -18,15 +18,26 @@ export const useLocationStore = create<LocationStore>((set) => ({
     longitude: number;
     address: string;
   }) => {
+    console.log("[LocationStore] 📍 setUserLocation called with:", {
+      latitude,
+      longitude,
+      address,
+    });
+
     set(() => ({
       userLatitude: latitude,
       userLongitude: longitude,
       userAddress: address,
     }));
 
+    console.log("[LocationStore] ✅ User location updated in store");
+
     // if driver is selected and now new location is set, clear the selected driver
     const { selectedDriver, clearSelectedDriver } = useDriverStore.getState();
-    if (selectedDriver) clearSelectedDriver();
+    if (selectedDriver) {
+      console.log("[LocationStore] 🔄 Clearing selected driver due to location change");
+      clearSelectedDriver();
+    }
   },
 
   setDestinationLocation: ({
@@ -38,23 +49,45 @@ export const useLocationStore = create<LocationStore>((set) => ({
     longitude: number;
     address: string;
   }) => {
+    console.log("[LocationStore] 🎯 setDestinationLocation called with:", {
+      latitude,
+      longitude,
+      address,
+    });
+
     set(() => ({
       destinationLatitude: latitude,
       destinationLongitude: longitude,
       destinationAddress: address,
     }));
 
+    console.log("[LocationStore] ✅ Destination location updated in store");
+
     // if driver is selected and now new location is set, clear the selected driver
     const { selectedDriver, clearSelectedDriver } = useDriverStore.getState();
-    if (selectedDriver) clearSelectedDriver();
+    if (selectedDriver) {
+      console.log("[LocationStore] 🔄 Clearing selected driver due to location change");
+      clearSelectedDriver();
+    }
   },
 }));
 
 export const useDriverStore = create<DriverStore>((set) => ({
   drivers: [] as MarkerData[],
   selectedDriver: null,
-  setSelectedDriver: (driverId: number) =>
-    set(() => ({ selectedDriver: driverId })),
-  setDrivers: (drivers: MarkerData[]) => set(() => ({ drivers })),
-  clearSelectedDriver: () => set(() => ({ selectedDriver: null })),
+  setSelectedDriver: (driverId: number) => {
+    console.log("[DriverStore] setSelectedDriver called with:", driverId);
+    const newState = { selectedDriver: driverId };
+    console.log("[DriverStore] Setting new state:", newState);
+    set(() => newState);
+    console.log("[DriverStore] State updated successfully");
+  },
+  setDrivers: (drivers: MarkerData[]) => {
+    console.log("[DriverStore] setDrivers called with:", drivers?.length, "drivers");
+    set(() => ({ drivers }));
+  },
+  clearSelectedDriver: () => {
+    console.log("[DriverStore] clearSelectedDriver called");
+    set(() => ({ selectedDriver: null }));
+  },
 }));

@@ -13,13 +13,17 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import GoogleTextInput from "@/components/GoogleTextInput";
-import Map from "@/components/Map";
-import RideCard from "@/components/RideCard";
-import { icons, images } from "@/constants";
-import { useFetch } from "@/lib/fetch";
-import { useLocationStore } from "@/store";
-import { Ride } from "@/types/type";
+import GoogleTextInput from "../../../components/GoogleTextInput";
+import Map from "../../../components/Map";
+import RideCard from "../../../components/RideCard";
+import { icons, images } from "../../../constants";
+import { useFetch } from "../../../lib/fetch";
+import { useLocationStore } from "../../../store";
+import { Ride } from "../../../types/type";
+import { HamburgerMenu } from "@/app/components/DrawerContent";
+import DrawerContent from "@/app/components/DrawerContent";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+// Hamburger menu and drawer are now in the layout
 
 const Home = () => {
   const { user } = useUser();
@@ -32,13 +36,36 @@ const Home = () => {
     router.replace("/(auth)/sign-in");
   };
 
+  // Function to handle mode changes from drawer
+  const handleModeChange = (newMode: 'customer' | 'driver' | 'business') => {
+    console.log('Mode changed from drawer to:', newMode);
+    setCurrentMode(newMode);
+    setDrawerVisible(false);
+  };
+    const [drawerVisible, setDrawerVisible] = useState(false);
+  const [currentMode, setCurrentMode] = useState<'customer' | 'driver' | 'business'>('customer');
+
+   useEffect(() => {
+    const loadCurrentMode = async () => {
+      try {
+        const savedMode = await AsyncStorage.getItem('user_mode') as 'customer' | 'driver' | 'business' | null;
+        if (savedMode) {
+          setCurrentMode(savedMode);
+        }
+      } catch (error) {
+        console.error('Error loading current mode:', error);
+      }
+    };
+    loadCurrentMode();
+  }, []);
+
   const [hasPermission, setHasPermission] = useState<boolean>(false);
 
   const {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(`/(api)/ride/${user?.id}`);
+  } = useFetch<Ride[]>(user?.id ? `/(api)/ride/${user.id}` : null);
 
   useEffect(() => {
     (async () => {
@@ -68,15 +95,18 @@ const Home = () => {
     longitude: number;
     address: string;
   }) => {
+    console.log("[Home] 🎯 handleDestinationPress called with:", location);
+
     setDestinationLocation(location);
 
-    router.push("/(root)/find-ride");
+    console.log("[Home] 🧭 Navigating to find-ride page");
+    router.push("/(root)/find-ride" as any);
   };
 
-  return (
+    return (
     <SafeAreaView className="bg-general-500">
       <FlatList
-        data={recentRides?.slice(0, 5)}
+        data={Array.isArray(recentRides) ? recentRides.slice(0, 5) : []}
         renderItem={({ item }) => <RideCard ride={item} />}
         keyExtractor={(item, index) => index.toString()}
         className="px-5"
@@ -104,6 +134,10 @@ const Home = () => {
         ListHeaderComponent={
           <>
             <View className="flex flex-row items-center justify-between my-5">
+                <HamburgerMenu onPress={() => {
+          console.log('Global hamburger menu pressed!');
+          setDrawerVisible(true);
+        }} />
               <Text className="text-2xl font-JakartaExtraBold">
                 Welcome {user?.firstName}👋
               </Text>
@@ -136,6 +170,15 @@ const Home = () => {
           </>
         }
       />
+       <DrawerContent
+      visible={drawerVisible}
+      currentMode={currentMode}
+      onModeChange={handleModeChange}
+      onClose={() => {
+        console.log('Global drawer closed');
+        setDrawerVisible(false);
+      }}
+    />
     </SafeAreaView>
   );
 };

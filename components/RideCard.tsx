@@ -5,6 +5,15 @@ import { formatDate, formatTime } from "@/lib/utils";
 import { Ride } from "@/types/type";
 
 const RideCard = ({ ride }: { ride: Ride }) => {
+  console.log("[RideCard] Rendering ride:", {
+    rideId: ride.ride_id,
+    origin: ride.origin_address,
+    destination: ride.destination_address,
+    originCoords: [ride.origin_latitude, ride.origin_longitude],
+    destinationCoords: [ride.destination_latitude, ride.destination_longitude],
+    paymentStatus: ride.payment_status,
+  });
+
   return (
     <View className="flex flex-row items-center justify-center bg-white rounded-lg shadow-sm shadow-neutral-300 mb-3">
       <View className="flex flex-col items-start justify-center p-3">

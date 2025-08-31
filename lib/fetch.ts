@@ -37,12 +37,19 @@ export const fetchAPI = async (url: string, options?: RequestInit) => {
   }
 };
 
-export const useFetch = <T>(url: string, options?: RequestInit) => {
+export const useFetch = <T>(url: string | null, options?: RequestInit) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchData = useCallback(async () => {
+    // Don't fetch if no URL provided
+    if (!url) {
+      setLoading(false);
+      setData([] as T); // Set empty array for array types
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -50,10 +57,21 @@ export const useFetch = <T>(url: string, options?: RequestInit) => {
       console.log("[useFetch] ▶ Fetch", { url, options });
       const result = await fetchAPI(url, options);
       console.log("[useFetch] ◀ Result", { url, result });
-      setData((result as any)?.data ?? (result as any));
+
+      // Handle error responses from API
+      if ((result as any)?.error) {
+        setError((result as any).error);
+        setData([] as T); // Set empty array for array types
+        return;
+      }
+
+      // Extract data or use result as fallback
+      const data = (result as any)?.data ?? (result as any);
+      setData(data);
     } catch (err) {
       console.error("[useFetch] ✖ Error", { url, err });
       setError((err as Error).message);
+      setData([] as T); // Set empty array for array types
     } finally {
       setLoading(false);
     }

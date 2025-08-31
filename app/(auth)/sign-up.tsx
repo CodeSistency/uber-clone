@@ -4,11 +4,11 @@ import { useState } from "react";
 import { Alert, Image, ScrollView, Text, View } from "react-native";
 import { ReactNativeModal } from "react-native-modal";
 
-import CustomButton from "@/components/CustomButton";
-import InputField from "@/components/InputField";
-import OAuth from "@/components/OAuth";
-import { icons, images } from "@/constants";
-import { fetchAPI } from "@/lib/fetch";
+import CustomButton from "../../components/CustomButton";
+import InputField from "../../components/InputField";
+import OAuth from "../../components/OAuth";
+import { icons, images } from "../../constants";
+import { fetchAPI } from "../../lib/fetch";
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -183,7 +183,7 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.push(`/(root)/(tabs)/home`)}
+              onPress={() => router.push(`/(root)/(tabs)/home` as any)}
               className="mt-5"
             />
           </View>

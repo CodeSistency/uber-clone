@@ -7,7 +7,7 @@ import "react-native-reanimated";
 import "react-native-get-random-values";
 import { LogBox } from "react-native";
 
-import { tokenCache } from "@/lib/auth";
+import { tokenCache } from "../lib/auth";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -50,6 +50,11 @@ export default function RootLayout() {
           <Stack.Screen name="index" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false }} />
           <Stack.Screen name="(root)" options={{ headerShown: false }} />
+          <Stack.Screen name="(business)" options={{ headerShown: false }} />
+          <Stack.Screen name="(driver)" options={{ headerShown: false }} />
+          <Stack.Screen name="(marketplace)" options={{ headerShown: false }} />
+          <Stack.Screen name="(wallet)" options={{ headerShown: false }} />
+          <Stack.Screen name="(emergency)" options={{ headerShown: false }} />
           <Stack.Screen name="+not-found" />
         </Stack>
       </ClerkLoaded>

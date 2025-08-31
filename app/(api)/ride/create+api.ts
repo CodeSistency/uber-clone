@@ -38,18 +38,32 @@ export async function POST(request: Request) {
 
     const sql = neon(`${process.env.DATABASE_URL}`);
 
+    console.log("[API] Creating ride with data:", {
+      origin_address,
+      destination_address,
+      origin_latitude,
+      origin_longitude,
+      destination_latitude,
+      destination_longitude,
+      ride_time,
+      fare_price,
+      payment_status,
+      driver_id,
+      user_id,
+    });
+
     const response = await sql`
-      INSERT INTO rides ( 
-          origin_address, 
-          destination_address, 
-          origin_latitude, 
-          origin_longitude, 
-          destination_latitude, 
-          destination_longitude, 
-          ride_time, 
-          fare_price, 
-          payment_status, 
-          driver_id, 
+      INSERT INTO rides (
+          origin_address,
+          destination_address,
+          origin_latitude,
+          origin_longitude,
+          destination_latitude,
+          destination_longitude,
+          ride_time,
+          fare_price,
+          payment_status,
+          driver_id,
           user_id
       ) VALUES (
           ${origin_address},
@@ -66,6 +80,8 @@ export async function POST(request: Request) {
       )
       RETURNING *;
     `;
+
+    console.log("[API] Ride created successfully:", response[0]);
 
     return Response.json({ data: response[0] }, { status: 201 });
   } catch (error) {

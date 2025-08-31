@@ -1,7 +1,10 @@
 import { Tabs } from "expo-router";
-import { Image, ImageSourcePropType, View } from "react-native";
-
-import { icons } from "@/constants";
+import { Image, ImageSourcePropType, View, Text } from "react-native";
+import { useState, useEffect } from "react";
+import { useUser } from "@clerk/clerk-expo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import DrawerContent, { HamburgerMenu } from "../../components/DrawerContent";
+import { icons } from "../../../constants";
 
 const TabIcon = ({
   source,
@@ -27,8 +30,18 @@ const TabIcon = ({
 );
 
 export default function Layout() {
+  const { user } = useUser();
+  
+
+  // Load current mode from AsyncStorage
+ 
+
   return (
-    <Tabs
+    <>
+      {/* Global Header */}
+    
+
+      <Tabs
       initialRouteName="home"
       screenOptions={{
         tabBarActiveTintColor: "white",
@@ -91,5 +104,9 @@ export default function Layout() {
         }}
       />
     </Tabs>
+
+
+
+  </>
   );
 }

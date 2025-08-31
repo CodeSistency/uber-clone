@@ -4,8 +4,8 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import PagerView from "react-native-pager-view";
 
-import CustomButton from "@/components/CustomButton";
-import { onboarding } from "@/constants";
+import CustomButton from "../../components/CustomButton";
+import { onboarding } from "../../constants";
 
 const Home = () => {
   const pagerRef = useRef<PagerView>(null);

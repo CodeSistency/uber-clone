@@ -6,9 +6,25 @@ import { formatTime } from "@/lib/utils";
 import { DriverCardProps } from "@/types/type";
 
 const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
+  console.log("[DriverCard] Rendering driver:", {
+    driverId: item.id,
+    driverTitle: item.title,
+    currentlySelected: selected,
+    isThisSelected: selected === item.id,
+  });
+
+  const handlePress = () => {
+    console.log("[DriverCard] Driver pressed:", {
+      driverId: item.id,
+      driverTitle: item.title,
+      callingSetSelected: typeof setSelected,
+    });
+    setSelected();
+  };
+
   return (
     <TouchableOpacity
-      onPress={setSelected}
+      onPress={handlePress}
       className={`${
         selected === item.id ? "bg-general-600" : "bg-white"
       } flex flex-row items-center justify-between py-5 px-3 rounded-xl`}
