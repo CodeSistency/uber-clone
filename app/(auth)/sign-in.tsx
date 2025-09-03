@@ -7,6 +7,7 @@ import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
 import OAuth from "../../components/OAuth";
 import { icons, images } from "../../constants";
+import { linkUserWithClerk, initializeUserAuth } from "../../lib/auth";
 
 const SignIn = () => {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -26,6 +27,16 @@ const SignIn = () => {
       });
 
       if (signInAttempt.status === "complete") {
+        // Initialize user authentication with backend
+        const authResult = await initializeUserAuth({
+          email: form.email,
+        });
+
+        if (!authResult.success) {
+          console.warn("Failed to initialize user auth:", authResult.error);
+          // Don't block sign-in for this, just log the warning
+        }
+
         await setActive({ session: signInAttempt.createdSessionId });
         router.replace("/(root)/(tabs)/home");
       } else {
@@ -35,7 +46,10 @@ const SignIn = () => {
       }
     } catch (err: any) {
       console.log(JSON.stringify(err, null, 2));
-      Alert.alert("Error", err.errors[0].longMessage);
+      const errorMessage = err.errors?.[0]?.longMessage ||
+                          err.message ||
+                          "An error occurred during sign in";
+      Alert.alert("Error", errorMessage);
     }
   }, [isLoaded, form]);
 

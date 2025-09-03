@@ -8,7 +8,7 @@ import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
 import OAuth from "../../components/OAuth";
 import { icons, images } from "../../constants";
-import { fetchAPI } from "../../lib/fetch";
+import { createUserWithBackend, linkUserWithClerk, initializeUserAuth } from "../../lib/auth";
 
 const SignUp = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -27,39 +27,65 @@ const SignUp = () => {
 
   const onSignUpPress = async () => {
     if (!isLoaded) return;
+
     try {
+      // First, try to create user in backend
+      const backendResult = await createUserWithBackend({
+        name: form.name,
+        email: form.email,
+      });
+
+      if (!backendResult.success) {
+        // If backend creation fails due to existing email, that's okay for Clerk
+        if (backendResult.statusCode !== 409) {
+          Alert.alert("Error", backendResult.message);
+          return;
+        }
+      }
+
+      // Proceed with Clerk authentication
       await signUp.create({
         emailAddress: form.email,
         password: form.password,
       });
+
       await signUp.prepareEmailAddressVerification({ strategy: "email_code" });
+
       setVerification({
         ...verification,
         state: "pending",
       });
     } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
       console.log(JSON.stringify(err, null, 2));
-      Alert.alert("Error", err.errors[0].longMessage);
+      const errorMessage = err.errors?.[0]?.longMessage ||
+                          err.message ||
+                          "An error occurred during sign up";
+      Alert.alert("Error", errorMessage);
     }
   };
+
   const onPressVerify = async () => {
     if (!isLoaded) return;
+
     try {
       const completeSignUp = await signUp.attemptEmailAddressVerification({
         code: verification.code,
       });
+
       if (completeSignUp.status === "complete") {
-        await fetchAPI("/(api)/user", {
-          method: "POST",
-          body: JSON.stringify({
-            name: form.name,
-            email: form.email,
-            clerkId: completeSignUp.createdUserId,
-          }),
+        // Initialize user authentication with backend
+        const authResult = await initializeUserAuth({
+          name: form.name,
+          email: form.email,
         });
+
+        if (!authResult.success) {
+          console.warn("Failed to initialize user auth:", authResult.error);
+          // Continue anyway since Clerk authentication succeeded
+        }
+
         await setActive({ session: completeSignUp.createdSessionId });
+
         setVerification({
           ...verification,
           state: "success",
@@ -72,11 +98,14 @@ const SignUp = () => {
         });
       }
     } catch (err: any) {
-      // See https://clerk.com/docs/custom-flows/error-handling
-      // for more info on error handling
+      console.log(JSON.stringify(err, null, 2));
+      const errorMessage = err.errors?.[0]?.longMessage ||
+                          err.response?.message ||
+                          "Verification failed. Please try again.";
+
       setVerification({
         ...verification,
-        error: err.errors[0].longMessage,
+        error: errorMessage,
         state: "failed",
       });
     }
