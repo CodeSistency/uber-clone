@@ -3,7 +3,8 @@ import { neon } from "@neondatabase/serverless";
 export async function POST(request: Request, { rideId }: { rideId: string }) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
-    const { ratedByClerkId, ratedClerkId, ratingValue, comment } = await request.json();
+    const { ratedByClerkId, ratedClerkId, ratingValue, comment } =
+      await request.json();
 
     if (!rideId || !ratedByClerkId || !ratedClerkId || !ratingValue) {
       return Response.json(

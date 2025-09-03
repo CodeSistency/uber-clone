@@ -25,27 +25,39 @@ const Map = () => {
 
   const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
   const [markers, setMarkers] = useState<MarkerData[]>([]);
-  const [routeCoordinates, setRouteCoordinates] = useState<Array<{latitude: number, longitude: number}>>([]);
+  const [routeCoordinates, setRouteCoordinates] = useState<
+    { latitude: number; longitude: number }[]
+  >([]);
 
   // Function to get route coordinates from Google Directions API
-  const getRouteCoordinates = async (originLat: number, originLng: number, destLat: number, destLng: number) => {
+  const getRouteCoordinates = async (
+    originLat: number,
+    originLng: number,
+    destLat: number,
+    destLng: number,
+  ) => {
     try {
-      console.log("[Map] Getting route coordinates:", { originLat, originLng, destLat, destLng });
+      console.log("[Map] Getting route coordinates:", {
+        originLat,
+        originLng,
+        destLat,
+        destLng,
+      });
 
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${originLat},${originLng}&destination=${destLat},${destLng}&key=${directionsAPI}`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const data = await response.json();
       console.log("[Map] Directions API response:", data.status);
 
-      if (data.status === 'OK' && data.routes && data.routes[0]) {
+      if (data.status === "OK" && data.routes && data.routes[0]) {
         const points = data.routes[0].overview_polyline.points;
         const decodedPoints = decodePolyline(points);
 
@@ -63,11 +75,14 @@ const Map = () => {
 
   // Function to decode Google Maps polyline
   const decodePolyline = (encoded: string) => {
-    const points: Array<{latitude: number, longitude: number}> = [];
-    let index = 0, lat = 0, lng = 0;
+    const points: { latitude: number; longitude: number }[] = [];
+    let index = 0,
+      lat = 0,
+      lng = 0;
 
     while (index < encoded.length) {
-      let shift = 0, result = 0;
+      let shift = 0,
+        result = 0;
       let byte;
 
       // Decode latitude
@@ -77,7 +92,7 @@ const Map = () => {
         shift += 5;
       } while (byte >= 0x20);
 
-      const deltaLat = ((result & 1) ? ~(result >> 1) : (result >> 1));
+      const deltaLat = result & 1 ? ~(result >> 1) : result >> 1;
       lat += deltaLat;
 
       shift = 0;
@@ -90,7 +105,7 @@ const Map = () => {
         shift += 5;
       } while (byte >= 0x20);
 
-      const deltaLng = ((result & 1) ? ~(result >> 1) : (result >> 1));
+      const deltaLng = result & 1 ? ~(result >> 1) : result >> 1;
       lng += deltaLng;
 
       points.push({
@@ -104,9 +119,19 @@ const Map = () => {
 
   // Get route when origin or destination changes
   useEffect(() => {
-    if (userLatitude && userLongitude && destinationLatitude && destinationLongitude) {
+    if (
+      userLatitude &&
+      userLongitude &&
+      destinationLatitude &&
+      destinationLongitude
+    ) {
       console.log("[Map] Origin and destination available, getting route...");
-      getRouteCoordinates(userLatitude, userLongitude, destinationLatitude, destinationLongitude);
+      getRouteCoordinates(
+        userLatitude,
+        userLongitude,
+        destinationLatitude,
+        destinationLongitude,
+      );
     } else {
       console.log("[Map] Clearing route - missing coordinates");
       setRouteCoordinates([]);

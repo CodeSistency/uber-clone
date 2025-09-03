@@ -3,9 +3,9 @@ import { neon } from "@neondatabase/serverless";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const tierId = searchParams.get('tierId');
-    const estimatedMinutes = searchParams.get('minutes');
-    const estimatedMiles = searchParams.get('miles');
+    const tierId = searchParams.get("tierId");
+    const estimatedMinutes = searchParams.get("minutes");
+    const estimatedMiles = searchParams.get("miles");
 
     if (!tierId || !estimatedMinutes || !estimatedMiles) {
       return Response.json(
@@ -30,7 +30,8 @@ export async function GET(request: Request) {
     const minutes = parseFloat(estimatedMinutes);
     const miles = parseFloat(estimatedMiles);
 
-    const estimatedFare = baseFare + (perMinuteRate * minutes) + (perMileRate * miles);
+    const estimatedFare =
+      baseFare + perMinuteRate * minutes + perMileRate * miles;
 
     return Response.json({
       data: {
@@ -40,8 +41,8 @@ export async function GET(request: Request) {
         perMileRate,
         estimatedMinutes: minutes,
         estimatedMiles: miles,
-        totalFare: estimatedFare
-      }
+        totalFare: estimatedFare,
+      },
     });
   } catch (error) {
     console.error("Error calculating ride estimate:", error);

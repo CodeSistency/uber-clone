@@ -18,6 +18,7 @@ This document provides complete SQL scripts to migrate your Uber clone database 
 These are the tables from your existing schema:
 
 ### Users Table
+
 ```sql
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
@@ -28,6 +29,7 @@ CREATE TABLE users (
 ```
 
 ### Rides Table (Base Structure)
+
 ```sql
 CREATE TABLE rides (
     ride_id SERIAL PRIMARY KEY,
@@ -47,6 +49,7 @@ CREATE TABLE rides (
 ```
 
 ### Drivers Table (Base Structure)
+
 ```sql
 CREATE TABLE drivers (
     id SERIAL PRIMARY KEY,
@@ -64,6 +67,7 @@ CREATE TABLE drivers (
 ## New Feature Tables
 
 ### Driver Management
+
 ```sql
 -- Add new columns to existing drivers table
 ALTER TABLE drivers
@@ -84,6 +88,7 @@ CREATE TABLE driver_documents (
 ```
 
 ### Real-time Features
+
 ```sql
 -- Create chat_messages table
 CREATE TABLE chat_messages (
@@ -96,6 +101,7 @@ CREATE TABLE chat_messages (
 ```
 
 ### Enhanced Booking & Payments
+
 ```sql
 -- Create ride_tiers table
 CREATE TABLE ride_tiers (
@@ -147,6 +153,7 @@ CREATE TABLE wallet_transactions (
 ```
 
 ### Safety & Ratings
+
 ```sql
 -- Create ratings table
 CREATE TABLE ratings (

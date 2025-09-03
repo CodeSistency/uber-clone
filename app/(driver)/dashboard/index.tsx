@@ -1,64 +1,77 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
-import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import CustomButton from '../../../components/CustomButton';
-import DrawerContent, { HamburgerMenu } from '../../components/DrawerContent';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router } from "expo-router";
+import { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import CustomButton from "../../../components/CustomButton";
+import DrawerContent, { HamburgerMenu } from "../../components/DrawerContent";
 
 // Dummy data for testing
 const DUMMY_STATS = {
   todayEarnings: 45.75,
   todayTrips: 3,
   rating: 4.8,
-  onlineStatus: false
+  onlineStatus: false,
 };
 
 const DUMMY_ACTIVE_RIDE = {
-  id: 'RIDE_001',
-  pickupAddress: '123 Main St, Downtown',
-  dropoffAddress: '456 Broadway Ave, Uptown',
-  passengerName: 'John Doe',
-  fare: 18.50,
-  distance: 3.2
+  id: "RIDE_001",
+  pickupAddress: "123 Main St, Downtown",
+  dropoffAddress: "456 Broadway Ave, Uptown",
+  passengerName: "John Doe",
+  fare: 18.5,
+  distance: 3.2,
 };
 
 const DriverDashboard = () => {
   const [isOnline, setIsOnline] = useState(DUMMY_STATS.onlineStatus);
   const [hasActiveRide] = useState(true); // For testing purposes
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [currentMode, setCurrentMode] = useState<'customer' | 'driver' | 'business'>('driver');
+  const [currentMode, setCurrentMode] = useState<
+    "customer" | "driver" | "business"
+  >("driver");
 
   // Load current mode from AsyncStorage
   useEffect(() => {
     const loadCurrentMode = async () => {
       try {
-        const savedMode = await AsyncStorage.getItem('user_mode') as 'customer' | 'driver' | 'business' | null;
+        const savedMode = (await AsyncStorage.getItem("user_mode")) as
+          | "customer"
+          | "driver"
+          | "business"
+          | null;
         if (savedMode) {
           setCurrentMode(savedMode);
         }
       } catch (error) {
-        console.error('Error loading current mode:', error);
+        console.error("Error loading current mode:", error);
       }
     };
     loadCurrentMode();
   }, []);
 
   // Function to handle mode changes from drawer
-  const handleModeChange = (newMode: 'customer' | 'driver' | 'business') => {
-    console.log('Mode changed from driver dashboard to:', newMode);
+  const handleModeChange = (newMode: "customer" | "driver" | "business") => {
+    console.log("Mode changed from driver dashboard to:", newMode);
     setCurrentMode(newMode);
     setDrawerVisible(false);
   };
 
   const handleToggleOnline = () => {
     setIsOnline(!isOnline);
-    Alert.alert('Status Updated', `You are now ${!isOnline ? 'online' : 'offline'}`);
+    Alert.alert(
+      "Status Updated",
+      `You are now ${!isOnline ? "online" : "offline"}`,
+    );
   };
 
   const handleAcceptRide = () => {
     // For now, just show an alert since the active ride view doesn't exist yet
-    Alert.alert('Ride Started', 'You have started the ride. Navigation would begin now.');
+    Alert.alert(
+      "Ride Started",
+      "You have started the ride. Navigation would begin now.",
+    );
   };
 
   return (
@@ -82,10 +95,10 @@ const DriverDashboard = () => {
         </View>
         <TouchableOpacity
           onPress={handleToggleOnline}
-          className={`px-4 py-2 rounded-full ${isOnline ? 'bg-success-500' : 'bg-danger-500'}`}
+          className={`px-4 py-2 rounded-full ${isOnline ? "bg-success-500" : "bg-danger-500"}`}
         >
           <Text className="text-white font-JakartaBold">
-            {isOnline ? 'Online' : 'Offline'}
+            {isOnline ? "Online" : "Offline"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -96,7 +109,7 @@ const DriverDashboard = () => {
         currentMode={currentMode}
         onModeChange={handleModeChange}
         onClose={() => {
-          console.log('Driver drawer closed');
+          console.log("Driver drawer closed");
           setDrawerVisible(false);
         }}
       />
@@ -135,22 +148,30 @@ const DriverDashboard = () => {
             </Text>
             <View className="mb-3">
               <Text className="text-sm text-secondary-600 mb-1">From</Text>
-              <Text className="font-JakartaMedium">{DUMMY_ACTIVE_RIDE.pickupAddress}</Text>
+              <Text className="font-JakartaMedium">
+                {DUMMY_ACTIVE_RIDE.pickupAddress}
+              </Text>
             </View>
             <View className="mb-3">
               <Text className="text-sm text-secondary-600 mb-1">To</Text>
-              <Text className="font-JakartaMedium">{DUMMY_ACTIVE_RIDE.dropoffAddress}</Text>
+              <Text className="font-JakartaMedium">
+                {DUMMY_ACTIVE_RIDE.dropoffAddress}
+              </Text>
             </View>
             <View className="flex-row justify-between items-center">
               <View>
                 <Text className="text-sm text-secondary-600">Passenger</Text>
-                <Text className="font-JakartaBold">{DUMMY_ACTIVE_RIDE.passengerName}</Text>
+                <Text className="font-JakartaBold">
+                  {DUMMY_ACTIVE_RIDE.passengerName}
+                </Text>
               </View>
               <View className="items-end">
                 <Text className="text-lg font-JakartaExtraBold text-success-500">
                   ${DUMMY_ACTIVE_RIDE.fare}
                 </Text>
-                <Text className="text-sm text-secondary-600">{DUMMY_ACTIVE_RIDE.distance} mi</Text>
+                <Text className="text-sm text-secondary-600">
+                  {DUMMY_ACTIVE_RIDE.distance} mi
+                </Text>
               </View>
             </View>
             <CustomButton
@@ -166,7 +187,7 @@ const DriverDashboard = () => {
           <Text className="text-lg font-JakartaBold mb-3">Quick Actions</Text>
           <View className="space-y-3">
             <TouchableOpacity
-              onPress={() => router.push('/(driver)/ride-requests' as any)}
+              onPress={() => router.push("/(driver)/ride-requests" as any)}
               className="flex-row items-center p-3 bg-general-500 rounded-lg"
             >
               <Text className="text-lg mr-3">🚕</Text>
@@ -174,7 +195,7 @@ const DriverDashboard = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.push('/(driver)/earnings' as any)}
+              onPress={() => router.push("/(driver)/earnings" as any)}
               className="flex-row items-center p-3 bg-general-500 rounded-lg"
             >
               <Text className="text-lg mr-3">💰</Text>
@@ -182,7 +203,7 @@ const DriverDashboard = () => {
             </TouchableOpacity>
 
             <TouchableOpacity
-              onPress={() => router.push('/(driver)/profile' as any)}
+              onPress={() => router.push("/(driver)/profile" as any)}
               className="flex-row items-center p-3 bg-general-500 rounded-lg"
             >
               <Text className="text-lg mr-3">👤</Text>
@@ -199,7 +220,9 @@ const DriverDashboard = () => {
               <Text className="text-white font-JakartaBold">Rides Only</Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex-1 ml-2 p-3 bg-general-500 rounded-lg items-center">
-              <Text className="text-secondary-700 font-JakartaBold">All Services</Text>
+              <Text className="text-secondary-700 font-JakartaBold">
+                All Services
+              </Text>
             </TouchableOpacity>
           </View>
         </View>

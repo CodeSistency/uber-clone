@@ -3,13 +3,8 @@ import { neon } from "@neondatabase/serverless";
 export async function POST(request: Request) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
-    const {
-      userClerkId,
-      rideId,
-      location,
-      emergencyType,
-      message
-    } = await request.json();
+    const { userClerkId, rideId, location, emergencyType, message } =
+      await request.json();
 
     if (!userClerkId || !location) {
       return Response.json(
@@ -39,7 +34,7 @@ export async function POST(request: Request) {
       location: location,
       timestamp: new Date().toISOString(),
       emergencyType: emergencyType || "general",
-      userMessage: message || null
+      userMessage: message || null,
     };
 
     // If there's an active ride, notify the driver

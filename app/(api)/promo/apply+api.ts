@@ -20,7 +20,10 @@ export async function POST(request: Request) {
     `;
 
     if (promotion.length === 0) {
-      return Response.json({ error: "Invalid or expired promo code" }, { status: 400 });
+      return Response.json(
+        { error: "Invalid or expired promo code" },
+        { status: 400 },
+      );
     }
 
     const promo = promotion[0];
@@ -42,8 +45,8 @@ export async function POST(request: Request) {
         discountAmount,
         discountPercentage,
         originalAmount: parseFloat(rideAmount),
-        finalAmount
-      }
+        finalAmount,
+      },
     });
   } catch (error) {
     console.error("Error applying promo code:", error);

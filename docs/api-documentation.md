@@ -11,6 +11,7 @@ This document provides a detailed overview of all the API endpoints available in
 Creates a new user record in the database after they have successfully signed up via Clerk.
 
 **Request Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -20,6 +21,7 @@ Creates a new user record in the database after they have successfully signed up
 ```
 
 **Responses:**
+
 - `201 Created`: User created successfully.
   ```json
   {
@@ -45,6 +47,7 @@ Creates a new user record in the database after they have successfully signed up
 Retrieves a list of all drivers from the database.
 
 **Responses:**
+
 - `200 OK`: Returns an array of driver objects.
   ```json
   {
@@ -53,7 +56,7 @@ Retrieves a list of all drivers from the database.
         "id": 1,
         "first_name": "Alex",
         "last_name": "Rodriguez",
-        "car_model": "Toyota Camry",
+        "car_model": "Toyota Camry"
         // ... other driver fields
       }
     ]
@@ -66,6 +69,7 @@ Retrieves a list of all drivers from the database.
 Registers a new driver in the system.
 
 **Request Body:**
+
 ```json
 {
   "firstName": "Alex",
@@ -81,6 +85,7 @@ Registers a new driver in the system.
 ```
 
 **Responses:**
+
 - `201 Created`: Driver created successfully.
 - `400 Bad Request`: Missing required fields.
 - `500 Internal Server Error`: Database error.
@@ -90,6 +95,7 @@ Registers a new driver in the system.
 Uploads a verification document for a driver.
 
 **Request Body:**
+
 ```json
 {
   "driverId": 1,
@@ -99,6 +105,7 @@ Uploads a verification document for a driver.
 ```
 
 **Responses:**
+
 - `201 Created`: Document uploaded successfully.
 - `400 Bad Request`: Missing required fields.
 - `500 Internal Server Error`: Database error.
@@ -108,9 +115,11 @@ Uploads a verification document for a driver.
 Updates a driver's availability status.
 
 **Path Parameters:**
+
 - `driverId`: The unique ID of the driver.
 
 **Request Body:**
+
 ```json
 {
   "status": "online"
@@ -118,6 +127,7 @@ Updates a driver's availability status.
 ```
 
 **Responses:**
+
 - `200 OK`: Status updated successfully.
 - `400 Bad Request`: Missing or invalid status.
 - `404 Not Found`: Driver not found.
@@ -128,6 +138,7 @@ Updates a driver's availability status.
 Fetches all available ride requests for an online driver.
 
 **Responses:**
+
 - `200 OK`: Returns an array of available ride requests.
   ```json
   {
@@ -137,7 +148,7 @@ Fetches all available ride requests for an online driver.
         "origin_address": "555 5th Ave, New York, NY",
         "destination_address": "888 Madison Ave, New York, NY",
         "fare_price": "22.50",
-        "tier_name": "Premium",
+        "tier_name": "Premium"
         // ... other ride fields
       }
     ]
@@ -154,12 +165,13 @@ Fetches all available ride requests for an online driver.
 Creates a new ride record.
 
 **Request Body:**
+
 ```json
 {
   "origin_address": "123 Main St, New York, NY",
   "destination_address": "456 Broadway, New York, NY",
   "origin_latitude": 40.7128,
-  "origin_longitude": -74.0060,
+  "origin_longitude": -74.006,
   "destination_latitude": 40.7589,
   "destination_longitude": -73.9851,
   "ride_time": 25,
@@ -171,6 +183,7 @@ Creates a new ride record.
 ```
 
 **Responses:**
+
 - `201 Created`: Ride created successfully.
 - `400 Bad Request`: Missing required fields.
 - `500 Internal Server Error`: Database error.
@@ -180,9 +193,11 @@ Creates a new ride record.
 Retrieves the ride history for a specific user.
 
 **Path Parameters:**
+
 - `id`: The Clerk ID of the user (`user_...`).
 
 **Responses:**
+
 - `200 OK`: Returns an array of the user's past rides.
 - `400 Bad Request`: User ID is missing.
 - `500 Internal Server Error`: Database error.
@@ -192,12 +207,13 @@ Retrieves the ride history for a specific user.
 Schedules a ride for a future date and time.
 
 **Request Body:**
+
 ```json
 {
   "origin_address": "555 5th Ave, New York, NY",
   "destination_address": "888 Madison Ave, New York, NY",
   "origin_latitude": 40.7549,
-  "origin_longitude": -73.9840,
+  "origin_longitude": -73.984,
   "destination_latitude": 40.7744,
   "destination_longitude": -73.9653,
   "ride_time": 30,
@@ -208,6 +224,7 @@ Schedules a ride for a future date and time.
 ```
 
 **Responses:**
+
 - `201 Created`: Ride scheduled successfully.
 - `400 Bad Request`: Missing fields or invalid tier ID.
 - `500 Internal Server Error`: Database error.
@@ -217,6 +234,7 @@ Schedules a ride for a future date and time.
 Provides a fare estimate based on route and ride tier.
 
 **Query Parameters:**
+
 - `tierId`: The ID of the `ride_tier`.
 - `minutes`: Estimated duration of the ride.
 - `miles`: Estimated distance of the ride.
@@ -224,6 +242,7 @@ Provides a fare estimate based on route and ride tier.
 **Example URL:** `/api/ride/estimate?tierId=1&minutes=20&miles=5`
 
 **Responses:**
+
 - `200 OK`: Returns the fare calculation.
   ```json
   {
@@ -246,9 +265,11 @@ Provides a fare estimate based on route and ride tier.
 Allows a driver to accept an available ride request.
 
 **Path Parameters:**
+
 - `rideId`: The unique ID of the ride.
 
 **Request Body:**
+
 ```json
 {
   "driverId": 1
@@ -256,6 +277,7 @@ Allows a driver to accept an available ride request.
 ```
 
 **Responses:**
+
 - `200 OK`: Ride accepted successfully.
 - `400 Bad Request`: Missing fields.
 - `404 Not Found`: Ride is not available or doesn't exist.
@@ -267,9 +289,11 @@ Allows a driver to accept an available ride request.
 Submits a rating for a completed ride.
 
 **Path Parameters:**
+
 - `rideId`: The unique ID of the ride.
 
 **Request Body:**
+
 ```json
 {
   "ratedByClerkId": "user_2abc123def456",
@@ -280,6 +304,7 @@ Submits a rating for a completed ride.
 ```
 
 **Responses:**
+
 - `201 Created`: Rating submitted successfully.
 - `400 Bad Request`: Missing fields or invalid rating value.
 - `404 Not Found`: Ride not found.
@@ -294,11 +319,13 @@ Submits a rating for a completed ride.
 Retrieves a user's wallet balance and transaction history. Creates a wallet if one doesn't exist.
 
 **Query Parameters:**
+
 - `userId`: The Clerk ID of the user.
 
 **Example URL:** `/api/user/wallet?userId=user_2abc123def456`
 
 **Responses:**
+
 - `200 OK`: Returns wallet and transaction data.
 - `400 Bad Request`: User ID is missing.
 - `500 Internal Server Error`: Database error.
@@ -308,15 +335,17 @@ Retrieves a user's wallet balance and transaction history. Creates a wallet if o
 Adds funds to a user's wallet.
 
 **Request Body:**
+
 ```json
 {
   "userClerkId": "user_2abc123def456",
-  "amount": 50.00,
+  "amount": 50.0,
   "description": "Wallet top-up"
 }
 ```
 
 **Responses:**
+
 - `200 OK`: Funds added successfully.
 - `400 Bad Request`: Missing fields.
 - `500 Internal Server Error`: Database error.
@@ -326,14 +355,16 @@ Adds funds to a user's wallet.
 Applies a promo code and calculates the discount.
 
 **Request Body:**
+
 ```json
 {
   "promoCode": "WELCOME10",
-  "rideAmount": 25.00
+  "rideAmount": 25.0
 }
 ```
 
 **Responses:**
+
 - `200 OK`: Returns discount details.
   ```json
   {
@@ -341,8 +372,8 @@ Applies a promo code and calculates the discount.
       "promoCode": "WELCOME10",
       "discountAmount": 2.5,
       "discountPercentage": 10,
-      "originalAmount": 25.00,
-      "finalAmount": 22.50
+      "originalAmount": 25.0,
+      "finalAmount": 22.5
     }
   }
   ```
@@ -358,11 +389,13 @@ Applies a promo code and calculates the discount.
 Retrieves a user's emergency contacts.
 
 **Query Parameters:**
+
 - `userId`: The Clerk ID of the user.
 
 **Example URL:** `/api/user/emergency-contacts?userId=user_2abc123def456`
 
 **Responses:**
+
 - `200 OK`: Returns an array of contacts.
 - `400 Bad Request`: User ID is missing.
 - `500 Internal Server Error`: Database error.
@@ -372,6 +405,7 @@ Retrieves a user's emergency contacts.
 Adds a new emergency contact for a user.
 
 **Request Body:**
+
 ```json
 {
   "userClerkId": "user_2abc123def456",
@@ -381,6 +415,7 @@ Adds a new emergency contact for a user.
 ```
 
 **Responses:**
+
 - `201 Created`: Contact added successfully.
 - `400 Bad Request`: Missing required fields.
 - `500 Internal Server Error`: Database error.
@@ -390,9 +425,11 @@ Adds a new emergency contact for a user.
 Retrieves the chat history for a specific ride.
 
 **Path Parameters:**
+
 - `rideId`: The unique ID of the ride.
 
 **Responses:**
+
 - `200 OK`: Returns an array of chat messages.
 - `400 Bad Request`: Ride ID is missing.
 - `500 Internal Server Error`: Database error.
@@ -402,9 +439,11 @@ Retrieves the chat history for a specific ride.
 Sends a new message in the chat for a ride.
 
 **Path Parameters:**
+
 - `rideId`: The unique ID of the ride.
 
 **Request Body:**
+
 ```json
 {
   "senderClerkId": "user_2abc123def456",
@@ -413,6 +452,7 @@ Sends a new message in the chat for a ride.
 ```
 
 **Responses:**
+
 - `201 Created`: Message sent successfully.
 - `400 Bad Request`: Missing fields.
 - `500 Internal Server Error`: Database error.
@@ -422,13 +462,14 @@ Sends a new message in the chat for a ride.
 Triggers an emergency SOS alert. (Note: This is a simulation endpoint).
 
 **Request Body:**
+
 ```json
 {
   "userClerkId": "user_2abc123def456",
   "rideId": 1,
   "location": {
     "latitude": 40.7128,
-    "longitude": -74.0060
+    "longitude": -74.006
   },
   "emergencyType": "medical",
   "message": "I need help."
@@ -436,6 +477,7 @@ Triggers an emergency SOS alert. (Note: This is a simulation endpoint).
 ```
 
 **Responses:**
+
 - `200 OK`: Alert sent successfully.
 - `400 Bad Request`: Missing required fields.
 - `500 Internal Server Error`: Database error.
@@ -449,6 +491,7 @@ Triggers an emergency SOS alert. (Note: This is a simulation endpoint).
 Creates a Stripe payment intent.
 
 **Request Body:**
+
 ```json
 {
   "name": "John Doe",
@@ -458,6 +501,7 @@ Creates a Stripe payment intent.
 ```
 
 **Responses:**
+
 - `200 OK`: Returns payment intent details.
   ```json
   {
@@ -473,6 +517,7 @@ Creates a Stripe payment intent.
 Confirms a Stripe payment.
 
 **Request Body:**
+
 ```json
 {
   "payment_method_id": "pm_...",
@@ -482,6 +527,7 @@ Confirms a Stripe payment.
 ```
 
 **Responses:**
+
 - `200 OK`: Payment successful.
 - `400 Bad Request`: Missing required fields.
 - `500 Internal Server Error`: Stripe error.

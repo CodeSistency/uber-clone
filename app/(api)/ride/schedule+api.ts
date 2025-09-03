@@ -51,7 +51,7 @@ export async function POST(request: Request) {
     const perMileRate = parseFloat(tier[0].per_mile_rate);
 
     // Rough estimation: assume 20 minutes and 5 miles for calculation
-    const fare_price = baseFare + (perMinuteRate * 20) + (perMileRate * 5);
+    const fare_price = baseFare + perMinuteRate * 20 + perMileRate * 5;
 
     const response = await sql`
       INSERT INTO rides (

@@ -1,38 +1,44 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
-import { router } from 'expo-router';
-import { useUser } from '@clerk/clerk-expo';
-import { userModeStorage } from '../../lib/storage';
-import CustomButton from '../../../components/CustomButton';
-import InputField from '../../../components/InputField';
+import { useUser } from "@clerk/clerk-expo";
+import { router } from "expo-router";
+import { useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import CustomButton from "../../../components/CustomButton";
+import InputField from "../../../components/InputField";
+import { userModeStorage } from "../../lib/storage";
 
 const DriverRegister = () => {
   const { user } = useUser();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || '',
-    lastName: user?.lastName || '',
-    phoneNumber: '',
-    vehicleModel: '',
-    licensePlate: '',
-    vehicleYear: '',
-    vehicleColor: '',
-    serviceType: 'rides' as 'rides' | 'deliveries' | 'both'
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    phoneNumber: "",
+    vehicleModel: "",
+    licensePlate: "",
+    vehicleYear: "",
+    vehicleColor: "",
+    serviceType: "rides" as "rides" | "deliveries" | "both",
   });
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleServiceTypeSelect = (type: 'rides' | 'deliveries' | 'both') => {
-    setFormData(prev => ({ ...prev, serviceType: type }));
+  const handleServiceTypeSelect = (type: "rides" | "deliveries" | "both") => {
+    setFormData((prev) => ({ ...prev, serviceType: type }));
   };
 
   const handleSubmit = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.phoneNumber ||
-        !formData.vehicleModel || !formData.licensePlate) {
-      Alert.alert('Error', 'Please fill in all required fields');
+    if (
+      !formData.firstName ||
+      !formData.lastName ||
+      !formData.phoneNumber ||
+      !formData.vehicleModel ||
+      !formData.licensePlate
+    ) {
+      Alert.alert("Error", "Please fill in all required fields");
       return;
     }
 
@@ -40,7 +46,7 @@ const DriverRegister = () => {
 
     try {
       // TODO: Save driver registration to database
-      console.log('Driver registration data:', formData);
+      console.log("Driver registration data:", formData);
 
       // Save to storage using utility
       await userModeStorage.setDriverRegistered({
@@ -49,22 +55,22 @@ const DriverRegister = () => {
         phoneNumber: formData.phoneNumber,
         vehicleModel: formData.vehicleModel,
         licensePlate: formData.licensePlate,
-        serviceType: formData.serviceType
+        serviceType: formData.serviceType,
       });
 
       Alert.alert(
-        'Registration Successful!',
-        'Your driver application has been submitted. You will be notified once approved.',
+        "Registration Successful!",
+        "Your driver application has been submitted. You will be notified once approved.",
         [
           {
-            text: 'Continue',
-            onPress: () => router.replace('/driver/dashboard' as any)
-          }
-        ]
+            text: "Continue",
+            onPress: () => router.replace("/driver/dashboard" as any),
+          },
+        ],
       );
     } catch (error) {
-      console.error('Registration error:', error);
-      Alert.alert('Error', 'Failed to submit registration. Please try again.');
+      console.error("Registration error:", error);
+      Alert.alert("Error", "Failed to submit registration. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -93,21 +99,21 @@ const DriverRegister = () => {
             label="First Name"
             placeholder="Enter your first name"
             value={formData.firstName}
-            onChangeText={(value) => handleInputChange('firstName', value)}
+            onChangeText={(value) => handleInputChange("firstName", value)}
           />
 
           <InputField
             label="Last Name"
             placeholder="Enter your last name"
             value={formData.lastName}
-            onChangeText={(value) => handleInputChange('lastName', value)}
+            onChangeText={(value) => handleInputChange("lastName", value)}
           />
 
           <InputField
             label="Phone Number"
             placeholder="Enter your phone number"
             value={formData.phoneNumber}
-            onChangeText={(value) => handleInputChange('phoneNumber', value)}
+            onChangeText={(value) => handleInputChange("phoneNumber", value)}
             keyboardType="phone-pad"
           />
         </View>
@@ -122,21 +128,21 @@ const DriverRegister = () => {
             label="Vehicle Model"
             placeholder="e.g., Toyota Camry, Honda Civic"
             value={formData.vehicleModel}
-            onChangeText={(value) => handleInputChange('vehicleModel', value)}
+            onChangeText={(value) => handleInputChange("vehicleModel", value)}
           />
 
           <InputField
             label="License Plate"
             placeholder="Enter license plate number"
             value={formData.licensePlate}
-            onChangeText={(value) => handleInputChange('licensePlate', value)}
+            onChangeText={(value) => handleInputChange("licensePlate", value)}
           />
 
           <InputField
             label="Vehicle Year"
             placeholder="e.g., 2020"
             value={formData.vehicleYear}
-            onChangeText={(value) => handleInputChange('vehicleYear', value)}
+            onChangeText={(value) => handleInputChange("vehicleYear", value)}
             keyboardType="numeric"
           />
 
@@ -144,7 +150,7 @@ const DriverRegister = () => {
             label="Vehicle Color"
             placeholder="e.g., White, Black, Blue"
             value={formData.vehicleColor}
-            onChangeText={(value) => handleInputChange('vehicleColor', value)}
+            onChangeText={(value) => handleInputChange("vehicleColor", value)}
           />
         </View>
 
@@ -159,33 +165,51 @@ const DriverRegister = () => {
 
           <View className="space-y-3">
             {[
-              { key: 'rides', label: 'Rides Only', description: 'Transport passengers' },
-              { key: 'deliveries', label: 'Deliveries Only', description: 'Deliver food and packages' },
-              { key: 'both', label: 'Both Services', description: 'Rides and deliveries' }
+              {
+                key: "rides",
+                label: "Rides Only",
+                description: "Transport passengers",
+              },
+              {
+                key: "deliveries",
+                label: "Deliveries Only",
+                description: "Deliver food and packages",
+              },
+              {
+                key: "both",
+                label: "Both Services",
+                description: "Rides and deliveries",
+              },
             ].map((option) => (
               <TouchableOpacity
                 key={option.key}
                 onPress={() => handleServiceTypeSelect(option.key as any)}
                 className={`p-4 rounded-xl border-2 ${
                   formData.serviceType === option.key
-                    ? 'border-primary-500 bg-primary-500/5'
-                    : 'border-general-500'
+                    ? "border-primary-500 bg-primary-500/5"
+                    : "border-general-500"
                 }`}
               >
                 <View className="flex-row items-center">
-                  <View className={`w-5 h-5 rounded-full border-2 mr-3 ${
-                    formData.serviceType === option.key
-                      ? 'border-primary-500 bg-primary-500'
-                      : 'border-secondary-600'
-                  }`}>
+                  <View
+                    className={`w-5 h-5 rounded-full border-2 mr-3 ${
+                      formData.serviceType === option.key
+                        ? "border-primary-500 bg-primary-500"
+                        : "border-secondary-600"
+                    }`}
+                  >
                     {formData.serviceType === option.key && (
                       <View className="w-full h-full rounded-full bg-white scale-50" />
                     )}
                   </View>
                   <View className="flex-1">
-                    <Text className={`font-JakartaBold ${
-                      formData.serviceType === option.key ? 'text-primary-500' : 'text-secondary-700'
-                    }`}>
+                    <Text
+                      className={`font-JakartaBold ${
+                        formData.serviceType === option.key
+                          ? "text-primary-500"
+                          : "text-secondary-700"
+                      }`}
+                    >
                       {option.label}
                     </Text>
                     <Text className="text-secondary-600 font-JakartaMedium text-sm">

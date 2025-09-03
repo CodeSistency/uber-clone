@@ -1,8 +1,8 @@
 import { router } from "expo-router";
 import { useRef, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import PagerView from "react-native-pager-view";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "../../components/CustomButton";
 import { onboarding } from "../../constants";
@@ -32,7 +32,10 @@ const Home = () => {
           onPageSelected={(e) => setActiveIndex(e.nativeEvent.position)}
         >
           {onboarding.map((item) => (
-            <View key={item.id} className="flex items-center justify-center p-5">
+            <View
+              key={item.id}
+              className="flex items-center justify-center p-5"
+            >
               <Image
                 source={item.image}
                 className="w-full h-[300px]"

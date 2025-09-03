@@ -3,13 +3,10 @@ import { neon } from "@neondatabase/serverless";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const userClerkId = searchParams.get('userId');
+    const userClerkId = searchParams.get("userId");
 
     if (!userClerkId) {
-      return Response.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
+      return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
     const sql = neon(`${process.env.DATABASE_URL}`);

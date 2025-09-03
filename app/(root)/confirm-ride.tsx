@@ -20,7 +20,9 @@ const ConfirmRide = () => {
     destinationLongitude,
   } = useLocationStore();
 
-  const selectedDriverData = drivers?.find((driver) => driver.id === selectedDriver);
+  const selectedDriverData = drivers?.find(
+    (driver) => driver.id === selectedDriver,
+  );
 
   console.log("[ConfirmRide] Component state:", {
     driversCount: drivers?.length,
@@ -43,7 +45,12 @@ const ConfirmRide = () => {
       return;
     }
 
-    if (!userAddress || !destinationAddress || !userLatitude || !destinationLatitude) {
+    if (
+      !userAddress ||
+      !destinationAddress ||
+      !userLatitude ||
+      !destinationLatitude
+    ) {
       console.error("[ConfirmRide] Missing location data");
       console.error("[ConfirmRide] userAddress:", userAddress);
       console.error("[ConfirmRide] destinationAddress:", destinationAddress);
@@ -53,7 +60,9 @@ const ConfirmRide = () => {
     }
 
     try {
-      console.log("[ConfirmRide] Creating ride without payment for debugging...");
+      console.log(
+        "[ConfirmRide] Creating ride without payment for debugging...",
+      );
 
       const rideData = {
         origin_address: userAddress,
@@ -63,8 +72,10 @@ const ConfirmRide = () => {
         destination_latitude: destinationLatitude,
         destination_longitude: destinationLongitude,
         ride_time: selectedDriverData.time?.toFixed(0) || "30", // Default 30 mins
-        fare_price: selectedDriverData.price ? parseFloat(selectedDriverData.price) * 100 : 2500, // Default $25
-                  payment_status: "paid", // Testing with paid status
+        fare_price: selectedDriverData.price
+          ? parseFloat(selectedDriverData.price) * 100
+          : 2500, // Default $25
+        payment_status: "paid", // Testing with paid status
         driver_id: selectedDriverData.id,
         user_id: userId,
       };
@@ -85,11 +96,11 @@ const ConfirmRide = () => {
         destination: response?.destination_address,
       });
       console.log("[ConfirmRide] Ride created successfully without payment");
-                      router.push("/(root)/(tabs)/rides" as any);
+      router.push("/(root)/(tabs)/rides" as any);
     } catch (error) {
       console.error("[ConfirmRide] Error creating ride:", error);
       // Still navigate to rides page even if there's an error
-                      router.push("/(root)/(tabs)/rides" as any);
+      router.push("/(root)/(tabs)/rides" as any);
     }
   };
 
@@ -112,7 +123,10 @@ const ConfirmRide = () => {
               item={item}
               selected={selectedDriver!}
               setSelected={() => {
-                console.log("[ConfirmRide] Calling setSelectedDriver with:", item.id);
+                console.log(
+                  "[ConfirmRide] Calling setSelectedDriver with:",
+                  item.id,
+                );
                 setSelectedDriver(item.id!);
               }}
             />
@@ -120,10 +134,7 @@ const ConfirmRide = () => {
         }}
         ListFooterComponent={() => (
           <View className="mx-5 mt-10">
-            <CustomButton
-              title="Select Ride"
-              onPress={handleConfirmRide}
-            />
+            <CustomButton title="Select Ride" onPress={handleConfirmRide} />
           </View>
         )}
       />

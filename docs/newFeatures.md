@@ -11,6 +11,7 @@ These features are essential for the driver-side of the application, covering ev
 ### Schema Changes
 
 #### Modified `drivers` Table
+
 We need to add fields to track a driver's availability and verification status.
 
 ```sql
@@ -30,6 +31,7 @@ CREATE TABLE drivers (
 ```
 
 #### New Table: `driver_documents`
+
 To handle the driver onboarding and verification process.
 
 ```sql
@@ -45,13 +47,13 @@ CREATE TABLE driver_documents (
 
 ### New API Endpoints
 
-| Method | Endpoint                       | Description                                            |
-| :----- | :----------------------------- | :----------------------------------------------------- |
-| `POST` | `/api/driver/register`         | Allows a new driver to sign up.                        |
-| `POST` | `/api/driver/documents`        | Uploads verification documents for a driver.           |
-| `PUT`  | `/api/driver/{driverId}/status`| Updates a driver's status (e.g., 'online', 'offline'). |
-| `GET`  | `/api/driver/ride-requests`    | Fetches available ride requests for an online driver.  |
-| `POST` | `/api/ride/{rideId}/accept`    | Allows a driver to accept a ride request.              |
+| Method | Endpoint                        | Description                                            |
+| :----- | :------------------------------ | :----------------------------------------------------- |
+| `POST` | `/api/driver/register`          | Allows a new driver to sign up.                        |
+| `POST` | `/api/driver/documents`         | Uploads verification documents for a driver.           |
+| `PUT`  | `/api/driver/{driverId}/status` | Updates a driver's status (e.g., 'online', 'offline'). |
+| `GET`  | `/api/driver/ride-requests`     | Fetches available ride requests for an online driver.  |
+| `POST` | `/api/ride/{rideId}/accept`     | Allows a driver to accept a ride request.              |
 
 ---
 
@@ -62,6 +64,7 @@ To enable live communication and tracking between the rider and driver.
 ### Schema Changes
 
 #### New Table: `chat_messages`
+
 To store messages related to a specific ride.
 
 ```sql
@@ -76,12 +79,12 @@ CREATE TABLE chat_messages (
 
 ### New API & WebSocket Endpoints
 
-| Type      | Endpoint / Event Name          | Description                                                    |
-| :-------- | :----------------------------- | :------------------------------------------------------------- |
-| `API GET` | `/api/chat/{rideId}/messages`  | Retrieves the chat history for a specific ride.                |
-| `API POST`| `/api/chat/{rideId}/messages`  | Sends a new message in the chat.                               |
-| `WebSocket`| `driver-location-update`     | Pushes the driver's live location to the rider during a trip.  |
-| `WebSocket`| `new-chat-message`           | Pushes new chat messages in real-time to both parties.         |
+| Type        | Endpoint / Event Name         | Description                                                   |
+| :---------- | :---------------------------- | :------------------------------------------------------------ |
+| `API GET`   | `/api/chat/{rideId}/messages` | Retrieves the chat history for a specific ride.               |
+| `API POST`  | `/api/chat/{rideId}/messages` | Sends a new message in the chat.                              |
+| `WebSocket` | `driver-location-update`      | Pushes the driver's live location to the rider during a trip. |
+| `WebSocket` | `new-chat-message`            | Pushes new chat messages in real-time to both parties.        |
 
 ---
 
@@ -92,6 +95,7 @@ To provide more flexibility with ride options, scheduling, and payments.
 ### Schema Changes
 
 #### Modified `rides` Table
+
 We need to add support for different ride tiers.
 
 ```sql
@@ -105,6 +109,7 @@ CREATE TABLE rides (
 ```
 
 #### New Table: `ride_tiers`
+
 To define different vehicle categories and their pricing.
 
 ```sql
@@ -119,6 +124,7 @@ CREATE TABLE ride_tiers (
 ```
 
 #### New Table: `promotions`
+
 To manage promotional codes and discounts.
 
 ```sql
@@ -133,6 +139,7 @@ CREATE TABLE promotions (
 ```
 
 #### New Table: `wallets`
+
 To manage user wallet balances and transaction history.
 
 ```sql
@@ -156,13 +163,13 @@ CREATE TABLE wallet_transactions (
 
 ### New API Endpoints
 
-| Method | Endpoint                      | Description                                                  |
-| :----- | :---------------------------- | :----------------------------------------------------------- |
-| `POST` | `/api/ride/schedule`          | Schedules a ride for a future date and time.                 |
-| `GET`  | `/api/ride/estimate`          | Provides a fare estimate based on route and ride tier.       |
-| `POST` | `/api/promo/apply`            | Applies a promo code to a user's next ride.                  |
-| `GET`  | `/api/wallet`                 | Retrieves the user's wallet balance.                         |
-| `POST` | `/api/wallet/add-funds`       | Adds funds to the user's wallet via a payment provider.      |
+| Method | Endpoint                | Description                                             |
+| :----- | :---------------------- | :------------------------------------------------------ |
+| `POST` | `/api/ride/schedule`    | Schedules a ride for a future date and time.            |
+| `GET`  | `/api/ride/estimate`    | Provides a fare estimate based on route and ride tier.  |
+| `POST` | `/api/promo/apply`      | Applies a promo code to a user's next ride.             |
+| `GET`  | `/api/wallet`           | Retrieves the user's wallet balance.                    |
+| `POST` | `/api/wallet/add-funds` | Adds funds to the user's wallet via a payment provider. |
 
 ---
 
@@ -173,6 +180,7 @@ To build a trustworthy platform with feedback mechanisms and safety features.
 ### Schema Changes
 
 #### New Table: `ratings`
+
 A two-way rating system for both riders and drivers. This replaces the single `rating` column in the `drivers` table.
 
 ```sql
@@ -189,6 +197,7 @@ CREATE TABLE ratings (
 ```
 
 #### New Table: `emergency_contacts`
+
 Allows users to store contacts to notify in case of an emergency.
 
 ```sql
@@ -202,9 +211,9 @@ CREATE TABLE emergency_contacts (
 
 ### New API Endpoints
 
-| Method | Endpoint                         | Description                                                    |
-| :----- | :------------------------------- | :------------------------------------------------------------- |
-| `POST` | `/api/ride/{rideId}/rate`        | Submits a rating and comment for a completed ride.             |
-| `POST` | `/api/safety/sos`                | Triggers an emergency action (e.g., share trip, notify contacts). |
-| `GET`  | `/api/user/emergency-contacts`   | Retrieves a user's emergency contacts.                         |
-| `POST` | `/api/user/emergency-contacts`   | Adds a new emergency contact for the user.                     |
+| Method | Endpoint                       | Description                                                       |
+| :----- | :----------------------------- | :---------------------------------------------------------------- |
+| `POST` | `/api/ride/{rideId}/rate`      | Submits a rating and comment for a completed ride.                |
+| `POST` | `/api/safety/sos`              | Triggers an emergency action (e.g., share trip, notify contacts). |
+| `GET`  | `/api/user/emergency-contacts` | Retrieves a user's emergency contacts.                            |
+| `POST` | `/api/user/emergency-contacts` | Adds a new emergency contact for the user.                        |

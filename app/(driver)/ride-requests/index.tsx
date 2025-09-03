@@ -1,40 +1,41 @@
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useEffect } from 'react';
-import CustomButton from '@/components/CustomButton';
+import { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import CustomButton from "@/components/CustomButton";
 
 // Dummy data for ride requests
 const DUMMY_RIDE_REQUESTS = [
   {
-    id: 'REQ_001',
-    pickupAddress: '123 Main St, Downtown',
-    dropoffAddress: '456 Broadway Ave, Uptown',
+    id: "REQ_001",
+    pickupAddress: "123 Main St, Downtown",
+    dropoffAddress: "456 Broadway Ave, Uptown",
     distance: 3.2,
-    estimatedFare: 18.50,
+    estimatedFare: 18.5,
     estimatedTime: 15,
     passengerRating: 4.8,
-    requestedAt: '2 min ago'
+    requestedAt: "2 min ago",
   },
   {
-    id: 'REQ_002',
-    pickupAddress: '789 Park Ave, Midtown',
-    dropoffAddress: '321 Elm St, Downtown',
+    id: "REQ_002",
+    pickupAddress: "789 Park Ave, Midtown",
+    dropoffAddress: "321 Elm St, Downtown",
     distance: 2.8,
     estimatedFare: 15.75,
     estimatedTime: 12,
     passengerRating: 4.9,
-    requestedAt: '5 min ago'
+    requestedAt: "5 min ago",
   },
   {
-    id: 'REQ_003',
-    pickupAddress: '555 5th Ave, Manhattan',
-    dropoffAddress: '888 Madison Ave, Manhattan',
+    id: "REQ_003",
+    pickupAddress: "555 5th Ave, Manhattan",
+    dropoffAddress: "888 Madison Ave, Manhattan",
     distance: 4.1,
     estimatedFare: 22.25,
     estimatedTime: 20,
     passengerRating: 4.7,
-    requestedAt: '8 min ago'
-  }
+    requestedAt: "8 min ago",
+  },
 ];
 
 const RideRequests = () => {
@@ -46,22 +47,28 @@ const RideRequests = () => {
 
     // Simulate API call delay
     setTimeout(() => {
-      Alert.alert('Ride Accepted!', 'You have 2 minutes to pick up the passenger.', [
-        {
-          text: 'OK',
-          onPress: () => {
-            // Remove the accepted ride from the list
-            setRideRequests(prev => prev.filter(ride => ride.id !== rideId));
-            setAcceptingRide(null);
-          }
-        }
-      ]);
+      Alert.alert(
+        "Ride Accepted!",
+        "You have 2 minutes to pick up the passenger.",
+        [
+          {
+            text: "OK",
+            onPress: () => {
+              // Remove the accepted ride from the list
+              setRideRequests((prev) =>
+                prev.filter((ride) => ride.id !== rideId),
+              );
+              setAcceptingRide(null);
+            },
+          },
+        ],
+      );
     }, 1000);
   };
 
   const handleDeclineRide = (rideId: string) => {
-    Alert.alert('Ride Declined', 'Looking for the next ride...');
-    setRideRequests(prev => prev.filter(ride => ride.id !== rideId));
+    Alert.alert("Ride Declined", "Looking for the next ride...");
+    setRideRequests((prev) => prev.filter((ride) => ride.id !== rideId));
   };
 
   return (
@@ -70,7 +77,8 @@ const RideRequests = () => {
       <View className="bg-white p-5">
         <Text className="text-xl font-JakartaBold">Available Rides</Text>
         <Text className="text-secondary-600 mt-1">
-          {rideRequests.length} ride{rideRequests.length !== 1 ? 's' : ''} available
+          {rideRequests.length} ride{rideRequests.length !== 1 ? "s" : ""}{" "}
+          available
         </Text>
       </View>
 
@@ -122,11 +130,15 @@ const RideRequests = () => {
                 </View>
                 <View className="items-center">
                   <Text className="text-sm text-secondary-600">Time</Text>
-                  <Text className="font-JakartaBold">{ride.estimatedTime} min</Text>
+                  <Text className="font-JakartaBold">
+                    {ride.estimatedTime} min
+                  </Text>
                 </View>
                 <View className="items-center">
                   <Text className="text-sm text-secondary-600">Rating</Text>
-                  <Text className="font-JakartaBold">⭐ {ride.passengerRating}</Text>
+                  <Text className="font-JakartaBold">
+                    ⭐ {ride.passengerRating}
+                  </Text>
                 </View>
               </View>
 
@@ -143,12 +155,12 @@ const RideRequests = () => {
                 <TouchableOpacity
                   onPress={() => handleAcceptRide(ride.id)}
                   className={`flex-1 bg-success-500 rounded-full py-3 items-center ${
-                    acceptingRide === ride.id ? 'opacity-50' : ''
+                    acceptingRide === ride.id ? "opacity-50" : ""
                   }`}
                   disabled={acceptingRide === ride.id}
                 >
                   <Text className="text-white font-JakartaBold">
-                    {acceptingRide === ride.id ? 'Accepting...' : 'Accept'}
+                    {acceptingRide === ride.id ? "Accepting..." : "Accept"}
                   </Text>
                 </TouchableOpacity>
               </View>

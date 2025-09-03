@@ -12,10 +12,18 @@ export async function POST(request: Request) {
       licensePlate,
       carSeats,
       profileImageUrl,
-      carImageUrl
+      carImageUrl,
     } = await request.json();
 
-    if (!firstName || !lastName || !email || !clerkId || !carModel || !licensePlate || !carSeats) {
+    if (
+      !firstName ||
+      !lastName ||
+      !email ||
+      !clerkId ||
+      !carModel ||
+      !licensePlate ||
+      !carSeats
+    ) {
       return Response.json(
         { error: "Missing required fields" },
         { status: 400 },

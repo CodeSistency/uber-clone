@@ -1,16 +1,22 @@
-import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
-import React, { useState } from 'react';
-import { router } from 'expo-router';
-import { userModeStorage } from '../lib/storage';
+import { router } from "expo-router";
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, Modal, Alert } from "react-native";
+
+import { userModeStorage } from "../lib/storage";
 
 interface ModeSwitcherProps {
-  currentMode?: 'customer' | 'driver' | 'business';
-  variant?: 'drawer' | 'fab' | 'modal';
+  currentMode?: "customer" | "driver" | "business";
+  variant?: "drawer" | "fab" | "modal";
   onClose?: () => void;
-  onModeChange?: (mode: 'customer' | 'driver' | 'business') => void;
+  onModeChange?: (mode: "customer" | "driver" | "business") => void;
 }
 
-const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, onModeChange }: ModeSwitcherProps) => {
+const ModeSwitcher = ({
+  currentMode = "customer",
+  variant = "drawer",
+  onClose,
+  onModeChange,
+}: ModeSwitcherProps) => {
   const [showModal, setShowModal] = useState(false);
   const [isDriverRegistered, setIsDriverRegistered] = useState(false);
   const [isBusinessRegistered, setIsBusinessRegistered] = useState(false);
@@ -21,12 +27,12 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
       try {
         const [isDriverReg, isBusinessReg] = await Promise.all([
           userModeStorage.isDriverRegistered(),
-          userModeStorage.isBusinessRegistered()
+          userModeStorage.isBusinessRegistered(),
         ]);
         setIsDriverRegistered(isDriverReg);
         setIsBusinessRegistered(isBusinessReg);
       } catch (error) {
-        console.error('Error loading registration status:', error);
+        console.error("Error loading registration status:", error);
       }
     };
     loadRegistrationStatus();
@@ -34,33 +40,40 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
 
   const modes = [
     {
-      id: 'customer',
-      name: variant === 'modal' ? 'Continue as Customer' : 'Customer Mode',
-      icon: '🚗',
-      description: variant === 'modal' ? 'Book rides and order food' : 'Book rides and order food',
-      route: '/(root)/(tabs)/home',
-      available: true
+      id: "customer",
+      name: variant === "modal" ? "Continue as Customer" : "Customer Mode",
+      icon: "🚗",
+      description:
+        variant === "modal"
+          ? "Book rides and order food"
+          : "Book rides and order food",
+      route: "/(root)/(tabs)/home",
+      available: true,
     },
     {
-      id: 'driver',
-      name: variant === 'modal' ? 'Switch to Driver Mode' : 'Driver Mode',
-      icon: '👨‍💼',
-      description: variant === 'modal' ? 'Accept rides and deliveries' : 'Accept rides and deliveries',
-      route: '/(driver)/dashboard',
-      available: isDriverRegistered
+      id: "driver",
+      name: variant === "modal" ? "Switch to Driver Mode" : "Driver Mode",
+      icon: "👨‍💼",
+      description:
+        variant === "modal"
+          ? "Accept rides and deliveries"
+          : "Accept rides and deliveries",
+      route: "/(driver)/dashboard",
+      available: isDriverRegistered,
     },
     {
-      id: 'business',
-      name: variant === 'modal' ? 'Switch to Business Mode' : 'Business Mode',
-      icon: '🏪',
-      description: variant === 'modal' ? 'Manage your business' : 'Manage your business',
-      route: '/(business)/dashboard',
-      available: isBusinessRegistered
-    }
+      id: "business",
+      name: variant === "modal" ? "Switch to Business Mode" : "Business Mode",
+      icon: "🏪",
+      description:
+        variant === "modal" ? "Manage your business" : "Manage your business",
+      route: "/(business)/dashboard",
+      available: isBusinessRegistered,
+    },
   ];
 
   const handleModeSwitch = (modeId: string) => {
-    const selectedMode = modes.find(mode => mode.id === modeId);
+    const selectedMode = modes.find((mode) => mode.id === modeId);
 
     if (!selectedMode) return;
 
@@ -70,30 +83,32 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
         `${selectedMode.name} Not Available`,
         `You haven't registered for ${selectedMode.name.toLowerCase()}. Would you like to register now?`,
         [
-          { text: 'Cancel', style: 'cancel' },
+          { text: "Cancel", style: "cancel" },
           {
-            text: 'Register',
+            text: "Register",
             onPress: () => {
-              if (modeId === 'driver') {
-                router.replace('/(auth)/driver-register');
-              } else if (modeId === 'business') {
-                router.replace('/(auth)/business-register');
+              if (modeId === "driver") {
+                router.replace("/(auth)/driver-register");
+              } else if (modeId === "business") {
+                router.replace("/(auth)/business-register");
               }
-            }
-          }
-        ]
+            },
+          },
+        ],
       );
       return;
     }
 
     // Save current mode using storage utility
-    userModeStorage.setMode(modeId as 'customer' | 'driver' | 'business').catch(error => {
-      console.error('Error saving user mode:', error);
-    });
+    userModeStorage
+      .setMode(modeId as "customer" | "driver" | "business")
+      .catch((error) => {
+        console.error("Error saving user mode:", error);
+      });
 
     // Notify parent component about mode change
     if (onModeChange) {
-      onModeChange(modeId as 'customer' | 'driver' | 'business');
+      onModeChange(modeId as "customer" | "driver" | "business");
     }
 
     // Switch to the selected mode
@@ -103,52 +118,56 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
       onClose();
     }
 
-    if (variant === 'modal') {
+    if (variant === "modal") {
       setShowModal(false);
     }
   };
 
-  const renderModeButton = (mode: typeof modes[0], index: number) => {
+  const renderModeButton = (mode: (typeof modes)[0], index: number) => {
     const isActive = mode.id === currentMode;
 
-    if (variant === 'drawer') {
+    if (variant === "drawer") {
       return (
         <TouchableOpacity
           key={mode.id}
           onPress={() => handleModeSwitch(mode.id)}
           className={`flex-row items-center p-4 rounded-lg mb-2 ${
-            isActive ? 'bg-primary-500' : 'bg-transparent'
+            isActive ? "bg-primary-500" : "bg-transparent"
           }`}
         >
           <Text className="text-2xl mr-3">{mode.icon}</Text>
           <View className="flex-1">
-            <Text className={`font-JakartaBold ${isActive ? 'text-white' : 'text-secondary-700'}`}>
+            <Text
+              className={`font-JakartaBold ${isActive ? "text-white" : "text-secondary-700"}`}
+            >
               {mode.name}
             </Text>
             {!mode.available && (
-              <Text className={`text-sm ${isActive ? 'text-white/80' : 'text-secondary-600'}`}>
+              <Text
+                className={`text-sm ${isActive ? "text-white/80" : "text-secondary-600"}`}
+              >
                 Tap to register
               </Text>
             )}
           </View>
-          {isActive && (
-            <Text className="text-white font-JakartaBold">✓</Text>
-          )}
+          {isActive && <Text className="text-white font-JakartaBold">✓</Text>}
         </TouchableOpacity>
       );
     }
 
-    if (variant === 'fab') {
+    if (variant === "fab") {
       return (
         <TouchableOpacity
           key={mode.id}
           onPress={() => handleModeSwitch(mode.id)}
           className={`flex-row items-center p-3 rounded-lg mb-2 ${
-            isActive ? 'bg-primary-500' : 'bg-general-500'
+            isActive ? "bg-primary-500" : "bg-general-500"
           }`}
         >
           <Text className="text-xl mr-2">{mode.icon}</Text>
-          <Text className={`font-JakartaBold ${isActive ? 'text-white' : 'text-secondary-700'}`}>
+          <Text
+            className={`font-JakartaBold ${isActive ? "text-white" : "text-secondary-700"}`}
+          >
             {mode.name}
           </Text>
         </TouchableOpacity>
@@ -158,7 +177,7 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
     return null;
   };
 
-  if (variant === 'drawer') {
+  if (variant === "drawer") {
     return (
       <View className="p-4">
         <Text className="text-lg font-JakartaBold mb-4 text-secondary-700">
@@ -169,7 +188,7 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
     );
   }
 
-  if (variant === 'fab') {
+  if (variant === "fab") {
     return (
       <View className="absolute bottom-6 right-6 z-50">
         <TouchableOpacity
@@ -213,29 +232,37 @@ const ModeSwitcher = ({ currentMode = 'customer', variant = 'drawer', onClose, o
 };
 
 // Welcome Modal Component for first-time users
-export const WelcomeModal = ({ onModeSelected }: { onModeSelected: (mode: string) => void }) => {
+export const WelcomeModal = ({
+  onModeSelected,
+}: {
+  onModeSelected: (mode: string) => void;
+}) => {
   const modes = [
     {
-      id: 'customer',
-      name: 'Continue as Customer',
-      icon: '🚗',
-      description: 'Book rides and order food',
-      benefits: ['Easy ride booking', 'Food delivery', 'Safe & reliable']
+      id: "customer",
+      name: "Continue as Customer",
+      icon: "🚗",
+      description: "Book rides and order food",
+      benefits: ["Easy ride booking", "Food delivery", "Safe & reliable"],
     },
     {
-      id: 'driver',
-      name: 'Become a Driver/Courier',
-      icon: '👨‍💼',
-      description: 'Earn money by accepting rides and deliveries',
-      benefits: ['Flexible schedule', 'Competitive earnings', 'Driver support']
+      id: "driver",
+      name: "Become a Driver/Courier",
+      icon: "👨‍💼",
+      description: "Earn money by accepting rides and deliveries",
+      benefits: ["Flexible schedule", "Competitive earnings", "Driver support"],
     },
     {
-      id: 'business',
-      name: 'Register a Business',
-      icon: '🏪',
-      description: 'Manage your restaurant or store',
-      benefits: ['Reach more customers', 'Easy order management', 'Analytics & insights']
-    }
+      id: "business",
+      name: "Register a Business",
+      icon: "🏪",
+      description: "Manage your restaurant or store",
+      benefits: [
+        "Reach more customers",
+        "Easy order management",
+        "Analytics & insights",
+      ],
+    },
   ];
 
   return (
@@ -274,7 +301,10 @@ export const WelcomeModal = ({ onModeSelected }: { onModeSelected: (mode: string
               {/* Benefits */}
               <View className="flex-row flex-wrap gap-1">
                 {mode.benefits.map((benefit, index) => (
-                  <View key={index} className="bg-primary-500/10 rounded-full px-3 py-1">
+                  <View
+                    key={index}
+                    className="bg-primary-500/10 rounded-full px-3 py-1"
+                  >
                     <Text className="text-primary-500 text-xs font-JakartaMedium">
                       ✓ {benefit}
                     </Text>

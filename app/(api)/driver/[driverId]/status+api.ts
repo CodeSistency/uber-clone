@@ -1,6 +1,9 @@
 import { neon } from "@neondatabase/serverless";
 
-export async function PUT(request: Request, { driverId }: { driverId: string }) {
+export async function PUT(
+  request: Request,
+  { driverId }: { driverId: string },
+) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
     const { status } = await request.json();
@@ -13,12 +16,9 @@ export async function PUT(request: Request, { driverId }: { driverId: string }) 
     }
 
     // Validate status values
-    const validStatuses = ['offline', 'online', 'in_ride'];
+    const validStatuses = ["offline", "online", "in_ride"];
     if (!validStatuses.includes(status)) {
-      return Response.json(
-        { error: "Invalid status value" },
-        { status: 400 },
-      );
+      return Response.json({ error: "Invalid status value" }, { status: 400 });
     }
 
     const response = await sql`
