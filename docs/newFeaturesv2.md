@@ -47,13 +47,13 @@ CREATE TABLE driver_documents (
 
 #### API Endpoints
 
-| Method | Endpoint                       | Description                                            |
-| :----- | :----------------------------- | :----------------------------------------------------- |
-| `POST` | `/api/driver/register`         | Allows a new driver to sign up.                        |
-| `POST` | `/api/driver/documents`        | Uploads verification documents for a driver.           |
-| `PUT`  | `/api/driver/{driverId}/status`| Updates a driver's status (e.g., 'online', 'offline'). |
-| `GET`  | `/api/driver/ride-requests`    | Fetches available ride requests for an online driver.  |
-| `POST` | `/api/ride/{rideId}/accept`    | Allows a driver to accept a ride request.              |
+| Method | Endpoint                        | Description                                            |
+| :----- | :------------------------------ | :----------------------------------------------------- |
+| `POST` | `/api/driver/register`          | Allows a new driver to sign up.                        |
+| `POST` | `/api/driver/documents`         | Uploads verification documents for a driver.           |
+| `PUT`  | `/api/driver/{driverId}/status` | Updates a driver's status (e.g., 'online', 'offline'). |
+| `GET`  | `/api/driver/ride-requests`     | Fetches available ride requests for an online driver.  |
+| `POST` | `/api/ride/{rideId}/accept`     | Allows a driver to accept a ride request.              |
 
 ---
 
@@ -88,35 +88,35 @@ CREATE TABLE rides (
 ```
 
 **`promotions`, `wallets`, `wallet_transactions` Tables**
-*Identical to the ones in `newFeatures.md`.*
+_Identical to the ones in `newFeatures.md`._
 
 #### API Endpoints
 
-| Method | Endpoint                      | Description                                                  |
-| :----- | :---------------------------- | :----------------------------------------------------------- |
-| `POST` | `/api/ride/schedule`          | Schedules a ride for a future date and time.                 |
-| `GET`  | `/api/ride/estimate`          | Provides a fare estimate based on route and ride tier.       |
-| `POST` | `/api/promo/apply`            | Applies a promo code to a user's next ride or order.         |
-| `GET`  | `/api/wallet`                 | Retrieves the user's wallet balance.                         |
-| `POST` | `/api/wallet/add-funds`       | Adds funds to the user's wallet.                             |
+| Method | Endpoint                | Description                                            |
+| :----- | :---------------------- | :----------------------------------------------------- |
+| `POST` | `/api/ride/schedule`    | Schedules a ride for a future date and time.           |
+| `GET`  | `/api/ride/estimate`    | Provides a fare estimate based on route and ride tier. |
+| `POST` | `/api/promo/apply`      | Applies a promo code to a user's next ride or order.   |
+| `GET`  | `/api/wallet`           | Retrieves the user's wallet balance.                   |
+| `POST` | `/api/wallet/add-funds` | Adds funds to the user's wallet.                       |
 
 ---
 
 ### 1.3. Safety, Ratings & Real-time Chat
 
 **`ratings`, `emergency_contacts`, `chat_messages` Tables**
-*Identical to the ones in `newFeatures.md`.*
+_Identical to the ones in `newFeatures.md`._
 
 #### API Endpoints
 
-| Method | Endpoint                         | Description                                                    |
-| :----- | :------------------------------- | :------------------------------------------------------------- |
-| `POST` | `/api/ride/{rideId}/rate`        | Submits a rating and comment for a completed ride.             |
-| `POST` | `/api/safety/sos`                | Triggers an emergency action.                                  |
-| `GET`  | `/api/user/emergency-contacts`   | Retrieves a user's emergency contacts.                         |
-| `POST` | `/api/user/emergency-contacts`   | Adds a new emergency contact.                                  |
-| `GET` | `/api/chat/{rideId}/messages`  | Retrieves the chat history for a ride.                         |
-| `POST`| `/api/chat/{rideId}/messages`  | Sends a new message in the chat.                               |
+| Method | Endpoint                       | Description                                        |
+| :----- | :----------------------------- | :------------------------------------------------- |
+| `POST` | `/api/ride/{rideId}/rate`      | Submits a rating and comment for a completed ride. |
+| `POST` | `/api/safety/sos`              | Triggers an emergency action.                      |
+| `GET`  | `/api/user/emergency-contacts` | Retrieves a user's emergency contacts.             |
+| `POST` | `/api/user/emergency-contacts` | Adds a new emergency contact.                      |
+| `GET`  | `/api/chat/{rideId}/messages`  | Retrieves the chat history for a ride.             |
+| `POST` | `/api/chat/{rideId}/messages`  | Sends a new message in the chat.                   |
 
 ---
 
@@ -201,25 +201,27 @@ CREATE TABLE order_items (
 
 #### For Customers
 
-| Method | Endpoint                           | Description                                                       |
-| :----- | :--------------------------------- | :---------------------------------------------------------------- |
-| `GET`  | `/api/marketplace/stores`          | List all stores (can be filtered by category, location, etc.).    |
-| `GET`  | `/api/marketplace/stores/{storeId}`| Get details for a specific store, including its products.         |
-| `GET`  | `/api/marketplace/search`          | Search for stores or products.                                    |
-| `POST` | `/api/delivery/orders`             | Creates a new delivery order from a user's cart.                  |
-| `GET`  | `/api/delivery/orders/{orderId}`   | Get the live status and details of a specific order.              |
-| `GET`  | `/api/user/delivery-history`       | Get the user's past delivery orders.                              |
+| Method | Endpoint                            | Description                                                    |
+| :----- | :---------------------------------- | :------------------------------------------------------------- |
+| `GET`  | `/api/marketplace/stores`           | List all stores (can be filtered by category, location, etc.). |
+| `GET`  | `/api/marketplace/stores/{storeId}` | Get details for a specific store, including its products.      |
+| `GET`  | `/api/marketplace/search`           | Search for stores or products.                                 |
+| `POST` | `/api/delivery/orders`              | Creates a new delivery order from a user's cart.               |
+| `GET`  | `/api/delivery/orders/{orderId}`    | Get the live status and details of a specific order.           |
+| `GET`  | `/api/user/delivery-history`        | Get the user's past delivery orders.                           |
 
 #### For Couriers (Drivers)
 
-| Method | Endpoint                             | Description                                                       |
-| :----- | :----------------------------------- | :---------------------------------------------------------------- |
-| `GET`  | `/api/courier/delivery-requests`     | Fetches available delivery requests for an online courier.        |
-| `POST` | `/api/delivery/{orderId}/accept`     | Allows a courier to accept a delivery request.                    |
-| `PUT`  | `/api/delivery/{orderId}/status`     | Updates the delivery status (e.g., 'picked_up', 'delivered').     |
+| Method | Endpoint                         | Description                                                   |
+| :----- | :------------------------------- | :------------------------------------------------------------ |
+| `GET`  | `/api/courier/delivery-requests` | Fetches available delivery requests for an online courier.    |
+| `POST` | `/api/delivery/{orderId}/accept` | Allows a courier to accept a delivery request.                |
+| `PUT`  | `/api/delivery/{orderId}/status` | Updates the delivery status (e.g., 'picked_up', 'delivered'). |
 
 #### For Stores (Future)
+
 A separate set of endpoints could be created for a store management portal.
+
 - `PUT /api/store/{storeId}/status` (e.g., open/close store)
 - `POST /api/store/{storeId}/products` (add a new product)
 - `GET /api/store/{storeId}/orders` (view incoming orders)

@@ -1,42 +1,50 @@
-import { View, Text, ScrollView, TouchableOpacity, Image, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
-import CustomButton from '@/components/CustomButton';
+import { useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Image,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import CustomButton from "@/components/CustomButton";
 
 // Dummy data for driver profile
 const DUMMY_DRIVER = {
-  firstName: 'Alex',
-  lastName: 'Rodriguez',
-  email: 'alex.rodriguez@example.com',
-  phone: '+1 (555) 123-4567',
-  profileImage: 'https://via.placeholder.com/100x100',
-  carModel: 'Toyota Camry',
-  licensePlate: 'ABC-1234',
+  firstName: "Alex",
+  lastName: "Rodriguez",
+  email: "alex.rodriguez@example.com",
+  phone: "+1 (555) 123-4567",
+  profileImage: "https://via.placeholder.com/100x100",
+  carModel: "Toyota Camry",
+  licensePlate: "ABC-1234",
   carSeats: 4,
   rating: 4.8,
   totalTrips: 1247,
-  joinDate: 'January 2023'
+  joinDate: "January 2023",
 };
 
 const DUMMY_DOCUMENTS = [
   {
-    id: 'license',
-    name: 'Driver License',
-    status: 'approved',
-    uploadedDate: '2024-01-15'
+    id: "license",
+    name: "Driver License",
+    status: "approved",
+    uploadedDate: "2024-01-15",
   },
   {
-    id: 'registration',
-    name: 'Vehicle Registration',
-    status: 'approved',
-    uploadedDate: '2024-01-15'
+    id: "registration",
+    name: "Vehicle Registration",
+    status: "approved",
+    uploadedDate: "2024-01-15",
   },
   {
-    id: 'insurance',
-    name: 'Insurance Certificate',
-    status: 'pending',
-    uploadedDate: '2024-01-10'
-  }
+    id: "insurance",
+    name: "Insurance Certificate",
+    status: "pending",
+    uploadedDate: "2024-01-10",
+  },
 ];
 
 const DriverProfile = () => {
@@ -45,24 +53,35 @@ const DriverProfile = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'approved': return 'text-success-500';
-      case 'pending': return 'text-warning-500';
-      case 'rejected': return 'text-danger-500';
-      default: return 'text-secondary-600';
+      case "approved":
+        return "text-success-500";
+      case "pending":
+        return "text-warning-500";
+      case "rejected":
+        return "text-danger-500";
+      default:
+        return "text-secondary-600";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'approved': return '✅';
-      case 'pending': return '⏳';
-      case 'rejected': return '❌';
-      default: return '📄';
+      case "approved":
+        return "✅";
+      case "pending":
+        return "⏳";
+      case "rejected":
+        return "❌";
+      default:
+        return "📄";
     }
   };
 
   const handleUploadDocument = (docType: string) => {
-    Alert.alert('Upload Document', `Upload ${docType} functionality would open camera/gallery`);
+    Alert.alert(
+      "Upload Document",
+      `Upload ${docType} functionality would open camera/gallery`,
+    );
   };
 
   return (
@@ -112,12 +131,16 @@ const DriverProfile = () => {
 
         {/* Personal Information */}
         <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Personal Information</Text>
+          <Text className="text-lg font-JakartaBold mb-3">
+            Personal Information
+          </Text>
 
           <View className="space-y-3">
             <View>
               <Text className="text-sm text-secondary-600 mb-1">Full Name</Text>
-              <Text className="font-JakartaMedium">{driver.firstName} {driver.lastName}</Text>
+              <Text className="font-JakartaMedium">
+                {driver.firstName} {driver.lastName}
+              </Text>
             </View>
 
             <View>
@@ -132,13 +155,17 @@ const DriverProfile = () => {
           </View>
 
           <TouchableOpacity className="bg-primary-500 rounded-full py-3 mt-4">
-            <Text className="text-white font-JakartaBold text-center">Edit Information</Text>
+            <Text className="text-white font-JakartaBold text-center">
+              Edit Information
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Vehicle Information */}
         <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Vehicle Information</Text>
+          <Text className="text-lg font-JakartaBold mb-3">
+            Vehicle Information
+          </Text>
 
           <View className="space-y-3">
             <View>
@@ -147,29 +174,42 @@ const DriverProfile = () => {
             </View>
 
             <View>
-              <Text className="text-sm text-secondary-600 mb-1">License Plate</Text>
+              <Text className="text-sm text-secondary-600 mb-1">
+                License Plate
+              </Text>
               <Text className="font-JakartaMedium">{driver.licensePlate}</Text>
             </View>
 
             <View>
-              <Text className="text-sm text-secondary-600 mb-1">Passenger Seats</Text>
+              <Text className="text-sm text-secondary-600 mb-1">
+                Passenger Seats
+              </Text>
               <Text className="font-JakartaMedium">{driver.carSeats}</Text>
             </View>
           </View>
 
           <TouchableOpacity className="bg-primary-500 rounded-full py-3 mt-4">
-            <Text className="text-white font-JakartaBold text-center">Update Vehicle</Text>
+            <Text className="text-white font-JakartaBold text-center">
+              Update Vehicle
+            </Text>
           </TouchableOpacity>
         </View>
 
         {/* Documents */}
         <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Verification Documents</Text>
+          <Text className="text-lg font-JakartaBold mb-3">
+            Verification Documents
+          </Text>
 
           {documents.map((doc) => (
-            <View key={doc.id} className="flex-row items-center justify-between py-3 border-b border-general-500 last:border-b-0">
+            <View
+              key={doc.id}
+              className="flex-row items-center justify-between py-3 border-b border-general-500 last:border-b-0"
+            >
               <View className="flex-row items-center">
-                <Text className="text-lg mr-3">{getStatusIcon(doc.status)}</Text>
+                <Text className="text-lg mr-3">
+                  {getStatusIcon(doc.status)}
+                </Text>
                 <View>
                   <Text className="font-JakartaMedium">{doc.name}</Text>
                   <Text className="text-xs text-secondary-600">
@@ -178,15 +218,19 @@ const DriverProfile = () => {
                 </View>
               </View>
               <View className="items-end">
-                <Text className={`font-JakartaBold text-sm ${getStatusColor(doc.status)}`}>
+                <Text
+                  className={`font-JakartaBold text-sm ${getStatusColor(doc.status)}`}
+                >
                   {doc.status.toUpperCase()}
                 </Text>
-                {doc.status === 'pending' && (
+                {doc.status === "pending" && (
                   <TouchableOpacity
                     onPress={() => handleUploadDocument(doc.name)}
                     className="mt-1"
                   >
-                    <Text className="text-primary-500 text-xs font-JakartaBold">Re-upload</Text>
+                    <Text className="text-primary-500 text-xs font-JakartaBold">
+                      Re-upload
+                    </Text>
                   </TouchableOpacity>
                 )}
               </View>

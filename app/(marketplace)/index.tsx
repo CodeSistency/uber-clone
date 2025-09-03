@@ -1,96 +1,104 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
-import { router } from 'expo-router';
+import { router } from "expo-router";
+import { useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Dummy data for stores
 const DUMMY_STORES = [
   {
-    id: 'STORE_001',
-    name: 'Mario\'s Pizza',
-    category: 'Italian',
+    id: "STORE_001",
+    name: "Mario's Pizza",
+    category: "Italian",
     rating: 4.7,
     reviewCount: 284,
-    deliveryTime: '25-35 min',
+    deliveryTime: "25-35 min",
     deliveryFee: 2.99,
-    image: '🍕',
-    isOpen: true
+    image: "🍕",
+    isOpen: true,
   },
   {
-    id: 'STORE_002',
-    name: 'Burger Palace',
-    category: 'American',
+    id: "STORE_002",
+    name: "Burger Palace",
+    category: "American",
     rating: 4.5,
     reviewCount: 156,
-    deliveryTime: '20-30 min',
+    deliveryTime: "20-30 min",
     deliveryFee: 1.99,
-    image: '🍔',
-    isOpen: true
+    image: "🍔",
+    isOpen: true,
   },
   {
-    id: 'STORE_003',
-    name: 'Sushi Express',
-    category: 'Japanese',
+    id: "STORE_003",
+    name: "Sushi Express",
+    category: "Japanese",
     rating: 4.8,
     reviewCount: 203,
-    deliveryTime: '30-40 min',
+    deliveryTime: "30-40 min",
     deliveryFee: 3.49,
-    image: '🍱',
-    isOpen: true
+    image: "🍱",
+    isOpen: true,
   },
   {
-    id: 'STORE_004',
-    name: 'Taco Fiesta',
-    category: 'Mexican',
+    id: "STORE_004",
+    name: "Taco Fiesta",
+    category: "Mexican",
     rating: 4.6,
     reviewCount: 189,
-    deliveryTime: '15-25 min',
+    deliveryTime: "15-25 min",
     deliveryFee: 2.49,
-    image: '🌮',
-    isOpen: false
+    image: "🌮",
+    isOpen: false,
   },
   {
-    id: 'STORE_005',
-    name: 'Green Pharmacy',
-    category: 'Health',
+    id: "STORE_005",
+    name: "Green Pharmacy",
+    category: "Health",
     rating: 4.4,
     reviewCount: 97,
-    deliveryTime: '20-35 min',
+    deliveryTime: "20-35 min",
     deliveryFee: 0.99,
-    image: '💊',
-    isOpen: true
+    image: "💊",
+    isOpen: true,
   },
   {
-    id: 'STORE_006',
-    name: 'Fresh Market',
-    category: 'Groceries',
+    id: "STORE_006",
+    name: "Fresh Market",
+    category: "Groceries",
     rating: 4.3,
     reviewCount: 312,
-    deliveryTime: '25-40 min',
+    deliveryTime: "25-40 min",
     deliveryFee: 1.49,
-    image: '🛒',
-    isOpen: true
-  }
+    image: "🛒",
+    isOpen: true,
+  },
 ];
 
 const DUMMY_CATEGORIES = [
-  { id: 'all', name: 'All', icon: '🍽️' },
-  { id: 'italian', name: 'Italian', icon: '🍝' },
-  { id: 'american', name: 'American', icon: '🍔' },
-  { id: 'japanese', name: 'Japanese', icon: '🍱' },
-  { id: 'mexican', name: 'Mexican', icon: '🌮' },
-  { id: 'health', name: 'Health', icon: '💊' },
-  { id: 'groceries', name: 'Groceries', icon: '🛒' }
+  { id: "all", name: "All", icon: "🍽️" },
+  { id: "italian", name: "Italian", icon: "🍝" },
+  { id: "american", name: "American", icon: "🍔" },
+  { id: "japanese", name: "Japanese", icon: "🍱" },
+  { id: "mexican", name: "Mexican", icon: "🌮" },
+  { id: "health", name: "Health", icon: "💊" },
+  { id: "groceries", name: "Groceries", icon: "🛒" },
 ];
 
 const MarketplaceHome = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredStores = DUMMY_STORES.filter(store => {
-    const matchesCategory = selectedCategory === 'all' ||
+  const filteredStores = DUMMY_STORES.filter((store) => {
+    const matchesCategory =
+      selectedCategory === "all" ||
       store.category.toLowerCase() === selectedCategory.toLowerCase();
-    const matchesSearch = store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch =
+      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       store.category.toLowerCase().includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
@@ -131,13 +139,19 @@ const MarketplaceHome = () => {
                   key={category.id}
                   onPress={() => setSelectedCategory(category.id)}
                   className={`items-center p-3 rounded-lg ${
-                    selectedCategory === category.id ? 'bg-primary-500' : 'bg-white'
+                    selectedCategory === category.id
+                      ? "bg-primary-500"
+                      : "bg-white"
                   }`}
                 >
                   <Text className="text-2xl mb-2">{category.icon}</Text>
-                  <Text className={`font-JakartaBold ${
-                    selectedCategory === category.id ? 'text-white' : 'text-secondary-700'
-                  }`}>
+                  <Text
+                    className={`font-JakartaBold ${
+                      selectedCategory === category.id
+                        ? "text-white"
+                        : "text-secondary-700"
+                    }`}
+                  >
                     {category.name}
                   </Text>
                 </TouchableOpacity>
@@ -149,13 +163,17 @@ const MarketplaceHome = () => {
         {/* Stores List */}
         <View className="mb-4">
           <Text className="text-lg font-JakartaBold mb-3">
-            {selectedCategory === 'all' ? 'All Restaurants' : `${selectedCategory} Restaurants`}
+            {selectedCategory === "all"
+              ? "All Restaurants"
+              : `${selectedCategory} Restaurants`}
           </Text>
 
           {filteredStores.length === 0 ? (
             <View className="bg-white rounded-lg p-8 items-center">
               <Text className="text-4xl mb-3">🔍</Text>
-              <Text className="text-xl font-JakartaBold mb-2">No results found</Text>
+              <Text className="text-xl font-JakartaBold mb-2">
+                No results found
+              </Text>
               <Text className="text-secondary-600 text-center">
                 Try adjusting your search or category filter
               </Text>
@@ -174,28 +192,36 @@ const MarketplaceHome = () => {
                       <Text className="font-JakartaBold text-lg flex-1 mr-2">
                         {store.name}
                       </Text>
-                      <View className={`px-2 py-1 rounded-full ${
-                        store.isOpen ? 'bg-success-500' : 'bg-danger-500'
-                      }`}>
+                      <View
+                        className={`px-2 py-1 rounded-full ${
+                          store.isOpen ? "bg-success-500" : "bg-danger-500"
+                        }`}
+                      >
                         <Text className="text-white text-xs font-JakartaBold">
-                          {store.isOpen ? 'Open' : 'Closed'}
+                          {store.isOpen ? "Open" : "Closed"}
                         </Text>
                       </View>
                     </View>
 
-                    <Text className="text-secondary-600 mb-2">{store.category}</Text>
+                    <Text className="text-secondary-600 mb-2">
+                      {store.category}
+                    </Text>
 
                     <View className="flex-row items-center justify-between">
                       <View className="flex-row items-center">
                         <Text className="text-warning-500 mr-1">⭐</Text>
-                        <Text className="font-JakartaBold mr-1">{store.rating}</Text>
+                        <Text className="font-JakartaBold mr-1">
+                          {store.rating}
+                        </Text>
                         <Text className="text-secondary-600">
                           ({store.reviewCount} reviews)
                         </Text>
                       </View>
 
                       <View className="items-end">
-                        <Text className="text-secondary-600 text-sm">{store.deliveryTime}</Text>
+                        <Text className="text-secondary-600 text-sm">
+                          {store.deliveryTime}
+                        </Text>
                         <Text className="text-secondary-600 text-sm">
                           ${store.deliveryFee} delivery
                         </Text>

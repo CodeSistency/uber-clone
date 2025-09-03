@@ -126,14 +126,22 @@ export const calculateDriverTimes = async ({
         `https://maps.googleapis.com/maps/api/directions/json?origin=${marker.latitude},${marker.longitude}&destination=${userLatitude},${userLongitude}&key=${directionsAPI}`,
       );
       const dataToUser = await responseToUser.json();
-      console.log("[map] directions to user ◀", dataToUser?.status, dataToUser?.routes?.[0]?.legs?.[0]?.duration);
+      console.log(
+        "[map] directions to user ◀",
+        dataToUser?.status,
+        dataToUser?.routes?.[0]?.legs?.[0]?.duration,
+      );
       const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
 
       const responseToDestination = await fetch(
         `https://maps.googleapis.com/maps/api/directions/json?origin=${userLatitude},${userLongitude}&destination=${destinationLatitude},${destinationLongitude}&key=${directionsAPI}`,
       );
       const dataToDestination = await responseToDestination.json();
-      console.log("[map] directions to destination ◀", dataToDestination?.status, dataToDestination?.routes?.[0]?.legs?.[0]?.duration);
+      console.log(
+        "[map] directions to destination ◀",
+        dataToDestination?.status,
+        dataToDestination?.routes?.[0]?.legs?.[0]?.duration,
+      );
       const timeToDestination =
         dataToDestination.routes[0].legs[0].duration.value; // Time in seconds
 

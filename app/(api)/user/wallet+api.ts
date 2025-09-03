@@ -3,13 +3,10 @@ import { neon } from "@neondatabase/serverless";
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
-    const userClerkId = searchParams.get('userId');
+    const userClerkId = searchParams.get("userId");
 
     if (!userClerkId) {
-      return Response.json(
-        { error: "User ID is required" },
-        { status: 400 },
-      );
+      return Response.json({ error: "User ID is required" }, { status: 400 });
     }
 
     const sql = neon(`${process.env.DATABASE_URL}`);
@@ -44,8 +41,8 @@ export async function GET(request: Request) {
     return Response.json({
       data: {
         wallet: wallet[0],
-        recentTransactions: transactions
-      }
+        recentTransactions: transactions,
+      },
     });
   } catch (error) {
     console.error("Error fetching wallet:", error);
@@ -91,7 +88,7 @@ export async function POST(request: Request) {
     // Record transaction
     await sql`
       INSERT INTO wallet_transactions (wallet_id, amount, transaction_type, description)
-      VALUES (${walletId}, ${creditAmount}, 'credit', ${description || 'Wallet top-up'});
+      VALUES (${walletId}, ${creditAmount}, 'credit', ${description || "Wallet top-up"});
     `;
 
     // Get updated wallet

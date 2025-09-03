@@ -60,11 +60,11 @@ export async function GET(request: Request, { id }: { id: string }) {
           origin_address: "123 Main St, Downtown",
           destination_address: "456 Broadway Ave, Uptown",
           origin_latitude: 40.7128,
-          origin_longitude: -74.0060,
+          origin_longitude: -74.006,
           destination_latitude: 40.7589,
           destination_longitude: -73.9851,
           ride_time: 15,
-          fare_price: 25.50,
+          fare_price: 25.5,
           payment_status: "completed",
           created_at: new Date().toISOString(),
           driver: {
@@ -74,8 +74,8 @@ export async function GET(request: Request, { id }: { id: string }) {
             profile_image_url: null,
             car_image_url: null,
             car_seats: 4,
-            rating: 4.5
-          }
+            rating: 4.5,
+          },
         },
         {
           ride_id: 2,
@@ -96,9 +96,9 @@ export async function GET(request: Request, { id }: { id: string }) {
             profile_image_url: null,
             car_image_url: null,
             car_seats: 4,
-            rating: 4.8
-          }
-        }
+            rating: 4.8,
+          },
+        },
       ];
       return Response.json({ data: dummyRides });
     }
@@ -108,7 +108,11 @@ export async function GET(request: Request, { id }: { id: string }) {
   } catch (error) {
     console.error("Error fetching recent rides:", error);
     console.error("Error details:", error);
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    return Response.json({ error: "Internal Server Error", details: errorMessage }, { status: 500 });
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
+    return Response.json(
+      { error: "Internal Server Error", details: errorMessage },
+      { status: 500 },
+    );
   }
 }

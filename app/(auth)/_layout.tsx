@@ -6,14 +6,20 @@ const Layout = () => {
       <Stack.Screen name="welcome" options={{ headerShown: false }} />
       <Stack.Screen name="sign-up" options={{ headerShown: false }} />
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />
-      <Stack.Screen name="driver-register" options={{
-        headerShown: false,
-        title: "Driver Registration"
-      }} />
-      <Stack.Screen name="business-register" options={{
-        headerShown: false,
-        title: "Business Registration"
-      }} />
+      <Stack.Screen
+        name="driver-register"
+        options={{
+          headerShown: false,
+          title: "Driver Registration",
+        }}
+      />
+      <Stack.Screen
+        name="business-register"
+        options={{
+          headerShown: false,
+          title: "Business Registration",
+        }}
+      />
     </Stack>
   );
 };

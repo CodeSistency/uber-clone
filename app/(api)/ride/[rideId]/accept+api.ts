@@ -18,7 +18,10 @@ export async function POST(request: Request, { rideId }: { rideId: string }) {
     `;
 
     if (rideCheck.length === 0) {
-      return Response.json({ error: "Ride not found or already accepted" }, { status: 404 });
+      return Response.json(
+        { error: "Ride not found or already accepted" },
+        { status: 404 },
+      );
     }
 
     // Update the ride with the driver
@@ -30,7 +33,10 @@ export async function POST(request: Request, { rideId }: { rideId: string }) {
     `;
 
     if (response.length === 0) {
-      return Response.json({ error: "Ride was already accepted by another driver" }, { status: 409 });
+      return Response.json(
+        { error: "Ride was already accepted by another driver" },
+        { status: 409 },
+      );
     }
 
     return new Response(JSON.stringify({ data: response[0] }), {

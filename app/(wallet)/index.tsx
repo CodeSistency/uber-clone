@@ -1,54 +1,54 @@
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useState } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Dummy wallet data
 const DUMMY_WALLET = {
-  balance: 25.50,
-  currency: 'USD'
+  balance: 25.5,
+  currency: "USD",
 };
 
 const DUMMY_TRANSACTIONS = [
   {
-    id: 'TXN_001',
-    type: 'credit',
-    amount: 50.00,
-    description: 'Wallet top-up',
-    date: '2024-01-15',
-    time: '14:30'
+    id: "TXN_001",
+    type: "credit",
+    amount: 50.0,
+    description: "Wallet top-up",
+    date: "2024-01-15",
+    time: "14:30",
   },
   {
-    id: 'TXN_002',
-    type: 'debit',
-    amount: 18.50,
-    description: 'Ride payment - Downtown to Uptown',
-    date: '2024-01-15',
-    time: '13:45'
+    id: "TXN_002",
+    type: "debit",
+    amount: 18.5,
+    description: "Ride payment - Downtown to Uptown",
+    date: "2024-01-15",
+    time: "13:45",
   },
   {
-    id: 'TXN_003',
-    type: 'debit',
+    id: "TXN_003",
+    type: "debit",
     amount: 22.75,
-    description: 'Food delivery - Mario\'s Pizza',
-    date: '2024-01-14',
-    time: '19:20'
+    description: "Food delivery - Mario's Pizza",
+    date: "2024-01-14",
+    time: "19:20",
   },
   {
-    id: 'TXN_004',
-    type: 'credit',
-    amount: 25.00,
-    description: 'Referral bonus',
-    date: '2024-01-14',
-    time: '12:00'
+    id: "TXN_004",
+    type: "credit",
+    amount: 25.0,
+    description: "Referral bonus",
+    date: "2024-01-14",
+    time: "12:00",
   },
   {
-    id: 'TXN_005',
-    type: 'debit',
+    id: "TXN_005",
+    type: "debit",
     amount: 15.25,
-    description: 'Ride payment - Midtown to Downtown',
-    date: '2024-01-13',
-    time: '11:15'
-  }
+    description: "Ride payment - Midtown to Downtown",
+    date: "2024-01-13",
+    time: "11:15",
+  },
 ];
 
 const Wallet = () => {
@@ -56,23 +56,29 @@ const Wallet = () => {
   const [transactions] = useState(DUMMY_TRANSACTIONS);
 
   const handleAddFunds = () => {
-    Alert.alert('Add Funds', 'Add funds functionality would open payment screen');
+    Alert.alert(
+      "Add Funds",
+      "Add funds functionality would open payment screen",
+    );
   };
 
   const handleWithdraw = () => {
-    Alert.alert('Withdraw Funds', 'Withdraw functionality would open bank details screen');
+    Alert.alert(
+      "Withdraw Funds",
+      "Withdraw functionality would open bank details screen",
+    );
   };
 
   const getTransactionIcon = (type: string) => {
-    return type === 'credit' ? '💰' : '💳';
+    return type === "credit" ? "💰" : "💳";
   };
 
   const getAmountColor = (type: string) => {
-    return type === 'credit' ? 'text-success-500' : 'text-danger-500';
+    return type === "credit" ? "text-success-500" : "text-danger-500";
   };
 
   const getAmountPrefix = (type: string) => {
-    return type === 'credit' ? '+' : '-';
+    return type === "credit" ? "+" : "-";
   };
 
   return (
@@ -88,7 +94,9 @@ const Wallet = () => {
       <ScrollView className="flex-1 px-5">
         {/* Balance Card */}
         <View className="bg-primary-500 rounded-lg p-6 mb-6">
-          <Text className="text-white text-secondary-600 mb-2">Current Balance</Text>
+          <Text className="text-white text-secondary-600 mb-2">
+            Current Balance
+          </Text>
           <Text className="text-white text-4xl font-JakartaExtraBold mb-4">
             ${wallet.balance.toFixed(2)}
           </Text>
@@ -98,7 +106,9 @@ const Wallet = () => {
               onPress={handleAddFunds}
               className="flex-1 bg-white rounded-full py-3 items-center"
             >
-              <Text className="text-primary-500 font-JakartaBold">Add Funds</Text>
+              <Text className="text-primary-500 font-JakartaBold">
+                Add Funds
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
@@ -131,7 +141,9 @@ const Wallet = () => {
 
         {/* Transaction History */}
         <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">Recent Transactions</Text>
+          <Text className="text-lg font-JakartaBold mb-3">
+            Recent Transactions
+          </Text>
 
           {transactions.length === 0 ? (
             <View className="py-8 items-center">
@@ -142,16 +154,26 @@ const Wallet = () => {
             </View>
           ) : (
             transactions.map((transaction) => (
-              <View key={transaction.id} className="flex-row items-center py-3 border-b border-general-500 last:border-b-0">
-                <Text className="text-2xl mr-3">{getTransactionIcon(transaction.type)}</Text>
+              <View
+                key={transaction.id}
+                className="flex-row items-center py-3 border-b border-general-500 last:border-b-0"
+              >
+                <Text className="text-2xl mr-3">
+                  {getTransactionIcon(transaction.type)}
+                </Text>
                 <View className="flex-1">
-                  <Text className="font-JakartaBold">{transaction.description}</Text>
+                  <Text className="font-JakartaBold">
+                    {transaction.description}
+                  </Text>
                   <Text className="text-secondary-600 text-sm">
                     {transaction.date} • {transaction.time}
                   </Text>
                 </View>
-                <Text className={`font-JakartaExtraBold text-lg ${getAmountColor(transaction.type)}`}>
-                  {getAmountPrefix(transaction.type)}${transaction.amount.toFixed(2)}
+                <Text
+                  className={`font-JakartaExtraBold text-lg ${getAmountColor(transaction.type)}`}
+                >
+                  {getAmountPrefix(transaction.type)}$
+                  {transaction.amount.toFixed(2)}
                 </Text>
               </View>
             ))
@@ -189,10 +211,13 @@ const Wallet = () => {
         <View className="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-8">
           <View className="flex-row items-center mb-2">
             <Text className="text-2xl mr-2">🔒</Text>
-            <Text className="font-JakartaBold text-warning-700">Secure & Protected</Text>
+            <Text className="font-JakartaBold text-warning-700">
+              Secure & Protected
+            </Text>
           </View>
           <Text className="text-warning-700 text-sm">
-            Your wallet is protected by bank-level security. All transactions are encrypted and monitored.
+            Your wallet is protected by bank-level security. All transactions
+            are encrypted and monitored.
           </Text>
         </View>
       </ScrollView>

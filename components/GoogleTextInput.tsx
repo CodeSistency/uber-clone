@@ -1,5 +1,14 @@
 import React, { useState, useRef } from "react";
-import { View, Image, Text, Platform, TextInput, FlatList, TouchableOpacity, ActivityIndicator } from "react-native";
+import {
+  View,
+  Image,
+  Text,
+  Platform,
+  TextInput,
+  FlatList,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 
 import { icons } from "@/constants";
 import { GoogleInputProps } from "@/types/type";
@@ -29,10 +38,18 @@ const apiKeyToUse = googlePlacesApiKey || googleMapsApiKey;
 const globalAny = global as any;
 if (!globalAny.googlePlacesLogged) {
   console.log("[GoogleTextInput] 🔑 API Keys Check:", {
-    PLACES_API_KEY_ENV: googlePlacesApiKey ? `EXISTS (length: ${googlePlacesApiKey.length})` : "MISSING",
-    GOOGLE_MAPS_API_KEY_APP_JSON: googleMapsApiKey ? `EXISTS (length: ${googleMapsApiKey.length})` : "MISSING",
-    DIRECTIONS_API_KEY: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ? "EXISTS" : "MISSING",
-    USING_KEY: apiKeyToUse ? `USING: ${apiKeyToUse.substring(0, 10)}...` : "NO KEY AVAILABLE",
+    PLACES_API_KEY_ENV: googlePlacesApiKey
+      ? `EXISTS (length: ${googlePlacesApiKey.length})`
+      : "MISSING",
+    GOOGLE_MAPS_API_KEY_APP_JSON: googleMapsApiKey
+      ? `EXISTS (length: ${googleMapsApiKey.length})`
+      : "MISSING",
+    DIRECTIONS_API_KEY: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY
+      ? "EXISTS"
+      : "MISSING",
+    USING_KEY: apiKeyToUse
+      ? `USING: ${apiKeyToUse.substring(0, 10)}...`
+      : "NO KEY AVAILABLE",
   });
   globalAny.googlePlacesLogged = true;
 }
@@ -54,7 +71,10 @@ const GoogleTextInput = ({
 
   // Only log mount once per component instance
   React.useEffect(() => {
-    console.log("[GoogleTextInput] 🚀 Component mounted at:", new Date().toISOString());
+    console.log(
+      "[GoogleTextInput] 🚀 Component mounted at:",
+      new Date().toISOString(),
+    );
 
     // Cleanup timeout on unmount
     return () => {
@@ -66,20 +86,30 @@ const GoogleTextInput = ({
 
   // Additional validation
   if (!apiKeyToUse) {
-    console.error("[GoogleTextInput] ❌ NO API KEY AVAILABLE! Check your .env file or app.json");
+    console.error(
+      "[GoogleTextInput] ❌ NO API KEY AVAILABLE! Check your .env file or app.json",
+    );
   }
 
-  if (typeof handlePress !== 'function') {
-    console.error("[GoogleTextInput] ❌ handlePress is not a function!", { handlePress });
+  if (typeof handlePress !== "function") {
+    console.error("[GoogleTextInput] ❌ handlePress is not a function!", {
+      handlePress,
+    });
   }
 
   // Test API key format
-  if (apiKeyToUse && !apiKeyToUse.startsWith('AIza')) {
-    console.warn("[GoogleTextInput] ⚠️ API key doesn't start with 'AIza'. This might be invalid.");
+  if (apiKeyToUse && !apiKeyToUse.startsWith("AIza")) {
+    console.warn(
+      "[GoogleTextInput] ⚠️ API key doesn't start with 'AIza'. This might be invalid.",
+    );
   }
 
   const searchPlaces = async (searchQuery: string) => {
-    if (!searchQuery || searchQuery.length < 2 || searchQuery === lastSearchRef.current) {
+    if (
+      !searchQuery ||
+      searchQuery.length < 2 ||
+      searchQuery === lastSearchRef.current
+    ) {
       return;
     }
 
@@ -95,7 +125,7 @@ const GoogleTextInput = ({
       const params = new URLSearchParams({
         input: searchQuery,
         key: apiKeyToUse,
-        components: 'country:ve',
+        components: "country:ve",
       });
 
       const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`;
@@ -103,7 +133,7 @@ const GoogleTextInput = ({
       console.log("[GoogleTextInput] 🌐 API URL:", apiUrl);
 
       const response = await fetch(apiUrl, {
-        method: 'GET',
+        method: "GET",
       });
 
       const data: PlacesApiResponse = await response.json();
@@ -114,11 +144,14 @@ const GoogleTextInput = ({
         fullResponse: data,
       });
 
-      if (data.status === 'OK' && data.predictions) {
+      if (data.status === "OK" && data.predictions) {
         setResults(data.predictions.slice(0, 5)); // Limit to 5 results
         setShowResults(true);
       } else {
-        console.warn("[GoogleTextInput] ⚠️ API returned non-OK status:", data.status);
+        console.warn(
+          "[GoogleTextInput] ⚠️ API returned non-OK status:",
+          data.status,
+        );
         setResults([]);
         setShowResults(false);
       }
@@ -140,11 +173,11 @@ const GoogleTextInput = ({
       const detailsResponse = await fetch(
         `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place.place_id}&key=${apiKeyToUse}&fields=geometry,formatted_address`,
         {
-          method: 'GET',
+          method: "GET",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const detailsData = await detailsResponse.json();
@@ -153,14 +186,20 @@ const GoogleTextInput = ({
         hasGeometry: !!detailsData.result?.geometry,
       });
 
-      if (detailsData.status === 'OK' && detailsData.result?.geometry?.location) {
+      if (
+        detailsData.status === "OK" &&
+        detailsData.result?.geometry?.location
+      ) {
         const locationData = {
           latitude: detailsData.result.geometry.location.lat,
           longitude: detailsData.result.geometry.location.lng,
           address: place.description,
         };
 
-        console.log("[GoogleTextInput] 📍 Calling handlePress with:", locationData);
+        console.log(
+          "[GoogleTextInput] 📍 Calling handlePress with:",
+          locationData,
+        );
 
         try {
           handlePress(locationData);
@@ -172,10 +211,15 @@ const GoogleTextInput = ({
           setShowResults(false);
           inputRef.current?.blur();
         } catch (error) {
-          console.error("[GoogleTextInput] ❌ Error calling handlePress:", error);
+          console.error(
+            "[GoogleTextInput] ❌ Error calling handlePress:",
+            error,
+          );
         }
       } else {
-        console.error("[GoogleTextInput] ❌ No geometry found in place details");
+        console.error(
+          "[GoogleTextInput] ❌ No geometry found in place details",
+        );
       }
     } catch (error) {
       console.error("[GoogleTextInput] ❌ Error getting place details:", error);
@@ -216,15 +260,12 @@ const GoogleTextInput = ({
       onPress={() => handlePlaceSelect(item)}
     >
       <View className="w-5 h-5 mr-3 justify-center items-center">
-        <Image
-          source={icons.pin}
-          className="w-4 h-4"
-          resizeMode="contain"
-        />
+        <Image source={icons.pin} className="w-4 h-4" resizeMode="contain" />
       </View>
       <View className="flex-1">
         <Text className="text-sm font-JakartaMedium text-gray-900">
-          {item.structured_formatting?.main_text || item.description.split(',')[0]}
+          {item.structured_formatting?.main_text ||
+            item.description.split(",")[0]}
         </Text>
         {item.structured_formatting?.secondary_text && (
           <Text className="text-xs font-JakartaRegular text-gray-500">
@@ -243,7 +284,7 @@ const GoogleTextInput = ({
         {icon && (
           <View className="justify-center items-center w-6 h-6 mr-2">
             <Image
-               source={icon ? icon : icons.search}
+              source={icon ? icon : icons.search}
               className="w-6 h-6"
               resizeMode="contain"
             />

@@ -98,6 +98,136 @@ declare interface PaymentProps {
   rideTime: number;
 }
 
+// Notification Types
+declare interface NotificationData {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  data?: any;
+  timestamp: Date;
+  isRead: boolean;
+  priority: "low" | "normal" | "high" | "critical";
+}
+
+declare interface NotificationPreferences {
+  pushEnabled: boolean;
+  smsEnabled: boolean;
+  rideUpdates: boolean;
+  driverMessages: boolean;
+  promotional: boolean;
+  emergencyAlerts: boolean;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+}
+
+// Real-time Types
+declare interface WebSocketMessage {
+  type: WebSocketMessageType;
+  payload: any;
+  timestamp: Date;
+  rideId?: number;
+}
+
+declare interface RideStatusUpdate {
+  rideId: number;
+  status: RideStatus;
+  timestamp: Date;
+  location?: LocationData;
+  estimatedArrival?: Date;
+}
+
+// Chat Types
+declare interface ChatMessage {
+  id: string;
+  rideId: number;
+  senderId: string;
+  senderType: "passenger" | "driver";
+  message: string;
+  messageType: "text" | "location" | "system";
+  timestamp: Date;
+  isRead: boolean;
+}
+
+// Emergency Types
+declare interface EmergencyAlert {
+  id: string;
+  rideId: number;
+  userId: string;
+  type: "sos" | "accident" | "medical" | "other";
+  location: LocationData;
+  timestamp: Date;
+  status: "active" | "resolved" | "cancelled";
+  description?: string;
+}
+
+declare interface EmergencyContact {
+  id: string;
+  userId: string;
+  name: string;
+  phone: string;
+  relationship: string;
+  isPrimary: boolean;
+}
+
+// Device & Connection Types
+declare interface DeviceToken {
+  token: string;
+  deviceType: "ios" | "android";
+  deviceId: string;
+  isActive: boolean;
+}
+
+declare interface ConnectionStatus {
+  isConnected: boolean;
+  connectionType: "wifi" | "cellular" | "none";
+  websocketConnected: boolean;
+  lastPing: Date;
+}
+
+// Location Types
+declare interface LocationData {
+  latitude: number;
+  longitude: number;
+  accuracy?: number;
+  timestamp: Date;
+}
+
+// Enums
+declare type NotificationType =
+  | "RIDE_REQUEST"
+  | "RIDE_ACCEPTED"
+  | "RIDE_CANCELLED"
+  | "DRIVER_ARRIVED"
+  | "RIDE_STARTED"
+  | "RIDE_COMPLETED"
+  | "PAYMENT_SUCCESS"
+  | "CHAT_MESSAGE"
+  | "EMERGENCY_ALERT"
+  | "SYSTEM_UPDATE";
+
+declare type WebSocketMessageType =
+  | "RIDE_CREATED"
+  | "RIDE_STATUS_UPDATED"
+  | "DRIVER_LOCATION_UPDATE"
+  | "NEW_MESSAGE"
+  | "DRIVER_JOINED_RIDE"
+  | "PASSENGER_JOINED_RIDE"
+  | "EMERGENCY_TRIGGERED"
+  | "RIDE_CANCELLED"
+  | "TYPING_START"
+  | "TYPING_STOP";
+
+declare type RideStatus =
+  | "requested"
+  | "accepted"
+  | "arriving"
+  | "arrived"
+  | "in_progress"
+  | "completed"
+  | "cancelled"
+  | "emergency";
+
 declare interface LocationStore {
   userLatitude: number | null;
   userLongitude: number | null;

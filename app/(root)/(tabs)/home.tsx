@@ -1,5 +1,6 @@
 import { useUser } from "@clerk/clerk-expo";
 import { useAuth } from "@clerk/clerk-expo";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
@@ -13,6 +14,9 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { HamburgerMenu } from "@/app/components/DrawerContent";
+import DrawerContent from "@/app/components/DrawerContent";
+
 import GoogleTextInput from "../../../components/GoogleTextInput";
 import Map from "../../../components/Map";
 import RideCard from "../../../components/RideCard";
@@ -20,9 +24,6 @@ import { icons, images } from "../../../constants";
 import { useFetch } from "../../../lib/fetch";
 import { useLocationStore } from "../../../store";
 import { Ride } from "../../../types/type";
-import { HamburgerMenu } from "@/app/components/DrawerContent";
-import DrawerContent from "@/app/components/DrawerContent";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 // Hamburger menu and drawer are now in the layout
 
 const Home = () => {
@@ -37,23 +38,29 @@ const Home = () => {
   };
 
   // Function to handle mode changes from drawer
-  const handleModeChange = (newMode: 'customer' | 'driver' | 'business') => {
-    console.log('Mode changed from drawer to:', newMode);
+  const handleModeChange = (newMode: "customer" | "driver" | "business") => {
+    console.log("Mode changed from drawer to:", newMode);
     setCurrentMode(newMode);
     setDrawerVisible(false);
   };
-    const [drawerVisible, setDrawerVisible] = useState(false);
-  const [currentMode, setCurrentMode] = useState<'customer' | 'driver' | 'business'>('customer');
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [currentMode, setCurrentMode] = useState<
+    "customer" | "driver" | "business"
+  >("customer");
 
-   useEffect(() => {
+  useEffect(() => {
     const loadCurrentMode = async () => {
       try {
-        const savedMode = await AsyncStorage.getItem('user_mode') as 'customer' | 'driver' | 'business' | null;
+        const savedMode = (await AsyncStorage.getItem("user_mode")) as
+          | "customer"
+          | "driver"
+          | "business"
+          | null;
         if (savedMode) {
           setCurrentMode(savedMode);
         }
       } catch (error) {
-        console.error('Error loading current mode:', error);
+        console.error("Error loading current mode:", error);
       }
     };
     loadCurrentMode();
@@ -103,7 +110,7 @@ const Home = () => {
     router.push("/(root)/find-ride" as any);
   };
 
-    return (
+  return (
     <SafeAreaView className="bg-general-500">
       <FlatList
         data={Array.isArray(recentRides) ? recentRides.slice(0, 5) : []}
@@ -134,10 +141,12 @@ const Home = () => {
         ListHeaderComponent={
           <>
             <View className="flex flex-row items-center justify-between my-5">
-                <HamburgerMenu onPress={() => {
-          console.log('Global hamburger menu pressed!');
-          setDrawerVisible(true);
-        }} />
+              <HamburgerMenu
+                onPress={() => {
+                  console.log("Global hamburger menu pressed!");
+                  setDrawerVisible(true);
+                }}
+              />
               <Text className="text-2xl font-JakartaExtraBold">
                 Welcome {user?.firstName}👋
               </Text>
@@ -170,15 +179,15 @@ const Home = () => {
           </>
         }
       />
-       <DrawerContent
-      visible={drawerVisible}
-      currentMode={currentMode}
-      onModeChange={handleModeChange}
-      onClose={() => {
-        console.log('Global drawer closed');
-        setDrawerVisible(false);
-      }}
-    />
+      <DrawerContent
+        visible={drawerVisible}
+        currentMode={currentMode}
+        onModeChange={handleModeChange}
+        onClose={() => {
+          console.log("Global drawer closed");
+          setDrawerVisible(false);
+        }}
+      />
     </SafeAreaView>
   );
 };
