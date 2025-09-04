@@ -1,9 +1,10 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Modal } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Modal, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import ModeSwitcher from "./ModeSwitcher";
+import { logoutUser } from "@/lib/auth";
 
 interface DrawerContentProps {
   currentMode?: "customer" | "driver" | "business";
@@ -18,6 +19,7 @@ const DrawerContent = ({
   onClose,
   onModeChange,
 }: DrawerContentProps) => {
+
   console.log(
     "DrawerContent rendered, visible:",
     visible,
@@ -28,6 +30,52 @@ const DrawerContent = ({
   const handleNavigation = (route: string) => {
     console.log("Navigating to:", route);
     router.push(route as any);
+  };
+
+  const handleLogout = async () => {
+    try {
+      // Close the drawer first
+      onClose?.();
+
+      // Show confirmation dialog
+      Alert.alert(
+        "Logout",
+        "Are you sure you want to logout?",
+        [
+          {
+            text: "Cancel",
+            style: "cancel",
+          },
+          {
+            text: "Logout",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                console.log("[Drawer] Logging out user...");
+
+                // Logout user with internal authentication
+                const result = await logoutUser();
+
+                if (result.success) {
+                  console.log("[Drawer] Logout successful, redirecting to welcome");
+                  // Navigate to welcome screen
+                  router.replace("/(auth)/welcome");
+                } else {
+                  console.error("[Drawer] Logout failed:", result.message);
+                  Alert.alert("Error", "Failed to logout. Please try again.");
+                }
+              } catch (error) {
+                console.error("[Drawer] Error during logout:", error);
+                Alert.alert("Error", "Failed to logout. Please try again.");
+              }
+            },
+          },
+        ],
+      );
+    } catch (error) {
+      console.error("[Drawer] Error in logout handler:", error);
+      Alert.alert("Error", "Failed to logout. Please try again.");
+    }
   };
 
   const menuItems = [
@@ -120,11 +168,7 @@ const DrawerContent = ({
             {/* Footer */}
             <View className="p-6 border-t border-general-500">
               <TouchableOpacity
-                onPress={() => {
-                  // Handle logout
-                  router.replace("/(auth)/sign-in");
-                  onClose?.();
-                }}
+                onPress={handleLogout}
                 className="flex-row items-center"
               >
                 <Text className="text-xl mr-3">🚪</Text>

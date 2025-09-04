@@ -1,11 +1,7 @@
-import { useUser } from "@clerk/clerk-expo";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Tabs } from "expo-router";
-import { useState, useEffect } from "react";
-import { Image, ImageSourcePropType, View, Text } from "react-native";
+import { Image, ImageSourcePropType, View } from "react-native";
 
 import { icons } from "../../../constants";
-import DrawerContent, { HamburgerMenu } from "../../components/DrawerContent";
 
 const TabIcon = ({
   source,
@@ -31,7 +27,6 @@ const TabIcon = ({
 );
 
 export default function Layout() {
-  const { user } = useUser();
 
   // Load current mode from AsyncStorage
 

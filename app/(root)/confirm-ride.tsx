@@ -1,4 +1,3 @@
-import { useAuth } from "@clerk/clerk-expo";
 import { router } from "expo-router";
 import { FlatList, View } from "react-native";
 
@@ -6,11 +5,11 @@ import CustomButton from "@/components/CustomButton";
 import DriverCard from "@/components/DriverCard";
 import RideLayout from "@/components/RideLayout";
 import { fetchAPI } from "@/lib/fetch";
-import { useDriverStore, useLocationStore } from "@/store";
+import { useDriverStore, useLocationStore, useUserStore } from "@/store";
 
 const ConfirmRide = () => {
   const { drivers, selectedDriver, setSelectedDriver } = useDriverStore();
-  const { userId } = useAuth();
+  const { user } = useUserStore();
   const {
     userAddress,
     userLongitude,
@@ -28,20 +27,20 @@ const ConfirmRide = () => {
     driversCount: drivers?.length,
     selectedDriver,
     selectedDriverData,
-    userId,
+    userId: user?.id,
   });
 
   const handleConfirmRide = async () => {
     console.log("[ConfirmRide] Starting ride confirmation process...");
     console.log("[ConfirmRide] Selected driver ID:", selectedDriver);
     console.log("[ConfirmRide] Available drivers:", drivers?.length);
-    console.log("[ConfirmRide] User ID:", userId);
+    console.log("[ConfirmRide] User ID:", user?.id);
     console.log("[ConfirmRide] Selected driver data:", selectedDriverData);
 
-    if (!selectedDriverData || !userId) {
+    if (!selectedDriverData || !user?.id) {
       console.error("[ConfirmRide] Missing driver data or user ID");
       console.error("[ConfirmRide] selectedDriverData:", selectedDriverData);
-      console.error("[ConfirmRide] userId:", userId);
+      console.error("[ConfirmRide] userId:", user?.id);
       return;
     }
 
@@ -77,7 +76,7 @@ const ConfirmRide = () => {
           : 2500, // Default $25
         payment_status: "paid", // Testing with paid status
         driver_id: selectedDriverData.id,
-        user_id: userId,
+        user_id: user?.id,
       };
 
       console.log("[ConfirmRide] Ride data to send:", rideData);

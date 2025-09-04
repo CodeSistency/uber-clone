@@ -1,4 +1,3 @@
-import { useAuth } from "@clerk/clerk-expo";
 import { useStripe } from "@stripe/stripe-react-native";
 import { router } from "expo-router";
 import React, { useState } from "react";
@@ -8,7 +7,7 @@ import { ReactNativeModal } from "react-native-modal";
 import CustomButton from "@/components/CustomButton";
 import { images } from "@/constants";
 import { fetchAPI } from "@/lib/fetch";
-import { useLocationStore } from "@/store";
+import { useLocationStore, useUserStore } from "@/store";
 import { PaymentProps } from "@/types/type";
 
 const Payment = ({
@@ -28,7 +27,7 @@ const Payment = ({
     destinationLongitude,
   } = useLocationStore();
 
-  const { userId } = useAuth();
+  const { user } = useUserStore();
   const [success, setSuccess] = useState<boolean>(false);
 
   const openPaymentSheet = async () => {
@@ -103,7 +102,7 @@ const Payment = ({
                   fare_price: parseInt(amount) * 100,
                   payment_status: "paid",
                   driver_id: driverId,
-                  user_id: userId,
+                  user_id: user?.id,
                 }),
               });
 

@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 
 const Layout = () => {
+  console.log("[AuthLayout] Rendering auth layout");
+
   return (
     <Stack>
       <Stack.Screen name="welcome" options={{ headerShown: false }} />

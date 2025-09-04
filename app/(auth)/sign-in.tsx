@@ -1,57 +1,86 @@
-import { useSignIn } from "@clerk/clerk-expo";
 import { Link, router } from "expo-router";
-import { useCallback, useState } from "react";
-import { Alert, Image, ScrollView, Text, View } from "react-native";
+import { useState, useEffect } from "react";
+import { Image, ScrollView, Text, View } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
-import OAuth from "../../components/OAuth";
 import { icons, images } from "../../constants";
-import { linkUserWithClerk, initializeUserAuth } from "../../lib/auth";
+import { loginUser, isAuthenticated } from "../../lib/auth";
+import { useUI } from "../../components/UIWrapper";
 
 const SignIn = () => {
-  const { signIn, setActive, isLoaded } = useSignIn();
+  console.log("[SignIn] Rendering sign-in screen");
 
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
 
-  const onSignInPress = useCallback(async () => {
-    if (!isLoaded) return;
+  const { withUI, showSuccess, showError } = useUI();
 
-    try {
-      const signInAttempt = await signIn.create({
-        identifier: form.email,
-        password: form.password,
-      });
+  useEffect(() => {
+    console.log("[SignIn] useEffect triggered, checking authentication");
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      console.log("[SignIn] User authenticated:", authenticated);
+      if (authenticated) {
+        console.log("[SignIn] User already authenticated, redirecting to home");
+        router.replace("/");
+      } else {
+        console.log("[SignIn] User not authenticated, staying on sign-in");
+      }
+    };
+    checkAuth();
+  }, []);
 
-      if (signInAttempt.status === "complete") {
-        // Initialize user authentication with backend
-        const authResult = await initializeUserAuth({
-          email: form.email,
+
+  console.log("[SignIn] Rendering sign-in content");
+
+  const onSignInPress = async () => {
+    console.log("[SignIn] Form data before submission:", form);
+
+    // Validate form data
+    if (!form.email || !form.password) {
+      console.log("[SignIn] Form validation failed - missing fields");
+      showError("Validation Error", "Please fill in all fields");
+      return;
+    }
+
+    const result = await withUI(
+      async () => {
+        console.log("[SignIn] Logging in user...");
+
+        // Login user with internal authentication
+        const loginResult = await loginUser({
+          email: form.email.trim(),
+          password: form.password,
         });
 
-        if (!authResult.success) {
-          console.warn("Failed to initialize user auth:", authResult.error);
-          // Don't block sign-in for this, just log the warning
+        console.log("[SignIn] Login result:", loginResult);
+
+        if (!loginResult.success) {
+          throw new Error(loginResult.message || "Login failed");
         }
 
-        await setActive({ session: signInAttempt.createdSessionId });
-        router.replace("/(root)/(tabs)/home");
-      } else {
-        // See https://clerk.com/docs/custom-flows/error-handling for more info on error handling
-        console.log(JSON.stringify(signInAttempt, null, 2));
-        Alert.alert("Error", "Log in failed. Please try again.");
+        return loginResult;
+      },
+      {
+        loadingMessage: "Signing you in...",
+        successMessage: "Welcome back to UberClone!",
+        errorTitle: "Login Failed",
+        onSuccess: () => {
+          console.log("[SignIn] Login successful, redirecting to home");
+          setTimeout(() => {
+            router.replace("/(root)/(tabs)/home");
+          }, 1000); // Give time for success message to show
+        },
+        onError: (error) => {
+          console.error("[SignIn] Login error:", error);
+        }
       }
-    } catch (err: any) {
-      console.log(JSON.stringify(err, null, 2));
-      const errorMessage = err.errors?.[0]?.longMessage ||
-                          err.message ||
-                          "An error occurred during sign in";
-      Alert.alert("Error", errorMessage);
-    }
-  }, [isLoaded, form]);
+    );
+  };
 
   return (
     <ScrollView className="flex-1 bg-white">
@@ -88,8 +117,6 @@ const SignIn = () => {
             onPress={onSignInPress}
             className="mt-6"
           />
-
-          <OAuth />
 
           <Link
             href="/sign-up"

@@ -1,19 +1,19 @@
-import { useUser } from "@clerk/clerk-expo";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "../../../components/CustomButton";
 import InputField from "../../../components/InputField";
 import { userModeStorage } from "../../lib/storage";
+import { isAuthenticated } from "@/lib/auth";
 
 const DriverRegister = () => {
-  const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState<boolean | null>(null);
   const [formData, setFormData] = useState({
-    firstName: user?.firstName || "",
-    lastName: user?.lastName || "",
+    firstName: "",
+    lastName: "",
     phoneNumber: "",
     vehicleModel: "",
     licensePlate: "",
@@ -21,6 +21,27 @@ const DriverRegister = () => {
     vehicleColor: "",
     serviceType: "rides" as "rides" | "deliveries" | "both",
   });
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      setIsAuthenticatedState(authenticated);
+      if (!authenticated) {
+        router.replace("/(auth)/sign-in");
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Don't render if user is not authenticated
+  if (isAuthenticatedState === null) {
+    return null; // Loading state
+  }
+
+  if (!isAuthenticatedState) {
+    return null; // Will redirect via useEffect
+  }
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));

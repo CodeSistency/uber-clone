@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { jwtTokenManager } from "./auth";
 
 // Base URL for the new backend API
-const API_BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000/api";
+const API_BASE_URL = (process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000") + "/api";
 
 export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean }) => {
   const startMs = Date.now();
@@ -20,7 +20,18 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
     headers
   };
 
-  console.log("[fetchAPI] ▶ Request", { endpoint, fullUrl, options: requestOptions });
+  console.log("[fetchAPI] ▶ Request", {
+    endpoint,
+    fullUrl,
+    options: requestOptions,
+    bodyContent: options?.body && typeof options.body === 'string' ? (() => {
+      try {
+        return JSON.parse(options.body as string);
+      } catch {
+        return options.body;
+      }
+    })() : options?.body
+  });
 
   try {
     const response = await fetch(fullUrl, requestOptions);

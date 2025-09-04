@@ -1,6 +1,8 @@
 import { Stack } from "expo-router";
 
 const Layout = () => {
+  console.log("[RootLayout] Rendering root layout");
+
   return (
     <Stack>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />

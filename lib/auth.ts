@@ -1,44 +1,92 @@
-import * as Linking from "expo-linking";
 import * as SecureStore from "expo-secure-store";
-
 import { fetchAPI } from "@/lib/fetch";
+import { useUserStore } from "@/store";
 
-// JWT Token management for protected endpoints
-export const jwtTokenManager = {
-  // Store JWT token for API calls
-  async setJwtToken(token: string) {
+// Types for authentication
+export interface User {
+  id: number;
+  name: string;
+  email: string;
+  clerkId: string | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface AuthResponse {
+  accessToken: string;
+  refreshToken: string;
+  user: User;
+}
+
+export interface LoginCredentials {
+  email: string;
+  password: string;
+}
+
+export interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+}
+
+// Internal JWT Token management
+export const tokenManager = {
+  // Store access token
+  async setAccessToken(token: string) {
     try {
-      await SecureStore.setItemAsync("jwt_token", token);
-      console.log("JWT token stored securely");
+      await SecureStore.setItemAsync("access_token", token);
+      console.log("[Auth] Access token stored securely");
     } catch (error) {
-      console.error("Error storing JWT token:", error);
+      console.error("[Auth] Error storing access token:", error);
     }
   },
 
-  // Get JWT token for API calls
-  async getJwtToken(): Promise<string | null> {
+  // Get access token
+  async getAccessToken(): Promise<string | null> {
     try {
-      const token = await SecureStore.getItemAsync("jwt_token");
+      const token = await SecureStore.getItemAsync("access_token");
       return token;
     } catch (error) {
-      console.error("Error retrieving JWT token:", error);
+      console.error("[Auth] Error retrieving access token:", error);
       return null;
     }
   },
 
-  // Clear JWT token (logout)
-  async clearJwtToken() {
+  // Store refresh token
+  async setRefreshToken(token: string) {
     try {
-      await SecureStore.deleteItemAsync("jwt_token");
-      console.log("JWT token cleared");
+      await SecureStore.setItemAsync("refresh_token", token);
+      console.log("[Auth] Refresh token stored securely");
     } catch (error) {
-      console.error("Error clearing JWT token:", error);
+      console.error("[Auth] Error storing refresh token:", error);
+    }
+  },
+
+  // Get refresh token
+  async getRefreshToken(): Promise<string | null> {
+    try {
+      const token = await SecureStore.getItemAsync("refresh_token");
+      return token;
+    } catch (error) {
+      console.error("[Auth] Error retrieving refresh token:", error);
+      return null;
+    }
+  },
+
+  // Clear all tokens (logout)
+  async clearTokens() {
+    try {
+      await SecureStore.deleteItemAsync("access_token");
+      await SecureStore.deleteItemAsync("refresh_token");
+      console.log("[Auth] All tokens cleared");
+    } catch (error) {
+      console.error("[Auth] Error clearing tokens:", error);
     }
   },
 
   // Get headers for protected API calls
   async getAuthHeaders(): Promise<Record<string, string>> {
-    const token = await this.getJwtToken();
+    const token = await this.getAccessToken();
     if (token) {
       return {
         "Authorization": `Bearer ${token}`,
@@ -48,9 +96,24 @@ export const jwtTokenManager = {
     return {
       "Content-Type": "application/json",
     };
+  },
+
+  // Get headers for refresh token calls
+  async getRefreshHeaders(): Promise<Record<string, string>> {
+    const refreshToken = await this.getRefreshToken();
+    if (refreshToken) {
+      return {
+        "Authorization": `Bearer ${refreshToken}`,
+        "Content-Type": "application/json",
+      };
+    }
+    return {
+      "Content-Type": "application/json",
+    };
   }
 };
 
+// Legacy token cache for Clerk compatibility (can be removed later)
 export const tokenCache = {
   async getToken(key: string) {
     try {
@@ -76,199 +139,554 @@ export const tokenCache = {
   },
 };
 
-export const googleOAuth = async (startOAuthFlow: any) => {
+// Internal Authentication Functions
+
+// Register a new user
+export const registerUser = async (userData: RegisterData): Promise<{ success: boolean; message: string; data?: AuthResponse }> => {
   try {
-    const { createdSessionId, setActive, signUp } = await startOAuthFlow({
-      redirectUrl: Linking.createURL("/(root)/(tabs)/home"),
-    });
+    console.log("[Auth] Registering user:", userData.email);
 
-    if (createdSessionId) {
-      if (setActive) {
-        await setActive({ session: createdSessionId });
-
-        // Use new backend callback endpoint and initialize auth
-        if (signUp.createdUserId) {
-          try {
-            // First try the callback endpoint
-            const response = await fetchAPI("user/auth/callback", {
-              method: "POST",
-              headers: await jwtTokenManager.getAuthHeaders(),
-              body: JSON.stringify({
-                name: `${signUp.firstName || ''} ${signUp.lastName || ''}`.trim(),
-                email: signUp.emailAddress,
-              }),
-            });
-
-            if (response?.data?.[0]) {
-              // Initialize JWT and complete auth setup
-              await initializeUserAuth({
-                name: `${signUp.firstName || ''} ${signUp.lastName || ''}`.trim(),
-                email: signUp.emailAddress,
-              });
-
-              console.log("User authenticated via callback:", response.message);
-              return {
-                success: true,
-                code: "success",
-                message: response.message || "You have successfully signed in with Google",
-                isNewUser: response.isNewUser,
-                user: response.data[0]
-              };
-            }
-          } catch (error) {
-            console.error("Error in OAuth callback:", error);
-            // Fallback: try to initialize auth anyway
-            try {
-              await initializeUserAuth({
-                name: `${signUp.firstName || ''} ${signUp.lastName || ''}`.trim(),
-                email: signUp.emailAddress,
-              });
-            } catch (initError) {
-              console.error("Failed to initialize auth:", initError);
-            }
-
-            // Still return success since Clerk auth worked
-            return {
-              success: true,
-              code: "success",
-              message: "You have successfully signed in with Google",
-            };
-          }
-        }
-
-        return {
-          success: true,
-          code: "success",
-          message: "You have successfully signed in with Google",
-        };
-      }
-    }
-
-    return {
-      success: false,
-      message: "An error occurred while signing in with Google",
-    };
-  } catch (err: any) {
-    console.error("OAuth error:", err);
-    return {
-      success: false,
-      code: err.code,
-      message: err?.errors?.[0]?.longMessage || "An error occurred during Google sign-in",
-    };
-  }
-};
-
-// Helper function to handle user creation with new API
-export const createUserWithBackend = async (userData: {
-  name: string;
-  email: string;
-  clerkId?: string;
-}) => {
-  try {
-    const response = await fetchAPI("user", {
+    const response = await fetchAPI("auth/register", {
       method: "POST",
-      body: JSON.stringify({
-        name: userData.name,
-        email: userData.email,
-      }),
-    });
-
-    if (response?.data?.[0]) {
-      console.log("User created successfully:", response.message);
-      return {
-        success: true,
-        user: response.data[0],
-        message: response.message
-      };
-    }
-
-    return {
-      success: false,
-      message: response?.message || "Failed to create user"
-    };
-  } catch (error: any) {
-    console.error("Error creating user:", error);
-    return {
-      success: false,
-      message: error.message || "Failed to create user",
-      statusCode: error.statusCode
-    };
-  }
-};
-
-// Helper function to link existing user with Clerk
-export const linkUserWithClerk = async (userData: {
-  name: string;
-  email: string;
-}) => {
-  try {
-    const response = await fetchAPI("user/link-clerk", {
-      method: "POST",
-      headers: await jwtTokenManager.getAuthHeaders(),
+      headers: {
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify(userData),
     });
 
-    if (response?.data?.[0]) {
-      console.log("User linked successfully:", response.message);
+    console.log("[Auth] Register response:", response);
+
+    // Handle nested response structure from backend
+    const accessToken = response?.data?.accessToken || response?.accessToken;
+    const refreshToken = response?.data?.refreshToken || response?.refreshToken;
+    const user = response?.data?.user || response?.user;
+
+    console.log("[Auth] Extracted tokens:");
+    console.log("[Auth] accessToken:", accessToken ? "PRESENT" : "MISSING");
+    console.log("[Auth] refreshToken:", refreshToken ? "PRESENT" : "MISSING");
+    console.log("[Auth] accessToken value:", accessToken ? accessToken.substring(0, 20) + "..." : "undefined");
+    console.log("[Auth] refreshToken value:", refreshToken ? refreshToken.substring(0, 20) + "..." : "undefined");
+    console.log("[Auth] accessToken type:", typeof accessToken);
+    console.log("[Auth] refreshToken type:", typeof refreshToken);
+    console.log("[Auth] accessToken length:", accessToken?.length);
+    console.log("[Auth] refreshToken length:", refreshToken?.length);
+    console.log("[Auth] accessToken truthy:", !!accessToken);
+    console.log("[Auth] refreshToken truthy:", !!refreshToken);
+    console.log("[Auth] Combined condition:", !!(accessToken && refreshToken));
+
+    // Test the condition explicitly
+    const hasAccessToken = !!accessToken;
+    const hasRefreshToken = !!refreshToken;
+    console.log("[Auth] hasAccessToken:", hasAccessToken);
+    console.log("[Auth] hasRefreshToken:", hasRefreshToken);
+    console.log("[Auth] Final condition result:", hasAccessToken && hasRefreshToken);
+
+    // Check if we have a successful response regardless of token extraction
+    const isSuccessful = response?.statusCode === 201 ||
+                        response?.message === "Success" ||
+                        (accessToken && refreshToken);
+
+    console.log("[Auth] isSuccessful check:", isSuccessful);
+    console.log("[Auth] statusCode check:", response?.statusCode === 201);
+    console.log("[Auth] message check:", response?.message === "Success");
+    console.log("[Auth] tokens check:", !!(accessToken && refreshToken));
+
+    if (isSuccessful) {
+      console.log("[Auth] Registration successful, proceeding with token storage");
+
+      // Store tokens securely (use extracted tokens or try alternative extraction)
+      const finalAccessToken = accessToken || response?.data?.accessToken || response?.accessToken;
+      const finalRefreshToken = refreshToken || response?.data?.refreshToken || response?.refreshToken;
+      const finalUser = user || response?.data?.user || response?.user;
+
+      if (finalAccessToken && finalRefreshToken) {
+        await tokenManager.setAccessToken(finalAccessToken);
+        await tokenManager.setRefreshToken(finalRefreshToken);
+        console.log("[Auth] Tokens stored successfully");
+      } else {
+        console.log("[Auth] Warning: Could not extract tokens for storage");
+      }
+
+      // Store user data in global store
+      if (finalUser) {
+        console.log("[Auth] Storing user data in global store:", finalUser);
+        useUserStore.getState().setUser(finalUser);
+      }
+
+      console.log("[Auth] User registered successfully:", finalUser?.email);
+
       return {
         success: true,
-        user: response.data[0],
-        message: response.message
+        message: "User registered successfully",
+        data: {
+          accessToken: finalAccessToken,
+          refreshToken: finalRefreshToken,
+          user: finalUser
+        }
+      };
+    }
+
+    console.log("[Auth] Tokens are missing, registration failed");
+    console.log("[Auth] accessToken exists:", !!accessToken);
+    console.log("[Auth] refreshToken exists:", !!refreshToken);
+    console.log("[Auth] response.message:", response?.message);
+
+    return {
+      success: false,
+      message: response?.message || "Registration failed"
+    };
+  } catch (error: any) {
+    console.error("[Auth] Registration error:", error);
+            return {
+      success: false,
+      message: error.message || "Registration failed"
+    };
+  }
+};
+
+// Login user
+export const loginUser = async (credentials: LoginCredentials): Promise<{ success: boolean; message: string; data?: AuthResponse }> => {
+  try {
+    console.log("[Auth] Logging in user:", credentials.email);
+
+    const response = await fetchAPI("auth/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(credentials),
+    });
+
+    console.log("[Auth] Login response:", response);
+
+        // Handle nested response structure from backend
+    const accessToken = response?.data?.accessToken || response?.accessToken;
+    const refreshToken = response?.data?.refreshToken || response?.refreshToken;
+    const user = response?.data?.user || response?.user;
+
+    console.log("[Auth] Extracted tokens (login):");
+    console.log("[Auth] accessToken:", accessToken ? "PRESENT" : "MISSING");
+    console.log("[Auth] refreshToken:", refreshToken ? "PRESENT" : "MISSING");
+    console.log("[Auth] accessToken value:", accessToken ? accessToken.substring(0, 20) + "..." : "undefined");
+    console.log("[Auth] refreshToken value:", refreshToken ? refreshToken.substring(0, 20) + "..." : "undefined");
+
+    // Check if we have a successful response regardless of token extraction
+    const isSuccessful = response?.statusCode === 201 ||
+                        response?.message === "Success" ||
+                        (accessToken && refreshToken);
+
+    if (isSuccessful) {
+      console.log("[Auth] Login successful, proceeding with token storage");
+
+      // Store tokens securely (use extracted tokens or try alternative extraction)
+      const finalAccessToken = accessToken || response?.data?.accessToken || response?.accessToken;
+      const finalRefreshToken = refreshToken || response?.data?.refreshToken || response?.refreshToken;
+      const finalUser = user || response?.data?.user || response?.user;
+
+      if (finalAccessToken && finalRefreshToken) {
+        await tokenManager.setAccessToken(finalAccessToken);
+        await tokenManager.setRefreshToken(finalRefreshToken);
+        console.log("[Auth] Tokens stored successfully");
+      } else {
+        console.log("[Auth] Warning: Could not extract tokens for storage");
+      }
+
+      // Store user data in global store
+      if (finalUser) {
+        console.log("[Auth] Storing user data in global store:", finalUser);
+        useUserStore.getState().setUser(finalUser);
+      }
+
+      console.log("[Auth] User logged in successfully:", finalUser?.email);
+
+      return {
+        success: true,
+        message: "Login successful",
+        data: {
+          accessToken: finalAccessToken,
+          refreshToken: finalRefreshToken,
+          user: finalUser
+        }
       };
     }
 
     return {
       success: false,
-      message: response?.message || "Failed to link user"
+      message: response?.message || "Login failed"
     };
   } catch (error: any) {
-    console.error("Error linking user:", error);
+    console.error("[Auth] Login error:", error);
     return {
       success: false,
-      message: error.message || "Failed to link user",
-      statusCode: error.statusCode
+      message: error.message || "Login failed"
     };
   }
 };
 
-// JWT Token acquisition and management
-export const setupJwtToken = async () => {
+// Logout user
+export const logoutUser = async (): Promise<{ success: boolean; message: string }> => {
   try {
-    // For development, use a test token
-    // In production, this would make a call to get a JWT token from the backend
-    const devToken = process.env.EXPO_PUBLIC_JWT_DEV_TOKEN || "dev-test-token";
+    console.log("[Auth] Logging out user");
 
-    await jwtTokenManager.setJwtToken(devToken);
-    console.log("JWT token set up for development");
+    const response = await fetchAPI("auth/logout", {
+      method: "POST",
+      headers: await tokenManager.getAuthHeaders(),
+    });
 
-    return { success: true };
-  } catch (error) {
-    console.error("Error setting up JWT token:", error);
-    return { success: false, error };
+    // Clear tokens regardless of API response
+    await tokenManager.clearTokens();
+
+    // Clear user data from global store
+    console.log("[Auth] Clearing user data from global store");
+    useUserStore.getState().clearUser();
+
+    console.log("[Auth] User logged out successfully");
+    return {
+      success: true,
+      message: response?.message || "Logout successful"
+    };
+  } catch (error: any) {
+    console.error("[Auth] Logout error:", error);
+    // Still clear tokens even if API call fails
+    await tokenManager.clearTokens();
+
+    // Clear user data from global store even on error
+    console.log("[Auth] Clearing user data from global store (error case)");
+    useUserStore.getState().clearUser();
+
+    return {
+      success: true,
+      message: "Logged out locally"
+    };
   }
 };
 
-// Function to initialize authentication after successful Clerk login
-export const initializeUserAuth = async (userData?: { email: string; name?: string }) => {
+// Get user profile
+export const getUserProfile = async (): Promise<{ success: boolean; message: string; data?: User }> => {
   try {
-    // Set up JWT token
-    await setupJwtToken();
+    console.log("[Auth] Getting user profile");
 
-    // If user data is provided, ensure backend linkage
-    if (userData?.email) {
-      const linkResult = await linkUserWithClerk({
-        name: userData.name || "",
-        email: userData.email,
-      });
+    const response = await fetchAPI("auth/profile", {
+      method: "GET",
+      headers: await tokenManager.getAuthHeaders(),
+    });
 
-      if (!linkResult.success && linkResult.statusCode !== 409) {
-        console.warn("Backend linkage failed:", linkResult.message);
+    console.log("[Auth] Profile response:", response);
+    console.log("[Auth] Profile response type:", typeof response);
+    console.log("[Auth] Profile response keys:", Object.keys(response || {}));
+
+    // Handle nested response structure (data wrapper)
+    const userData = response?.data || response;
+
+    console.log("[Auth] Extracted user data:", userData);
+    console.log("[Auth] UserData has id:", !!userData?.id);
+    console.log("[Auth] UserData has email:", !!userData?.email);
+    console.log("[Auth] Response has statusCode:", !!response?.statusCode);
+    console.log("[Auth] StatusCode value:", response?.statusCode);
+
+    // Primary check: HTTP status success with valid data
+    if ((response?.statusCode === 200 || response?.statusCode === 201) && userData?.id && userData?.email) {
+      console.log("[Auth] ✅ HTTP success with valid user data");
+      return {
+        success: true,
+        message: response.message || "Profile retrieved successfully",
+        data: userData
+      };
+    }
+
+    if (userData?.id && userData?.email) {
+      console.log("[Auth] Valid user data found:", userData);
+      return {
+        success: true,
+        message: "Profile retrieved successfully",
+        data: userData
+      };
+    }
+
+    // Check if response has success/message structure
+    if (response?.success === true && response?.data) {
+      console.log("[Auth] Success response with data:", response.data);
+      return {
+        success: true,
+        message: response.message || "Profile retrieved successfully",
+        data: response.data
+      };
+    }
+
+    // Check if response has success/message structure without data wrapper
+    if (response?.success === true && userData?.id) {
+      console.log("[Auth] Success response with user data:", userData);
+      return {
+        success: true,
+        message: response.message || "Profile retrieved successfully",
+        data: userData
+      };
+    }
+
+    console.log("[Auth] ❌ No valid condition matched, treating as error");
+    console.log("[Auth] Response success:", response?.success);
+    console.log("[Auth] Response statusCode:", response?.statusCode);
+    console.log("[Auth] Response message:", response?.message);
+    console.log("[Auth] UserData id:", userData?.id);
+    console.log("[Auth] UserData email:", userData?.email);
+    console.log("[Auth] Full response for debugging:", JSON.stringify(response, null, 2));
+
+    return {
+      success: false,
+      message: response?.message || "Failed to get profile - invalid response structure"
+    };
+  } catch (error: any) {
+    console.error("[Auth] Profile error:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to get profile"
+    };
+  }
+};
+
+// Refresh access token
+export const refreshAccessToken = async (): Promise<{ success: boolean; message: string; data?: { accessToken: string; refreshToken: string } }> => {
+  try {
+    console.log("[Auth] Refreshing access token");
+
+    const refreshToken = await tokenManager.getRefreshToken();
+    if (!refreshToken) {
+      return {
+        success: false,
+        message: "No refresh token available"
+      };
+    }
+
+    const response = await fetchAPI("auth/refresh", {
+      method: "POST",
+      headers: await tokenManager.getRefreshHeaders(),
+      body: JSON.stringify({ refreshToken }),
+    });
+
+    console.log("[Auth] Refresh response:", response);
+
+    if (response?.accessToken && response?.refreshToken) {
+      // Store new tokens
+      await tokenManager.setAccessToken(response.accessToken);
+      await tokenManager.setRefreshToken(response.refreshToken);
+
+      return {
+        success: true,
+        message: "Token refreshed successfully",
+        data: {
+          accessToken: response.accessToken,
+          refreshToken: response.refreshToken
+        }
+      };
+    }
+
+    return {
+      success: false,
+      message: response?.message || "Token refresh failed"
+    };
+  } catch (error: any) {
+    console.error("[Auth] Token refresh error:", error);
+    return {
+      success: false,
+      message: error.message || "Token refresh failed"
+    };
+  }
+};
+
+// Check if user is authenticated
+export const isAuthenticated = async (): Promise<boolean> => {
+  try {
+    // First check if user exists in store (fast check)
+    const userStore = useUserStore.getState();
+    if (userStore.user && userStore.isAuthenticated) {
+      console.log("[Auth] User authenticated via store:", userStore.user.email);
+      return true;
+    }
+
+    // Fallback to token check
+    const token = await tokenManager.getAccessToken();
+    const hasToken = !!token;
+
+    // Update store based on token existence
+    if (hasToken && !userStore.user) {
+      console.log("[Auth] Token exists but no user in store, attempting to fetch user profile");
+      // Try to refresh user data if we have token but no user in store
+      const profileResult = await getUserProfile();
+      console.log("[Auth] Profile fetch result in isAuthenticated:", profileResult);
+
+      if (profileResult.success && profileResult.data) {
+        console.log("[Auth] Setting user from profile:", profileResult.data);
+        userStore.setUser(profileResult.data);
+        return true;
+      } else {
+        console.log("[Auth] Failed to fetch profile in isAuthenticated:", profileResult.message);
       }
     }
 
-    return { success: true };
+    console.log("[Auth] Authentication check result:", hasToken);
+    return hasToken;
   } catch (error) {
-    console.error("Error initializing user auth:", error);
-    return { success: false, error };
+    console.error("[Auth] Error checking authentication:", error);
+    return false;
   }
+};
+
+// Legacy functions for backward compatibility (can be removed later)
+export const jwtTokenManager = tokenManager; // Alias for backward compatibility
+
+// Initialize user store on app startup
+export const initializeUserStore = async (): Promise<void> => {
+  try {
+    console.log("[Auth] Initializing user store...");
+
+    // Check if we have a valid token
+    const token = await tokenManager.getAccessToken();
+    console.log("[Auth] Access token exists:", !!token);
+
+    if (!token) {
+      console.log("[Auth] No token found, clearing user store");
+      useUserStore.getState().clearUser();
+      return;
+    }
+
+    // Check if user is already in store
+    const userStore = useUserStore.getState();
+    console.log("[Auth] Current user in store:", userStore.user);
+
+    if (userStore.user) {
+      console.log("[Auth] User already in store:", userStore.user.email);
+      return;
+    }
+
+    // Fetch user profile and store it
+    console.log("[Auth] Fetching user profile for store initialization");
+    const result = await getUserProfile();
+    console.log("[Auth] Profile fetch result:", result);
+
+    if (result.success && result.data) {
+      console.log("[Auth] ✅ User profile fetched successfully:", result.data);
+      console.log("[Auth] Storing user in store:", result.data.email);
+      userStore.setUser(result.data);
+
+      // Verify the user was stored
+      const updatedStore = useUserStore.getState();
+      console.log("[Auth] ✅ User stored in store:", updatedStore.user);
+    } else {
+      console.log("[Auth] ❌ Failed to fetch user profile:", result.message);
+      console.log("[Auth] Clearing user store due to fetch failure");
+      userStore.clearUser();
+    }
+  } catch (error) {
+    console.error("[Auth] ❌ Error initializing user store:", error);
+    console.error("[Auth] Error details:", error instanceof Error ? error.message : String(error));
+    useUserStore.getState().clearUser();
+  }
+};
+
+// Hook to ensure user data is available (optional usage)
+export const useEnsureUserData = () => {
+  const userStore = useUserStore();
+
+  const ensureUserData = async () => {
+    // If user is already in store, no need to do anything
+    if (userStore.user) {
+      return userStore.user;
+    }
+
+    // If no user in store but authenticated, try to refresh
+    if (userStore.isAuthenticated) {
+      await userStore.refreshUser();
+      return userStore.user;
+    }
+
+    // If not authenticated, initialize the store
+    await initializeUserStore();
+    return userStore.user;
+  };
+
+  return { ensureUserData, user: userStore.user, isLoading: userStore.isLoading };
+};
+
+// Test function to debug profile API response
+export const debugProfileResponse = async () => {
+  try {
+    console.log("[Auth] 🔍 Debug: Testing profile API response");
+
+    const response = await fetchAPI("auth/profile", {
+      method: "GET",
+      headers: await tokenManager.getAuthHeaders(),
+    });
+
+    console.log("[Auth] 🔍 Debug: Raw profile response:", response);
+    console.log("[Auth] 🔍 Debug: Response type:", typeof response);
+    console.log("[Auth] 🔍 Debug: Response keys:", Object.keys(response || {}));
+    console.log("[Auth] 🔍 Debug: Response has data:", !!response?.data);
+    console.log("[Auth] 🔍 Debug: Response data:", response?.data);
+    console.log("[Auth] 🔍 Debug: Response has user directly:", !!response?.id);
+    console.log("[Auth] 🔍 Debug: Response success:", response?.success);
+    console.log("[Auth] 🔍 Debug: Response message:", response?.message);
+
+    // Test different extraction methods
+    const method1 = response?.data || response;
+    const method2 = response?.data;
+    const method3 = response;
+
+    console.log("[Auth] 🔍 Debug: Method 1 (data || response):", method1);
+    console.log("[Auth] 🔍 Debug: Method 2 (data only):", method2);
+    console.log("[Auth] 🔍 Debug: Method 3 (response only):", method3);
+
+    return response;
+  } catch (error) {
+    console.error("[Auth] 🔍 Debug: Error testing profile response:", error);
+    return null;
+  }
+};
+
+// Simple function to check if user is logged in (for UI purposes)
+export const checkAuthStatus = async (): Promise<boolean> => {
+  return await isAuthenticated();
+};
+
+// Helper functions for common UI operations
+import { useUIStore } from "@/store";
+
+export const uiHelpers = {
+  // Quick login with UI feedback
+  loginWithUI: async (credentials: { email: string; password: string }) => {
+    const { withUI } = useUIStore.getState() as any; // Type workaround
+    return await withUI(
+      () => loginUser(credentials),
+      {
+        loadingMessage: "Signing you in...",
+        successMessage: "Welcome back!",
+        errorTitle: "Login Failed",
+      }
+    );
+  },
+
+  // Quick register with UI feedback
+  registerWithUI: async (userData: { name: string; email: string; password: string }) => {
+    const { withUI } = useUIStore.getState() as any; // Type workaround
+    return await withUI(
+      () => registerUser(userData),
+      {
+        loadingMessage: "Creating your account...",
+        successMessage: "Account created successfully!",
+        errorTitle: "Registration Failed",
+      }
+    );
+  },
+
+  // Quick logout with UI feedback
+  logoutWithUI: async () => {
+    const { withUI } = useUIStore.getState() as any; // Type workaround
+    return await withUI(
+      () => logoutUser(),
+      {
+        loadingMessage: "Signing out...",
+        successMessage: "Signed out successfully",
+        errorTitle: "Logout Error",
+      }
+    );
+  },
 };

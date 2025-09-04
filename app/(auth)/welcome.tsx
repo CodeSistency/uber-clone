@@ -1,15 +1,36 @@
 import { router } from "expo-router";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import PagerView from "react-native-pager-view";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "../../components/CustomButton";
 import { onboarding } from "../../constants";
+import { isAuthenticated } from "../../lib/auth";
 
 const Home = () => {
+  console.log("[Welcome] Rendering welcome screen");
+
   const pagerRef = useRef<PagerView>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    console.log("[Welcome] useEffect triggered");
+    // Check if user is already authenticated
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      console.log("[Welcome] User authenticated:", authenticated);
+      if (authenticated) {
+        console.log("[Welcome] User already authenticated, redirecting to home");
+        router.replace("/");
+      } else {
+        console.log("[Welcome] User not authenticated, staying on welcome");
+      }
+    };
+    checkAuth();
+  }, []);
+
+  console.log("[Welcome] Rendering welcome content");
 
   const isLastSlide = activeIndex === onboarding.length - 1;
 

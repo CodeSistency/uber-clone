@@ -1,16 +1,16 @@
-import { useUser } from "@clerk/clerk-expo";
 import { router } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "../../../components/CustomButton";
 import InputField from "../../../components/InputField";
-import { userModeStorage } from "../../lib/storage";
+import { isAuthenticated } from "@/lib/auth";
+import { userModeStorage } from "@/app/lib/storage";
 
 const BusinessRegister = () => {
-  const { user } = useUser();
   const [loading, setLoading] = useState(false);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState<boolean | null>(null);
   const [businessType, setBusinessType] = useState<
     "restaurant" | "grocery" | "pharmacy" | "other" | null
   >(null);
@@ -19,10 +19,31 @@ const BusinessRegister = () => {
     businessDescription: "",
     address: "",
     phoneNumber: "",
-    email: user?.primaryEmailAddress?.emailAddress || "",
+    email: "",
     operatingHours: "9:00 AM - 10:00 PM",
     deliveryRadius: "5",
   });
+
+  useEffect(() => {
+    // Check if user is authenticated
+    const checkAuth = async () => {
+      const authenticated = await isAuthenticated();
+      setIsAuthenticatedState(authenticated);
+      if (!authenticated) {
+        router.replace("/(auth)/sign-in");
+      }
+    };
+    checkAuth();
+  }, []);
+
+  // Don't render if user is not authenticated
+  if (isAuthenticatedState === null) {
+    return null; // Loading state
+  }
+
+  if (!isAuthenticatedState) {
+    return null; // Will redirect via useEffect
+  }
 
   const businessTypes = [
     {

@@ -1,5 +1,3 @@
-import { useUser } from "@clerk/clerk-expo";
-import { useAuth } from "@clerk/clerk-expo";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Location from "expo-location";
 import { router } from "expo-router";
@@ -24,17 +22,23 @@ import { icons, images } from "../../../constants";
 import { useFetch } from "../../../lib/fetch";
 import { useLocationStore } from "../../../store";
 import { Ride } from "../../../types/type";
+import { logoutUser } from "../../../lib/auth";
+import { useUserStore } from "../../../store";
 // Hamburger menu and drawer are now in the layout
 
 const Home = () => {
-  const { user } = useUser();
-  const { signOut } = useAuth();
-
+  const { user } = useUserStore();
   const { setUserLocation, setDestinationLocation } = useLocationStore();
 
-  const handleSignOut = () => {
-    signOut();
-    router.replace("/(auth)/sign-in");
+  const handleSignOut = async () => {
+    try {
+      await logoutUser();
+      router.replace("/(auth)/sign-in");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Still navigate even if logout fails
+      router.replace("/(auth)/sign-in");
+    }
   };
 
   // Function to handle mode changes from drawer
@@ -67,6 +71,7 @@ const Home = () => {
   }, []);
 
   const [hasPermission, setHasPermission] = useState<boolean>(false);
+
 
   const {
     data: recentRides,
@@ -148,7 +153,7 @@ const Home = () => {
                 }}
               />
               <Text className="text-2xl font-JakartaExtraBold">
-                Welcome {user?.firstName}👋
+                Welcome {user?.name || "User"}👋
               </Text>
               <TouchableOpacity
                 onPress={handleSignOut}
