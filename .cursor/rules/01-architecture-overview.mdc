@@ -1,0 +1,53 @@
+---
+alwaysApply: true
+description: Arquitectura general de la aplicación Uber-like
+---
+
+# Arquitectura General - Aplicación Uber-like
+
+## Tecnologías Principales
+- **React Native + Expo**: Framework principal para desarrollo móvil
+- **Expo Router**: Sistema de navegación basado en rutas tipo Next.js
+- **Zustand**: Manejo de estado global con stores modulares
+- **NativeWind**: Estilos con Tailwind CSS para React Native
+- **Socket.io**: Comunicación en tiempo real
+- **Stripe**: Procesamiento de pagos
+- **Google Maps**: Servicios de mapas y ubicación
+- **Expo Notifications**: Notificaciones push
+
+## Estructura Modular
+```
+app/
+├── (auth)/          # Autenticación y registro
+├── (root)/          # Sección principal usuario
+│   └── (tabs)/      # Navegación con tabs
+├── (business)/      # Panel de negocio/comercio
+├── (driver)/        # Panel de conductor
+├── (marketplace)/   # Marketplace y compras
+├── (wallet)/        # Billetera y pagos
+├── (emergency)/     # Sistema de emergencias
+└── services/        # Servicios backend
+
+store/               # Estado global con Zustand
+├── user/           # Estado de usuario
+├── location/       # Ubicación y mapas
+├── driver/         # Estado de conductores
+├── realtime/       # Estado en tiempo real
+├── chat/           # Estado de chat
+├── notification/   # Notificaciones
+├── ui/             # Estado de UI
+└── emergency/      # Estado de emergencias
+```
+
+## Patrones de Arquitectura
+- **File-based Routing**: Expo Router con rutas anidadas
+- **Modular State**: Stores Zustand separados por dominio
+- **Service Layer**: Servicios centralizados para APIs
+- **Component Composition**: Componentes reutilizables
+- **Real-time Communication**: WebSocket para actualizaciones en vivo
+
+## Flujos Principales
+1. **Autenticación**: Login/Register → Selección de modo → Dashboard
+2. **Solicitud de viaje**: Ubicación → Destino → Confirmación → Pago
+3. **Viaje activo**: Tracking GPS → Chat → Estado del viaje
+4. **Pagos**: Stripe integration → Confirmación → Recibo

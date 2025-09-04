@@ -1,0 +1,113 @@
+---
+alwaysApply: true
+description: Sistema de navegación con Expo Router
+---
+
+# Sistema de Navegación - Expo Router
+
+## Estructura de Rutas
+```
+app/
+├── _layout.tsx              # Layout raíz con fuentes y UIWrapper
+├── index.tsx                # Página de entrada - verifica auth y modo
+├── (auth)/                  # Grupo de autenticación
+│   ├── _layout.tsx         # Layout sin header
+│   ├── welcome.tsx         # Bienvenida y selección de modo
+│   ├── sign-in.tsx         # Login
+│   ├── sign-up.tsx         # Registro
+│   ├── business-register/  # Registro de negocio
+│   └── driver-register/    # Registro de conductor
+├── (root)/                  # Grupo principal usuario
+│   ├── _layout.tsx         # Layout con navegación
+│   ├── (tabs)/            # Navegación con tabs
+│   │   ├── _layout.tsx    # Configuración de tabs
+│   │   ├── home/          # Página principal
+│   │   ├── rides/         # Historial de viajes
+│   │   ├── chat/          # Mensajes
+│   │   └── profile/       # Perfil usuario
+│   ├── find-ride.tsx      # Buscar viaje
+│   ├── confirm-ride.tsx   # Confirmar viaje
+│   └── book-ride.tsx      # Reservar viaje
+├── (business)/             # Grupo de negocio
+├── (driver)/              # Grupo de conductor
+├── (marketplace)/         # Grupo marketplace
+├── (wallet)/             # Grupo wallet
+└── (emergency)/          # Grupo emergencias
+```
+
+## Patrones de Navegación
+
+### Navegación Programática
+```typescript
+import { router } from 'expo-router';
+
+// Navegar a una ruta específica
+router.push('/(root)/(tabs)/home');
+
+// Reemplazar la ruta actual
+router.replace('/(auth)/welcome');
+
+// Navegar con parámetros
+router.push({
+  pathname: '/confirm-ride',
+  params: { rideId: '123' }
+});
+
+// Volver atrás
+router.back();
+```
+
+### Grupos de Rutas
+- **(auth)**: Rutas que no requieren autenticación
+- **(root)**: Rutas principales del usuario autenticado
+- **(business)**: Rutas específicas para negocios
+- **(driver)**: Rutas específicas para conductores
+- **(marketplace)**: Rutas del marketplace
+- **(wallet)**: Rutas de pagos y wallet
+- **(emergency)**: Rutas de emergencias
+
+### Layouts Anidados
+- Cada grupo tiene su propio `_layout.tsx`
+- Los layouts pueden compartir estado y lógica
+- Los layouts hijos heredan del layout padre
+- Los layouts pueden definir headers, tabs, drawers, etc.
+
+## Flujo de Navegación Principal
+
+### Flujo de Autenticación
+```
+index.tsx → Verificar auth → No autenticado
+    ↓
+(auth)/welcome → Seleccionar modo → Autenticado
+    ↓
+Modo seleccionado → Redireccionar a sección correspondiente
+```
+
+### Flujo de Viaje (Usuario)
+```
+(root)/(tabs)/home → find-ride → confirm-ride → book-ride → (tabs)/rides
+```
+
+### Flujo de Conductor
+```
+(driver)/dashboard → ride-requests → active-ride → earnings
+```
+
+## Convenciones de Naming
+
+### Archivos
+- `index.tsx`: Página principal de una carpeta
+- `_layout.tsx`: Layout para el grupo de rutas
+- `[param].tsx`: Rutas dinámicas
+- `(group)/`: Grupos de rutas para organización
+
+### Rutas
+- Usar kebab-case para nombres de archivos
+- Usar camelCase para parámetros dinámicos
+- Mantener consistencia en la jerarquía
+
+## Navegación Contextual
+- La navegación debe adaptarse al modo del usuario
+- Los conductores ven diferentes opciones que los pasajeros
+- Los negocios tienen acceso a paneles administrativos
+- El estado de autenticación determina las rutas disponibles

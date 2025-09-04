@@ -1,0 +1,579 @@
+---
+alwaysApply: true
+description: Mejores prácticas y convenciones del proyecto
+---
+
+# Mejores Prácticas y Convenciones
+
+## Arquitectura y Estructura
+
+### Principios SOLID
+- **Single Responsibility**: Cada componente/store/servicio tiene una responsabilidad única
+- **Open/Closed**: Componentes extensibles sin modificar código existente
+- **Liskov Substitution**: Interfaces consistentes en componentes similares
+- **Interface Segregation**: Interfaces específicas en lugar de genéricas grandes
+- **Dependency Inversion**: Dependencias de abstracciones, no de implementaciones concretas
+
+### Patrón de Arquitectura
+```typescript
+// ✅ Correcto: Separación clara de responsabilidades
+const useUserStore = create<UserStore>((set, get) => ({
+  // Estado
+  user: null,
+  isLoading: false,
+
+  // Acciones
+  setUser: (user) => set({ user }),
+  fetchUser: async () => {
+    const service = get();
+    service.setLoading(true);
+    try {
+      const user = await userService.getProfile();
+      service.setUser(user);
+    } finally {
+      service.setLoading(false);
+    }
+  }
+}));
+
+// ❌ Incorrecto: Mezcla de responsabilidades
+const UserManager = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const fetchUser = async () => {
+    // Lógica de API mezclada con estado
+    const response = await fetch('/api/user');
+    const data = await response.json();
+    setUser(data);
+  };
+
+  // Render logic mixed with state management
+  return <View>{/* UI logic */}</View>;
+};
+```
+
+## Manejo de Estado
+
+### Zustand Best Practices
+
+#### 1. Store Structure
+```typescript
+// ✅ Correcto: Store bien estructurado
+interface UserState {
+  // Estado primitivo
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+
+  // Acciones
+  setUser: (user: User | null) => void;
+  setLoading: (loading: boolean) => void;
+  setError: (error: string | null) => void;
+
+  // Acciones complejas
+  fetchUser: () => Promise<void>;
+  updateProfile: (updates: Partial<User>) => Promise<void>;
+}
+
+export const useUserStore = create<UserState>((set, get) => ({
+  // Implementación
+}));
+```
+
+#### 2. Selectores para Performance
+```typescript
+// ✅ Correcto: Usar selectores
+const userName = useUserStore((state) => state.user?.name);
+const isLoading = useUserStore((state) => state.isLoading);
+
+// ❌ Incorrecto: Extraer todo el estado
+const { user, isLoading, error, setUser, fetchUser } = useUserStore();
+```
+
+#### 3. Acciones Asíncronas
+```typescript
+// ✅ Correcto: Manejo completo de async
+fetchUser: async () => {
+  const state = get();
+
+  try {
+    state.setLoading(true);
+    state.setError(null);
+
+    const result = await userService.getProfile();
+
+    if (result.success) {
+      state.setUser(result.data);
+    } else {
+      state.setError(result.message);
+    }
+  } catch (error) {
+    state.setError(error.message);
+  } finally {
+    state.setLoading(false);
+  }
+}
+```
+
+## Componentes React Native
+
+### Functional Components con Hooks
+```typescript
+// ✅ Correcto: Componente funcional moderno
+const UserProfile = () => {
+  const { user, isLoading, error, fetchUser } = useUserStore();
+  const { showError } = useUI();
+
+  useEffect(() => {
+    fetchUser();
+  }, []);
+
+  useEffect(() => {
+    if (error) {
+      showError('Error', error);
+    }
+  }, [error]);
+
+  if (isLoading) return <LoadingSpinner />;
+  if (!user) return <Text>No user found</Text>;
+
+  return (
+    <View>
+      <Text>{user.name}</Text>
+      <Text>{user.email}</Text>
+    </View>
+  );
+};
+```
+
+### Props Interface
+```typescript
+// ✅ Correcto: Interface bien definida
+interface UserProfileProps {
+  userId?: string;
+  showEditButton?: boolean;
+  onEditPress?: () => void;
+  className?: string;
+}
+
+const UserProfile: React.FC<UserProfileProps> = ({
+  userId,
+  showEditButton = true,
+  onEditPress,
+  className
+}) => {
+  // Component logic
+};
+```
+
+### Memoización Apropiada
+```typescript
+// ✅ Correcto: Memoizar cuando sea necesario
+const UserCard = memo<UserCardProps>(({ user, onPress }) => {
+  return (
+    <TouchableOpacity onPress={onPress}>
+      <Text>{user.name}</Text>
+    </TouchableOpacity>
+  );
+});
+
+// ✅ Correcto: useCallback para handlers
+const handleUserPress = useCallback((userId: string) => {
+  router.push(`/user/${userId}`);
+}, []);
+```
+
+## API y Servicios
+
+### Patrón de Servicio
+```typescript
+// ✅ Correcto: Clase de servicio bien estructurada
+export class UserService {
+  async getProfile(): Promise<ApiResponse<User>> {
+    try {
+      const response = await fetchAPI('auth/profile', {
+        requiresAuth: true
+      });
+
+      return {
+        success: true,
+        data: response,
+        message: 'Profile retrieved successfully'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || 'Failed to get profile'
+      };
+    }
+  }
+
+  async updateProfile(updates: Partial<User>): Promise<ApiResponse<User>> {
+    try {
+      const response = await fetchAPI('user/profile', {
+        method: 'PUT',
+        body: JSON.stringify(updates),
+        requiresAuth: true
+      });
+
+      return {
+        success: true,
+        data: response,
+        message: 'Profile updated successfully'
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: error.message || 'Failed to update profile'
+      };
+    }
+  }
+}
+```
+
+### Error Handling
+```typescript
+// ✅ Correcto: Error handling consistente
+const handleApiCall = async () => {
+  const result = await withUI(
+    () => userService.updateProfile(updates),
+    {
+      loadingMessage: 'Updating profile...',
+      successMessage: 'Profile updated!',
+      errorTitle: 'Update Failed'
+    }
+  );
+
+  if (result) {
+    // Success handling
+    console.log('Profile updated:', result);
+  }
+};
+```
+
+## Navegación
+
+### Expo Router Patterns
+```typescript
+// ✅ Correcto: Navegación tipada
+import { router } from 'expo-router';
+
+// Navegación simple
+router.push('/(root)/(tabs)/home');
+
+// Con parámetros
+router.push({
+  pathname: '/ride/[id]',
+  params: { id: rideId }
+});
+
+// Reemplazar stack
+router.replace('/(auth)/welcome');
+
+// Volver
+router.back();
+```
+
+### Layout Patterns
+```typescript
+// ✅ Correcto: Layout consistente
+export default function RootLayout() {
+  return (
+    <UIWrapper>
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="(auth)"
+          options={{ headerShown: false }}
+        />
+      </Stack>
+    </UIWrapper>
+  );
+}
+```
+
+## Estilos y UI
+
+### NativeWind Conventions
+```typescript
+// ✅ Correcto: Estilos consistentes
+const UserCard = ({ user, className }) => (
+  <View className={`bg-white rounded-lg p-4 shadow-sm ${className}`}>
+    <Text className="font-Jakarta-Bold text-lg text-gray-800">
+      {user.name}
+    </Text>
+    <Text className="font-Jakarta-Medium text-sm text-gray-600">
+      {user.email}
+    </Text>
+  </View>
+);
+```
+
+### Theme Usage
+```typescript
+// ✅ Correcto: Usar variables de tema
+const styles = {
+  primaryButton: 'bg-primary text-white font-Jakarta-Bold',
+  secondaryText: 'text-secondary font-Jakarta-Medium',
+  cardShadow: 'shadow-lg border border-gray-100'
+};
+```
+
+## Testing Patterns
+
+### Component Testing
+```typescript
+// ✅ Correcto: Testing de componentes
+import { render, fireEvent } from '@testing-library/react-native';
+
+describe('UserCard', () => {
+  it('renders user information correctly', () => {
+    const mockUser = { name: 'John Doe', email: 'john@example.com' };
+
+    const { getByText } = render(<UserCard user={mockUser} />);
+
+    expect(getByText('John Doe')).toBeTruthy();
+    expect(getByText('john@example.com')).toBeTruthy();
+  });
+
+  it('calls onPress when pressed', () => {
+    const mockOnPress = jest.fn();
+    const mockUser = { name: 'John Doe', email: 'john@example.com' };
+
+    const { getByRole } = render(
+      <UserCard user={mockUser} onPress={mockOnPress} />
+    );
+
+    fireEvent.press(getByRole('button'));
+    expect(mockOnPress).toHaveBeenCalled();
+  });
+});
+```
+
+### Store Testing
+```typescript
+// ✅ Correcto: Testing de stores
+describe('useUserStore', () => {
+  it('sets user correctly', () => {
+    const { result } = renderHook(() => useUserStore());
+
+    const mockUser = { id: 1, name: 'John', email: 'john@example.com' };
+
+    act(() => {
+      result.current.setUser(mockUser);
+    });
+
+    expect(result.current.user).toEqual(mockUser);
+    expect(result.current.isAuthenticated).toBe(true);
+  });
+});
+```
+
+## Logging y Debugging
+
+### Logging Conventions
+```typescript
+// ✅ Correcto: Logging consistente
+console.log('[ComponentName] Action performed:', { param1, param2 });
+console.log('[StoreName] State updated:', newState);
+console.log('[ServiceName] API call:', { endpoint, params });
+
+// Para debugging
+console.debug('[ComponentName] Debug info:', debugData);
+
+// Para errores
+console.error('[ComponentName] Error occurred:', error);
+```
+
+### Error Boundaries
+```typescript
+// ✅ Correcto: Error boundary para componentes
+class ErrorBoundary extends Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('[ErrorBoundary] Caught error:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <ErrorFallback onRetry={() => this.setState({ hasError: false })} />;
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+## Performance Optimization
+
+### List Optimization
+```typescript
+// ✅ Correcto: Optimización de listas
+const RideList = ({ rides }) => (
+  <FlatList
+    data={rides}
+    keyExtractor={(item) => item.id.toString()}
+    renderItem={({ item }) => <RideCard ride={item} />}
+    initialNumToRender={10}
+    maxToRenderPerBatch={5}
+    windowSize={10}
+    getItemLayout={(data, index) => ({
+      length: 100,
+      offset: 100 * index,
+      index
+    })}
+  />
+);
+```
+
+### Image Optimization
+```typescript
+// ✅ Correcto: Imágenes optimizadas
+<Image
+  source={{ uri: imageUrl }}
+  style={{ width: 100, height: 100 }}
+  resizeMode="cover"
+  progressiveRenderingEnabled={true}
+  fadeDuration={300}
+/>
+```
+
+## Seguridad
+
+### Token Management
+```typescript
+// ✅ Correcto: Manejo seguro de tokens
+const tokenManager = {
+  async setAccessToken(token: string) {
+    await SecureStore.setItemAsync('access_token', token);
+  },
+
+  async getAccessToken(): Promise<string | null> {
+    try {
+      return await SecureStore.getItemAsync('access_token');
+    } catch (error) {
+      console.error('[TokenManager] Error getting token:', error);
+      return null;
+    }
+  }
+};
+```
+
+### Input Validation
+```typescript
+// ✅ Correcto: Validación de inputs
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const validatePassword = (password: string): boolean => {
+  return password.length >= 8 &&
+         /[A-Z]/.test(password) &&
+         /[a-z]/.test(password) &&
+         /\d/.test(password);
+};
+```
+
+## Convenciones de Código
+
+### File Naming
+```
+✅ Correcto:
+components/UserCard.tsx
+stores/userStore.ts
+services/userService.ts
+hooks/useAuth.ts
+types/user.ts
+
+❌ Incorrecto:
+userCard.js
+UserStore.ts
+user-service.ts
+use-auth.tsx
+UserTypes.ts
+```
+
+### Import Order
+```typescript
+// ✅ Correcto: Orden consistente de imports
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+
+import { useUserStore } from '@/store';
+import { CustomButton } from '@/components';
+import { userService } from '@/services';
+import { User } from '@/types';
+
+import { validateEmail } from '@/lib/utils';
+```
+
+### JSDoc Comments
+```typescript
+// ✅ Correcto: Documentación de funciones
+/**
+ * Registers a new user with the provided credentials
+ * @param {RegisterData} userData - User registration data
+ * @returns {Promise<ApiResponse<AuthResponse>>} Registration result
+ * @throws {Error} When registration fails
+ */
+export const registerUser = async (
+  userData: RegisterData
+): Promise<ApiResponse<AuthResponse>> => {
+  // Implementation
+};
+```
+
+## Git y Versionado
+
+### Commit Messages
+```bash
+✅ Correcto:
+feat: add real-time chat functionality
+fix: resolve crash on ride cancellation
+refactor: optimize map rendering performance
+docs: update API documentation
+test: add unit tests for user store
+
+❌ Incorrecto:
+fixed bug
+updated code
+changes
+```
+
+### Branch Naming
+```bash
+✅ Correcto:
+feature/real-time-chat
+fix/payment-crash
+refactor/map-optimization
+hotfix/emergency-button
+
+❌ Incorrecto:
+new-feature
+bug-fix
+update
+```
+
+## Conclusión
+
+Estas mejores prácticas aseguran que el código sea:
+- **Mantenible**: Fácil de entender y modificar
+- **Escalable**: Capaz de crecer con nuevos requisitos
+- **Confiable**: Robusto y con manejo adecuado de errores
+- **Performante**: Optimizado para React Native
+- **Seguro**: Con prácticas de seguridad apropiadas
+
+Seguir estas convenciones desde el inicio del desarrollo es crucial para el éxito a largo plazo del proyecto.

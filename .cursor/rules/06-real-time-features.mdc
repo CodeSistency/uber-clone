@@ -1,0 +1,437 @@
+---
+alwaysApply: true
+description: Funcionalidades en tiempo real
+---
+
+# Funcionalidades en Tiempo Real
+
+## Arquitectura WebSocket
+
+### Conexión y Estados
+```typescript
+// Estados de conexión
+enum ConnectionState {
+  DISCONNECTED = 'disconnected',
+  CONNECTING = 'connecting',
+  CONNECTED = 'connected',
+  RECONNECTING = 'reconnecting',
+  ERROR = 'error'
+}
+
+// Estado de conexión en store
+interface ConnectionStatus {
+  isConnected: boolean;
+  connectionType: "wifi" | "cellular" | "none";
+  websocketConnected: boolean;
+  lastPing: Date;
+}
+```
+
+### Manejo de Conexión
+```typescript
+// Conexión automática al login
+useEffect(() => {
+  if (isAuthenticated && user?.id) {
+    websocketService.connect(user.id, accessToken);
+  }
+
+  return () => {
+    websocketService.disconnect();
+  };
+}, [isAuthenticated, user?.id]);
+```
+
+### Reconexión Automática
+```typescript
+private attemptReconnection(): void {
+  if (this.reconnectAttempts < this.maxReconnectAttempts) {
+    this.reconnectAttempts++;
+    const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+
+    console.log(`Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+
+    setTimeout(() => {
+      if (this.socket && !this.socket.connected) {
+        this.socket.connect();
+      }
+    }, delay);
+  }
+}
+```
+
+## Estados de Viaje en Tiempo Real
+
+### Estados del Viaje
+```typescript
+type RideStatus =
+  | "requested"      // Viaje solicitado
+  | "accepted"       // Conductor asignado
+  | "arriving"       // Conductor en camino
+  | "arrived"        // Conductor llegó
+  | "in_progress"    // Viaje en curso
+  | "completed"      // Viaje finalizado
+  | "cancelled"      // Viaje cancelado
+  | "emergency";     // Estado de emergencia
+```
+
+### Transiciones de Estado
+```typescript
+const handleRideStatusUpdate = (data: any) => {
+  const { rideId, newStatus, oldStatus } = data;
+
+  // Actualizar store de viaje
+  useRealtimeStore.getState().updateRideStatus(rideId, newStatus);
+
+  // Crear notificación apropiada
+  const notification = createStatusNotification(newStatus, rideId);
+
+  // Actualizar UI según el estado
+  updateUIForStatus(newStatus);
+};
+```
+
+## Seguimiento GPS en Tiempo Real
+
+### Actualización de Ubicación del Conductor
+```typescript
+// Enviar ubicación del conductor
+const updateDriverLocation = (rideId: number, location: LocationData) => {
+  websocketService.updateDriverLocation(rideId, location);
+};
+
+// Recibir actualización de ubicación
+socket.on("driverLocationUpdate", (data: any) => {
+  const { rideId, location, timestamp } = data;
+
+  // Actualizar store
+  useRealtimeStore.getState().updateDriverLocation({
+    latitude: location.latitude,
+    longitude: location.longitude,
+    accuracy: location.accuracy,
+    timestamp: new Date(timestamp)
+  });
+
+  // Actualizar mapa
+  updateMapMarker(rideId, location);
+});
+```
+
+### Cálculo de Tiempo de Llegada
+```typescript
+const calculateDriverTimes = async (drivers: MarkerData[]) => {
+  const userLocation = useLocationStore.getState();
+
+  for (const driver of drivers) {
+    try {
+      const response = await fetchAPI('maps/directions', {
+        method: 'POST',
+        body: JSON.stringify({
+          origin: {
+            latitude: driver.latitude,
+            longitude: driver.longitude
+          },
+          destination: {
+            latitude: userLocation.userLatitude,
+            longitude: userLocation.userLongitude
+          }
+        })
+      });
+
+      driver.time = Math.round(response.duration / 60); // minutos
+    } catch (error) {
+      console.error('Error calculating driver time:', error);
+    }
+  }
+
+  return drivers;
+};
+```
+
+## Sistema de Chat en Tiempo Real
+
+### Estructura de Mensajes
+```typescript
+interface ChatMessage {
+  id: string;
+  rideId: number;
+  senderId: string;
+  senderType: "passenger" | "driver";
+  message: string;
+  messageType: "text" | "location" | "system";
+  timestamp: Date;
+  isRead: boolean;
+}
+```
+
+### Envío de Mensajes
+```typescript
+const sendMessage = (rideId: number, message: string) => {
+  const messageData = {
+    rideId,
+    message,
+    timestamp: new Date(),
+    senderId: currentUser.id,
+    senderType: userMode === 'driver' ? 'driver' : 'passenger'
+  };
+
+  websocketService.sendMessage(messageData);
+};
+```
+
+### Indicadores de Escritura
+```typescript
+// Enviar indicador de escritura
+const handleTypingStart = (rideId: number) => {
+  websocketService.sendTypingStart(rideId);
+};
+
+// Recibir indicador de escritura
+socket.on("typingStart", (data: any) => {
+  useChatStore.getState().setTyping(true);
+});
+```
+
+## Notificaciones Push en Tiempo Real
+
+### Tipos de Notificación
+```typescript
+type NotificationType =
+  | "RIDE_REQUEST"
+  | "RIDE_ACCEPTED"
+  | "RIDE_CANCELLED"
+  | "DRIVER_ARRIVED"
+  | "RIDE_STARTED"
+  | "RIDE_COMPLETED"
+  | "PAYMENT_SUCCESS"
+  | "CHAT_MESSAGE"
+  | "EMERGENCY_ALERT"
+  | "SYSTEM_UPDATE";
+```
+
+### Creación de Notificaciones
+```typescript
+const createStatusNotification = (
+  status: RideStatus,
+  rideId: number
+): NotificationData => {
+  const notifications = {
+    accepted: {
+      type: "RIDE_ACCEPTED",
+      title: "Driver Found!",
+      message: "Your driver is on the way",
+      priority: "high"
+    },
+    arrived: {
+      type: "DRIVER_ARRIVED",
+      title: "Driver Arrived",
+      message: "Your driver is waiting outside",
+      priority: "high"
+    },
+    // ... más tipos
+  };
+
+  return {
+    id: `ride_${rideId}_${Date.now()}`,
+    ...notifications[status],
+    data: { rideId, status },
+    timestamp: new Date(),
+    isRead: false
+  };
+};
+```
+
+## Sistema de Emergencias
+
+### Tipos de Emergencia
+```typescript
+type EmergencyType = "sos" | "accident" | "medical" | "other";
+
+interface EmergencyAlert {
+  id: string;
+  rideId: number;
+  userId: string;
+  type: EmergencyType;
+  location: LocationData;
+  timestamp: Date;
+  status: "active" | "resolved" | "cancelled";
+  description?: string;
+}
+```
+
+### Activación de Emergencia
+```typescript
+const triggerEmergency = async (emergencyData: EmergencyAlert) => {
+  try {
+    // Enviar por WebSocket
+    websocketService.triggerEmergency(emergencyData);
+
+    // Enviar por API REST
+    await fetchAPI('emergency/trigger', {
+      method: 'POST',
+      body: JSON.stringify(emergencyData)
+    });
+
+    // Actualizar UI
+    showEmergencyUI();
+
+    // Notificar contactos de emergencia
+    await notifyEmergencyContacts(emergencyData);
+
+  } catch (error) {
+    console.error('Error triggering emergency:', error);
+  }
+};
+```
+
+## Manejo de Conectividad
+
+### Detección de Conectividad
+```typescript
+import NetInfo from '@react-native-community/netinfo';
+
+const unsubscribe = NetInfo.addEventListener(state => {
+  const connectionStatus = {
+    isConnected: state.isConnected,
+    connectionType: state.type,
+    websocketConnected: websocketService.isConnected,
+    lastPing: new Date()
+  };
+
+  useRealtimeStore.getState().setConnectionStatus(connectionStatus);
+});
+```
+
+### Sincronización Offline
+```typescript
+// Queue de mensajes offline
+const offlineMessageQueue: ChatMessage[] = [];
+
+const sendQueuedMessages = async () => {
+  if (isConnected) {
+    for (const message of offlineMessageQueue) {
+      try {
+        await websocketService.sendMessage(message);
+        offlineMessageQueue.shift();
+      } catch (error) {
+        console.error('Error sending queued message:', error);
+        break;
+      }
+    }
+  }
+};
+```
+
+## Optimizaciones de Performance
+
+### Debouncing de Ubicaciones
+```typescript
+let locationTimeout: NodeJS.Timeout;
+
+const debouncedUpdateLocation = (location: LocationData) => {
+  clearTimeout(locationTimeout);
+  locationTimeout = setTimeout(() => {
+    websocketService.updateDriverLocation(rideId, location);
+  }, 1000); // Actualizar cada segundo
+};
+```
+
+### Throttling de Mensajes
+```typescript
+let lastMessageTime = 0;
+
+const throttledSendMessage = (message: string) => {
+  const now = Date.now();
+  if (now - lastMessageTime > 500) { // Máximo 2 mensajes por segundo
+    sendMessage(message);
+    lastMessageTime = now;
+  }
+};
+```
+
+## Manejo de Errores
+
+### Errores de Conexión
+```typescript
+socket.on("connect_error", (error: any) => {
+  console.error("[WebSocket] Connection error:", error);
+
+  // Mostrar mensaje de error al usuario
+  showError(
+    "Connection Error",
+    "Unable to connect to server. Please check your internet connection."
+  );
+
+  // Intentar reconexión
+  handleReconnection();
+});
+```
+
+### Errores de Mensajes
+```typescript
+const handleMessageError = (error: any, messageData: any) => {
+  console.error("[Chat] Error sending message:", error);
+
+  // Reintentar envío
+  if (error.code === 'NETWORK_ERROR') {
+    setTimeout(() => {
+      websocketService.sendMessage(messageData);
+    }, 2000);
+  } else {
+    // Mostrar error permanente
+    showError("Message Failed", "Unable to send message. Please try again.");
+  }
+};
+```
+
+## Testing de Funcionalidades en Tiempo Real
+
+### Mock WebSocket para Testing
+```typescript
+// mockWebSocketService.ts
+export const mockWebSocketService = {
+  connect: () => Promise.resolve(),
+  disconnect: () => {},
+  sendMessage: (data: any) => {
+    // Simular respuesta del servidor
+    setTimeout(() => {
+      mockServerResponse(data);
+    }, 100);
+  }
+};
+```
+
+### Simulación de Eventos
+```typescript
+// Para testing de UI
+const simulateRideStatusUpdate = (status: RideStatus) => {
+  const mockData = {
+    rideId: 123,
+    newStatus: status,
+    oldStatus: 'requested',
+    timestamp: new Date()
+  };
+
+  handleRideStatusUpdate(mockData);
+};
+```
+
+## Convenciones para Tiempo Real
+
+### Naming Conventions
+- `handleEventName` para handlers de eventos
+- `onEventName` para callbacks de UI
+- `updateEventName` para actualizaciones de estado
+- `EventNameEvent` para tipos de eventos
+
+### Logging Conventions
+```typescript
+console.log(`[WebSocketService] ${eventType}:`, data);
+console.log(`[RealtimeStore] ${action}:`, params);
+console.log(`[ChatService] ${operation}:`, details);
+```
+
+### Error Handling
+- Loggear todos los errores con contexto
+- Reintentar operaciones fallidas cuando sea apropiado
+- Mostrar mensajes de error user-friendly
+- Mantener estado consistente durante errores

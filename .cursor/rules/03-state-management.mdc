@@ -1,0 +1,269 @@
+---
+alwaysApply: true
+description: Manejo de estado con Zustand
+---
+
+# Manejo de Estado - Zustand Stores
+
+## Arquitectura de Stores
+
+### Estructura Modular
+```
+store/
+├── index.ts         # Re-export de todos los stores
+├── user/           # Estado de autenticación y usuario
+│   ├── index.ts    # Re-export
+│   └── user.ts     # Store principal de usuario
+├── location/       # Estado de ubicación y mapas
+├── driver/         # Estado de conductores disponibles
+├── realtime/       # Estado de conexión y viaje activo
+├── chat/           # Estado de mensajes y conversaciones
+├── notification/   # Estado de notificaciones
+├── ui/            # Estado de componentes UI
+└── emergency/     # Estado de emergencias
+```
+
+## Store Principal de Usuario (`userStore`)
+
+### Estado
+```typescript
+interface UserStore {
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  error: string | null;
+}
+```
+
+### Acciones Principales
+- `setUser(user)`: Establecer usuario actual
+- `updateUser(updates)`: Actualizar datos del usuario
+- `setAuthenticated(bool)`: Cambiar estado de autenticación
+- `clearUser()`: Limpiar datos del usuario
+- `refreshUser()`: Refrescar datos desde API
+
+### Patrón de Uso
+```typescript
+import { useUserStore } from '@/store';
+
+// En componentes
+const { user, isAuthenticated, isLoading } = useUserStore();
+
+// En servicios
+const userStore = useUserStore.getState();
+userStore.setUser(newUserData);
+```
+
+## Store de Ubicación (`locationStore`)
+
+### Estado
+```typescript
+interface LocationStore {
+  userLatitude: number | null;
+  userLongitude: number | null;
+  userAddress: string | null;
+  destinationLatitude: number | null;
+  destinationLongitude: number | null;
+  destinationAddress: string | null;
+}
+```
+
+### Acciones
+- `setUserLocation({latitude, longitude, address})`
+- `setDestinationLocation({latitude, longitude, address})`
+
+## Store de Viajes en Tiempo Real (`realtimeStore`)
+
+### Estado
+```typescript
+interface RealtimeStore {
+  connectionStatus: ConnectionStatus;
+  activeRide: Ride | null;
+  driverLocation: LocationData | null;
+  rideStatus: RideStatus;
+  isTracking: boolean;
+}
+```
+
+### Estados de Viaje
+- `requested`: Viaje solicitado
+- `accepted`: Conductor asignado
+- `arriving`: Conductor llegando
+- `arrived`: Conductor en destino
+- `in_progress`: Viaje en curso
+- `completed`: Viaje finalizado
+- `cancelled`: Viaje cancelado
+- `emergency`: Estado de emergencia
+
+## Store de Chat (`chatStore`)
+
+### Estado
+```typescript
+interface ChatStore {
+  activeChat: string | null;
+  messages: ChatMessage[];
+  typingUsers: string[];
+  unreadCount: number;
+}
+```
+
+## Store de Notificaciones (`notificationStore`)
+
+### Estado
+```typescript
+interface NotificationStore {
+  notifications: NotificationData[];
+  unreadCount: number;
+  preferences: NotificationPreferences;
+}
+```
+
+## Store de UI (`uiStore`)
+
+### Estado para Componentes UI
+```typescript
+interface UIStore {
+  events: UIEvent[];           // Toasts y notificaciones
+  bottomSheets: BottomSheet[]; // Bottom sheets activos
+  modals: Modal[];            // Modales activos
+  snackbars: Snackbar[];      // Snackbars activos
+  loadingStates: LoadingState[]; // Estados de carga
+  progressIndicators: Progress[]; // Indicadores de progreso
+  globalLoading: boolean;     // Loading global
+}
+```
+
+## Patrones de Zustand
+
+### 1. Store Definition Pattern
+```typescript
+interface StoreType {
+  // Estado
+  property: Type;
+  // Acciones
+  actionName: (params) => void;
+}
+
+export const useStoreName = create<StoreType>((set, get) => ({
+  // Estado inicial
+  property: initialValue,
+
+  // Acciones
+  actionName: (params) => {
+    console.log('[StoreName] actionName called with:', params);
+    set((state) => ({
+      property: newValue
+    }));
+  },
+}));
+```
+
+### 2. Logging Pattern
+Todos los stores incluyen logging consistente:
+```typescript
+console.log('[StoreName] ActionName called with:', params);
+```
+
+### 3. Error Handling Pattern
+```typescript
+try {
+  // Acción
+  set((state) => ({ ... }));
+} catch (error) {
+  console.error('[StoreName] Error in action:', error);
+  set((state) => ({ error: error.message }));
+}
+```
+
+### 4. Async Actions Pattern
+```typescript
+asyncAction: async (params) => {
+  const state = get();
+
+  try {
+    state.setLoading(true);
+
+    const result = await apiCall(params);
+
+    if (result.success) {
+      set((state) => ({
+        data: result.data,
+        error: null
+      }));
+    } else {
+      set((state) => ({
+        error: result.message
+      }));
+    }
+  } catch (error) {
+    set((state) => ({
+      error: error.message
+    }));
+  } finally {
+    state.setLoading(false);
+  }
+}
+```
+
+## Integración con Componentes
+
+### Hook Pattern
+```typescript
+const MyComponent = () => {
+  const { data, loading, error, action } = useStore();
+
+  useEffect(() => {
+    action();
+  }, []);
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+
+  return <View>{/* Component content */}</View>;
+};
+```
+
+### Selector Pattern (Optimización)
+```typescript
+const userData = useUserStore((state) => state.user);
+const isAuthenticated = useUserStore((state) => state.isAuthenticated);
+```
+
+## Persistencia de Estado
+
+### AsyncStorage para Datos Persistentes
+```typescript
+// En lib/storage.ts
+export const userModeStorage = {
+  setMode: async (mode: 'customer' | 'driver' | 'business') => {
+    await AsyncStorage.setItem('user_mode', mode);
+  },
+
+  getMode: async (): Promise<string | null> => {
+    return await AsyncStorage.getItem('user_mode');
+  },
+
+  hasSelectedMode: async (): Promise<boolean> => {
+    const mode = await AsyncStorage.getItem('user_mode');
+    return !!mode;
+  }
+};
+```
+
+## Convenciones
+
+### Naming Conventions
+- `useStoreName` para hooks de store
+- `StoreName` para interfaces de tipo
+- `actionName` en camelCase para acciones
+- `setProperty` para setters directos
+
+### File Structure
+- Cada store en su propia carpeta
+- `index.ts` para re-export
+- Archivos separados por funcionalidad cuando sea necesario
+
+### State Updates
+- Usar funciones para updates complejos
+- Evitar mutaciones directas del estado
+- Mantener inmutabilidad

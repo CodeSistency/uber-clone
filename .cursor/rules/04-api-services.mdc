@@ -1,0 +1,330 @@
+---
+alwaysApply: true
+description: APIs y servicios backend
+---
+
+# APIs y Servicios Backend
+
+## Arquitectura de Servicios
+
+### Estructura de Servicios
+```
+app/services/           # Servicios principales
+├── chatService.ts      # Servicio de chat
+├── emergencyService.ts # Servicio de emergencias
+├── notificationService.ts # Servicio de notificaciones
+└── websocketService.ts # Servicio WebSocket
+
+lib/                    # Utilidades y configuración
+├── auth.ts            # Autenticación y tokens
+├── fetch.ts           # Cliente HTTP genérico
+└── utils.ts           # Utilidades generales
+```
+
+## Cliente HTTP (`fetchAPI`)
+
+### Configuración Base
+```typescript
+const API_BASE_URL = process.env.EXPO_PUBLIC_SERVER_URL + "/api";
+
+export const fetchAPI = async (endpoint: string, options?: RequestInit) => {
+  const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}/${endpoint}`;
+
+  // Headers de autenticación automática
+  const headers = await getAuthHeaders(options);
+
+  const response = await fetch(fullUrl, { ...options, headers });
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return await response.json();
+};
+```
+
+### Headers de Autenticación
+```typescript
+// lib/auth.ts
+export const tokenManager = {
+  async getAuthHeaders(): Promise<Record<string, string>> {
+    const token = await this.getAccessToken();
+    if (token) {
+      return {
+        "Authorization": `Bearer ${token}`,
+        "Content-Type": "application/json",
+      };
+    }
+    return { "Content-Type": "application/json" };
+  }
+};
+```
+
+## Servicio de Autenticación
+
+### Endpoints Principales
+- `POST /auth/register` - Registro de usuario
+- `POST /auth/login` - Login de usuario
+- `POST /auth/logout` - Logout
+- `GET /auth/profile` - Perfil de usuario
+- `POST /auth/refresh` - Refresh token
+
+### Manejo de Tokens
+```typescript
+// Tokens almacenados en Expo SecureStore
+const tokenManager = {
+  async setAccessToken(token: string) {
+    await SecureStore.setItemAsync("access_token", token);
+  },
+
+  async getAccessToken(): Promise<string | null> {
+    return await SecureStore.getItemAsync("access_token");
+  },
+
+  async clearTokens() {
+    await SecureStore.deleteItemAsync("access_token");
+    await SecureStore.deleteItemAsync("refresh_token");
+  }
+};
+```
+
+## Servicio WebSocket
+
+### Arquitectura
+```typescript
+// app/services/websocketService.ts
+export class WebSocketService {
+  private socket: any = null;
+  private reconnectAttempts = 0;
+  private messageHandlers: Map<string, Function[]> = new Map();
+
+  async connect(userId: string, token: string): Promise<void> {
+    // Conexión con autenticación
+    // Manejo de reconexión automática
+    // Setup de event handlers
+  }
+}
+```
+
+### Eventos Principales
+- **Ride Events**: `rideStatusUpdate`, `driverLocationUpdate`
+- **Chat Events**: `newMessage`, `typingStart`, `typingStop`
+- **Emergency Events**: `emergencyTriggered`
+- **Connection Events**: `connect`, `disconnect`, `connect_error`
+
+### Manejo de Eventos
+```typescript
+// Setup de handlers
+this.socket.on("rideStatusUpdate", (data: any) => {
+  console.log("[WebSocketService] Ride status update:", data);
+  this.handleRideStatusUpdate(data);
+});
+```
+
+## Servicio de Chat
+
+### Funcionalidades
+- Enviar mensajes de texto
+- Mensajes de ubicación
+- Indicadores de escritura
+- Mensajes del sistema
+- Historial de conversaciones
+
+### Estructura de Mensajes
+```typescript
+interface ChatMessage {
+  id: string;
+  rideId: number;
+  senderId: string;
+  senderType: "passenger" | "driver";
+  message: string;
+  messageType: "text" | "location" | "system";
+  timestamp: Date;
+  isRead: boolean;
+}
+```
+
+## Servicio de Notificaciones
+
+### Tipos de Notificación
+- `RIDE_REQUEST` - Nueva solicitud de viaje
+- `RIDE_ACCEPTED` - Viaje aceptado
+- `RIDE_CANCELLED` - Viaje cancelado
+- `DRIVER_ARRIVED` - Conductor llegó
+- `RIDE_STARTED` - Viaje iniciado
+- `RIDE_COMPLETED` - Viaje completado
+- `PAYMENT_SUCCESS` - Pago exitoso
+- `CHAT_MESSAGE` - Nuevo mensaje
+- `EMERGENCY_ALERT` - Alerta de emergencia
+
+### Preferencias de Usuario
+```typescript
+interface NotificationPreferences {
+  pushEnabled: boolean;
+  smsEnabled: boolean;
+  rideUpdates: boolean;
+  driverMessages: boolean;
+  promotional: boolean;
+  emergencyAlerts: boolean;
+  soundEnabled: boolean;
+  vibrationEnabled: boolean;
+}
+```
+
+## Servicio de Pagos (Stripe)
+
+### Integración
+```typescript
+// Configuración de Stripe
+import { StripeProvider, useStripe } from '@stripe/stripe-react-native';
+
+const { confirmPayment } = useStripe();
+
+// Proceso de pago
+const handlePayment = async (paymentMethodId: string, amount: number) => {
+  const { paymentIntent, error } = await confirmPayment(
+    clientSecret,
+    {
+      type: 'Card',
+      paymentMethodId,
+    }
+  );
+};
+```
+
+### Flujo de Pago
+1. Crear PaymentIntent en backend
+2. Recibir client_secret
+3. Confirmar pago en frontend
+4. Manejar resultado y actualizar UI
+
+## Servicio de Emergencias
+
+### Tipos de Emergencia
+- `sos` - Emergencia general
+- `accident` - Accidente
+- `medical` - Emergencia médica
+- `other` - Otro tipo
+
+### Estructura de Alerta
+```typescript
+interface EmergencyAlert {
+  id: string;
+  rideId: number;
+  userId: string;
+  type: "sos" | "accident" | "medical" | "other";
+  location: LocationData;
+  timestamp: Date;
+  status: "active" | "resolved" | "cancelled";
+  description?: string;
+}
+```
+
+## Patrones de Error Handling
+
+### Try-Catch con Logging
+```typescript
+try {
+  const response = await fetchAPI(endpoint, options);
+  console.log("[Service] Success:", response);
+  return response;
+} catch (error) {
+  console.error("[Service] Error:", error);
+  throw error;
+}
+```
+
+### Error Transformation
+```typescript
+const handleApiError = (error: any) => {
+  if (error.statusCode === 401) {
+    // Token expirado - redirect to login
+    router.replace('/(auth)/sign-in');
+  } else if (error.statusCode === 403) {
+    // Forbidden - show error
+    showError('Access Denied', 'You do not have permission');
+  } else {
+    // Generic error
+    showError('Error', error.message || 'Something went wrong');
+  }
+};
+```
+
+## Patrón de Servicio
+
+### Clase Base para Servicios
+```typescript
+export class BaseService {
+  protected async request<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<T> {
+    try {
+      const response = await fetchAPI(endpoint, options);
+      return response as T;
+    } catch (error) {
+      console.error(`[BaseService] Error in ${endpoint}:`, error);
+      throw error;
+    }
+  }
+
+  protected async authenticatedRequest<T>(
+    endpoint: string,
+    options?: RequestInit
+  ): Promise<T> {
+    return this.request<T>(endpoint, {
+      ...options,
+      requiresAuth: true
+    });
+  }
+}
+```
+
+## Configuración de Ambiente
+
+### Variables de Entorno
+```typescript
+// app.json
+{
+  "expo": {
+    "extra": {
+      "serverUrl": "https://api.uber-app.com",
+      "wsUrl": "wss://ws.uber-app.com",
+      "stripePublishableKey": "pk_test_..."
+    }
+  }
+}
+```
+
+### Acceso a Variables
+```typescript
+const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL;
+const wsUrl = process.env.EXPO_PUBLIC_WS_URL;
+```
+
+## Testing de Servicios
+
+### Mock Services para Testing
+```typescript
+// Para desarrollo sin backend
+export const mockFetchAPI = (endpoint: string, options?: RequestInit) => {
+  // Return mock data based on endpoint
+  return Promise.resolve(mockResponses[endpoint]);
+};
+```
+
+## Convenciones
+
+### Naming Conventions
+- `ServiceName` para clases de servicio
+- `serviceName` para instancias singleton
+- `getData`, `createItem`, `updateItem`, `deleteItem` para métodos CRUD
+
+### Error Handling
+- Siempre loggear errores con contexto
+- Transformar errores a formato consistente
+- Manejar errores específicos (401, 403, 404, etc.)
+
+### Response Format
+- Usar estructura consistente: `{ success, data, message, statusCode }`
+- Manejar respuestas anidadas: `response.data` vs `response`

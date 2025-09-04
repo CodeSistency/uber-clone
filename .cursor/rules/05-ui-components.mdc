@@ -1,0 +1,485 @@
+---
+alwaysApply: true
+description: UI/UX y componentes reutilizables
+---
+
+# UI/UX y Componentes Reutilizables
+
+## Sistema de Estilos - NativeWind (Tailwind CSS)
+
+### Configuración Base
+```typescript
+// tailwind.config.js
+module.exports = {
+  content: ["./app/**/*.{js,jsx,ts,tsx}"],
+  theme: {
+    extend: {
+      colors: {
+        primary: '#0286FF',
+        secondary: '#6B7280',
+        danger: '#EF4444',
+        success: '#10B981',
+        warning: '#F59E0B',
+        general: {
+          100: '#F5F5F5',
+          200: '#E5E5E5',
+          300: '#CCCCCC',
+          400: '#999999',
+          500: '#666666',
+        }
+      },
+      fontFamily: {
+        Jakarta: ['PlusJakartaSans-Regular'],
+        'Jakarta-Bold': ['PlusJakartaSans-Bold'],
+        'Jakarta-ExtraBold': ['PlusJakartaSans-ExtraBold'],
+        'Jakarta-ExtraLight': ['PlusJakartaSans-ExtraLight'],
+        'Jakarta-Light': ['PlusJakartaSans-Light'],
+        'Jakarta-Medium': ['PlusJakartaSans-Medium'],
+        'Jakarta-SemiBold': ['PlusJakartaSans-SemiBold'],
+      }
+    },
+  },
+  plugins: [],
+}
+```
+
+### Convenciones de Clases
+```typescript
+// Layout y espaciado
+className="flex-1 p-4 m-2"
+
+// Colores
+className="bg-primary text-white"
+
+// Tipografía
+className="font-Jakarta-Bold text-lg"
+
+// Bordes y sombras
+className="rounded-lg border border-gray-200 shadow-lg"
+
+// Posicionamiento
+className="absolute top-4 right-4 z-10"
+```
+
+## Componentes Base Reutilizables
+
+### CustomButton Component
+```typescript
+interface ButtonProps extends TouchableOpacityProps {
+  title: string;
+  bgVariant?: "primary" | "secondary" | "danger" | "outline" | "success";
+  textVariant?: "primary" | "default" | "secondary" | "danger" | "success";
+  IconLeft?: React.ComponentType<any>;
+  IconRight?: React.ComponentType<any>;
+  className?: string;
+}
+
+// Uso
+<CustomButton
+  title="Confirm Ride"
+  bgVariant="primary"
+  onPress={handleConfirm}
+  className="w-full mt-4"
+/>
+```
+
+### InputField Component
+```typescript
+interface InputFieldProps extends TextInputProps {
+  label: string;
+  icon?: any;
+  secureTextEntry?: boolean;
+  labelStyle?: string;
+  containerStyle?: string;
+  inputStyle?: string;
+  iconStyle?: string;
+  className?: string;
+}
+
+// Uso
+<InputField
+  label="Email"
+  placeholder="Enter your email"
+  icon={icons.email}
+  value={email}
+  onChangeText={setEmail}
+/>
+```
+
+### GoogleTextInput Component
+```typescript
+interface GoogleInputProps {
+  icon?: string;
+  initialLocation?: string;
+  containerStyle?: string;
+  textInputBackgroundColor?: string;
+  handlePress: ({ latitude, longitude, address }) => void;
+}
+
+// Uso
+<GoogleTextInput
+  icon={icons.target}
+  initialLocation="Current Location"
+  handlePress={handleLocationSelect}
+/>
+```
+
+## Sistema de UI Avanzado (UIWrapper)
+
+### Arquitectura de UI
+```typescript
+// UIWrapper como provider global
+<UIWrapper>
+  <AppNavigator />
+</UIWrapper>
+
+// Hook para UI management
+const { showLoading, showError, showSuccess, withUI } = useUI();
+```
+
+### Tipos de Componentes UI
+
+#### Toast Notifications
+```typescript
+// Toast simple
+showSuccess("Ride Confirmed", "Your ride has been booked successfully");
+
+// Toast avanzado
+showAdvancedToast({
+  type: "success",
+  title: "Payment Successful",
+  message: "Your payment has been processed",
+  action: {
+    label: "View Receipt",
+    onPress: () => router.push('/receipt')
+  }
+});
+```
+
+#### Bottom Sheets
+```typescript
+showBottomSheet({
+  id: "ride-options",
+  title: "Select Ride Type",
+  height: "half",
+  content: <RideOptions onSelect={handleRideSelect} />,
+  backdropClose: true
+});
+```
+
+#### Modals
+```typescript
+showModal({
+  id: "payment-confirm",
+  title: "Confirm Payment",
+  size: "md",
+  content: <PaymentForm amount={total} />,
+  actions: [
+    { label: "Cancel", variant: "secondary" },
+    { label: "Pay Now", variant: "primary", onPress: handlePayment }
+  ]
+});
+```
+
+#### Loading States
+```typescript
+// Loading global
+setGlobalLoading(true, "Processing payment...");
+
+// Loading con UI wrapper
+const result = await withUI(
+  () => processPayment(paymentData),
+  {
+    loadingMessage: "Processing payment...",
+    successMessage: "Payment successful!",
+    errorTitle: "Payment Failed"
+  }
+);
+```
+
+## Map Component
+
+### Configuración de Mapa
+```typescript
+interface MapProps {
+  destinationLatitude?: number;
+  destinationLongitude?: number;
+  onDriverTimesCalculated?: (driversWithTimes: MarkerData[]) => void;
+  selectedDriver?: number | null;
+  onMapReady?: () => void;
+}
+
+// Uso
+<Map
+  destinationLatitude={destinationLat}
+  destinationLongitude={destinationLng}
+  selectedDriver={selectedDriverId}
+  onDriverTimesCalculated={handleDriversCalculated}
+/>
+```
+
+### Markers y Polylines
+```typescript
+// Marcadores de conductores
+<MapView.Marker
+  coordinate={{ latitude, longitude }}
+  title={driver.first_name}
+  description={`Rating: ${driver.rating} • ${time} min`}
+/>
+
+// Ruta del viaje
+<MapView.Polyline
+  coordinates={routeCoordinates}
+  strokeColor="#0286FF"
+  strokeWidth={4}
+/>
+```
+
+## Componentes de Ride
+
+### RideCard Component
+```typescript
+interface RideCardProps {
+  ride: Ride;
+  onPress?: () => void;
+  showStatus?: boolean;
+}
+
+// Muestra información del viaje
+<RideCard
+  ride={rideData}
+  onPress={() => router.push(`/ride/${ride.id}`)}
+  showStatus={true}
+/>
+```
+
+### DriverCard Component
+```typescript
+interface DriverCardProps {
+  item: MarkerData;
+  selected: number;
+  setSelected: () => void;
+}
+
+// Lista de conductores disponibles
+<DriverCard
+  item={driver}
+  selected={selectedDriver}
+  setSelected={() => setSelectedDriver(driver.id)}
+/>
+```
+
+## Sistema de Notificaciones
+
+### NotificationItem Component
+```typescript
+interface NotificationItemProps {
+  notification: NotificationData;
+  onPress?: () => void;
+  onMarkAsRead?: () => void;
+}
+
+// Item de notificación
+<NotificationItem
+  notification={notification}
+  onPress={handleNotificationPress}
+  onMarkAsRead={() => markAsRead(notification.id)}
+/>
+```
+
+### NotificationBadge Component
+```typescript
+// Badge para contar notificaciones no leídas
+<NotificationBadge count={unreadCount} />
+```
+
+## Componentes de Chat
+
+### ChatMessage Component
+```typescript
+interface ChatMessageProps {
+  message: ChatMessage;
+  isOwnMessage: boolean;
+}
+
+// Mensaje de chat
+<ChatMessage
+  message={messageData}
+  isOwnMessage={message.senderId === currentUserId}
+/>
+```
+
+### ChatInput Component
+```typescript
+interface ChatInputProps {
+  onSendMessage: (message: string) => void;
+  onSendLocation?: () => void;
+  placeholder?: string;
+}
+
+// Input para enviar mensajes
+<ChatInput
+  onSendMessage={handleSendMessage}
+  onSendLocation={handleSendLocation}
+  placeholder="Type a message..."
+/>
+```
+
+## Componentes de Emergency
+
+### EmergencyButton Component
+```typescript
+interface EmergencyButtonProps {
+  onEmergency: () => void;
+  isActive?: boolean;
+}
+
+// Botón de emergencia
+<EmergencyButton
+  onEmergency={triggerEmergency}
+  isActive={emergencyActive}
+/>
+```
+
+## Patrones de Componentes
+
+### 1. Props Interface Pattern
+```typescript
+interface ComponentNameProps {
+  // Required props
+  requiredProp: Type;
+
+  // Optional props
+  optionalProp?: Type;
+
+  // Event handlers
+  onEvent?: () => void;
+
+  // Style overrides
+  className?: string;
+}
+```
+
+### 2. Forward Ref Pattern (cuando necesario)
+```typescript
+const ComponentName = forwardRef<View, ComponentNameProps>(
+  ({ className, ...props }, ref) => {
+    return (
+      <View ref={ref} className={className} {...props}>
+        {/* Component content */}
+      </View>
+    );
+  }
+);
+```
+
+### 3. Memo Pattern para Optimización
+```typescript
+const ComponentName = memo<ComponentNameProps>(({ prop }) => {
+  return (
+    <View>
+      <Text>{prop}</Text>
+    </View>
+  );
+});
+```
+
+### 4. Style Props Pattern
+```typescript
+interface StyleProps {
+  className?: string;
+  style?: StyleProp<ViewStyle>;
+}
+
+// Combinar estilos
+const combinedClassName = `default-styles ${className || ''}`;
+const combinedStyle = [defaultStyle, style];
+```
+
+## Theme System
+
+### Colores Temáticos
+```typescript
+export const theme = {
+  primary: '#0286FF',
+  secondary: '#6B7280',
+  success: '#10B981',
+  warning: '#F59E0B',
+  danger: '#EF4444',
+
+  // Gradientes
+  gradients: {
+    primary: ['#0286FF', '#0056CC'],
+    success: ['#10B981', '#059669']
+  }
+};
+```
+
+### Responsive Design
+```typescript
+// Breakpoints
+const breakpoints = {
+  sm: 640,
+  md: 768,
+  lg: 1024,
+  xl: 1280
+};
+
+// Responsive utilities
+const responsiveClass = `w-full md:w-1/2 lg:w-1/3`;
+```
+
+## Iconos y Assets
+
+### Sistema de Iconos
+```typescript
+// constants/icons.ts
+export const icons = {
+  home: require('@/assets/icons/home.png'),
+  chat: require('@/assets/icons/chat.png'),
+  profile: require('@/assets/icons/profile.png'),
+  // ... más iconos
+};
+
+// Uso
+<Image source={icons.home} className="w-6 h-6" />
+```
+
+### Images y Assets
+```typescript
+// constants/images.ts
+export const images = {
+  onboarding1: require('@/assets/images/onboarding1.png'),
+  logo: require('@/assets/images/logo.png'),
+  // ... más imágenes
+};
+```
+
+## Convenciones de UI
+
+### Naming Conventions
+- `ComponentName.tsx` para componentes
+- `useComponentName` para hooks personalizados
+- `ComponentNameProps` para interfaces
+- `styles.ts` para estilos separados cuando es necesario
+
+### File Organization
+```
+components/
+├── common/          # Componentes base reutilizables
+├── ui/             # Componentes de UI específicos
+├── screens/        # Componentes de pantalla completa
+└── layouts/        # Componentes de layout
+```
+
+### Accessibility
+- Usar `accessible={true}` en elementos interactivos
+- Proporcionar `accessibilityLabel` descriptivo
+- Usar `accessibilityRole` apropiado
+- Soporte para `accessibilityHint`
+
+### Performance
+- Usar `memo` para componentes que se re-renderizan frecuentemente
+- Optimizar listas con `key` único
+- Usar `useCallback` para event handlers
+- Lazy loading para componentes pesados
