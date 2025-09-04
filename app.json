@@ -44,7 +44,13 @@
     "extra": {
       "eas": {
         "projectId": "your-project-id"
-      }
+      },
+      "serverUrl": "http://72.60.119.19:3001",
+      "wsUrl": "wss://gnuhealth-back.alcaravan.com.ve",
+      "stripePublishableKey": "pk_test_...",
+      "directionsApiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8",
+      "placesApiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8",
+      "geoapifyApiKey": "your-geoapify-api-key"
     },
     "experiments": {
       "typedRoutes": true

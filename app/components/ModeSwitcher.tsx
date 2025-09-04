@@ -88,9 +88,9 @@ const ModeSwitcher = ({
             text: "Register",
             onPress: () => {
               if (modeId === "driver") {
-                router.replace("/(auth)/driver-register");
+                router.replace("/(auth)/driver-register" as any);
               } else if (modeId === "business") {
-                router.replace("/(auth)/business-register");
+                router.replace("/(auth)/business-register" as any);
               }
             },
           },

@@ -28,7 +28,7 @@ interface PlacesApiResponse {
   error_message?: string;
 }
 
-const googlePlacesApiKey = process.env.EXPO_PUBLIC_PLACES_API_KEY;
+const googlePlacesApiKey = process.env.EXPO_PUBLIC_PLACES_API_KEY || "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
 const googleMapsApiKey = "AIzaSyC4o0Jqu8FvUxqn2Xw2UvU2oDn2e2uvdG8"; // From app.json
 
 // Use environment variable if available, otherwise use app.json key
@@ -44,7 +44,7 @@ if (!globalAny.googlePlacesLogged) {
     GOOGLE_MAPS_API_KEY_APP_JSON: googleMapsApiKey
       ? `EXISTS (length: ${googleMapsApiKey.length})`
       : "MISSING",
-    DIRECTIONS_API_KEY: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY
+    DIRECTIONS_API_KEY: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY || "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8"
       ? "EXISTS"
       : "MISSING",
     USING_KEY: apiKeyToUse

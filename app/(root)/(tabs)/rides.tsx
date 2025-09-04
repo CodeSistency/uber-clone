@@ -14,7 +14,7 @@ const Rides = () => {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(user?.id ? `/(api)/ride/${user.id}` : null);
+  } = useFetch<Ride[]>(user?.id ? `ride/user/${user.id}` : null);
 
   console.log("[Rides] Page data:", {
     userId: user?.id,

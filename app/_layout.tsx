@@ -36,7 +36,7 @@ export default function RootLayout() {
       try {
         const { initializeUserStore } = require('@/lib/auth');
         if (typeof initializeUserStore === 'function') {
-          initializeUserStore().catch((error) => {
+          initializeUserStore().catch((error: any) => {
             console.error("[RootLayout] Failed to initialize user store:", error);
           });
         } else {

@@ -1,4 +1,4 @@
-// import { io, Socket } from 'socket.io-client'; // Temporarily commented for TypeScript compatibility
+import { io, Socket } from 'socket.io-client';
 import {
   useRealtimeStore,
   useChatStore,
@@ -8,7 +8,7 @@ import { LocationData, NotificationType } from "../../types/type";
 
 export class WebSocketService {
   private static instance: WebSocketService;
-  private socket: any = null;
+  private socket: Socket | null = null;
   private reconnectAttempts = 0;
   private maxReconnectAttempts = 5;
   private reconnectDelay = 1000;
@@ -27,16 +27,17 @@ export class WebSocketService {
       try {
         console.log("[WebSocketService] Connecting to server...", { userId });
 
-        // this.socket = io(`${process.env.EXPO_PUBLIC_WS_URL}/rides`, { // Temporarily commented
-        //   auth: {
-        //     token,
-        //     userId,
-        //   },
-        //   transports: ['websocket'],
-        //   upgrade: false,
-        //   timeout: 5000,
-        //   reconnection: false, // We'll handle reconnection manually
-        // });
+        // Initialize socket connection (temporarily commented for development)
+        this.socket = io(`${process.env.EXPO_PUBLIC_WS_URL || "wss://gnuhealth-back.alcaravan.com.ve"}/rides`, {
+          auth: {
+            token,
+            userId,
+          },
+          transports: ['websocket'],
+          upgrade: false,
+          timeout: 5000,
+          reconnection: false, // We'll handle reconnection manually
+        });
 
         // Connection events
         this.socket.on("connect", () => {
@@ -59,6 +60,7 @@ export class WebSocketService {
 
         // Set up message handlers
         this.setupMessageHandlers();
+
       } catch (error) {
         console.error("[WebSocketService] Connection failed:", error);
         reject(error);
@@ -444,7 +446,8 @@ export class WebSocketService {
   get connectionState(): string {
     if (!this.socket) return "disconnected";
     if (this.socket.connected) return "connected";
-    if (this.socket.connecting) return "connecting";
+    // For socket.io-client, we can check if it's actively connecting
+    // by checking the connection state or use a flag
     return "disconnected";
   }
 

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { jwtTokenManager } from "./auth";
 
 // Base URL for the new backend API
-const API_BASE_URL = (process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000") + "/api";
+const API_BASE_URL = `${process.env.EXPO_PUBLIC_SERVER_URL || "https://gnuhealth-back.alcaravan.com.ve"}/api`;
 
 export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean }) => {
   const startMs = Date.now();

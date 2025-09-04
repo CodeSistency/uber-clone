@@ -81,7 +81,7 @@ const ConfirmRide = () => {
 
       console.log("[ConfirmRide] Ride data to send:", rideData);
 
-      const response = await fetchAPI("/(api)/ride/create", {
+      const response = await fetchAPI("ride/create", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
