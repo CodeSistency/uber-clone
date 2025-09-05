@@ -6,21 +6,21 @@ export async function GET(request: Request) {
 
     // Get URL parameters for filtering
     const url = new URL(request.url);
-    const driverLat = url.searchParams.get('driverLat');
-    const driverLng = url.searchParams.get('driverLng');
-    const radius = url.searchParams.get('radius') || '5'; // Default 5km
+    const driverLat = url.searchParams.get("driverLat");
+    const driverLng = url.searchParams.get("driverLng");
+    const radius = url.searchParams.get("radius") || "5"; // Default 5km
 
     console.log("[API] Fetching ride requests with params:", {
       driverLat,
       driverLng,
-      radius
+      radius,
     });
 
     // Validate required parameters
     if (!driverLat || !driverLng) {
       return Response.json(
         { error: "Driver location (driverLat, driverLng) is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -31,7 +31,9 @@ export async function GET(request: Request) {
     // Calculate bounding box for efficient search
     const earthRadius = 6371; // Earth's radius in kilometers
     const latDelta = (radiusNum / earthRadius) * (180 / Math.PI);
-    const lngDelta = (radiusNum / earthRadius) * (180 / Math.PI) / Math.cos((driverLatNum * Math.PI) / 180);
+    const lngDelta =
+      ((radiusNum / earthRadius) * (180 / Math.PI)) /
+      Math.cos((driverLatNum * Math.PI) / 180);
 
     const minLat = driverLatNum - latDelta;
     const maxLat = driverLatNum + latDelta;
@@ -76,40 +78,43 @@ export async function GET(request: Request) {
     console.log(`[API] Found ${availableRides.length} rides in bounding box`);
 
     // Calculate exact distance and filter by radius
-    const filteredRides = availableRides.map((ride: any) => {
-      const distance = calculateDistance(
-        driverLatNum,
-        driverLngNum,
-        parseFloat(ride.origin_latitude),
-        parseFloat(ride.origin_longitude)
-      );
+    const filteredRides = availableRides
+      .map((ride: any) => {
+        const distance = calculateDistance(
+          driverLatNum,
+          driverLngNum,
+          parseFloat(ride.origin_latitude),
+          parseFloat(ride.origin_longitude),
+        );
 
-      if (distance <= radiusNum) {
-        return {
-          rideId: ride.ride_id,
-          originAddress: ride.origin_address,
-          destinationAddress: ride.destination_address,
-          distance: Math.round(distance * 100) / 100, // Round to 2 decimal places
-          estimatedFare: parseFloat(ride.fare_price),
-          rideTime: ride.ride_time,
-          createdAt: ride.created_at,
-          tier: {
-            name: ride.tier_name || 'Standard',
-            baseFare: parseFloat(ride.base_fare || '2.5')
-          },
-          user: {
-            name: ride.user_name,
-            clerkId: ride.user_clerk_id
-          }
-        };
-      }
-      return null;
-    }).filter(Boolean);
+        if (distance <= radiusNum) {
+          return {
+            rideId: ride.ride_id,
+            originAddress: ride.origin_address,
+            destinationAddress: ride.destination_address,
+            distance: Math.round(distance * 100) / 100, // Round to 2 decimal places
+            estimatedFare: parseFloat(ride.fare_price),
+            rideTime: ride.ride_time,
+            createdAt: ride.created_at,
+            tier: {
+              name: ride.tier_name || "Standard",
+              baseFare: parseFloat(ride.base_fare || "2.5"),
+            },
+            user: {
+              name: ride.user_name,
+              clerkId: ride.user_clerk_id,
+            },
+          };
+        }
+        return null;
+      })
+      .filter(Boolean);
 
-    console.log(`[API] Returning ${filteredRides.length} rides within ${radiusNum}km radius`);
+    console.log(
+      `[API] Returning ${filteredRides.length} rides within ${radiusNum}km radius`,
+    );
 
     return Response.json({ data: filteredRides }, { status: 200 });
-
   } catch (error) {
     console.error("Error fetching ride requests:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
@@ -117,16 +122,24 @@ export async function GET(request: Request) {
 }
 
 // Calculate distance between two coordinates using Haversine formula
-function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+function calculateDistance(
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number {
   const R = 6371; // Earth's radius in kilometers
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLng = (lng2 - lng1) * Math.PI / 180;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
 
-  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-    Math.sin(dLng/2) * Math.sin(dLng/2);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   const distance = R * c;
 
   return distance;

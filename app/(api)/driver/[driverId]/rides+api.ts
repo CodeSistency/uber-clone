@@ -2,18 +2,18 @@ import { neon } from "@neondatabase/serverless";
 
 export async function GET(
   request: Request,
-  { driverId }: { driverId: string }
+  { driverId }: { driverId: string },
 ) {
   try {
     const sql = neon(`${process.env.DATABASE_URL}`);
 
     // Get URL parameters for filtering
     const url = new URL(request.url);
-    const status = url.searchParams.get('status');
-    const dateFrom = url.searchParams.get('dateFrom');
-    const dateTo = url.searchParams.get('dateTo');
-    const limit = parseInt(url.searchParams.get('limit') || '50');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
+    const status = url.searchParams.get("status");
+    const dateFrom = url.searchParams.get("dateFrom");
+    const dateTo = url.searchParams.get("dateTo");
+    const limit = parseInt(url.searchParams.get("limit") || "50");
+    const offset = parseInt(url.searchParams.get("offset") || "0");
 
     console.log("[API] Fetching driver rides:", {
       driverId,
@@ -21,14 +21,14 @@ export async function GET(
       dateFrom,
       dateTo,
       limit,
-      offset
+      offset,
     });
 
     // Validate driver ID
     if (!driverId || isNaN(parseInt(driverId))) {
       return Response.json(
         { error: "Valid driver ID is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -66,7 +66,7 @@ export async function GET(
     const countQuery = `
       SELECT COUNT(*) as total
       FROM rides
-      ${whereClause.replace('rides.', '')}
+      ${whereClause.replace("rides.", "")}
     `;
 
     const countResult = await sql(countQuery, queryParams);
@@ -116,7 +116,10 @@ export async function GET(
 
     queryParams.push(limit, offset);
 
-    console.log("[API] Executing rides query:", { query: ridesQuery, params: queryParams });
+    console.log("[API] Executing rides query:", {
+      query: ridesQuery,
+      params: queryParams,
+    });
 
     const rides = await sql(ridesQuery, queryParams);
 
@@ -135,35 +138,48 @@ export async function GET(
       duration: ride.duration ? parseInt(ride.duration) : null,
       passenger: {
         name: ride.passenger_name,
-        clerkId: ride.passenger_clerk_id
+        clerkId: ride.passenger_clerk_id,
       },
       tier: {
-        name: ride.tier_name || 'Standard'
+        name: ride.tier_name || "Standard",
       },
-      ratings: ride.avg_rating ? [{
-        ratingValue: Math.round(parseFloat(ride.avg_rating) * 10) / 10,
-        comment: null, // Could be expanded to include actual comments
-        createdAt: ride.actual_end_time
-      }] : []
+      ratings: ride.avg_rating
+        ? [
+            {
+              ratingValue: Math.round(parseFloat(ride.avg_rating) * 10) / 10,
+              comment: null, // Could be expanded to include actual comments
+              createdAt: ride.actual_end_time,
+            },
+          ]
+        : [],
     }));
 
     // Calculate summary statistics
-    const completedRides = formattedRides.filter(ride => ride.status === 'completed');
-    const cancelledRides = formattedRides.filter(ride => ride.status === 'cancelled');
-    const totalEarnings = completedRides.reduce((sum, ride) => sum + ride.farePrice, 0);
+    const completedRides = formattedRides.filter(
+      (ride) => ride.status === "completed",
+    );
+    const cancelledRides = formattedRides.filter(
+      (ride) => ride.status === "cancelled",
+    );
+    const totalEarnings = completedRides.reduce(
+      (sum, ride) => sum + ride.farePrice,
+      0,
+    );
 
     // Calculate average rating from all ratings
-    const allRatings = formattedRides.flatMap(ride => ride.ratings || []);
-    const averageRating = allRatings.length > 0
-      ? allRatings.reduce((sum, rating) => sum + rating.ratingValue, 0) / allRatings.length
-      : 0;
+    const allRatings = formattedRides.flatMap((ride) => ride.ratings || []);
+    const averageRating =
+      allRatings.length > 0
+        ? allRatings.reduce((sum, rating) => sum + rating.ratingValue, 0) /
+          allRatings.length
+        : 0;
 
     const summary = {
       totalRides: formattedRides.length,
       totalEarnings: Math.round(totalEarnings * 100) / 100,
       averageRating: Math.round(averageRating * 10) / 10,
       completedRides: completedRides.length,
-      cancelledRides: cancelledRides.length
+      cancelledRides: cancelledRides.length,
     };
 
     const result = {
@@ -173,12 +189,11 @@ export async function GET(
         limit,
         offset,
         total: totalCount,
-        hasMore: offset + limit < totalCount
-      }
+        hasMore: offset + limit < totalCount,
+      },
     };
 
     return Response.json(result, { status: 200 });
-
   } catch (error) {
     console.error("Error fetching driver rides:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

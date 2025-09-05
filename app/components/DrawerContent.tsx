@@ -1,10 +1,18 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Modal, Alert } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  Alert,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import ModeSwitcher from "./ModeSwitcher";
 import { logoutUser } from "@/lib/auth";
+
+import ModeSwitcher from "./ModeSwitcher";
 
 interface DrawerContentProps {
   currentMode?: "customer" | "driver" | "business";
@@ -19,7 +27,6 @@ const DrawerContent = ({
   onClose,
   onModeChange,
 }: DrawerContentProps) => {
-
   console.log(
     "DrawerContent rendered, visible:",
     visible,
@@ -38,40 +45,38 @@ const DrawerContent = ({
       onClose?.();
 
       // Show confirmation dialog
-      Alert.alert(
-        "Logout",
-        "Are you sure you want to logout?",
-        [
-          {
-            text: "Cancel",
-            style: "cancel",
-          },
-          {
-            text: "Logout",
-            style: "destructive",
-            onPress: async () => {
-              try {
-                console.log("[Drawer] Logging out user...");
+      Alert.alert("Logout", "Are you sure you want to logout?", [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Logout",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              console.log("[Drawer] Logging out user...");
 
-                // Logout user with internal authentication
-                const result = await logoutUser();
+              // Logout user with internal authentication
+              const result = await logoutUser();
 
-                if (result.success) {
-                  console.log("[Drawer] Logout successful, redirecting to welcome");
-                  // Navigate to welcome screen
-                  router.replace("/(auth)/welcome");
-                } else {
-                  console.error("[Drawer] Logout failed:", result.message);
-                  Alert.alert("Error", "Failed to logout. Please try again.");
-                }
-              } catch (error) {
-                console.error("[Drawer] Error during logout:", error);
+              if (result.success) {
+                console.log(
+                  "[Drawer] Logout successful, redirecting to welcome",
+                );
+                // Navigate to welcome screen
+                router.replace("/(auth)/welcome");
+              } else {
+                console.error("[Drawer] Logout failed:", result.message);
                 Alert.alert("Error", "Failed to logout. Please try again.");
               }
-            },
+            } catch (error) {
+              console.error("[Drawer] Error during logout:", error);
+              Alert.alert("Error", "Failed to logout. Please try again.");
+            }
           },
-        ],
-      );
+        },
+      ]);
     } catch (error) {
       console.error("[Drawer] Error in logout handler:", error);
       Alert.alert("Error", "Failed to logout. Please try again.");

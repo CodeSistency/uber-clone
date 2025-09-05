@@ -1,18 +1,12 @@
 import { neon } from "@neondatabase/serverless";
 
-export async function POST(
-  request: Request,
-  { rideId }: { rideId: string }
-) {
+export async function POST(request: Request, { rideId }: { rideId: string }) {
   try {
     const body = await request.json();
     const { driverId } = body;
 
     if (!driverId) {
-      return Response.json(
-        { error: "Driver ID is required" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Driver ID is required" }, { status: 400 });
     }
 
     const sql = neon(`${process.env.DATABASE_URL}`);
@@ -39,7 +33,7 @@ export async function POST(
     if (rideCheck.length === 0) {
       return Response.json(
         { error: "Ride not found, driver not assigned, or invalid status" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -59,7 +53,7 @@ export async function POST(
     if (response.length === 0) {
       return Response.json(
         { error: "Failed to start ride - status transition failed" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -78,22 +72,21 @@ export async function POST(
         lastName: ride.last_name,
         carModel: ride.car_model,
         licensePlate: ride.license_plate,
-        carSeats: ride.car_seats
+        carSeats: ride.car_seats,
       },
       origin: {
         address: updatedRide.origin_address,
         latitude: parseFloat(updatedRide.origin_latitude),
-        longitude: parseFloat(updatedRide.origin_longitude)
+        longitude: parseFloat(updatedRide.origin_longitude),
       },
       destination: {
         address: updatedRide.destination_address,
         latitude: parseFloat(updatedRide.destination_latitude),
-        longitude: parseFloat(updatedRide.destination_longitude)
-      }
+        longitude: parseFloat(updatedRide.destination_longitude),
+      },
     };
 
     return Response.json(result, { status: 200 });
-
   } catch (error) {
     console.error("Error starting ride:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

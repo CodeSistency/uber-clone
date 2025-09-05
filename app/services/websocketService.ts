@@ -1,4 +1,5 @@
-import { io, Socket } from 'socket.io-client';
+import { io, Socket } from "socket.io-client";
+
 import {
   useRealtimeStore,
   useChatStore,
@@ -28,16 +29,19 @@ export class WebSocketService {
         console.log("[WebSocketService] Connecting to server...", { userId });
 
         // Initialize socket connection (temporarily commented for development)
-        this.socket = io(`${process.env.EXPO_PUBLIC_WS_URL || "wss://gnuhealth-back.alcaravan.com.ve"}/rides`, {
-          auth: {
-            token,
-            userId,
+        this.socket = io(
+          `${process.env.EXPO_PUBLIC_WS_URL || "wss://gnuhealth-back.alcaravan.com.ve"}/rides`,
+          {
+            auth: {
+              token,
+              userId,
+            },
+            transports: ["websocket"],
+            upgrade: false,
+            timeout: 5000,
+            reconnection: false, // We'll handle reconnection manually
           },
-          transports: ['websocket'],
-          upgrade: false,
-          timeout: 5000,
-          reconnection: false, // We'll handle reconnection manually
-        });
+        );
 
         // Connection events
         this.socket.on("connect", () => {
@@ -60,7 +64,6 @@ export class WebSocketService {
 
         // Set up message handlers
         this.setupMessageHandlers();
-
       } catch (error) {
         console.error("[WebSocketService] Connection failed:", error);
         reject(error);
@@ -159,6 +162,35 @@ export class WebSocketService {
     }
   }
 
+  // Enhanced driver methods
+  updateDriverStatus(statusData: any): void {
+    if (this.socket && this.socket.connected) {
+      console.log("[WebSocketService] Updating driver status:", statusData);
+      this.socket.emit("updateDriverStatus", statusData);
+    }
+  }
+
+  requestEarningsUpdate(driverId: string): void {
+    if (this.socket && this.socket.connected) {
+      console.log("[WebSocketService] Requesting earnings update for:", driverId);
+      this.socket.emit("requestEarningsUpdate", { driverId });
+    }
+  }
+
+  requestPerformanceData(driverId: string): void {
+    if (this.socket && this.socket.connected) {
+      console.log("[WebSocketService] Requesting performance data for:", driverId);
+      this.socket.emit("requestPerformanceData", { driverId });
+    }
+  }
+
+  updateVehicleChecklist(vehicleData: any): void {
+    if (this.socket && this.socket.connected) {
+      console.log("[WebSocketService] Updating vehicle checklist:", vehicleData);
+      this.socket.emit("updateVehicleChecklist", vehicleData);
+    }
+  }
+
   // Connection status
   private updateConnectionStatus(connected: boolean): void {
     const connectionStatus = {
@@ -193,11 +225,32 @@ export class WebSocketService {
       this.handleNewMessage(data);
     });
 
-    // Ride created
-    this.socket.on("rideCreated", (data: any) => {
-      console.log("[WebSocketService] Ride created:", data);
-      this.handleRideCreated(data);
-    });
+      // Ride created
+  this.socket.on("rideCreated", (data: any) => {
+    console.log("[WebSocketService] Ride created:", data);
+    this.handleRideCreated(data);
+  });
+
+  // Enhanced driver events
+  this.socket.on("earningsUpdate", (data: any) => {
+    console.log("[WebSocketService] Earnings update:", data);
+    this.handleEarningsUpdate(data);
+  });
+
+  this.socket.on("performanceUpdate", (data: any) => {
+    console.log("[WebSocketService] Performance update:", data);
+    this.handlePerformanceUpdate(data);
+  });
+
+  this.socket.on("rideNotification", (data: any) => {
+    console.log("[WebSocketService] Ride notification:", data);
+    this.handleRideNotification(data);
+  });
+
+  this.socket.on("vehicleStatusUpdate", (data: any) => {
+    console.log("[WebSocketService] Vehicle status update:", data);
+    this.handleVehicleStatusUpdate(data);
+  });
 
     // Typing indicators
     this.socket.on("typingStart", (data: any) => {
@@ -312,6 +365,39 @@ export class WebSocketService {
   private handleEmergencyTriggered(data: any): void {
     // This would trigger emergency store updates
     console.log("[WebSocketService] Emergency triggered:", data);
+  }
+
+  // Enhanced driver event handlers
+  private handleEarningsUpdate(data: any): void {
+    const { driverId, earnings, tripCount, todayEarnings } = data;
+
+    // Update driver store with new earnings data
+    console.log("[WebSocketService] Updating earnings for driver:", driverId);
+    // This would update the driver store with real-time earnings
+  }
+
+  private handlePerformanceUpdate(data: any): void {
+    const { driverId, weeklyStats, recommendations } = data;
+
+    // Update performance analytics
+    console.log("[WebSocketService] Updating performance for driver:", driverId);
+    // This would update the performance dashboard with new data
+  }
+
+  private handleRideNotification(data: any): void {
+    const { rideId, pickupLocation, dropoffLocation, fare, passengerInfo } = data;
+
+    // Trigger ride notification system
+    console.log("[WebSocketService] New ride notification:", rideId);
+    // This would trigger the RideNotificationSystem component
+  }
+
+  private handleVehicleStatusUpdate(data: any): void {
+    const { vehicleId, status, lastChecked } = data;
+
+    // Update vehicle status
+    console.log("[WebSocketService] Vehicle status update:", vehicleId);
+    // This would update vehicle checklist status
   }
 
   // Utility methods

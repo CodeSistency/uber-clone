@@ -4,9 +4,9 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
+import { useUI } from "../../components/UIWrapper";
 import { icons, images } from "../../constants";
 import { loginUser, isAuthenticated } from "../../lib/auth";
-import { useUI } from "../../components/UIWrapper";
 
 const SignIn = () => {
   console.log("[SignIn] Rendering sign-in screen");
@@ -33,7 +33,6 @@ const SignIn = () => {
     };
     checkAuth();
   }, []);
-
 
   console.log("[SignIn] Rendering sign-in content");
 
@@ -70,15 +69,17 @@ const SignIn = () => {
         successMessage: "Welcome back to UberClone!",
         errorTitle: "Login Failed",
         onSuccess: () => {
-          console.log("[SignIn] Login successful, redirecting to home");
+          console.log(
+            "[SignIn] Login successful, redirecting to index for onboarding check",
+          );
           setTimeout(() => {
-            router.replace("/(root)/(tabs)/home");
+            router.replace("/");
           }, 1000); // Give time for success message to show
         },
         onError: (error) => {
           console.error("[SignIn] Login error:", error);
-        }
-      }
+        },
+      },
     );
   };
 

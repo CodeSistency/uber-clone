@@ -4,9 +4,9 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
+import { useUI } from "../../components/UIWrapper";
 import { icons, images } from "../../constants";
 import { registerUser, isAuthenticated } from "../../lib/auth";
-import { useUI } from "../../components/UIWrapper";
 
 const SignUp = () => {
   console.log("[SignUp] Rendering sign-up screen");
@@ -21,7 +21,7 @@ const SignUp = () => {
 
   const handleInputChange = (field: string, value: string) => {
     console.log(`[SignUp] Input change - ${field}:`, value);
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   useEffect(() => {
@@ -39,7 +39,6 @@ const SignUp = () => {
     };
     checkAuth();
   }, []);
-
 
   const onSignUpPress = async () => {
     console.log("[SignUp] Form data before submission:", form);
@@ -75,15 +74,17 @@ const SignUp = () => {
         successMessage: "Account created successfully! Welcome to UberClone!",
         errorTitle: "Registration Failed",
         onSuccess: () => {
-          console.log("[SignUp] Registration successful, redirecting to home");
+          console.log(
+            "[SignUp] Registration successful, redirecting to index for onboarding check",
+          );
           setTimeout(() => {
-            router.replace("/(root)/(tabs)/home");
+            router.replace("/");
           }, 1000); // Give time for success message to show
         },
         onError: (error) => {
           console.error("[SignUp] Registration error:", error);
-        }
-      }
+        },
+      },
     );
   };
 

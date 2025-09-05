@@ -1,7 +1,7 @@
+import { router } from "expo-router";
 import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { router } from "expo-router";
 
 import CustomButton from "@/components/CustomButton";
 import { fetchAPI, useFetch } from "@/lib/fetch";
@@ -28,9 +28,12 @@ const RideRequests = () => {
 
   // Fetch available ride requests from API
   // NOTE: This endpoint needs to be implemented in backend
-  const { data: rideRequests, loading, error, refetch } = useFetch<RideRequest[]>(
-    "ride/requests"
-  );
+  const {
+    data: rideRequests,
+    loading,
+    error,
+    refetch,
+  } = useFetch<RideRequest[]>("ride/requests");
 
   const handleAcceptRide = async (rideId: string) => {
     if (!user?.id) {
@@ -81,26 +84,22 @@ const RideRequests = () => {
   };
 
   const handleDeclineRide = (rideId: string) => {
-    Alert.alert(
-      "Decline Ride",
-      "Are you sure you want to decline this ride?",
-      [
-        {
-          text: "Cancel",
-          style: "cancel",
+    Alert.alert("Decline Ride", "Are you sure you want to decline this ride?", [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Decline",
+        style: "destructive",
+        onPress: () => {
+          // For now, just remove from local state
+          // In the future, this could call an API to mark as declined
+          console.log("[RideRequests] Ride declined:", rideId);
+          refetch(); // Refresh the list
         },
-        {
-          text: "Decline",
-          style: "destructive",
-          onPress: () => {
-            // For now, just remove from local state
-            // In the future, this could call an API to mark as declined
-            console.log("[RideRequests] Ride declined:", rideId);
-            refetch(); // Refresh the list
-          },
-        },
-      ]
-    );
+      },
+    ]);
   };
 
   // Calculate time ago from created_at
@@ -128,9 +127,8 @@ const RideRequests = () => {
           {loading
             ? "Loading rides..."
             : error
-            ? "Error loading rides"
-            : `${rideRequests?.length || 0} ride${(rideRequests?.length || 0) !== 1 ? "s" : ""} available`
-          }
+              ? "Error loading rides"
+              : `${rideRequests?.length || 0} ride${(rideRequests?.length || 0) !== 1 ? "s" : ""} available`}
         </Text>
       </View>
 
@@ -148,9 +146,7 @@ const RideRequests = () => {
             <Text className="text-xl font-JakartaBold text-center mb-2">
               Error loading rides
             </Text>
-            <Text className="text-secondary-600 text-center mb-4">
-              {error}
-            </Text>
+            <Text className="text-secondary-600 text-center mb-4">{error}</Text>
             <TouchableOpacity
               onPress={refetch}
               className="bg-primary-500 px-6 py-3 rounded-lg"
@@ -202,15 +198,13 @@ const RideRequests = () => {
                 <View className="items-center">
                   <Text className="text-sm text-secondary-600">Distance</Text>
                   <Text className="font-JakartaBold">
-                    {/* Calculate approximate distance */}
-                    ~{Math.round(ride.ride_time * 0.3)} mi
+                    {/* Calculate approximate distance */}~
+                    {Math.round(ride.ride_time * 0.3)} mi
                   </Text>
                 </View>
                 <View className="items-center">
                   <Text className="text-sm text-secondary-600">Time</Text>
-                  <Text className="font-JakartaBold">
-                    {ride.ride_time} min
-                  </Text>
+                  <Text className="font-JakartaBold">{ride.ride_time} min</Text>
                 </View>
                 <View className="items-center">
                   <Text className="text-sm text-secondary-600">Tier</Text>
@@ -233,12 +227,16 @@ const RideRequests = () => {
                 <TouchableOpacity
                   onPress={() => handleAcceptRide(ride.ride_id.toString())}
                   className={`flex-1 bg-success-500 rounded-full py-3 items-center ${
-                    acceptingRide === ride.ride_id.toString() ? "opacity-50" : ""
+                    acceptingRide === ride.ride_id.toString()
+                      ? "opacity-50"
+                      : ""
                   }`}
                   disabled={acceptingRide === ride.ride_id.toString()}
                 >
                   <Text className="text-white font-JakartaBold">
-                    {acceptingRide === ride.ride_id.toString() ? "Accepting..." : "Accept"}
+                    {acceptingRide === ride.ride_id.toString()
+                      ? "Accepting..."
+                      : "Accept"}
                   </Text>
                 </TouchableOpacity>
               </View>

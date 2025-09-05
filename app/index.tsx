@@ -2,17 +2,27 @@ import { Redirect, router } from "expo-router";
 import { useEffect, useState } from "react";
 import { View, Modal } from "react-native";
 
+import { isAuthenticated } from "../lib/auth";
+import { fetchAPI } from "../lib/fetch";
+import { useOnboardingStore } from "../store";
+
 import { WelcomeModal } from "./components/ModeSwitcher";
 import { userModeStorage } from "./lib/storage";
-import { isAuthenticated } from "../lib/auth";
 
 const Page = () => {
   console.log("[IndexPage] Rendering index page");
 
   const [showWelcomeModal, setShowWelcomeModal] = useState(false);
-  const [isAuthenticatedState, setIsAuthenticatedState] = useState<boolean | null>(null);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState<
+    boolean | null
+  >(null);
+  const [onboardingStatus, setOnboardingStatus] = useState<any>(null);
+
+  const { setUserData, setCurrentStep, setCompleted, completeOnboarding } =
+    useOnboardingStore();
 
   console.log("[IndexPage] isAuthenticatedState:", isAuthenticatedState);
+  console.log("[IndexPage] onboardingStatus:", onboardingStatus);
 
   useEffect(() => {
     console.log("[IndexPage] useEffect triggered");
@@ -24,7 +34,40 @@ const Page = () => {
         setIsAuthenticatedState(authenticated);
 
         if (authenticated) {
-          // Check if user has already selected a mode
+          // Check onboarding status first
+          try {
+            console.log("[IndexPage] Checking onboarding status...");
+            const onboardingResponse = await fetchAPI("onboarding/status");
+            console.log(
+              "[IndexPage] Onboarding status response:",
+              onboardingResponse,
+            );
+
+            setOnboardingStatus(onboardingResponse);
+
+            if (!onboardingResponse.isCompleted) {
+              console.log(
+                "[IndexPage] Onboarding not completed, redirecting to onboarding",
+              );
+              // Set onboarding data in store
+              if (onboardingResponse.userData) {
+                setUserData(onboardingResponse.userData);
+              }
+              setCurrentStep(onboardingResponse.nextStep || 0);
+              router.replace("/(onboarding)" as any);
+              return;
+            }
+          } catch (onboardingError) {
+            console.error(
+              "[IndexPage] Error checking onboarding status:",
+              onboardingError,
+            );
+            // If onboarding check fails, assume not completed and redirect to onboarding
+            router.replace("/(onboarding)" as any);
+            return;
+          }
+
+          // If onboarding is completed, check user mode
           const checkUserMode = async () => {
             try {
               console.log("[IndexPage] Checking user mode...");
@@ -32,10 +75,14 @@ const Page = () => {
               console.log("[IndexPage] hasSelectedMode:", hasSelectedMode);
 
               if (!hasSelectedMode) {
-                console.log("[IndexPage] No mode selected, showing welcome modal");
+                console.log(
+                  "[IndexPage] No mode selected, showing welcome modal",
+                );
                 setShowWelcomeModal(true);
               } else {
-                console.log("[IndexPage] Mode already selected, redirecting to home");
+                console.log(
+                  "[IndexPage] Mode already selected, redirecting to home",
+                );
                 router.replace("/(root)/(tabs)/home");
               }
             } catch (error) {
@@ -92,7 +139,9 @@ const Page = () => {
   }
 
   if (!isAuthenticatedState) {
-    console.log("[IndexPage] User not authenticated, redirecting to auth welcome");
+    console.log(
+      "[IndexPage] User not authenticated, redirecting to auth welcome",
+    );
     return <Redirect href="/(auth)/welcome" />;
   }
 

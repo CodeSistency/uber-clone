@@ -12,7 +12,9 @@ import {
 import { useDriverStore, useLocationStore } from "@/store";
 import { Driver, MarkerData } from "@/types/type";
 
-const directionsAPI = process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY || "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
+const directionsAPI =
+  process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ||
+  "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
 
 const Map = () => {
   const {
@@ -140,9 +142,7 @@ const Map = () => {
 
   useEffect(() => {
     // Handle both array format and object format from backend
-    const driversArray = Array.isArray(drivers)
-      ? drivers
-      : drivers?.data || [];
+    const driversArray = Array.isArray(drivers) ? drivers : drivers?.data || [];
 
     if (Array.isArray(driversArray) && driversArray.length > 0) {
       if (!userLatitude || !userLongitude) return;
@@ -151,9 +151,9 @@ const Map = () => {
         count: driversArray.length,
         userLatitude,
         userLongitude,
-        originalFormat: Array.isArray(drivers) ? 'array' : 'object',
+        originalFormat: Array.isArray(drivers) ? "array" : "object",
         firstDriver: driversArray[0],
-        firstDriverKeys: driversArray[0] ? Object.keys(driversArray[0]) : []
+        firstDriverKeys: driversArray[0] ? Object.keys(driversArray[0]) : [],
       });
       const newMarkers = generateMarkersFromData({
         data: driversArray,

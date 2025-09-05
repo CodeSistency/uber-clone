@@ -1,23 +1,22 @@
 import { neon } from "@neondatabase/serverless";
 
-export async function POST(
-  request: Request,
-  { rideId }: { rideId: string }
-) {
+export async function POST(request: Request, { rideId }: { rideId: string }) {
   try {
     const body = await request.json();
     const { driverId, finalDistance, finalTime } = body;
 
     if (!driverId) {
-      return Response.json(
-        { error: "Driver ID is required" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Driver ID is required" }, { status: 400 });
     }
 
     const sql = neon(`${process.env.DATABASE_URL}`);
 
-    console.log("[API] Completing ride:", { rideId, driverId, finalDistance, finalTime });
+    console.log("[API] Completing ride:", {
+      rideId,
+      driverId,
+      finalDistance,
+      finalTime,
+    });
 
     // First, verify that the ride is in progress and driver is assigned
     const rideCheck = await sql`
@@ -40,7 +39,7 @@ export async function POST(
     if (rideCheck.length === 0) {
       return Response.json(
         { error: "Ride not found, not in progress, or driver not assigned" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -50,9 +49,9 @@ export async function POST(
     let finalFare = parseFloat(ride.fare_price);
 
     if (finalDistance && finalTime) {
-      const baseFare = parseFloat(ride.base_fare || '2.5');
-      const perMinuteRate = parseFloat(ride.per_minute_rate || '0.25');
-      const perMileRate = parseFloat(ride.per_mile_rate || '1.25');
+      const baseFare = parseFloat(ride.base_fare || "2.5");
+      const perMinuteRate = parseFloat(ride.per_minute_rate || "0.25");
+      const perMileRate = parseFloat(ride.per_mile_rate || "1.25");
 
       const distanceFare = finalDistance * perMileRate;
       const timeFare = finalTime * perMinuteRate;
@@ -67,7 +66,7 @@ export async function POST(
         finalTime,
         distanceFare,
         timeFare,
-        finalFare: Math.round(finalFare * 100) / 100
+        finalFare: Math.round(finalFare * 100) / 100,
       });
     }
 
@@ -89,7 +88,7 @@ export async function POST(
     if (response.length === 0) {
       return Response.json(
         { error: "Failed to complete ride - status transition failed" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -104,7 +103,7 @@ export async function POST(
       finalFare,
       driverEarnings,
       platformFee,
-      duration: finalTime || 'not provided'
+      duration: finalTime || "not provided",
     });
 
     // Format response according to documentation
@@ -118,16 +117,15 @@ export async function POST(
       driver: {
         id: ride.driver_id,
         firstName: ride.first_name,
-        lastName: ride.last_name
+        lastName: ride.last_name,
       },
       earnings: {
         driverEarnings,
-        platformFee
-      }
+        platformFee,
+      },
     };
 
     return Response.json(result, { status: 200 });
-
   } catch (error) {
     console.error("Error completing ride:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

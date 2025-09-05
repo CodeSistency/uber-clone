@@ -1,5 +1,12 @@
 import React from "react";
-import { Image, ScrollView, Text, View, ActivityIndicator, TouchableOpacity } from "react-native";
+import {
+  Image,
+  ScrollView,
+  Text,
+  View,
+  ActivityIndicator,
+  TouchableOpacity,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import InputField from "@/components/InputField";
@@ -29,7 +36,7 @@ const Profile = () => {
     console.log("[Profile] Running profile API debug...");
     try {
       const { debugProfileResponse } = await import("@/lib/auth");
-      if (typeof debugProfileResponse === 'function') {
+      if (typeof debugProfileResponse === "function") {
         const debugResult = await debugProfileResponse();
         console.log("[Profile] Debug result:", debugResult);
       } else {
@@ -209,11 +216,13 @@ const Profile = () => {
             {user.createdAt && (
               <InputField
                 label="Member Since"
-                value={new Date(user.createdAt).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                }) || ""}
+                value={
+                  new Date(user.createdAt).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  }) || ""
+                }
                 placeholder="Member since"
                 containerStyle="w-full bg-gray-50"
                 inputStyle="p-3.5 text-gray-700 font-JakartaMedium"

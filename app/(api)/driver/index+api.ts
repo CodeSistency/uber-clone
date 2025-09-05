@@ -6,18 +6,18 @@ export async function GET(request: Request) {
 
     // Get URL parameters for filtering
     const url = new URL(request.url);
-    const status = url.searchParams.get('status') || 'online';
-    const verified = url.searchParams.get('verified');
-    const lat = url.searchParams.get('lat');
-    const lng = url.searchParams.get('lng');
-    const radius = url.searchParams.get('radius') || '10'; // Default 10km
+    const status = url.searchParams.get("status") || "online";
+    const verified = url.searchParams.get("verified");
+    const lat = url.searchParams.get("lat");
+    const lng = url.searchParams.get("lng");
+    const radius = url.searchParams.get("radius") || "10"; // Default 10km
 
     console.log("[API] Fetching drivers with params:", {
       status,
       verified,
       lat,
       lng,
-      radius
+      radius,
     });
 
     // Build dynamic WHERE clause
@@ -32,9 +32,9 @@ export async function GET(request: Request) {
 
     // Add verification filter
     if (verified) {
-      const verifiedBool = verified === 'true';
+      const verifiedBool = verified === "true";
       whereClause += ` AND verification_status = $${queryParams.length + 1}`;
-      queryParams.push(verifiedBool ? 'approved' : 'pending');
+      queryParams.push(verifiedBool ? "approved" : "pending");
     }
 
     // Add location filtering if coordinates provided
@@ -81,7 +81,10 @@ export async function GET(request: Request) {
       LIMIT 50;
     `;
 
-    console.log("[API] Executing driver query:", { query, params: queryParams });
+    console.log("[API] Executing driver query:", {
+      query,
+      params: queryParams,
+    });
 
     const response = await sql(query, queryParams);
 
@@ -97,9 +100,13 @@ export async function GET(request: Request) {
       carModel: driver.car_model,
       licensePlate: driver.license_plate,
       carSeats: driver.car_seats,
-      currentLat: driver.current_latitude ? parseFloat(driver.current_latitude) : null,
-      currentLng: driver.current_longitude ? parseFloat(driver.current_longitude) : null,
-      lastLocationUpdate: driver.last_location_update
+      currentLat: driver.current_latitude
+        ? parseFloat(driver.current_latitude)
+        : null,
+      currentLng: driver.current_longitude
+        ? parseFloat(driver.current_longitude)
+        : null,
+      lastLocationUpdate: driver.last_location_update,
     }));
 
     const result = {
@@ -107,17 +114,19 @@ export async function GET(request: Request) {
       total: transformedDrivers.length,
       filters: {
         status,
-        verified: verified ? verified === 'true' : undefined,
-        location: lat && lng ? {
-          lat: parseFloat(lat),
-          lng: parseFloat(lng),
-          radius: parseFloat(radius)
-        } : undefined
-      }
+        verified: verified ? verified === "true" : undefined,
+        location:
+          lat && lng
+            ? {
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+                radius: parseFloat(radius),
+              }
+            : undefined,
+      },
     };
 
     return Response.json(result, { status: 200 });
-
   } catch (error) {
     console.error("Error fetching drivers:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

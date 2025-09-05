@@ -27,7 +27,6 @@ const TabIcon = ({
 );
 
 export default function Layout() {
-
   // Load current mode from AsyncStorage
 
   return (

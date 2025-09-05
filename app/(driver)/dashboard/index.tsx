@@ -1,18 +1,26 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView, Alert, Modal } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "../../../components/CustomButton";
 import DrawerContent, { HamburgerMenu } from "../../components/DrawerContent";
+import RideNotificationSystem from "../../../components/RideNotificationSystem";
+import GPSNavigationView from "../../../components/GPSNavigationView";
+import EarningsTracker from "../../../components/EarningsTracker";
+import VehicleChecklist from "../../../components/VehicleChecklist";
+import PerformanceDashboard from "../../../components/PerformanceDashboard";
 
-// Dummy data for testing
+// Enhanced dummy data for testing
 const DUMMY_STATS = {
-  todayEarnings: 45.75,
-  todayTrips: 3,
+  todayEarnings: 142.30,
+  todayTrips: 9,
   rating: 4.8,
-  onlineStatus: false,
+  onlineStatus: true,
+  onlineHours: 6.5,
+  weeklyEarnings: 892.50,
+  monthlyEarnings: 3456.75,
 };
 
 const DUMMY_ACTIVE_RIDE = {
@@ -22,15 +30,42 @@ const DUMMY_ACTIVE_RIDE = {
   passengerName: "John Doe",
   fare: 18.5,
   distance: 3.2,
+  duration: 15, // minutes
+  latitude: 37.7749,
+  longitude: -122.4194,
+};
+
+const MOCK_PERFORMANCE_DATA = {
+  weeklyEarnings: 892.50,
+  weeklyTrips: 67,
+  avgRating: 4.8,
+  onlineHours: 45,
+  bestDay: 'Saturday',
+  peakHours: ['6PM', '9PM'],
+  topPerformingHours: ['7PM', '9PM'],
+  recommendations: [
+    'Stay online during peak hours (6PM - 9PM)',
+    'Focus on high-demand areas downtown',
+    'Maintain 4.8+ rating for better trip matching',
+    'Consider driving during weekends for higher earnings'
+  ]
 };
 
 const DriverDashboard = () => {
   const [isOnline, setIsOnline] = useState(DUMMY_STATS.onlineStatus);
-  const [hasActiveRide] = useState(true); // For testing purposes
+  const [hasActiveRide] = useState(false); // For testing purposes
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentMode, setCurrentMode] = useState<
     "customer" | "driver" | "business"
   >("driver");
+
+  // New state for enhanced features
+  const [showRideNotification, setShowRideNotification] = useState(false);
+  const [showGPSNavigation, setShowGPSNavigation] = useState(false);
+  const [showEarningsTracker, setShowEarningsTracker] = useState(false);
+  const [showVehicleChecklist, setShowVehicleChecklist] = useState(false);
+  const [showPerformanceDashboard, setShowPerformanceDashboard] = useState(false);
+  const [mockRideRequest, setMockRideRequest] = useState<any>(null);
 
   // Load current mode from AsyncStorage
   useEffect(() => {
@@ -71,6 +106,62 @@ const DriverDashboard = () => {
     Alert.alert(
       "Ride Started",
       "You have started the ride. Navigation would begin now.",
+    );
+  };
+
+  // Enhanced handlers for new features
+  const handleTestRideNotification = () => {
+    const mockRide = {
+      id: "RIDE_123",
+      pickupAddress: "456 Oak St, Midtown",
+      dropoffAddress: "789 Pine Ave, Downtown",
+      distance: 2.1,
+      duration: 12,
+      fare: 15.50,
+      passengerName: "Sarah Johnson",
+      passengerRating: 4.9,
+      specialRequests: ["Quiet ride preferred", "No smoking"]
+    };
+    setMockRideRequest(mockRide);
+    setShowRideNotification(true);
+  };
+
+  const handleRideAccepted = (rideId: string) => {
+    console.log("[DriverDashboard] Ride accepted:", rideId);
+    Alert.alert(
+      "Ride Accepted! 🎉",
+      "Starting navigation to pickup location...",
+      [
+        {
+          text: "Start Navigation",
+          onPress: () => {
+            setShowGPSNavigation(true);
+          }
+        }
+      ]
+    );
+  };
+
+  const handleRideDeclined = (rideId: string) => {
+    console.log("[DriverDashboard] Ride declined:", rideId);
+  };
+
+  const handleVehicleCheckComplete = () => {
+    console.log("[DriverDashboard] Vehicle check completed");
+    Alert.alert(
+      "Ready to Drive! 🚗",
+      "Your vehicle is ready. You can now accept rides.",
+      [{ text: "OK" }]
+    );
+  };
+
+  const handleArrivedAtPickup = () => {
+    console.log("[DriverDashboard] Arrived at pickup");
+    setShowGPSNavigation(false);
+    Alert.alert(
+      "Arrived at Pickup 📍",
+      "Please wait for the passenger to board.",
+      [{ text: "OK" }]
     );
   };
 
@@ -182,9 +273,59 @@ const DriverDashboard = () => {
           </View>
         )}
 
-        {/* Quick Actions */}
+        {/* Enhanced Quick Actions */}
         <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Quick Actions</Text>
+          <Text className="text-lg font-JakartaBold mb-3">🚀 Enhanced Features</Text>
+          <View className="space-y-3">
+            <TouchableOpacity
+              onPress={handleTestRideNotification}
+              className="flex-row items-center p-3 bg-primary-500/10 border border-primary-500/20 rounded-lg"
+            >
+              <Text className="text-lg mr-3">🔔</Text>
+              <View className="flex-1">
+                <Text className="font-JakartaBold text-primary-500">Test Ride Notification</Text>
+                <Text className="text-sm text-primary-600">Try the new notification system</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setShowEarningsTracker(!showEarningsTracker)}
+              className="flex-row items-center p-3 bg-success-500/10 border border-success-500/20 rounded-lg"
+            >
+              <Text className="text-lg mr-3">💰</Text>
+              <View className="flex-1">
+                <Text className="font-JakartaBold text-success-500">Earnings Tracker</Text>
+                <Text className="text-sm text-success-600">Real-time earnings dashboard</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setShowVehicleChecklist(true)}
+              className="flex-row items-center p-3 bg-warning-500/10 border border-warning-500/20 rounded-lg"
+            >
+              <Text className="text-lg mr-3">🚗</Text>
+              <View className="flex-1">
+                <Text className="font-JakartaBold text-warning-500">Vehicle Checklist</Text>
+                <Text className="text-sm text-warning-600">Pre-ride vehicle preparation</Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => setShowPerformanceDashboard(true)}
+              className="flex-row items-center p-3 bg-secondary-500/10 border border-secondary-500/20 rounded-lg"
+            >
+              <Text className="text-lg mr-3">📊</Text>
+              <View className="flex-1">
+                <Text className="font-JakartaBold text-secondary-500">Performance Analytics</Text>
+                <Text className="text-sm text-secondary-600">Weekly insights & recommendations</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Traditional Actions */}
+        <View className="bg-white rounded-lg p-4 mb-4">
+          <Text className="text-lg font-JakartaBold mb-3">Classic Actions</Text>
           <View className="space-y-3">
             <TouchableOpacity
               onPress={() => router.push("/(driver)/ride-requests" as any)}
@@ -226,7 +367,92 @@ const DriverDashboard = () => {
             </TouchableOpacity>
           </View>
         </View>
+
+        {/* Earnings Tracker Modal */}
+        {showEarningsTracker && (
+          <Modal
+            visible={showEarningsTracker}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => setShowEarningsTracker(false)}
+          >
+            <View className="flex-1 bg-black/50 justify-end">
+              <View className="bg-white rounded-t-3xl max-h-96">
+                <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
+                  <Text className="text-lg font-JakartaBold">💰 Earnings Tracker</Text>
+                  <TouchableOpacity
+                    onPress={() => setShowEarningsTracker(false)}
+                    className="w-8 h-8 items-center justify-center"
+                  >
+                    <Text className="text-xl">✕</Text>
+                  </TouchableOpacity>
+                </View>
+                <EarningsTracker
+                  isVisible={true}
+                  earnings={{
+                    todayEarnings: DUMMY_STATS.todayEarnings,
+                    todayTrips: DUMMY_STATS.todayTrips,
+                    currentTripEarnings: 0,
+                    totalEarnings: DUMMY_STATS.weeklyEarnings,
+                    weeklyEarnings: DUMMY_STATS.weeklyEarnings,
+                    monthlyEarnings: DUMMY_STATS.monthlyEarnings,
+                    rating: DUMMY_STATS.rating,
+                    onlineHours: DUMMY_STATS.onlineHours,
+                  }}
+                  currentRide={hasActiveRide ? DUMMY_ACTIVE_RIDE : null}
+                />
+              </View>
+            </View>
+          </Modal>
+        )}
       </ScrollView>
+
+      {/* Full Screen Modals */}
+      <RideNotificationSystem
+        visible={showRideNotification}
+        rideRequest={mockRideRequest}
+        onAccept={handleRideAccepted}
+        onDecline={handleRideDeclined}
+        onClose={() => setShowRideNotification(false)}
+      />
+
+      <Modal
+        visible={showGPSNavigation}
+        animationType="slide"
+        onRequestClose={() => setShowGPSNavigation(false)}
+      >
+        <GPSNavigationView
+          destinationLatitude={DUMMY_ACTIVE_RIDE.latitude}
+          destinationLongitude={DUMMY_ACTIVE_RIDE.longitude}
+          destinationAddress={DUMMY_ACTIVE_RIDE.pickupAddress}
+          onArrived={handleArrivedAtPickup}
+          onClose={() => setShowGPSNavigation(false)}
+        />
+      </Modal>
+
+      <Modal
+        visible={showVehicleChecklist}
+        animationType="slide"
+        onRequestClose={() => setShowVehicleChecklist(false)}
+      >
+        <VehicleChecklist
+          isVisible={showVehicleChecklist}
+          onComplete={handleVehicleCheckComplete}
+          onClose={() => setShowVehicleChecklist(false)}
+        />
+      </Modal>
+
+      <Modal
+        visible={showPerformanceDashboard}
+        animationType="slide"
+        onRequestClose={() => setShowPerformanceDashboard(false)}
+      >
+        <PerformanceDashboard
+          isVisible={showPerformanceDashboard}
+          performance={MOCK_PERFORMANCE_DATA}
+          onClose={() => setShowPerformanceDashboard(false)}
+        />
+      </Modal>
     </SafeAreaView>
   );
 };

@@ -4,14 +4,20 @@ import { useState, useEffect } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import DrawerContent, { HamburgerMenu } from "../../components/DrawerContent";
+import DrawerContent from "../../components/DrawerContent";
+import MapViewWithBottomSheet from "../../../components/MapViewWithBottomSheet";
+import { useBusinessMapCenter } from "../../../hooks/useMapCenter";
 
-// Dummy data for business dashboard
+// Enhanced dummy data for business dashboard
 const DUMMY_BUSINESS = {
   name: "Mario's Pizza",
   rating: 4.7,
   totalReviews: 284,
   isOpen: true,
+  latitude: 40.7128,
+  longitude: -74.0060,
+  address: "123 Main St, New York, NY",
+  operatingHours: "9AM - 10PM",
 };
 
 const DUMMY_TODAY_STATS = {
@@ -19,9 +25,11 @@ const DUMMY_TODAY_STATS = {
   orders: 47,
   avgOrderValue: 26.61,
   customers: 43,
+  deliveryTime: "28 min",
+  satisfaction: "94%",
 };
 
-const DUMMY_RECENT_ORDERS = [
+const DUMMY_ACTIVE_ORDERS = [
   {
     id: "ORD_001",
     customerName: "John Doe",
@@ -29,6 +37,7 @@ const DUMMY_RECENT_ORDERS = [
     total: 28.5,
     status: "preparing",
     time: "5 min ago",
+    estimatedTime: "15 min",
   },
   {
     id: "ORD_002",
@@ -37,14 +46,45 @@ const DUMMY_RECENT_ORDERS = [
     total: 32.75,
     status: "ready",
     time: "12 min ago",
+    estimatedTime: "Ready for pickup",
   },
   {
     id: "ORD_003",
     customerName: "Mike Johnson",
     items: ["Vegetarian Pizza", "Salad"],
     total: 24.25,
-    status: "delivered",
-    time: "25 min ago",
+    status: "out_for_delivery",
+    time: "8 min ago",
+    estimatedTime: "12 min remaining",
+    driver: "John D.",
+  },
+];
+
+// Map markers for active deliveries and restaurant
+const DUMMY_MARKERS = [
+  {
+    id: "restaurant",
+    latitude: 40.7128,
+    longitude: -74.0060,
+    title: "Mario's Pizza",
+    description: "Your Restaurant",
+    image: require("@/assets/icons/home.png"),
+  },
+  {
+    id: "delivery_001",
+    latitude: 40.7135,
+    longitude: -74.0055,
+    title: "John Doe - ORD_001",
+    description: "En route to customer",
+    image: require("@/assets/icons/map.png"),
+  },
+  {
+    id: "delivery_002",
+    latitude: 40.7142,
+    longitude: -74.0072,
+    title: "Jane Smith - ORD_002",
+    description: "Ready for pickup",
+    image: require("@/assets/icons/pin.png"),
   },
 ];
 
@@ -92,13 +132,13 @@ const BusinessDashboard = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "preparing":
-        return "text-warning-500";
+        return "text-warning-500 bg-warning-50";
       case "ready":
-        return "text-success-500";
-      case "delivered":
-        return "text-primary-500";
+        return "text-success-500 bg-success-50";
+      case "out_for_delivery":
+        return "text-primary-500 bg-primary-50";
       default:
-        return "text-secondary-600";
+        return "text-secondary-600 bg-secondary-50";
     }
   };
 
@@ -108,115 +148,131 @@ const BusinessDashboard = () => {
         return "👨‍🍳";
       case "ready":
         return "✅";
-      case "delivered":
-        return "🚚";
+      case "out_for_delivery":
+        return "🚗";
       default:
         return "📦";
     }
   };
 
-  return (
-    <SafeAreaView className="flex-1 bg-general-500">
-      {/* Header with Hamburger Menu and Store Toggle */}
-      <View className="flex-row items-center justify-between p-5 bg-white">
-        <View className="flex-row items-center flex-1">
-          <TouchableOpacity
-            onPress={() => setDrawerVisible(true)}
-            className="mr-3"
-          >
-            <View className="w-8 h-8 items-center justify-center">
-              <View className="flex-col space-y-1">
-                <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
-                <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
-                <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
+  // Bottom Sheet Content for the enhanced dashboard
+  const bottomSheetContent = (
+    <View className="pb-8">
+      {/* Header with Store Info */}
+      <View className="bg-white rounded-t-2xl">
+        <View className="flex-row items-center justify-between p-5">
+          <View className="flex-row items-center flex-1">
+            <TouchableOpacity
+              onPress={() => setDrawerVisible(true)}
+              className="mr-3"
+            >
+              <View className="w-8 h-8 items-center justify-center">
+                <View className="flex-col space-y-1">
+                  <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
+                  <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
+                  <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
+                </View>
               </View>
+            </TouchableOpacity>
+            <View className="flex-1">
+              <Text className="text-xl font-JakartaBold">
+                {DUMMY_BUSINESS.name}
+              </Text>
+              <Text className="text-secondary-600 mt-1">
+                ⭐ {DUMMY_BUSINESS.rating} ({DUMMY_BUSINESS.totalReviews} reviews)
+              </Text>
             </View>
+          </View>
+          <TouchableOpacity
+            onPress={handleToggleStore}
+            className={`px-4 py-2 rounded-full ${isOpen ? "bg-success-500" : "bg-danger-500"}`}
+          >
+            <Text className="text-white font-JakartaBold">
+              {isOpen ? "Open" : "Closed"}
+            </Text>
           </TouchableOpacity>
-          <View className="flex-1">
-            <Text className="text-xl font-JakartaBold">
-              {DUMMY_BUSINESS.name}
-            </Text>
-            <Text className="text-secondary-600 mt-1">
-              ⭐ {DUMMY_BUSINESS.rating} ({DUMMY_BUSINESS.totalReviews} reviews)
-            </Text>
+        </View>
+
+        {/* Store Status */}
+        <View className="px-5 pb-4">
+          <View className="bg-general-500 rounded-lg p-3">
+            <Text className="text-sm text-secondary-600 mb-1">Operating Hours</Text>
+            <Text className="font-JakartaBold">{DUMMY_BUSINESS.operatingHours}</Text>
           </View>
         </View>
-        <TouchableOpacity
-          onPress={handleToggleStore}
-          className={`px-4 py-2 rounded-full ${isOpen ? "bg-success-500" : "bg-danger-500"}`}
-        >
-          <Text className="text-white font-JakartaBold">
-            {isOpen ? "Open" : "Closed"}
-          </Text>
-        </TouchableOpacity>
       </View>
 
-      {/* Drawer Modal */}
-      <DrawerContent
-        visible={drawerVisible}
-        currentMode={currentMode}
-        onModeChange={handleModeChange}
-        onClose={() => {
-          console.log("Business drawer closed");
-          setDrawerVisible(false);
-        }}
-      />
+      {/* Today's Stats */}
+      <View className="bg-white px-5 py-4">
+        <Text className="text-lg font-JakartaBold mb-4">
+          Today's Performance
+        </Text>
 
-      <ScrollView className="flex-1 px-5">
-        {/* Today's Stats */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">
-            Today's Performance
-          </Text>
+        <View className="grid grid-cols-2 gap-4 mb-4">
+          <View className="items-center p-3 bg-primary-50 rounded-lg">
+            <Text className="text-2xl font-JakartaExtraBold text-primary-500">
+              ${DUMMY_TODAY_STATS.revenue.toLocaleString()}
+            </Text>
+            <Text className="text-sm text-secondary-600">Revenue</Text>
+          </View>
 
-          <View className="grid grid-cols-2 gap-4">
-            <View className="items-center p-3 bg-primary-50 rounded-lg">
-              <Text className="text-2xl font-JakartaExtraBold text-primary-500">
-                ${DUMMY_TODAY_STATS.revenue}
-              </Text>
-              <Text className="text-sm text-secondary-600">Revenue</Text>
-            </View>
+          <View className="items-center p-3 bg-success-50 rounded-lg">
+            <Text className="text-2xl font-JakartaExtraBold text-success-500">
+              {DUMMY_TODAY_STATS.orders}
+            </Text>
+            <Text className="text-sm text-secondary-600">Orders</Text>
+          </View>
 
-            <View className="items-center p-3 bg-success-50 rounded-lg">
-              <Text className="text-2xl font-JakartaExtraBold text-success-500">
-                {DUMMY_TODAY_STATS.orders}
-              </Text>
-              <Text className="text-sm text-secondary-600">Orders</Text>
-            </View>
+          <View className="items-center p-3 bg-warning-50 rounded-lg">
+            <Text className="text-2xl font-JakartaExtraBold text-warning-500">
+              ${DUMMY_TODAY_STATS.avgOrderValue}
+            </Text>
+            <Text className="text-sm text-secondary-600">Avg Order</Text>
+          </View>
 
-            <View className="items-center p-3 bg-warning-50 rounded-lg">
-              <Text className="text-2xl font-JakartaExtraBold text-warning-500">
-                ${DUMMY_TODAY_STATS.avgOrderValue}
-              </Text>
-              <Text className="text-sm text-secondary-600">Avg Order</Text>
-            </View>
-
-            <View className="items-center p-3 bg-secondary-100 rounded-lg">
-              <Text className="text-2xl font-JakartaExtraBold text-secondary-700">
-                {DUMMY_TODAY_STATS.customers}
-              </Text>
-              <Text className="text-sm text-secondary-600">Customers</Text>
-            </View>
+          <View className="items-center p-3 bg-secondary-100 rounded-lg">
+            <Text className="text-2xl font-JakartaExtraBold text-secondary-700">
+              {DUMMY_TODAY_STATS.customers}
+            </Text>
+            <Text className="text-sm text-secondary-600">Customers</Text>
           </View>
         </View>
 
-        {/* Recent Orders */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-lg font-JakartaBold">Recent Orders</Text>
-            <TouchableOpacity
-              onPress={() => router.push("/(business)/orders" as any)}
-            >
-              <Text className="text-primary-500 font-JakartaBold">
-                View All
-              </Text>
-            </TouchableOpacity>
+        {/* Quick Stats Row */}
+        <View className="flex-row justify-between">
+          <View className="flex-1 items-center">
+            <Text className="text-lg font-JakartaBold text-primary-500">
+              {DUMMY_TODAY_STATS.deliveryTime}
+            </Text>
+            <Text className="text-xs text-secondary-600">Avg Delivery</Text>
           </View>
+          <View className="flex-1 items-center">
+            <Text className="text-lg font-JakartaBold text-success-500">
+              {DUMMY_TODAY_STATS.satisfaction}
+            </Text>
+            <Text className="text-xs text-secondary-600">Satisfaction</Text>
+          </View>
+        </View>
+      </View>
 
-          {DUMMY_RECENT_ORDERS.map((order) => (
+      {/* Active Orders */}
+      <View className="bg-white px-5 py-4">
+        <View className="flex-row justify-between items-center mb-4">
+          <Text className="text-lg font-JakartaBold">Active Orders</Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(business)/orders" as any)}
+          >
+            <Text className="text-primary-500 font-JakartaBold">
+              View All
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        <View className="space-y-3">
+          {DUMMY_ACTIVE_ORDERS.map((order) => (
             <View
               key={order.id}
-              className="border-b border-general-500 py-3 last:border-b-0"
+              className="border border-general-500 rounded-lg p-3"
             >
               <View className="flex-row justify-between items-center mb-2">
                 <View className="flex-row items-center">
@@ -244,76 +300,86 @@ const BusinessDashboard = () => {
                 >
                   {order.items.join(", ")}
                 </Text>
-                <Text
-                  className={`text-sm font-JakartaBold ${getStatusColor(order.status)}`}
-                >
-                  {order.status.toUpperCase()}
-                </Text>
+                <View className={`px-2 py-1 rounded-full ${getStatusColor(order.status)}`}>
+                  <Text className="text-xs font-JakartaBold">
+                    {order.status.replace("_", " ").toUpperCase()}
+                  </Text>
+                </View>
               </View>
+
+              {order.driver && (
+                <Text className="text-sm text-primary-500 mt-1">
+                  Driver: {order.driver}
+                </Text>
+              )}
+
+              <Text className="text-sm text-success-500 mt-1">
+                {order.estimatedTime}
+              </Text>
             </View>
           ))}
         </View>
+      </View>
 
-        {/* Quick Actions */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Quick Actions</Text>
-          <View className="space-y-3">
-            <TouchableOpacity
-              onPress={() => router.push("/(business)/menu" as any)}
-              className="flex-row items-center p-3 bg-general-500 rounded-lg"
-            >
-              <Text className="text-lg mr-3">🍕</Text>
-              <Text className="font-JakartaMedium">Update Menu</Text>
-            </TouchableOpacity>
+      {/* Quick Actions */}
+      <View className="bg-white px-5 py-4">
+        <Text className="text-lg font-JakartaBold mb-4">Quick Actions</Text>
+        <View className="grid grid-cols-2 gap-3">
+          <TouchableOpacity
+            onPress={() => router.push("/(business)/menu" as any)}
+            className="flex-row items-center p-3 bg-general-500 rounded-lg"
+          >
+            <Text className="text-lg mr-3">🍕</Text>
+            <Text className="font-JakartaMedium">Menu</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity
-              onPress={() => router.push("/(business)/analytics" as any)}
-              className="flex-row items-center p-3 bg-general-500 rounded-lg"
-            >
-              <Text className="text-lg mr-3">📊</Text>
-              <Text className="font-JakartaMedium">View Analytics</Text>
-            </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => router.push("/(business)/analytics" as any)}
+            className="flex-row items-center p-3 bg-general-500 rounded-lg"
+          >
+            <Text className="text-lg mr-3">📊</Text>
+            <Text className="font-JakartaMedium">Analytics</Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity className="flex-row items-center p-3 bg-general-500 rounded-lg">
-              <Text className="text-lg mr-3">⚙️</Text>
-              <Text className="font-JakartaMedium">Store Settings</Text>
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => router.push("/(business)/orders" as any)}
+            className="flex-row items-center p-3 bg-general-500 rounded-lg"
+          >
+            <Text className="text-lg mr-3">📦</Text>
+            <Text className="font-JakartaMedium">Orders</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity className="flex-row items-center p-3 bg-general-500 rounded-lg">
+            <Text className="text-lg mr-3">⚙️</Text>
+            <Text className="font-JakartaMedium">Settings</Text>
+          </TouchableOpacity>
         </View>
+      </View>
+    </View>
+  );
 
-        {/* Popular Items Today */}
-        <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">
-            Popular Items Today
-          </Text>
+  return (
+    <SafeAreaView className="flex-1 bg-general-500">
+      {/* Drawer Modal */}
+      <DrawerContent
+        visible={drawerVisible}
+        currentMode={currentMode}
+        onModeChange={handleModeChange}
+        onClose={() => {
+          console.log("Business drawer closed");
+          setDrawerVisible(false);
+        }}
+      />
 
-          <View className="space-y-3">
-            <View className="flex-row justify-between items-center">
-              <View className="flex-row items-center">
-                <Text className="text-2xl mr-3">🍕</Text>
-                <Text className="font-JakartaMedium">Margherita Pizza</Text>
-              </View>
-              <Text className="text-success-500 font-JakartaBold">18 sold</Text>
-            </View>
-
-            <View className="flex-row justify-between items-center">
-              <View className="flex-row items-center">
-                <Text className="text-2xl mr-3">🌶️</Text>
-                <Text className="font-JakartaMedium">Pepperoni Pizza</Text>
-              </View>
-              <Text className="text-success-500 font-JakartaBold">15 sold</Text>
-            </View>
-
-            <View className="flex-row justify-between items-center">
-              <View className="flex-row items-center">
-                <Text className="text-2xl mr-3">🥤</Text>
-                <Text className="font-JakartaMedium">Coca Cola</Text>
-              </View>
-              <Text className="text-success-500 font-JakartaBold">12 sold</Text>
-            </View>
-          </View>
-        </View>
-      </ScrollView>
+      {/* MapView with Bottom Sheet */}
+      <MapViewWithBottomSheet
+        markers={DUMMY_MARKERS}
+        mapHeight={40} // 40% map, 60% bottom sheet
+        bottomSheetHeight={60}
+        bottomSheetContent={bottomSheetContent}
+        showUserLocation={false}
+        enablePanDownToClose={false}
+      />
     </SafeAreaView>
   );
 };

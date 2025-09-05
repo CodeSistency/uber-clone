@@ -1,9 +1,6 @@
 import { neon } from "@neondatabase/serverless";
 
-export async function POST(
-  request: Request,
-  { rideId }: { rideId: string }
-) {
+export async function POST(request: Request, { rideId }: { rideId: string }) {
   try {
     const body = await request.json();
     const { cancelledBy, reason } = body;
@@ -11,14 +8,14 @@ export async function POST(
     if (!cancelledBy) {
       return Response.json(
         { error: "Cancelled by field is required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
-    if (!['passenger', 'driver'].includes(cancelledBy)) {
+    if (!["passenger", "driver"].includes(cancelledBy)) {
       return Response.json(
         { error: "Cancelled by must be 'passenger' or 'driver'" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -44,24 +41,24 @@ export async function POST(
     if (rideCheck.length === 0) {
       return Response.json(
         { error: "Ride not found or cannot be cancelled" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
     const ride = rideCheck[0];
 
     // If cancelled by passenger, verify the passenger is the one who requested the ride
-    if (cancelledBy === 'passenger') {
+    if (cancelledBy === "passenger") {
       // This would need authentication to verify the user
       // For now, we'll assume the cancellation is valid
       console.log("[API] Ride cancelled by passenger");
     }
 
     // If cancelled by driver, verify the driver is assigned to the ride
-    if (cancelledBy === 'driver' && !ride.driver_id) {
+    if (cancelledBy === "driver" && !ride.driver_id) {
       return Response.json(
         { error: "Driver not assigned to this ride" },
-        { status: 403 }
+        { status: 403 },
       );
     }
 
@@ -80,7 +77,7 @@ export async function POST(
     if (response.length === 0) {
       return Response.json(
         { error: "Failed to cancel ride - status transition failed" },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
@@ -89,7 +86,7 @@ export async function POST(
     console.log("[API] Ride cancelled successfully:", {
       rideId: cancelledRide.ride_id,
       cancelledBy,
-      reason: reason || 'No reason provided'
+      reason: reason || "No reason provided",
     });
 
     // Format response according to documentation
@@ -98,20 +95,25 @@ export async function POST(
       status: cancelledRide.status,
       cancelledAt: cancelledRide.cancelled_at,
       cancelledBy,
-      reason: reason || 'No reason provided',
-      passenger: cancelledBy === 'passenger' ? {
-        name: ride.passenger_name,
-        clerkId: ride.passenger_clerk_id
-      } : undefined,
-      driver: cancelledBy === 'driver' ? {
-        id: ride.driver_id,
-        firstName: ride.driver_first_name,
-        lastName: ride.driver_last_name
-      } : undefined
+      reason: reason || "No reason provided",
+      passenger:
+        cancelledBy === "passenger"
+          ? {
+              name: ride.passenger_name,
+              clerkId: ride.passenger_clerk_id,
+            }
+          : undefined,
+      driver:
+        cancelledBy === "driver"
+          ? {
+              id: ride.driver_id,
+              firstName: ride.driver_first_name,
+              lastName: ride.driver_last_name,
+            }
+          : undefined,
     };
 
     return Response.json(result, { status: 200 });
-
   } catch (error) {
     console.error("Error cancelling ride:", error);
     return Response.json({ error: "Internal Server Error" }, { status: 500 });

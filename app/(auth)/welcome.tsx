@@ -21,7 +21,9 @@ const Home = () => {
       const authenticated = await isAuthenticated();
       console.log("[Welcome] User authenticated:", authenticated);
       if (authenticated) {
-        console.log("[Welcome] User already authenticated, redirecting to home");
+        console.log(
+          "[Welcome] User already authenticated, redirecting to home",
+        );
         router.replace("/");
       } else {
         console.log("[Welcome] User not authenticated, staying on welcome");

@@ -5,8 +5,8 @@ import RideCard from "@/components/RideCard";
 import { images } from "@/constants";
 import { useFetch } from "@/lib/fetch";
 import { transformRideData } from "@/lib/utils";
-import { Ride } from "@/types/type";
 import { useUserStore } from "@/store";
+import { Ride } from "@/types/type";
 
 const Rides = () => {
   const { user } = useUserStore();
@@ -21,7 +21,9 @@ const Rides = () => {
     userId: user?.id,
     recentRides: recentRides,
     recentRidesType: typeof recentRides,
-    recentRidesLength: Array.isArray(recentRides) ? recentRides.length : 'not array',
+    recentRidesLength: Array.isArray(recentRides)
+      ? recentRides.length
+      : "not array",
     loading,
     error,
     firstRide: Array.isArray(recentRides) ? recentRides[0] : null,

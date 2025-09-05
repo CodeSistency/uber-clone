@@ -22,17 +22,17 @@ export const generateMarkersFromData = ({
 
     console.log("[generateMarkersFromData] Driver data structure:", {
       driver,
-      firstName: driver.first_name || driver.firstName,
-      lastName: driver.last_name || driver.lastName,
-      name: driver.name,
-      fullName: driver.full_name || driver.fullName,
+      firstName: driver.first_name,
+      lastName: driver.last_name,
+      name: `${driver.first_name} ${driver.last_name}`,
+      fullName: `${driver.first_name} ${driver.last_name}`,
       index,
     });
 
     const markerData = {
       latitude: userLatitude + latOffset,
       longitude: userLongitude + lngOffset,
-      title: `${driver.first_name || driver.firstName || 'Unknown'} ${driver.last_name || driver.lastName || 'Driver'}`,
+      title: `${driver.first_name || 'Unknown'} ${driver.last_name || 'Driver'}`,
       ...driver,
       id: driver.id || index + 1, // Ensure we have an ID (placed after spread to avoid override)
     };
@@ -41,8 +41,8 @@ export const generateMarkersFromData = ({
       originalDriverId: driver.id,
       assignedId: markerData.id,
       title: markerData.title,
-      firstName: driver.first_name || driver.firstName,
-      lastName: driver.last_name || driver.lastName,
+      firstName: driver.first_name,
+      lastName: driver.last_name,
       index,
     });
 
