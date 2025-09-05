@@ -23,7 +23,7 @@ const Map = () => {
   } = useLocationStore();
   const { selectedDriver, setDrivers } = useDriverStore();
 
-  const { data: drivers, loading, error } = useFetch<Driver[]>("driver");
+  const { data: drivers, loading, error } = useFetch<any>("driver");
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [routeCoordinates, setRouteCoordinates] = useState<
     { latitude: number; longitude: number }[]
@@ -139,22 +139,34 @@ const Map = () => {
   }, [userLatitude, userLongitude, destinationLatitude, destinationLongitude]);
 
   useEffect(() => {
-    if (Array.isArray(drivers)) {
+    // Handle both array format and object format from backend
+    const driversArray = Array.isArray(drivers)
+      ? drivers
+      : drivers?.data || [];
+
+    if (Array.isArray(driversArray) && driversArray.length > 0) {
       if (!userLatitude || !userLongitude) return;
 
       console.log("[Map] drivers loaded", {
-        count: drivers.length,
+        count: driversArray.length,
         userLatitude,
         userLongitude,
+        originalFormat: Array.isArray(drivers) ? 'array' : 'object',
+        firstDriver: driversArray[0],
+        firstDriverKeys: driversArray[0] ? Object.keys(driversArray[0]) : []
       });
       const newMarkers = generateMarkersFromData({
-        data: drivers,
+        data: driversArray,
         userLatitude,
         userLongitude,
       });
 
       console.log("[Map] markers generated", { count: newMarkers.length });
       setMarkers(newMarkers);
+
+      // Set basic drivers to store immediately for UI display
+      console.log("[Map] Setting basic drivers to store for UI");
+      setDrivers(newMarkers as MarkerData[]);
     }
   }, [drivers, userLatitude, userLongitude]);
 
@@ -175,11 +187,15 @@ const Map = () => {
         userLongitude,
         destinationLatitude,
         destinationLongitude,
-      }).then((drivers) => {
+      }).then((driversWithTimes) => {
         console.log("[Map] driver times calculated", {
-          driversCount: drivers?.length,
+          driversCount: driversWithTimes?.length,
         });
-        setDrivers(drivers as MarkerData[]);
+        if (driversWithTimes && driversWithTimes.length > 0) {
+          // Update existing drivers with time and price information
+          console.log("[Map] Updating drivers with calculated times");
+          setDrivers(driversWithTimes as MarkerData[]);
+        }
       });
     }
   }, [markers, destinationLatitude, destinationLongitude]);

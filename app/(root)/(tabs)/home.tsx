@@ -23,6 +23,7 @@ import { useFetch } from "../../../lib/fetch";
 import { useLocationStore } from "../../../store";
 import { Ride } from "../../../types/type";
 import { logoutUser } from "../../../lib/auth";
+import { transformRideData } from "../../../lib/utils";
 import { useUserStore } from "../../../store";
 // Hamburger menu and drawer are now in the layout
 
@@ -77,7 +78,7 @@ const Home = () => {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(user?.id ? `ride/user/${user.id}` : null);
+  } = useFetch<Ride[]>(user?.id ? `ride/${user.id}` : null);
 
   useEffect(() => {
     (async () => {
@@ -119,7 +120,7 @@ const Home = () => {
     <SafeAreaView className="bg-general-500">
       <FlatList
         data={Array.isArray(recentRides) ? recentRides.slice(0, 5) : []}
-        renderItem={({ item }) => <RideCard ride={item} />}
+        renderItem={({ item }) => <RideCard ride={transformRideData(item) as Ride} />}
         keyExtractor={(item, index) => index.toString()}
         className="px-5"
         keyboardShouldPersistTaps="handled"

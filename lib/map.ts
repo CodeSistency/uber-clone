@@ -20,10 +20,19 @@ export const generateMarkersFromData = ({
     const latOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
     const lngOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
 
+    console.log("[generateMarkersFromData] Driver data structure:", {
+      driver,
+      firstName: driver.first_name || driver.firstName,
+      lastName: driver.last_name || driver.lastName,
+      name: driver.name,
+      fullName: driver.full_name || driver.fullName,
+      index,
+    });
+
     const markerData = {
       latitude: userLatitude + latOffset,
       longitude: userLongitude + lngOffset,
-      title: `${driver.first_name} ${driver.last_name}`,
+      title: `${driver.first_name || driver.firstName || 'Unknown'} ${driver.last_name || driver.lastName || 'Driver'}`,
       ...driver,
       id: driver.id || index + 1, // Ensure we have an ID (placed after spread to avoid override)
     };
@@ -32,6 +41,8 @@ export const generateMarkersFromData = ({
       originalDriverId: driver.id,
       assignedId: markerData.id,
       title: markerData.title,
+      firstName: driver.first_name || driver.firstName,
+      lastName: driver.last_name || driver.lastName,
       index,
     });
 
@@ -146,9 +157,18 @@ export const calculateDriverTimes = async ({
         dataToDestination.routes[0].legs[0].duration.value; // Time in seconds
 
       const totalTime = (timeToUser + timeToDestination) / 60; // Total time in minutes
-      const price = (totalTime * 0.5).toFixed(2); // Calculate price based on time
+      const roundedTime = Math.round(totalTime * 10) / 10; // Round to 1 decimal place
+      const price = (roundedTime * 0.5).toFixed(2); // Calculate price based on time
 
-      return { ...marker, time: totalTime, price };
+      console.log("[calculateDriverTimes] Time calculation:", {
+        timeToUser: timeToUser / 60,
+        timeToDestination: timeToDestination / 60,
+        totalTime,
+        roundedTime,
+        price
+      });
+
+      return { ...marker, time: roundedTime, price };
     });
 
     return await Promise.all(timesPromises);

@@ -4,6 +4,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import RideCard from "@/components/RideCard";
 import { images } from "@/constants";
 import { useFetch } from "@/lib/fetch";
+import { transformRideData } from "@/lib/utils";
 import { Ride } from "@/types/type";
 import { useUserStore } from "@/store";
 
@@ -14,11 +15,13 @@ const Rides = () => {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(user?.id ? `ride/user/${user.id}` : null);
+  } = useFetch<Ride[]>(user?.id ? `ride/${user.id}` : null);
 
   console.log("[Rides] Page data:", {
     userId: user?.id,
-    recentRides: Array.isArray(recentRides) ? recentRides.length : 0,
+    recentRides: recentRides,
+    recentRidesType: typeof recentRides,
+    recentRidesLength: Array.isArray(recentRides) ? recentRides.length : 'not array',
     loading,
     error,
     firstRide: Array.isArray(recentRides) ? recentRides[0] : null,
@@ -28,7 +31,14 @@ const Rides = () => {
     <SafeAreaView className="flex-1 bg-white">
       <FlatList
         data={Array.isArray(recentRides) ? recentRides : []}
-        renderItem={({ item }) => <RideCard ride={item} />}
+        renderItem={({ item }) => {
+          console.log("[Rides] Raw item from backend:", item);
+
+          const transformedRide = transformRideData(item);
+
+          console.log("[Rides] Transformed ride:", transformedRide);
+          return <RideCard ride={transformedRide as Ride} />;
+        }}
         keyExtractor={(item, index) => index.toString()}
         className="px-5"
         keyboardShouldPersistTaps="handled"

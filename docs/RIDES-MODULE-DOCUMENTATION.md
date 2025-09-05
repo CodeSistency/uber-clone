@@ -427,6 +427,128 @@ POST /api/ride/123/rate
 
 ---
 
+## 🔗 **Endpoints Adicionales Implementados**
+
+### **7. GET `/api/ride/requests` - Solicitudes de Ride para Conductores**
+**Estado:** ✅ Implementado | **Autenticación:** No requerida
+
+#### **¿Cuándo usar?**
+- Conductor busca rides disponibles en su área
+- Aplicación de conductor muestra rides cercanos
+- Sistema de matching de conductores
+
+#### **Request:**
+```bash
+GET /api/ride/requests?driverLat=40.7128&driverLng=-74.006&radius=5
+```
+
+#### **Parámetros de Query:**
+- `driverLat`: Latitud del conductor (requerido)
+- `driverLng`: Longitud del conductor (requerido)
+- `radius`: Radio de búsqueda en km (opcional, default: 5)
+
+#### **Response (200):**
+```json
+{
+  "data": [
+    {
+      "rideId": 123,
+      "originAddress": "123 Main St, NYC",
+      "destinationAddress": "456 Broadway, NYC",
+      "distance": 2.5,
+      "estimatedFare": 25.5,
+      "rideTime": 15,
+      "createdAt": "2024-01-15T10:30:00.000Z",
+      "tier": {
+        "name": "Standard",
+        "baseFare": 2.5
+      },
+      "user": {
+        "name": "John Doe",
+        "clerkId": "user_123"
+      }
+    }
+  ]
+}
+```
+
+### **8. GET `/api/driver` - Lista de Conductores**
+**Estado:** ✅ Implementado | **Autenticación:** No requerida
+
+#### **¿Cuándo usar?**
+- Obtener lista de conductores disponibles
+- Mostrar conductores en mapa
+- Sistema de selección de conductor por pasajero
+
+#### **Request:**
+```bash
+GET /api/driver?status=online&verified=true&lat=40.7128&lng=-74.006&radius=10
+```
+
+#### **Parámetros de Query:**
+- `status`: Estado del conductor (opcional, default: 'online')
+- `verified`: Solo conductores verificados (opcional)
+- `lat`: Latitud para filtro de ubicación (opcional)
+- `lng`: Longitud para filtro de ubicación (opcional)
+- `radius`: Radio de búsqueda en km (opcional, default: 10)
+
+#### **Response (200):**
+```json
+{
+  "data": [
+    {
+      "id": 1,
+      "firstName": "John",
+      "lastName": "Doe",
+      "status": "online",
+      "verificationStatus": "approved",
+      "carModel": "Toyota Camry",
+      "licensePlate": "ABC-123",
+      "carSeats": 4,
+      "currentLat": 40.7128,
+      "currentLng": -74.006,
+      "lastLocationUpdate": "2024-01-15T10:30:00.000Z"
+    }
+  ],
+  "total": 1,
+  "filters": {
+    "status": "online",
+    "verified": true,
+    "location": {
+      "lat": 40.7128,
+      "lng": -74.006,
+      "radius": 10
+    }
+  }
+}
+```
+
+### **9. POST `/api/ride/:rideId/start` - Iniciar Ride**
+**Estado:** ✅ Implementado | **Autenticación:** No requerida
+
+#### **¿Cuándo usar?**
+- Conductor llega al punto de recogida
+- Inicia el viaje oficialmente
+- Actualiza estado del ride
+
+### **10. POST `/api/ride/:rideId/complete` - Completar Ride**
+**Estado:** ✅ Implementado | **Autenticación:** No requerida
+
+#### **¿Cuándo usar?**
+- Conductor llega al destino
+- Finaliza el viaje
+- Actualiza estado y procesa pago
+
+### **11. POST `/api/ride/:rideId/cancel` - Cancelar Ride**
+**Estado:** ✅ Implementado | **Autenticación:** No requerida
+
+#### **¿Cuándo usar?**
+- Usuario o conductor cancela el ride
+- Emergencia durante el viaje
+- Problemas técnicos
+
+---
+
 ## 🔄 **Flujo Completo de Negocio**
 
 ### **Diagrama de Estados del Ride:**
@@ -739,3 +861,10 @@ El módulo de **rides** es el corazón del sistema Uber Clone, manejando el fluj
 La arquitectura es **escalable**, **bien estructurada** y **completamente funcional**, lista para producción con todas las validaciones, manejo de errores y logging apropiado.
 
 **Documentación completa y actualizada al 100%** ✅
+
+**Endpoints adicionales documentados:**
+- ✅ `/api/ride/requests` - Solicitudes de ride para conductores
+- ✅ `/api/driver` - Lista de conductores disponibles
+- ✅ `/api/ride/:rideId/start` - Iniciar ride
+- ✅ `/api/ride/:rideId/complete` - Completar ride
+- ✅ `/api/ride/:rideId/cancel` - Cancelar ride

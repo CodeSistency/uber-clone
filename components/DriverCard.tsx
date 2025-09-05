@@ -9,6 +9,10 @@ const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
   console.log("[DriverCard] Rendering driver:", {
     driverId: item.id,
     driverTitle: item.title,
+    driverKeys: Object.keys(item),
+    firstName: item.firstName || item.first_name,
+    lastName: item.lastName || item.last_name,
+    name: item.name,
     currentlySelected: selected,
     isThisSelected: selected === item.id,
   });
