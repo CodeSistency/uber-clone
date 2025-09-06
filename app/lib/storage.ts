@@ -37,6 +37,11 @@ export const STORAGE_KEYS = {
   // Real-time keys
   CONNECTION_STATUS: "connection_status",
   WEBSOCKET_SETTINGS: "websocket_settings",
+
+  // Onboarding keys
+  ONBOARDING_COMPLETED: "onboarding_completed",
+  ONBOARDING_DATA: "onboarding_data",
+  ONBOARDING_STEP: "onboarding_step",
 } as const;
 
 // Generic storage functions
@@ -425,4 +430,96 @@ export const realtimeStorage = {
       return null;
     }
   },
+};
+
+// Onboarding storage utilities
+export const onboardingStorage = {
+  // Check if onboarding is completed
+  isCompleted: async (): Promise<boolean> => {
+    try {
+      const completed = await storage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
+      return completed === "true";
+    } catch (error) {
+      console.error("[OnboardingStorage] Error checking completion status:", error);
+      return false;
+    }
+  },
+
+  // Set onboarding as completed
+  setCompleted: async (completed: boolean = true): Promise<void> => {
+    try {
+      await storage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, completed.toString());
+      console.log("[OnboardingStorage] Onboarding completion status saved:", completed);
+    } catch (error) {
+      console.error("[OnboardingStorage] Error saving completion status:", error);
+      throw error;
+    }
+  },
+
+  // Save onboarding data
+  saveData: async (data: any): Promise<void> => {
+    try {
+      await storage.setItem(STORAGE_KEYS.ONBOARDING_DATA, JSON.stringify(data));
+      console.log("[OnboardingStorage] Onboarding data saved");
+    } catch (error) {
+      console.error("[OnboardingStorage] Error saving onboarding data:", error);
+      throw error;
+    }
+  },
+
+  // Get onboarding data
+  getData: async (): Promise<any | null> => {
+    try {
+      const data = await storage.getItem(STORAGE_KEYS.ONBOARDING_DATA);
+      return data ? JSON.parse(data) : null;
+    } catch (error) {
+      console.error("[OnboardingStorage] Error getting onboarding data:", error);
+      return null;
+    }
+  },
+
+  // Save current step
+  saveStep: async (step: number): Promise<void> => {
+    try {
+      await storage.setItem(STORAGE_KEYS.ONBOARDING_STEP, step.toString());
+    } catch (error) {
+      console.error("[OnboardingStorage] Error saving step:", error);
+      throw error;
+    }
+  },
+
+  // Get current step
+  getStep: async (): Promise<number> => {
+    try {
+      const step = await storage.getItem(STORAGE_KEYS.ONBOARDING_STEP);
+      return step ? parseInt(step, 10) : 0;
+    } catch (error) {
+      console.error("[OnboardingStorage] Error getting step:", error);
+      return 0;
+    }
+  },
+
+  // Clear all onboarding data
+  clear: async (): Promise<void> => {
+    try {
+      await storage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
+      await storage.removeItem(STORAGE_KEYS.ONBOARDING_DATA);
+      await storage.removeItem(STORAGE_KEYS.ONBOARDING_STEP);
+      console.log("[OnboardingStorage] All onboarding data cleared");
+    } catch (error) {
+      console.error("[OnboardingStorage] Error clearing onboarding data:", error);
+      throw error;
+    }
+  },
+};
+
+export default {
+  storage,
+  userModeStorage,
+  notificationStorage,
+  chatStorage,
+  emergencyStorage,
+  realtimeStorage,
+  onboardingStorage,
+  STORAGE_KEYS,
 };

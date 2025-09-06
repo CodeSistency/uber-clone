@@ -13,13 +13,13 @@ export default function Welcome() {
 
   const handleStartExploring = () => {
     console.log("[Welcome] Starting exploration");
-    resetOnboarding(); // Reset for future use
+    // Don't reset onboarding here - keep the completion status
     router.replace("/(root)/(tabs)/home");
   };
 
   const handleViewProfile = () => {
     console.log("[Welcome] Viewing profile");
-    resetOnboarding(); // Reset for future use
+    // Don't reset onboarding here - keep the completion status
     router.replace("/(root)/(tabs)/profile");
   };
 

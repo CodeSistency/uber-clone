@@ -455,3 +455,5 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
     </Modal>
   );
 };
+
+export default NotificationModal;

@@ -1,8 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
-import { jwtTokenManager } from "./auth";
+import { router } from "expo-router";
 
 // Base URL for the new backend API
 const API_BASE_URL = `${process.env.EXPO_PUBLIC_SERVER_URL || "https://gnuhealth-back.alcaravan.com.ve"}/api`;
+
+// Track if we're currently refreshing token to avoid multiple refresh attempts
+let isRefreshingToken = false;
+let refreshPromise: Promise<any> | null = null;
 
 export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean }) => {
   const startMs = Date.now();
@@ -11,7 +15,9 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
   // Add authentication headers if required
   let headers = { ...options?.headers };
   if (options?.requiresAuth) {
-    const authHeaders = await jwtTokenManager.getAuthHeaders();
+    // Lazy import to avoid circular dependency
+    const { tokenManager } = require("./auth");
+    const authHeaders = await tokenManager.getAuthHeaders();
     headers = { ...headers, ...authHeaders };
   }
 
@@ -58,6 +64,109 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
 
     // Handle new backend response structure
     if (!response.ok) {
+      // Handle token expiration (401) - try to refresh token automatically
+      if (response.status === 401 && options?.requiresAuth) {
+        console.log("[fetchAPI] 🔄 Token expired (401), attempting automatic refresh");
+
+        try {
+          // Prevent multiple simultaneous refresh attempts
+          if (isRefreshingToken) {
+            console.log("[fetchAPI] Refresh already in progress, waiting...");
+            if (refreshPromise) {
+              await refreshPromise;
+            }
+          } else {
+            isRefreshingToken = true;
+
+            // Lazy import to avoid circular dependency
+            const { tokenManager } = require("./auth");
+
+            // Attempt to refresh token
+            const refreshToken = await tokenManager.getRefreshToken();
+            if (!refreshToken) {
+              console.log("[fetchAPI] No refresh token available, redirecting to login");
+              throw new Error("No refresh token available");
+            }
+
+            refreshPromise = fetch(`${API_BASE_URL}/auth/refresh`, {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${refreshToken}`,
+              },
+              body: JSON.stringify({ refreshToken }),
+            });
+
+            const refreshResponse = await refreshPromise;
+            const refreshData = await refreshResponse.json();
+
+            if (refreshResponse.ok && refreshData?.accessToken && refreshData?.refreshToken) {
+              console.log("[fetchAPI] ✅ Token refreshed successfully");
+
+              // Store new tokens
+              await tokenManager.setAccessToken(refreshData.accessToken);
+              await tokenManager.setRefreshToken(refreshData.refreshToken);
+
+              // Retry the original request with new token
+              console.log("[fetchAPI] 🔄 Retrying original request with new token");
+              const newHeaders = { ...headers };
+              if (options?.requiresAuth) {
+                const authHeaders = await tokenManager.getAuthHeaders();
+                Object.assign(newHeaders, authHeaders);
+              }
+
+              const retryResponse = await fetch(fullUrl, {
+                ...options,
+                headers: newHeaders
+              });
+
+              const retryBody = await retryResponse.text();
+              let retryData: any = null;
+              try {
+                retryData = JSON.parse(retryBody);
+              } catch {
+                retryData = { message: "Non-JSON response received" };
+              }
+
+              console.log("[fetchAPI] 🔄 Retry response:", { ok: retryResponse.ok, status: retryResponse.status });
+
+              if (retryResponse.ok) {
+                console.log("[fetchAPI] ✅ Retry successful");
+                return retryData;
+              } else {
+                throw new Error(retryData?.message || `HTTP error! status: ${retryResponse.status}`);
+              }
+            } else {
+              console.log("[fetchAPI] ❌ Token refresh failed, redirecting to login");
+              throw new Error("Token refresh failed");
+            }
+          }
+        } catch (refreshError) {
+          console.error("[fetchAPI] ❌ Token refresh error:", refreshError);
+
+          // Clear tokens and redirect to login
+          try {
+            const { tokenManager } = require("./auth");
+            await tokenManager.clearTokens();
+
+            // Clear user store
+            const userStore = require("@/store").useUserStore.getState();
+            userStore.clearUser();
+
+            // Redirect to login
+            console.log("[fetchAPI] 🔄 Redirecting to login due to authentication failure");
+            router.replace("/(auth)/sign-in");
+          } catch (cleanupError) {
+            console.error("[fetchAPI] Error during cleanup:", cleanupError);
+          }
+
+          throw new Error("Authentication expired. Please log in again.");
+        } finally {
+          isRefreshingToken = false;
+          refreshPromise = null;
+        }
+      }
+
       const errorMessage = body?.message ||
                           (Array.isArray(body?.message) ? body.message.join(', ') : null) ||
                           `HTTP error! status: ${response.status}`;

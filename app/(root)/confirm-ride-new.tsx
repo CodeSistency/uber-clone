@@ -200,6 +200,12 @@ const ConfirmRide = () => {
           onSelectServiceLevel={setSelectedTierId}
           estimatedDistance={5.2}
           estimatedTime={18}
+          continueLabel="Continue to Drivers"
+          onContinue={() => {
+            // Expandir sheet para mostrar drivers
+            sheetApiRef.current?.snapToIndex(1);
+            setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 50);
+          }}
         />
 
         {/* Drivers List */}

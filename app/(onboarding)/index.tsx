@@ -1,4 +1,5 @@
 import { Redirect } from "expo-router";
+import { Text } from "react-native";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -8,7 +9,7 @@ import { useOnboardingStore } from "@/store";
 export default function OnboardingIndex() {
   console.log("[OnboardingIndex] Rendering onboarding index");
 
-  const { currentStep, isCompleted, isLoading } = useOnboardingStore();
+  const { currentStep, isCompleted, isLoading, completedSteps } = useOnboardingStore();
 
   useEffect(() => {
     console.log(
@@ -17,6 +18,8 @@ export default function OnboardingIndex() {
       "Completed:",
       isCompleted,
     );
+    console.log("[OnboardingIndex] Step routes:", stepRoutes);
+    console.log("[OnboardingIndex] Target route:", stepRoutes[currentStep] || stepRoutes[0]);
   }, [currentStep, isCompleted]);
 
   // If onboarding is completed, redirect to home
@@ -36,14 +39,11 @@ export default function OnboardingIndex() {
 
   // Redirect to appropriate step based on current step
   const stepRoutes = [
-    "/(onboarding)/country-selection",
-    "/(onboarding)/state-selection",
-    "/(onboarding)/city-selection",
+    "/(onboarding)/country-selection", // Combined location step
     "/(onboarding)/personal-info",
     "/(onboarding)/travel-preferences",
     "/(onboarding)/phone-verification",
     "/(onboarding)/profile-completion",
-    "/(onboarding)/welcome",
   ];
 
   const targetRoute = stepRoutes[currentStep] || stepRoutes[0];

@@ -83,13 +83,11 @@ export default function CitySelection() {
       // API call to save complete location data
       const response = await fetchAPI("onboarding/location", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        requiresAuth: true,
         body: JSON.stringify({
           country: userData.country,
           state: userData.state,
-          city: selectedCity,
+          city: selectedCity
         }),
       });
 

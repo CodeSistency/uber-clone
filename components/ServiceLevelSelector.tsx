@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
+import CustomButton from '@/components/CustomButton';
 
 interface ServiceLevel {
   id: number;
@@ -19,6 +20,9 @@ interface ServiceLevelSelectorProps {
   estimatedDistance?: number;
   estimatedTime?: number;
   className?: string;
+  onContinue?: () => void;
+  continueLabel?: string;
+  hideContinueButton?: boolean;
 }
 
 const serviceLevels: ServiceLevel[] = [
@@ -69,7 +73,10 @@ const ServiceLevelSelector: React.FC<ServiceLevelSelectorProps> = ({
   onSelectServiceLevel,
   estimatedDistance = 5.2,
   estimatedTime = 18,
-  className = ''
+  className = '',
+  onContinue,
+  continueLabel = 'Continue',
+  hideContinueButton = false
 }) => {
   const calculateFare = (service: ServiceLevel) => {
     const timeFare = service.perMinuteRate * estimatedTime;
@@ -156,6 +163,17 @@ const ServiceLevelSelector: React.FC<ServiceLevelSelectorProps> = ({
           <Text className="text-xs text-primary-600">
             ~{estimatedTime} min • {estimatedDistance} miles
           </Text>
+        </View>
+      )}
+
+      {/* Inline Continue CTA */}
+      {!hideContinueButton && (
+        <View className="mx-5 mt-3">
+          <CustomButton
+            title={continueLabel}
+            onPress={onContinue}
+            disabled={!selectedServiceLevel}
+          />
         </View>
       )}
     </View>

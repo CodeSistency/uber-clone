@@ -7,6 +7,7 @@ import InputField from "../../components/InputField";
 import { useUI } from "../../components/UIWrapper";
 import { icons, images } from "../../constants";
 import { loginUser, isAuthenticated } from "../../lib/auth";
+import { firebaseService } from "../services/firebaseService";
 
 const SignIn = () => {
   console.log("[SignIn] Rendering sign-in screen");
@@ -32,6 +33,18 @@ const SignIn = () => {
       }
     };
     checkAuth();
+
+    // Initialize Firebase service for push notifications
+    const initializeFirebase = async () => {
+      try {
+        console.log("[SignIn] Initializing Firebase service");
+        await firebaseService.requestPermissions();
+        firebaseService.setupNotificationListeners();
+      } catch (error) {
+        console.error("[SignIn] Error initializing Firebase:", error);
+      }
+    };
+    initializeFirebase();
   }, []);
 
   console.log("[SignIn] Rendering sign-in content");

@@ -275,3 +275,5 @@ export const NotificationBanner: React.FC<NotificationBannerProps> = ({
     </Animated.View>
   );
 };
+
+export default NotificationBanner;

@@ -1,12 +1,15 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { useState, useEffect, useRef } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
+import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 
 import DrawerContent from "../../components/DrawerContent";
-import MapViewWithBottomSheet from "../../../components/MapViewWithBottomSheet";
-import { useBusinessMapCenter } from "../../../hooks/useMapCenter";
+import { icons } from "../../../constants";
+import { calculateRegion } from "../../../lib/map";
+import { useLocationStore } from "../../../store";
 
 // Enhanced dummy data for business dashboard
 const DUMMY_BUSINESS = {
@@ -89,11 +92,16 @@ const DUMMY_MARKERS = [
 ];
 
 const BusinessDashboard = () => {
+  console.log("[BusinessDashboard] Component mounted");
+
   const [isOpen, setIsOpen] = useState(DUMMY_BUSINESS.isOpen);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [currentMode, setCurrentMode] = useState<
     "customer" | "driver" | "business"
   >("business");
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+
+  const { userLatitude, userLongitude } = useLocationStore();
 
   // Load current mode from AsyncStorage
   useEffect(() => {
@@ -112,6 +120,17 @@ const BusinessDashboard = () => {
       }
     };
     loadCurrentMode();
+  }, []);
+
+  // Present bottom sheet on mount
+  useEffect(() => {
+    console.log("[BusinessDashboard] Presenting bottom sheet");
+    if (bottomSheetModalRef.current) {
+      bottomSheetModalRef.current.present();
+      console.log("[BusinessDashboard] Bottom sheet presented successfully");
+    } else {
+      console.log("[BusinessDashboard] Bottom sheet ref is null");
+    }
   }, []);
 
   // Function to handle mode changes from drawer
@@ -154,6 +173,14 @@ const BusinessDashboard = () => {
         return "📦";
     }
   };
+
+  // Calculate map region
+  const region = calculateRegion({
+    userLatitude: userLatitude || 40.7128,
+    userLongitude: userLongitude || -74.0060,
+    destinationLatitude: null,
+    destinationLongitude: null,
+  });
 
   // Bottom Sheet Content for the enhanced dashboard
   const bottomSheetContent = (
@@ -259,9 +286,9 @@ const BusinessDashboard = () => {
       <View className="bg-white px-5 py-4">
         <View className="flex-row justify-between items-center mb-4">
           <Text className="text-lg font-JakartaBold">Active Orders</Text>
-          <TouchableOpacity
-            onPress={() => router.push("/(business)/orders" as any)}
-          >
+                      <TouchableOpacity
+              onPress={() => router.push("/orders" as any)}
+            >
             <Text className="text-primary-500 font-JakartaBold">
               View All
             </Text>
@@ -326,7 +353,7 @@ const BusinessDashboard = () => {
         <Text className="text-lg font-JakartaBold mb-4">Quick Actions</Text>
         <View className="grid grid-cols-2 gap-3">
           <TouchableOpacity
-            onPress={() => router.push("/(business)/menu" as any)}
+            onPress={() => router.push("/menu" as any)}
             className="flex-row items-center p-3 bg-general-500 rounded-lg"
           >
             <Text className="text-lg mr-3">🍕</Text>
@@ -334,7 +361,7 @@ const BusinessDashboard = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.push("/(business)/analytics" as any)}
+            onPress={() => router.push("/analytics" as any)}
             className="flex-row items-center p-3 bg-general-500 rounded-lg"
           >
             <Text className="text-lg mr-3">📊</Text>
@@ -342,7 +369,7 @@ const BusinessDashboard = () => {
           </TouchableOpacity>
 
           <TouchableOpacity
-            onPress={() => router.push("/(business)/orders" as any)}
+            onPress={() => router.push("/orders" as any)}
             className="flex-row items-center p-3 bg-general-500 rounded-lg"
           >
             <Text className="text-lg mr-3">📦</Text>
@@ -359,28 +386,69 @@ const BusinessDashboard = () => {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-general-500">
-      {/* Drawer Modal */}
-      <DrawerContent
-        visible={drawerVisible}
-        currentMode={currentMode}
-        onModeChange={handleModeChange}
-        onClose={() => {
-          console.log("Business drawer closed");
-          setDrawerVisible(false);
-        }}
-      />
+    <BottomSheetModalProvider>
+      <SafeAreaView className="flex-1 bg-general-500">
+        {/* Drawer Modal */}
+        <DrawerContent
+          visible={drawerVisible}
+          currentMode={currentMode}
+          onModeChange={handleModeChange}
+          onClose={() => {
+            console.log("Business drawer closed");
+            setDrawerVisible(false);
+          }}
+        />
 
-      {/* MapView with Bottom Sheet */}
-      <MapViewWithBottomSheet
-        markers={DUMMY_MARKERS}
-        mapHeight={40} // 40% map, 60% bottom sheet
-        bottomSheetHeight={60}
-        bottomSheetContent={bottomSheetContent}
-        showUserLocation={false}
-        enablePanDownToClose={false}
-      />
-    </SafeAreaView>
+        {/* Map Container - 40% height */}
+        <View style={{ height: '40%' }} className="relative">
+          <MapView
+            provider={PROVIDER_DEFAULT}
+            className="w-full h-full"
+            region={region}
+            showsUserLocation={true}
+            showsPointsOfInterest={false}
+          >
+            {/* Restaurant marker */}
+            {DUMMY_MARKERS.map((marker, index) => (
+              <Marker
+                key={marker.id}
+                coordinate={{
+                  latitude: marker.latitude,
+                  longitude: marker.longitude,
+                }}
+                title={marker.title}
+                description={marker.description}
+                image={marker.image}
+              />
+            ))}
+          </MapView>
+        </View>
+
+        {/* Bottom Sheet Modal */}
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={1}
+          snapPoints={['60%']}
+          enablePanDownToClose={false}
+          backgroundStyle={{
+            backgroundColor: 'white',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }}
+          handleIndicatorStyle={{
+            backgroundColor: '#E5E5E5',
+            width: 40,
+            height: 4,
+          }}
+        >
+          <BottomSheetView className="flex-1 px-5 pt-2">
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {bottomSheetContent}
+            </ScrollView>
+          </BottomSheetView>
+        </BottomSheetModal>
+      </SafeAreaView>
+    </BottomSheetModalProvider>
   );
 };
 

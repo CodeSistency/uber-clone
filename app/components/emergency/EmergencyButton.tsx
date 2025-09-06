@@ -365,3 +365,5 @@ export const EmergencyButton: React.FC<EmergencyButtonProps> = ({
     </View>
   );
 };
+
+export default EmergencyButton;

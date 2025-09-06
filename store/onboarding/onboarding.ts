@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { onboardingStorage } from "@/app/lib/storage";
 
 export interface OnboardingData {
   // Location
@@ -54,6 +55,10 @@ export interface OnboardingState {
   resetOnboarding: () => void;
   completeOnboarding: () => void;
 
+  // Persistence actions
+  loadFromStorage: () => Promise<void>;
+  saveToStorage: () => Promise<void>;
+
   // Step navigation
   nextStep: () => void;
   previousStep: () => void;
@@ -62,9 +67,7 @@ export interface OnboardingState {
 }
 
 const STEPS = [
-  "location-country",
-  "location-state",
-  "location-city",
+  "location", // Combined location step
   "personal-info",
   "travel-preferences",
   "phone-verification",
@@ -81,8 +84,36 @@ const initialState = {
   userData: {}
 };
 
-export const useOnboardingStore = create<OnboardingState>((set, get) => ({
-  ...initialState,
+// Initialize store with data from storage
+const initializeStore = async () => {
+  try {
+    console.log("[OnboardingStore] Initializing from storage");
+    const isCompleted = await onboardingStorage.isCompleted();
+    const userData = await onboardingStorage.getData();
+    const currentStep = await onboardingStorage.getStep();
+
+    return {
+      ...initialState,
+      isCompleted,
+      userData: userData || initialState.userData,
+      currentStep: currentStep || initialState.currentStep,
+      progress: isCompleted ? 100 : initialState.progress
+    };
+  } catch (error) {
+    console.error("[OnboardingStore] Error initializing from storage:", error);
+    return initialState;
+  }
+};
+
+export const useOnboardingStore = create<OnboardingState>((set, get) => {
+  // Initialize with storage data
+  let initialData = initialState;
+
+  // Note: Async initialization is handled in the component that uses the store
+  // This is because Zustand doesn't support async initial state directly
+
+  return {
+    ...initialState,
 
   setCurrentStep: (step: number) => {
     console.log("[OnboardingStore] Setting current step:", step);
@@ -94,6 +125,8 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
 
   completeStep: (stepId: string, data?: Partial<OnboardingData>) => {
     console.log("[OnboardingStore] Completing step:", stepId, "with data:", data);
+    console.log("[OnboardingStore] Before completion - currentStep:", get().currentStep, "completedSteps:", get().completedSteps);
+
     set((state) => {
       const newCompletedSteps = [...state.completedSteps];
       if (!newCompletedSteps.includes(stepId)) {
@@ -103,10 +136,20 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
       const newUserData = data ? { ...state.userData, ...data } : state.userData;
       const progress = (newCompletedSteps.length / STEPS.length) * 100;
 
+      // Auto-advance to next step if possible
+      let nextStepIndex = state.currentStep;
+      if (stepId === STEPS[state.currentStep] && state.currentStep < STEPS.length - 1) {
+        nextStepIndex = state.currentStep + 1;
+        console.log("[OnboardingStore] Auto-advancing from step", state.currentStep, "to step", nextStepIndex);
+      }
+
+      console.log("[OnboardingStore] After completion - currentStep:", nextStepIndex, "completedSteps:", newCompletedSteps, "progress:", progress);
+
       return {
         completedSteps: newCompletedSteps,
         userData: newUserData,
         progress,
+        currentStep: nextStepIndex,
         error: null
       };
     });
@@ -139,11 +182,6 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
     set(() => ({ error }));
   },
 
-  resetOnboarding: () => {
-    console.log("[OnboardingStore] Resetting onboarding");
-    set(() => ({ ...initialState }));
-  },
-
   completeOnboarding: () => {
     console.log("[OnboardingStore] Completing onboarding");
     set((state) => ({
@@ -151,6 +189,11 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
       progress: 100,
       error: null
     }));
+
+    // Save completion status to storage
+    onboardingStorage.setCompleted(true).catch((error) => {
+      console.error("[OnboardingStore] Error saving completion to storage:", error);
+    });
   },
 
   nextStep: () => {
@@ -177,5 +220,61 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => ({
   canGoPrevious: () => {
     const state = get();
     return state.currentStep > 0;
-  }
-}));
+  },
+
+  loadFromStorage: async () => {
+    try {
+      console.log("[OnboardingStore] Loading from storage");
+
+      // Load completion status
+      const isCompleted = await onboardingStorage.isCompleted();
+
+      // Load user data
+      const userData = await onboardingStorage.getData();
+
+      // Load current step
+      const currentStep = await onboardingStorage.getStep();
+
+      set((state) => ({
+        isCompleted,
+        userData: userData || state.userData,
+        currentStep: currentStep || state.currentStep,
+        progress: isCompleted ? 100 : state.progress
+      }));
+
+      console.log("[OnboardingStore] Loaded from storage:", { isCompleted, currentStep });
+    } catch (error) {
+      console.error("[OnboardingStore] Error loading from storage:", error);
+    }
+  },
+
+  saveToStorage: async () => {
+    try {
+      const state = get();
+      console.log("[OnboardingStore] Saving to storage");
+
+      // Save completion status
+      await onboardingStorage.setCompleted(state.isCompleted);
+
+      // Save user data
+      await onboardingStorage.saveData(state.userData);
+
+      // Save current step
+      await onboardingStorage.saveStep(state.currentStep);
+
+      console.log("[OnboardingStore] Saved to storage");
+    } catch (error) {
+      console.error("[OnboardingStore] Error saving to storage:", error);
+    }
+  },
+
+  resetOnboarding: () => {
+    console.log("[OnboardingStore] Resetting onboarding state");
+    set(initialState);
+
+    // Clear storage as well
+    onboardingStorage.clear().catch((error) => {
+      console.error("[OnboardingStore] Error clearing storage:", error);
+    });
+  },
+};});

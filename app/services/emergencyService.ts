@@ -338,3 +338,5 @@ export class EmergencyService {
 
 // Export singleton instance
 export const emergencyService = EmergencyService.getInstance();
+
+export default emergencyService;

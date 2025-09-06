@@ -234,3 +234,5 @@ export class ChatService {
 
 // Export singleton instance
 export const chatService = ChatService.getInstance();
+
+export default chatService;

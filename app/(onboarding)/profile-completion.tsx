@@ -21,10 +21,11 @@ export default function ProfileCompletion() {
     previousStep,
     setLoading,
     setError,
+    isLoading,
   } = useOnboardingStore();
 
   const [form, setForm] = useState({
-    address: userData.emergencyContact?.name ? "" : "",
+    address: userData.address || "",
     emergencyContactName: "",
     emergencyContactPhone: "",
     emergencyContactRelationship: "",
@@ -42,6 +43,14 @@ export default function ProfileCompletion() {
 
       console.log("[ProfileCompletion] Completing profile setup");
 
+      // Validate emergency contact data if partially filled
+      if (form.emergencyContactName || form.emergencyContactPhone || form.emergencyContactRelationship) {
+        if (!form.emergencyContactName || !form.emergencyContactPhone || !form.emergencyContactRelationship) {
+          Alert.alert("Error", "Please complete all emergency contact fields or leave them all empty");
+          return;
+        }
+      }
+
       // Prepare emergency contact data
       const emergencyContact = form.emergencyContactName
         ? {
@@ -56,12 +65,20 @@ export default function ProfileCompletion() {
         emergencyContact,
       });
 
-      // API call to complete onboarding
+      // TODO: Backend doesn't support preferences in complete endpoint yet
+      // Preferences are stored locally in userData but not sent to backend
+      console.log("[ProfileCompletion] Preferences stored locally:", {
+        preferredVehicleType: userData.preferredVehicleType,
+        preferredServiceLevel: userData.preferredServiceLevel,
+        preferredLanguage: userData.preferredLanguage,
+        timezone: userData.timezone,
+        currency: userData.currency,
+      });
+
+      // API call to complete onboarding (only profile data)
       const response = await fetchAPI("onboarding/complete", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        requiresAuth: true,
         body: JSON.stringify({
           address: form.address || undefined,
           profileImage: undefined, // Would be handled by image upload
@@ -71,7 +88,9 @@ export default function ProfileCompletion() {
 
       console.log("[ProfileCompletion] Complete response:", response);
 
-      if (response.success) {
+      const isSuccess = (response && (response.success === true || response.statusCode === 200 || response.statusCode === 201)) || (!('success' in (response || {})) && !('statusCode' in (response || {})));
+
+      if (isSuccess) {
         console.log("[ProfileCompletion] Onboarding completed successfully");
         completeOnboarding();
         router.replace("/(onboarding)/welcome" as any);
@@ -80,6 +99,25 @@ export default function ProfileCompletion() {
       }
     } catch (error: any) {
       console.error("[ProfileCompletion] Error completing setup:", error);
+
+      // Handle authentication errors specially
+      if (error.message?.includes("Authentication expired") ||
+          error.message?.includes("Token inválido") ||
+          error.statusCode === 401) {
+        setError("Your session has expired. Please log in again.");
+        Alert.alert(
+          "Session Expired",
+          "Your session has expired. Please log in again.",
+          [
+            {
+              text: "OK",
+              onPress: () => router.replace("/(auth)/sign-in")
+            }
+          ]
+        );
+        return;
+      }
+
       setError(error.message || "Failed to complete profile setup");
       Alert.alert("Error", error.message || "Failed to complete profile setup");
     } finally {
@@ -110,28 +148,29 @@ export default function ProfileCompletion() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={7}
+        totalSteps={5}
       />
 
       <ScrollView className="flex-1 px-5">
         {/* Title */}
         <View className="mb-8">
           <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-            Almost there!
+            🎉 You're Almost Done!
           </Text>
           <Text className="text-base font-Jakarta-Medium text-center text-gray-600">
-            Add a few details to complete your profile
+            Complete your profile to start enjoying Uber
           </Text>
         </View>
 
         {/* Home Address */}
         <View className="mb-6">
           <InputField
-            label="Home Address (Optional)"
+            label="Home Address"
             placeholder="Calle 123, Centro, Caracas"
             value={form.address}
             onChangeText={(value) => handleInputChange("address", value)}
           />
+          <Text className="text-xs text-gray-500 mt-1">Optional</Text>
         </View>
 
         {/* Profile Picture */}
@@ -141,13 +180,19 @@ export default function ProfileCompletion() {
           </Text>
 
           <View className="flex-row justify-center space-x-4">
-            <TouchableOpacity className="bg-gray-100 p-4 rounded-lg">
+            <TouchableOpacity
+              className="bg-gray-100 p-4 rounded-lg"
+              onPress={() => Alert.alert("Coming Soon", "Photo capture feature will be available soon!")}
+            >
               <Text className="text-center font-Jakarta-Medium text-gray-700">
                 📷 Take Photo
               </Text>
             </TouchableOpacity>
 
-            <TouchableOpacity className="bg-gray-100 p-4 rounded-lg">
+            <TouchableOpacity
+              className="bg-gray-100 p-4 rounded-lg"
+              onPress={() => Alert.alert("Coming Soon", "Gallery selection feature will be available soon!")}
+            >
               <Text className="text-center font-Jakarta-Medium text-gray-700">
                 🖼️ Choose from Gallery
               </Text>
@@ -157,8 +202,11 @@ export default function ProfileCompletion() {
 
         {/* Emergency Contact */}
         <View className="mb-8">
-          <Text className="text-base font-Jakarta-Bold text-gray-800 mb-4">
-            🚨 Emergency Contact (Optional)
+          <Text className="text-base font-Jakarta-Bold text-gray-800 mb-2">
+            🚨 Emergency Contact
+          </Text>
+          <Text className="text-sm text-gray-600 mb-4">
+            Optional - Leave all fields empty to skip
           </Text>
 
           <InputField
@@ -193,18 +241,24 @@ export default function ProfileCompletion() {
         </View>
 
         {/* Complete Setup Button */}
-        <View className="mb-8">
+        <View className="mb-6">
           <CustomButton
-            title="Complete Setup"
+            title="🚀 Complete Setup & Start Riding"
             onPress={handleCompleteSetup}
+            loading={isLoading}
             className="w-full"
           />
         </View>
 
         {/* Final Step Note */}
-        <Text className="text-sm text-center text-gray-400 mb-4">
-          Final Step - You're all set!
-        </Text>
+        <View className="items-center mb-4">
+          <Text className="text-sm text-center text-primary font-Jakarta-Bold mb-1">
+            🎯 Final Step
+          </Text>
+          <Text className="text-xs text-center text-gray-500">
+            Your Uber experience awaits!
+          </Text>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );

@@ -38,6 +38,7 @@ export default function TravelPreferences() {
     previousStep,
     setLoading,
     setError,
+    isLoading,
   } = useOnboardingStore();
 
   const [preferences, setPreferences] = useState({
@@ -76,7 +77,7 @@ export default function TravelPreferences() {
 
       console.log("[TravelPreferences] Saving preferences:", preferences);
 
-      // Update local state
+      // Update local state (store preferences for later saving)
       updateUserData({
         preferredVehicleType: preferences.preferredVehicleType as any,
         preferredServiceLevel: preferences.preferredServiceLevel as any,
@@ -85,31 +86,36 @@ export default function TravelPreferences() {
         currency: "USD",
       });
 
-      // API call to save preferences
-      const response = await fetchAPI("onboarding/preferences", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          preferredVehicleType: preferences.preferredVehicleType,
-          preferredServiceLevel: preferences.preferredServiceLevel,
-          preferredLanguage: "es",
-          timezone: "America/Caracas",
-          currency: "USD",
-        }),
-      });
+      // TODO: Backend doesn't have /api/onboarding/preferences endpoint yet
+      // According to documentation, it should accept:
+      // { preferredVehicleType, preferredServiceLevel, preferredLanguage, timezone, currency }
+      // For now, preferences are stored locally and saved with profile completion
+      console.log("[TravelPreferences] Preferences stored locally, will save with profile completion");
 
-      console.log("[TravelPreferences] API response:", response);
-
-      if (response.success) {
-        console.log("[TravelPreferences] Preferences saved successfully");
-        nextStep();
-      } else {
-        throw new Error(response.message || "Failed to save preferences");
-      }
+      // Continue to next step (preferences saved locally)
+      nextStep();
+      router.replace('/(onboarding)');
     } catch (error: any) {
       console.error("[TravelPreferences] Error saving preferences:", error);
+
+      // Handle authentication errors specially
+      if (error.message?.includes("Authentication expired") ||
+          error.message?.includes("Token inválido") ||
+          error.statusCode === 401) {
+        setError("Your session has expired. Please log in again.");
+        Alert.alert(
+          "Session Expired",
+          "Your session has expired. Please log in again.",
+          [
+            {
+              text: "OK",
+              onPress: () => router.replace("/(auth)/sign-in")
+            }
+          ]
+        );
+        return;
+      }
+
       setError(error.message || "Failed to save travel preferences");
       Alert.alert(
         "Error",
@@ -143,7 +149,7 @@ export default function TravelPreferences() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={7}
+        totalSteps={5}
       />
 
       <ScrollView className="flex-1 px-5">
@@ -227,6 +233,7 @@ export default function TravelPreferences() {
           <CustomButton
             title="Continue"
             onPress={handleContinue}
+            loading={isLoading}
             disabled={
               !preferences.preferredVehicleType ||
               !preferences.preferredServiceLevel

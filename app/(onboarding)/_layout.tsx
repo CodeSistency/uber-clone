@@ -34,20 +34,6 @@ export default function OnboardingLayout() {
         }}
       />
       <Stack.Screen
-        name="state-selection"
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-      />
-      <Stack.Screen
-        name="city-selection"
-        options={{
-          headerShown: false,
-          gestureEnabled: false,
-        }}
-      />
-      <Stack.Screen
         name="personal-info"
         options={{
           headerShown: false,

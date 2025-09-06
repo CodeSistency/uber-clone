@@ -63,8 +63,8 @@ const Checkout = () => {
       "Your order has been placed successfully. You will receive updates on your order status.",
       [
         {
-          text: "Track Order",
-          onPress: () => router.replace("/(root)/(tabs)/orders" as any),
+          text: "Continue",
+          onPress: () => router.replace("/(root)/(tabs)/home" as any),
         },
       ],
     );

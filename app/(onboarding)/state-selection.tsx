@@ -93,12 +93,11 @@ export default function StateSelection() {
       // API call to save location data
       const response = await fetchAPI("onboarding/location", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        requiresAuth: true,
         body: JSON.stringify({
           country: userData.country,
           state: selectedState,
+          city: null // Send null for city
         }),
       });
 

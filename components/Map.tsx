@@ -11,12 +11,19 @@ import {
 } from "@/lib/map";
 import { useDriverStore, useLocationStore } from "@/store";
 import { Driver, MarkerData } from "@/types/type";
+import { Restaurant } from "@/constants/dummyData";
 
 const directionsAPI =
   process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ||
   "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
 
-const Map = () => {
+interface MapProps {
+  serviceType?: "transport" | "delivery";
+  restaurants?: Restaurant[];
+  isLoadingRestaurants?: boolean;
+}
+
+const Map = ({ serviceType = "transport", restaurants = [], isLoadingRestaurants = false }: MapProps) => {
   const {
     userLongitude,
     userLatitude,
@@ -234,7 +241,8 @@ const Map = () => {
       showsUserLocation={true}
       userInterfaceStyle="light"
     >
-      {markers.map((marker, index) => (
+      {/* Transport mode markers */}
+      {serviceType === "transport" && markers.map((marker, index) => (
         <Marker
           key={marker.id}
           coordinate={{
@@ -246,6 +254,23 @@ const Map = () => {
             selectedDriver === +marker.id ? icons.selectedMarker : icons.marker
           }
         />
+      ))}
+
+      {/* Delivery mode markers */}
+      {serviceType === "delivery" && restaurants.map((restaurant, index) => (
+        <Marker
+          key={restaurant.id}
+          coordinate={{
+            latitude: restaurant.location.latitude,
+            longitude: restaurant.location.longitude,
+          }}
+          title={restaurant.name}
+          description={`${restaurant.category} • ${restaurant.rating}★ • ${restaurant.deliveryTime}`}
+        >
+          <View className="bg-white rounded-full p-2 shadow-lg border-2 border-primary-500">
+            <Text className="text-lg">{restaurant.image}</Text>
+          </View>
+        </Marker>
       ))}
 
       {userLatitude && userLongitude && (

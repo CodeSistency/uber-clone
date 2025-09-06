@@ -20,6 +20,7 @@ export default function PhoneVerification() {
     previousStep,
     setLoading,
     setError,
+    isLoading,
   } = useOnboardingStore();
   const [isVerificationSent, setIsVerificationSent] = useState(false);
 
@@ -36,9 +37,7 @@ export default function PhoneVerification() {
       // API call to send verification code
       const response = await fetchAPI("onboarding/verify-phone", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        requiresAuth: true,
         body: JSON.stringify({
           phone: userData.phone,
         }),
@@ -46,17 +45,39 @@ export default function PhoneVerification() {
 
       console.log("[PhoneVerification] Send verification response:", response);
 
-      if (response.success) {
+      const isSuccess = (response && (response.success === true || response.statusCode === 200 || response.statusCode === 201)) || (!('success' in (response || {})) && !('statusCode' in (response || {})));
+
+      if (isSuccess) {
         console.log("[PhoneVerification] Verification code sent successfully");
         setIsVerificationSent(true);
         // In a real implementation, you'd navigate to SMS code input
         // For now, we'll just skip this step
         nextStep();
+        router.replace('/(onboarding)');
       } else {
         throw new Error(response.message || "Failed to send verification code");
       }
     } catch (error: any) {
       console.error("[PhoneVerification] Error sending verification:", error);
+
+      // Handle authentication errors specially
+      if (error.message?.includes("Authentication expired") ||
+          error.message?.includes("Token inválido") ||
+          error.statusCode === 401) {
+        setError("Your session has expired. Please log in again.");
+        Alert.alert(
+          "Session Expired",
+          "Your session has expired. Please log in again.",
+          [
+            {
+              text: "OK",
+              onPress: () => router.replace("/(auth)/sign-in")
+            }
+          ]
+        );
+        return;
+      }
+
       setError(error.message || "Failed to send verification code");
       Alert.alert("Error", error.message || "Failed to send verification code");
     } finally {
@@ -67,6 +88,7 @@ export default function PhoneVerification() {
   const handleSkip = () => {
     console.log("[PhoneVerification] Skipping phone verification");
     nextStep();
+    router.replace('/(onboarding)');
   };
 
   return (
@@ -92,7 +114,7 @@ export default function PhoneVerification() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={7}
+        totalSteps={5}
       />
 
       <View className="flex-1 px-5 justify-center">
@@ -125,6 +147,7 @@ export default function PhoneVerification() {
           <CustomButton
             title="Send Verification Code"
             onPress={handleSendVerification}
+            loading={isLoading}
             className="w-full"
           />
         </View>

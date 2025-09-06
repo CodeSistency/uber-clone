@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { View, Modal } from "react-native";
 
 import { isAuthenticated } from "../lib/auth";
-import { fetchAPI } from "../lib/fetch";
+import { checkOnboardingStatus } from "../lib/onboarding";
 import { useOnboardingStore } from "../store";
 
 import { WelcomeModal } from "./components/ModeSwitcher";
@@ -26,43 +26,46 @@ const Page = () => {
 
   useEffect(() => {
     console.log("[IndexPage] useEffect triggered");
-    // Check if user is authenticated
-    const checkAuth = async () => {
+
+    // Initialize onboarding store from storage
+    const initializeOnboarding = async () => {
       try {
+        console.log("[IndexPage] Initializing onboarding from storage");
+        await useOnboardingStore.getState().loadFromStorage();
+        console.log("[IndexPage] Onboarding initialized from storage");
+      } catch (error) {
+        console.error("[IndexPage] Error initializing onboarding from storage:", error);
+      }
+    };
+
+    // Initialize onboarding and then check authentication
+    const initializeAndCheckAuth = async () => {
+      try {
+        // First initialize onboarding from storage
+        await initializeOnboarding();
+
+        // Then check authentication
         const authenticated = await isAuthenticated();
         console.log("[IndexPage] User authenticated:", authenticated);
         setIsAuthenticatedState(authenticated);
 
         if (authenticated) {
-          // Check onboarding status first
-          try {
-            console.log("[IndexPage] Checking onboarding status...");
-            const onboardingResponse = await fetchAPI("onboarding/status");
+          // Check onboarding status using the new utility function
+          console.log("[IndexPage] Checking onboarding status...");
+          const onboardingStatus = await checkOnboardingStatus();
+          console.log("[IndexPage] Onboarding status result:", onboardingStatus);
+
+          setOnboardingStatus(onboardingStatus);
+
+          if (!onboardingStatus.isCompleted) {
             console.log(
-              "[IndexPage] Onboarding status response:",
-              onboardingResponse,
+              "[IndexPage] Onboarding not completed, redirecting to onboarding",
             );
-
-            setOnboardingStatus(onboardingResponse);
-
-            if (!onboardingResponse.isCompleted) {
-              console.log(
-                "[IndexPage] Onboarding not completed, redirecting to onboarding",
-              );
-              // Set onboarding data in store
-              if (onboardingResponse.userData) {
-                setUserData(onboardingResponse.userData);
-              }
-              setCurrentStep(onboardingResponse.nextStep || 0);
-              router.replace("/(onboarding)" as any);
-              return;
+            // Set onboarding data in store if available
+            if (onboardingStatus.userData) {
+              setUserData(onboardingStatus.userData);
             }
-          } catch (onboardingError) {
-            console.error(
-              "[IndexPage] Error checking onboarding status:",
-              onboardingError,
-            );
-            // If onboarding check fails, assume not completed and redirect to onboarding
+            setCurrentStep(onboardingStatus.nextStep || 0);
             router.replace("/(onboarding)" as any);
             return;
           }
@@ -100,7 +103,7 @@ const Page = () => {
       }
     };
 
-    checkAuth();
+    initializeAndCheckAuth();
   }, []);
 
   const handleModeSelected = async (mode: string) => {

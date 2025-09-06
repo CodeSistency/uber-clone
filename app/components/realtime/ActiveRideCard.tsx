@@ -438,3 +438,5 @@ export const ActiveRideCard: React.FC<ActiveRideCardProps> = ({
     </View>
   );
 };
+
+export default ActiveRideCard;

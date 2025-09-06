@@ -36,10 +36,10 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
       {/* Progress Text */}
       <View className="flex-row justify-between items-center">
         <Text className="text-sm text-gray-600 font-Jakarta-Medium">
-          Step {currentStep + 1} of {totalSteps}
+          Step {String(currentStep + 1)} of {String(totalSteps)}
         </Text>
         <Text className="text-sm text-primary font-Jakarta-Bold">
-          {Math.round(progress)}%
+          {String(Math.round(progress))}%
         </Text>
       </View>
     </View>

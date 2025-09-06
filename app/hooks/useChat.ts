@@ -204,3 +204,5 @@ export const useChat = (rideId: number | null) => {
     setError,
   };
 };
+
+export default useChat;

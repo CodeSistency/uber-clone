@@ -170,3 +170,5 @@ export const useWebSocket = (userId: string, token: string) => {
     getConnectionInfo,
   };
 };
+
+export default useWebSocket;

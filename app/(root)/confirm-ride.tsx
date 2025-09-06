@@ -1,14 +1,15 @@
 import { router } from "expo-router";
-import { useState } from "react";
-import { FlatList, View, Text, TouchableOpacity, Image } from "react-native";
+import { useEffect, useRef, useState } from "react";
+import { FlatList, View, Text } from "react-native";
 
 import CustomButton from "@/components/CustomButton";
 import DriverCard from "@/components/DriverCard";
-import Map from "@/components/Map";
+import RideLayout from "@/components/RideLayout";
 import ServiceLevelSelector from "@/components/ServiceLevelSelector";
 import { fetchAPI } from "@/lib/fetch";
 import { useDriverStore, useLocationStore, useUserStore } from "@/store";
-import { icons } from "@/constants";
+import { useRealtimeStore } from "@/store";
+ 
 
 const ConfirmRide = () => {
   const { drivers, selectedDriver, setSelectedDriver } = useDriverStore();
@@ -23,7 +24,7 @@ const ConfirmRide = () => {
   } = useLocationStore();
 
   // Tier selection state
-  const [selectedTierId, setSelectedTierId] = useState<number>(1); // Default to Economy
+  const [selectedTierId, setSelectedTierId] = useState<number | null>(null);
 
   // Available ride tiers
   const rideTiers = [
@@ -60,7 +61,21 @@ const ConfirmRide = () => {
     (driver) => driver.id === selectedDriver,
   );
 
-  const selectedTier = rideTiers.find(tier => tier.id === selectedTierId);
+  const selectedTier = rideTiers.find(tier => tier.id === selectedTierId!);
+
+  // Auto-select timer (15s). If user no elige, selecciona el primero.
+  const [secondsLeft, setSecondsLeft] = useState<number>(15);
+  useEffect(() => {
+    if (selectedDriver || (drivers?.length ?? 0) === 0) return;
+    if (secondsLeft <= 0) {
+      if (drivers && drivers[0]) {
+        setSelectedDriver(drivers[0].id!);
+      }
+      return;
+    }
+    const id = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+    return () => clearTimeout(id);
+  }, [secondsLeft, selectedDriver, drivers]);
 
   // Calculate fare based on selected tier and driver time
   const calculateFare = () => {
@@ -151,11 +166,22 @@ const ConfirmRide = () => {
         destination: response?.destination_address,
       });
       console.log("[ConfirmRide] Ride created successfully without payment");
-      router.push("/(root)/(tabs)/rides" as any);
+
+      // Simular transición de estado del viaje para UI activa
+      const rideId = response?.ride?.id || response?.ride_id || response?.id || Date.now();
+      const realtime = useRealtimeStore.getState();
+      try {
+        realtime.setActiveRide({ ride_id: rideId, status: "accepted" } as any);
+      } catch (e) {
+        console.log("[ConfirmRide] setActiveRide failed, continuing", e);
+      }
+      realtime.updateRideStatus(rideId, "accepted");
+      setTimeout(() => realtime.updateRideStatus(rideId, "arriving"), 1500);
+      setTimeout(() => realtime.updateRideStatus(rideId, "arrived"), 4000);
+      setTimeout(() => realtime.updateRideStatus(rideId, "in_progress"), 7000);
     } catch (error) {
       console.error("[ConfirmRide] Error creating ride:", error);
-      // Still navigate to rides page even if there's an error
-      router.push("/(root)/(tabs)/rides" as any);
+      // Mantener al usuario en la pantalla para reintentar
     }
   };
 
@@ -170,103 +196,103 @@ const ConfirmRide = () => {
     }))
   });
 
+  // To control sheet and list from CTA
+  const listRef = useRef<FlatList<any>>(null);
+  const sheetApiRef = useRef<{ snapToIndex: (index: number) => void } | null>(null);
+
   return (
-    <View className="flex-1 bg-general-500">
-      {/* Mapa visible ocupando 40% superior */}
-      <View className="flex-1 relative">
-        <Map />
+    <RideLayout
+      title="Choose a Rider"
+      snapPoints={["40%", "85%"]}
+      onReady={(api) => {
+        sheetApiRef.current = api;
+      }}
+    >
+      <Text className="text-sm text-gray-600 mb-3">Available drivers ({drivers?.length || 0}) • Auto-select in {secondsLeft}s ⏱️</Text>
 
-        {/* Información flotante sobre el mapa */}
-        <View className="absolute top-12 left-4 right-4 z-10">
-          <View className="bg-white rounded-lg p-4 shadow-lg">
-            <Text className="text-lg font-JakartaBold mb-2">Available drivers ({drivers?.length || 0})</Text>
-            <Text className="text-sm text-gray-600">Auto-select in: 15s ⏱️</Text>
-          </View>
-        </View>
-      </View>
+      <ServiceLevelSelector
+        selectedServiceLevel={selectedTierId}
+        onSelectServiceLevel={setSelectedTierId}
+        estimatedDistance={5.2}
+        estimatedTime={18}
+        onContinue={() => {
+          sheetApiRef.current?.snapToIndex(1);
+          setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 50);
+        }}
+        continueLabel="Continue to Drivers"
+      />
 
-      {/* Bottom Sheet con selección (60% inferior) */}
-      <View className="bg-white rounded-t-3xl p-6" style={{ height: '60%' }}>
-        <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-xl font-JakartaBold">Choose a Rider</Text>
-          <TouchableOpacity>
-            <Image source={icons.close} className="w-6 h-6" />
-          </TouchableOpacity>
-        </View>
+      {/* CTA inline provisto por el selector */}
 
-        {/* Service Level Selector */}
-        <ServiceLevelSelector
-          selectedServiceLevel={selectedTierId}
-          onSelectServiceLevel={setSelectedTierId}
-          estimatedDistance={5.2}
-          estimatedTime={18}
-        />
+      <View className="mt-4 flex-1">
+        <Text className="text-lg font-JakartaSemiBold mb-3">Available Drivers</Text>
+        <FlatList
+          ref={listRef}
+          data={drivers}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item, index }) => {
+            console.log("[ConfirmRide] Rendering DriverCard:", {
+              index,
+              driverId: item.id,
+              driverTitle: item.title,
+              driverKeys: Object.keys(item),
+              firstName: item.first_name,
+              lastName: item.last_name,
+              selectedDriver,
+              isSelected: selectedDriver === item.id,
+            });
 
-        {/* Drivers List */}
-        <View className="mt-4 flex-1">
-          <Text className="text-lg font-JakartaSemiBold mb-3">Available Drivers</Text>
-          <FlatList
-            data={drivers}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item, index }) => {
-              console.log("[ConfirmRide] Rendering DriverCard:", {
-                index,
-                driverId: item.id,
-                driverTitle: item.title,
-                driverKeys: Object.keys(item),
-                firstName: item.first_name,
-                lastName: item.last_name,
-                selectedDriver,
-                isSelected: selectedDriver === item.id,
-              });
-
-              return (
-                <DriverCard
-                  item={item}
-                  selected={selectedDriver!}
-                  setSelected={() => {
-                    console.log(
-                      "[ConfirmRide] Calling setSelectedDriver with:",
-                      item.id,
-                    );
-                    setSelectedDriver(item.id!);
-                  }}
-                />
-              );
-            }}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingBottom: 20 }}
-          />
-        </View>
-
-        {/* Ride Summary */}
-        {selectedDriverData && selectedTier && (
-          <View className="mt-4 p-4 bg-gray-50 rounded-lg">
-            <Text className="font-JakartaSemiBold mb-2">Ride Summary</Text>
-            <View className="flex-row justify-between mb-1">
-              <Text className="text-sm">Base fare ({selectedTier.name})</Text>
-              <Text className="text-sm font-JakartaMedium">${selectedTier.baseFare.toFixed(2)}</Text>
-            </View>
-            <View className="flex-row justify-between mb-1">
-              <Text className="text-sm">Time ({selectedDriverData.time?.toFixed(1)} min)</Text>
-              <Text className="text-sm font-JakartaMedium">
-                ${(selectedDriverData.time || 0 * selectedTier.perMinuteRate).toFixed(2)}
-              </Text>
-            </View>
-            <View className="flex-row justify-between border-t border-gray-300 pt-2 mt-2">
-              <Text className="font-JakartaBold">Total</Text>
-              <Text className="font-JakartaBold">${calculateFare().toFixed(2)}</Text>
-            </View>
-          </View>
-        )}
-
-        <CustomButton
-          title="Confirm Ride"
-          onPress={handleConfirmRide}
-          className="mt-5"
+            return (
+              <DriverCard
+                item={item}
+                selected={selectedDriver!}
+                setSelected={() => {
+                  console.log(
+                    "[ConfirmRide] Calling setSelectedDriver with:",
+                    item.id,
+                  );
+                  setSelectedDriver(item.id!);
+                  // Expand sheet and focus summary when a driver is picked
+                  sheetApiRef.current?.snapToIndex(1);
+                  setTimeout(
+                    () => listRef.current?.scrollToOffset({ offset: 0, animated: true }),
+                    50,
+                  );
+                }}
+              />
+            );
+          }}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
         />
       </View>
-    </View>
+
+      {selectedDriverData && selectedTier && (
+        <View className="mt-4 p-4 bg-gray-50 rounded-lg">
+          <Text className="font-JakartaSemiBold mb-2">Ride Summary</Text>
+          <View className="flex-row justify-between mb-1">
+            <Text className="text-sm">Base fare ({selectedTier.name})</Text>
+            <Text className="text-sm font-JakartaMedium">${selectedTier.baseFare.toFixed(2)}</Text>
+          </View>
+          <View className="flex-row justify-between mb-1">
+            <Text className="text-sm">Time ({selectedDriverData.time?.toFixed(1)} min)</Text>
+            <Text className="text-sm font-JakartaMedium">
+              ${(selectedDriverData.time || 0 * selectedTier.perMinuteRate).toFixed(2)}
+            </Text>
+          </View>
+          <View className="flex-row justify-between border-t border-gray-300 pt-2 mt-2">
+            <Text className="font-JakartaBold">Total</Text>
+            <Text className="font-JakartaBold">${calculateFare().toFixed(2)}</Text>
+          </View>
+        </View>
+      )}
+
+      {selectedDriverData && selectedTier && (
+        <View className="absolute left-5 right-5 bottom-5">
+          <CustomButton title="Confirm Ride" onPress={handleConfirmRide} />
+        </View>
+      )}
+    </RideLayout>
   );
 };
 

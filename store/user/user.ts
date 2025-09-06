@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import { getUserProfile } from "@/lib/auth";
 
 // User Store Interface
 interface User {
@@ -84,6 +83,8 @@ export const useUserStore = create<UserStore>((set, get) => ({
       state.setLoading(true);
       state.setError(null);
 
+      // Lazy import to avoid circular dependency
+      const { getUserProfile } = require("@/lib/auth");
       const result = await getUserProfile();
 
       if (result.success && result.data) {

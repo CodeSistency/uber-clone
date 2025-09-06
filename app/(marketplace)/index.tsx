@@ -104,7 +104,7 @@ const MarketplaceHome = () => {
   });
 
   const handleStorePress = (storeId: string) => {
-    router.push(`/marketplace/stores/${storeId}` as any);
+    router.push(`/stores/${storeId}` as any);
   };
 
   return (

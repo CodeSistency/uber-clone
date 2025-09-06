@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Dimensions, TouchableOpacity, Text, ScrollView } from 'react-native';
 import MapView, { Marker, Polyline, PROVIDER_DEFAULT, Region } from 'react-native-maps';
 import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
-import { Portal } from '@gorhom/portal';
 
 import { icons } from '@/constants';
 import { calculateRegion } from '@/lib/map';
@@ -65,9 +64,9 @@ const MapViewWithBottomSheet: React.FC<MapViewWithBottomSheetProps> = ({
 
   // Calculate default snap points if not provided
   const defaultSnapPoints = snapPoints || [
-    `${Math.max(25, bottomSheetHeight - 15)}%`,
-    `${bottomSheetHeight}%`,
-    `${Math.min(75, bottomSheetHeight + 15)}%`,
+    '40%',
+    '60%',
+    '80%',
   ];
 
   // Calculate map region
@@ -97,8 +96,7 @@ const MapViewWithBottomSheet: React.FC<MapViewWithBottomSheetProps> = ({
   const bottomSheetViewHeight = `${100 - mapHeight}%`;
 
   return (
-    <BottomSheetModalProvider>
-      <View className="flex-1 relative">
+    <View className="flex-1 relative">
         {/* Map Container */}
         <View style={{ height: mapViewHeight }} className="relative">
           <MapView
@@ -168,34 +166,31 @@ const MapViewWithBottomSheet: React.FC<MapViewWithBottomSheetProps> = ({
         </View>
 
         {/* Bottom Sheet Modal */}
-        <Portal>
-          <BottomSheetModal
-            ref={bottomSheetModalRef}
-            index={1}
-            snapPoints={defaultSnapPoints}
-            enablePanDownToClose={enablePanDownToClose}
-            enableOverDrag={enableOverDrag}
-            backgroundStyle={{
-              backgroundColor: 'white',
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              ...bottomSheetStyle,
-            }}
-            handleIndicatorStyle={{
-              backgroundColor: '#E5E5E5',
-              width: 40,
-              height: 4,
-            }}
-          >
-            <BottomSheetView className="flex-1 px-5 pt-2">
-              <ScrollView showsVerticalScrollIndicator={false}>
-                {bottomSheetContent}
-              </ScrollView>
-            </BottomSheetView>
-          </BottomSheetModal>
-        </Portal>
+        <BottomSheetModal
+          ref={bottomSheetModalRef}
+          index={1}
+          snapPoints={defaultSnapPoints}
+          enablePanDownToClose={enablePanDownToClose}
+          enableOverDrag={enableOverDrag}
+          backgroundStyle={{
+            backgroundColor: 'white',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            ...bottomSheetStyle,
+          }}
+          handleIndicatorStyle={{
+            backgroundColor: '#E5E5E5',
+            width: 40,
+            height: 4,
+          }}
+        >
+          <BottomSheetView className="flex-1 px-5 pt-2">
+            <ScrollView showsVerticalScrollIndicator={false}>
+              {bottomSheetContent}
+            </ScrollView>
+          </BottomSheetView>
+        </BottomSheetModal>
       </View>
-    </BottomSheetModalProvider>
   );
 };
 

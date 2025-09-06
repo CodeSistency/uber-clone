@@ -307,3 +307,5 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
     </SafeAreaView>
   );
 };
+
+export default NotificationCenter;

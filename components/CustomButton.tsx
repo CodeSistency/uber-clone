@@ -40,17 +40,20 @@ const CustomButton = ({
   IconLeft,
   IconRight,
   className,
+  loading,
+  disabled,
   ...props
-}: ButtonProps) => {
+}: ButtonProps & { disabled?: boolean }) => {
   return (
     <TouchableOpacity
-      onPress={onPress}
-      className={`w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${getBgVariantStyle(bgVariant)} ${className}`}
+      onPress={loading || disabled ? undefined : onPress}
+      disabled={loading || disabled}
+      className={`w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${getBgVariantStyle(bgVariant)} ${loading || disabled ? 'opacity-60' : ''} ${className}`}
       {...props}
     >
       {IconLeft && <IconLeft />}
       <Text className={`text-lg font-bold ${getTextVariantStyle(textVariant)}`}>
-        {title}
+        {loading ? 'Please wait…' : title}
       </Text>
       {IconRight && <IconRight />}
     </TouchableOpacity>

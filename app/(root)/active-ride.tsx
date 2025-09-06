@@ -97,7 +97,7 @@ const ActiveRide = () => {
         console.log('Emergency');
         break;
       case 'completed':
-        router.push('/(root)/rating-screen' as any);
+        router.push('/(root)/payment-method' as any);
         break;
     }
   };

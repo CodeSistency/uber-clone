@@ -1,10 +1,10 @@
-// import * as Notifications from 'expo-notifications'; // Temporarily commented for TypeScript compatibility
+import * as Notifications from 'expo-notifications';
 import { Platform } from "react-native";
-
-// import * as Haptics from 'expo-haptics'; // Temporarily commented for TypeScript compatibility
-// import * as Device from 'expo-device'; // Temporarily commented for TypeScript compatibility
+import * as Haptics from 'expo-haptics';
+import * as Device from 'expo-device';
 import { useNotificationStore } from "../../store";
 import { NotificationType } from "../../types/type";
+import { firebaseService } from "./firebaseService";
 
 export class NotificationService {
   private static instance: NotificationService;
@@ -21,24 +21,28 @@ export class NotificationService {
     try {
       console.log("[NotificationService] Initializing notification service...");
 
-      // Request permissions
-      // const { status } = await Notifications.requestPermissionsAsync(); // Temporarily commented
-      // if (status !== 'granted') {
-      //   console.warn('[NotificationService] Notification permissions not granted');
-      //   throw new Error('Notification permissions not granted');
-      // }
+      // Initialize Firebase service for push notifications
+      await firebaseService.requestPermissions();
+      firebaseService.setupNotificationListeners();
+
+      // Request permissions using Firebase service
+      const hasPermission = await firebaseService.requestPermissions();
+      if (!hasPermission) {
+        console.warn('[NotificationService] Notification permissions not granted');
+        throw new Error('Notification permissions not granted');
+      }
 
       // Set notification handler
-      // this.notificationHandler = Notifications.setNotificationHandler({ // Temporarily commented
-      //   handleNotification: async () => ({
-      //     shouldShowAlert: true,
-      //     shouldPlaySound: true,
-      //     shouldSetBadge: true,
-      //   }),
-      // });
+      this.notificationHandler = Notifications.setNotificationHandler({
+        handleNotification: async () => ({
+          shouldShowAlert: true,
+          shouldPlaySound: true,
+          shouldSetBadge: true,
+        }),
+      });
 
       // Set up notification listeners
-      // this.setupNotificationListeners(); // Temporarily commented
+      this.setupNotificationListeners();
 
       console.log(
         "[NotificationService] Notification service initialized successfully",
@@ -50,22 +54,19 @@ export class NotificationService {
   }
 
   private setupNotificationListeners(): void {
-    // TODO: Setup notification listeners when expo-notifications is available
-    console.log(
-      "[NotificationService] Notification listeners setup skipped (expo-notifications not available)",
-    );
+    console.log("[NotificationService] Setting up notification listeners");
 
-    // // Handle notification received while app is foreground
-    // Notifications.addNotificationReceivedListener((notification: any) => {
-    //   console.log('[NotificationService] Notification received:', notification);
-    //   this.handleNotificationReceived(notification);
-    // });
+    // Handle notification received while app is foreground
+    Notifications.addNotificationReceivedListener((notification: any) => {
+      console.log('[NotificationService] Notification received:', notification);
+      this.handleNotificationReceived(notification);
+    });
 
-    // // Handle notification tapped
-    // Notifications.addNotificationResponseReceivedListener((response: any) => {
-    //   console.log('[NotificationService] Notification tapped:', response);
-    //   this.handleNotificationTapped(response);
-    // });
+    // Handle notification tapped
+    Notifications.addNotificationResponseReceivedListener((response: any) => {
+      console.log('[NotificationService] Notification tapped:', response);
+      this.handleNotificationTapped(response);
+    });
   }
 
   async sendLocalNotification(
@@ -74,16 +75,29 @@ export class NotificationService {
     data?: any,
   ): Promise<void> {
     try {
-      // TODO: Implement local notification when expo-notifications is available
-      console.log("[NotificationService] Local notification would be sent:", {
+      console.log("[NotificationService] Sending local notification:", {
         title,
         body,
         data,
       });
 
-      // Simulate notification storage for testing
+      // Send local notification
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title,
+          body,
+          data: data || {},
+          sound: this.shouldPlaySound() ? 'default' : undefined,
+          priority: Notifications.AndroidNotificationPriority.HIGH,
+        },
+        trigger: null, // Send immediately
+      });
+
+      console.log('[NotificationService] Local notification sent:', notificationId);
+
+      // Also add to notification store for persistence
       const notificationData = {
-        id: Date.now().toString(),
+        id: notificationId,
         title,
         message: body,
         data: data || {},
@@ -93,27 +107,12 @@ export class NotificationService {
         isRead: false,
       };
 
-      // Add to notification store
       useNotificationStore.getState().addNotification(notificationData);
 
-      // // Original implementation (commented until expo-notifications is available)
-      // const notificationId = await Notifications.scheduleNotificationAsync({
-      //   content: {
-      //     title,
-      //     body,
-      //     data: data || {},
-      //     sound: this.shouldPlaySound() ? 'default' : undefined,
-      //     priority: Notifications.AndroidNotificationPriority.HIGH,
-      //   },
-      //   trigger: null, // Send immediately
-      // });
-
-      // console.log('[NotificationService] Local notification sent:', notificationId);
-
-      // // Trigger haptic feedback if enabled
-      // if (this.shouldVibrate()) {
-      //   await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      // }
+      // Trigger haptic feedback if enabled
+      if (this.shouldVibrate()) {
+        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     } catch (error) {
       console.error(
         "[NotificationService] Failed to send local notification:",
@@ -226,18 +225,13 @@ export class NotificationService {
 
   async getDeviceToken(): Promise<string | null> {
     try {
-      // TODO: Implement device token retrieval when expo-notifications is available
-      console.log("[NotificationService] Device token retrieval not available");
+      console.log("[NotificationService] Getting FCM device token");
 
-      // Return a mock token for testing purposes
-      const mockToken = `mock-device-token-${Date.now()}`;
-      console.log("[NotificationService] Mock device token:", mockToken);
-      return mockToken;
+      // Use Firebase service to get FCM token
+      const token = await firebaseService.getFCMToken();
+      console.log('[NotificationService] FCM token obtained:', token ? token.substring(0, 20) + '...' : 'null');
 
-      // // Original implementation (commented until expo-notifications is available)
-      // const token = await Notifications.getDevicePushTokenAsync();
-      // console.log('[NotificationService] Device token:', token);
-      // return token.data;
+      return token;
     } catch (error) {
       console.error("[NotificationService] Failed to get device token:", error);
       return null;
@@ -404,3 +398,5 @@ export class NotificationService {
 
 // Export singleton instance
 export const notificationService = NotificationService.getInstance();
+
+export default notificationService;
