@@ -2,10 +2,11 @@ import { router } from "expo-router";
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import * as Haptics from "expo-haptics";
+import * as Location from "expo-location";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "@/components/CustomButton";
-import InputField from "@/components/InputField";
+import { Select, Button } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
@@ -58,41 +59,32 @@ export default function LocationSelection() {
   const [selectedCountry, setSelectedCountry] = useState<string>("");
   const [selectedState, setSelectedState] = useState<string>("");
   const [selectedCity, setSelectedCity] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState("");
   const [filteredCountries, setFilteredCountries] = useState(COUNTRIES);
   const [availableStates, setAvailableStates] = useState<string[]>([]);
   const [availableCities, setAvailableCities] = useState<string[]>([]);
 
-  // Wizard state
-  const [currentWizardStep, setCurrentWizardStep] = useState<'country' | 'state' | 'city'>('country');
+  // Location autodetect
+  const [detecting, setDetecting] = useState(false);
 
   useEffect(() => {
     console.log("[LocationSelection] Component mounted");
     console.log("[LocationSelection] Current state - currentStep:", currentStep, "completedSteps:", completedSteps);
 
-    // Only reset if there's a truly corrupted state:
-    // - currentStep is beyond valid range (> 4)
-    // - OR currentStep > 0 but no steps are completed (meaning we somehow skipped the location step)
-    const isCorruptedState = currentStep > 4 || (currentStep > 0 && completedSteps.length === 0);
-
-    if (isCorruptedState) {
-      console.log("[LocationSelection] Corrupted state detected - currentStep:", currentStep, "completedSteps:", completedSteps, "- resetting");
-      resetOnboarding();
-    } else if (currentStep !== 0) {
-      // If we're not at step 0, this component shouldn't be rendered
-      // Let the onboarding index handle the navigation
-      console.log("[LocationSelection] Not at location step (currentStep:", currentStep, ") - navigation should be handled by index");
-      return; // Exit early to prevent further execution
+    const isInvalidStep = !Number.isFinite(currentStep) || currentStep < 0 || currentStep > 3;
+    if (isInvalidStep) {
+      console.log("[LocationSelection] Invalid step detected (", currentStep, ") - letting index handle correction");
+      return;
     }
 
-    const filtered = COUNTRIES.filter((country) =>
-      country.name.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
-    setFilteredCountries(filtered);
-  }, [searchQuery, currentStep, completedSteps, resetOnboarding]);
+    if (currentStep !== 0) {
+      console.log("[LocationSelection] Not at location step (currentStep:", currentStep, ") - navigation should be handled by index");
+      return;
+    }
+  }, [currentStep, completedSteps]);
 
   // Navigate to the appropriate step route when the global step changes
   useEffect(() => {
+    if (!Number.isFinite(currentStep)) return;
     if (currentStep !== 0) {
       console.log("[LocationSelection] currentStep changed to", currentStep, "- navigating to onboarding index for redirect");
       router.replace('/(onboarding)');
@@ -136,29 +128,45 @@ export default function LocationSelection() {
     Haptics.selectionAsync();
   };
 
-  // Wizard navigation functions
-  const handleCountryNext = () => {
-    if (!selectedCountry) {
-      Alert.alert("Error", "Please select a country");
-      return;
+  const handleDetectLocation = async () => {
+    try {
+      setDetecting(true);
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permission required', 'Location permission is needed to detect your location');
+        return;
+      }
+      const pos = await Location.getCurrentPositionAsync({});
+      const geos = await Location.reverseGeocodeAsync({ latitude: pos.coords.latitude, longitude: pos.coords.longitude });
+      const geo = geos[0];
+      if (!geo) return;
+      // Match country
+      const foundCountry = COUNTRIES.find(c => c.name.toLowerCase() === (geo.country || '').toLowerCase());
+      if (foundCountry) {
+        setSelectedCountry(foundCountry.code);
+      }
+      // Match state
+      if (geo.region) {
+        const country = COUNTRIES.find(c => c.code === (foundCountry ? foundCountry.code : selectedCountry));
+        if (country) {
+          const regionLc = (geo.region || '').toLowerCase();
+          const st = country.states.find(s => s.toLowerCase() === regionLc) || country.states[0];
+          if (st) setSelectedState(st);
+        }
+      }
+      // Match city
+      if (geo.city || geo.subregion) {
+        const candidate = (geo.city || geo.subregion || '').toLowerCase();
+        if (candidate && CITIES[selectedState]) {
+          const ct = CITIES[selectedState].find(c => c.toLowerCase() === candidate) || CITIES[selectedState][0];
+          if (ct) setSelectedCity(ct);
+        }
+      }
+    } catch (e) {
+      console.log('[LocationSelection] Autodetect error', e);
+    } finally {
+      setDetecting(false);
     }
-    setCurrentWizardStep('state');
-  };
-
-  const handleStateNext = () => {
-    if (!selectedState) {
-      Alert.alert("Error", "Please select a state");
-      return;
-    }
-    setCurrentWizardStep('city');
-  };
-
-  const handleStateBack = () => {
-    setCurrentWizardStep('country');
-  };
-
-  const handleCityBack = () => {
-    setCurrentWizardStep('state');
   };
 
   const handleContinue = async () => {
@@ -167,10 +175,7 @@ export default function LocationSelection() {
       return;
     }
 
-    if (!selectedState) {
-      Alert.alert("Error", "Please select a state");
-      return;
-    }
+    // State optional
 
     if (!selectedCity) {
       Alert.alert("Error", "Please select a city");
@@ -188,21 +193,13 @@ export default function LocationSelection() {
       });
 
       // Update local state
-      updateUserData({
-        country: selectedCountry,
-        state: selectedState,
-        city: selectedCity
-      });
+      updateUserData({ country: selectedCountry, state: selectedState, city: selectedCity });
 
       // API call to save complete location data
       const response = await fetchAPI("onboarding/location", {
         method: "POST",
         requiresAuth: true,
-        body: JSON.stringify({
-          country: selectedCountry,
-          state: selectedState,
-          city: selectedCity
-        }),
+        body: JSON.stringify({ country: selectedCountry, state: selectedState, city: selectedCity }),
       });
 
       console.log("[LocationSelection] API response:", response);
@@ -267,213 +264,55 @@ export default function LocationSelection() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={5}
+        totalSteps={4}
       />
 
       <ScrollView className="flex-1 px-5">
-        {/* Title */}
-        <View className="mb-8">
-          <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-            Welcome!
-          </Text>
-          <Text className="text-base font-Jakarta-Medium text-center text-gray-600">
-            Let's get you set up
-          </Text>
-        </View>
-
-        {/* Search */}
         <View className="mb-6">
-          <InputField
-            label=""
-            placeholder="Search countries..."
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            className="mb-2"
-          />
-          {filteredCountries.length === 0 && (
-            <Text className="text-sm text-gray-500">No results</Text>
-          )}
+          <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">Welcome!</Text>
+          <Text className="text-base font-Jakarta-Medium text-center text-gray-600">Let's get you set up</Text>
         </View>
 
-        {/* Wizard Content */}
-        {currentWizardStep === 'country' && (
-          <View className="flex-1">
-            <View className="mb-8">
-              <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-                Welcome!
-              </Text>
-              <Text className="text-base font-Jakarta-Medium text-center text-gray-600 mb-8">
-                Let's get you set up
-              </Text>
-            </View>
+        {/* Autodetect */}
+        <View className="mb-6 items-center">
+          <Button title={detecting ? 'Detecting…' : 'Use my location'} variant="outline" onPress={handleDetectLocation} disabled={detecting} />
+        </View>
 
-            {/* Search */}
-            <View className="mb-6">
-              <InputField
-                label=""
-                placeholder="Search countries..."
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                className="mb-2"
-              />
-              {filteredCountries.length === 0 && (
-                <Text className="text-sm text-gray-500">No results</Text>
-              )}
-            </View>
+        {/* Country */}
+        <View className="mb-4">
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">🌍 Country</Text>
+          <Select
+            value={selectedCountry}
+            onChange={(code)=>handleCountrySelect(code)}
+            options={filteredCountries.map(c=>({ label: `${c.flag} ${c.name}`, value: c.code }))}
+            placeholder="Select country"
+          />
+        </View>
 
-            {/* Country Selection */}
-            <View className="mb-8">
-              <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-                🌍 Select Your Country
-              </Text>
+        {/* State (optional) */}
+        <View className="mb-4">
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">🏛️ State / Province</Text>
+          <Select
+            value={selectedState}
+            onChange={(s)=>handleStateSelect(s)}
+            options={availableStates.map(s=>({ label: s, value: s }))}
+            placeholder={availableStates.length ? 'Select state' : 'Select country first'}
+          />
+        </View>
 
-              <View className="space-y-3">
-                {filteredCountries.map((country) => (
-                  <TouchableOpacity
-                    key={country.code}
-                    onPress={() => handleCountrySelect(country.code)}
-                    className={`p-4 rounded-lg border-2 ${
-                      selectedCountry === country.code
-                        ? "border-primary bg-primary/5"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <Text className="text-base font-Jakarta-Medium text-gray-800">
-                      {country.flag} {country.name}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+        {/* City */}
+        <View className="mb-8">
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">🏙️ City</Text>
+          <Select
+            value={selectedCity}
+            onChange={(c)=>handleCitySelect(c)}
+            options={availableCities.map(c=>({ label: c, value: c }))}
+            placeholder={availableCities.length ? 'Select city' : 'Select state first'}
+          />
+        </View>
 
-            {/* Next Button */}
-            <View className="mb-8">
-              <CustomButton
-                title="Next"
-                onPress={handleCountryNext}
-                disabled={!selectedCountry}
-                loading={isLoading}
-                className="w-full"
-              />
-            </View>
-          </View>
-        )}
-
-        {currentWizardStep === 'state' && (
-          <View className="flex-1">
-            <View className="mb-8">
-              <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-                Great! 🇻🇪
-              </Text>
-              <Text className="text-base font-Jakarta-Medium text-center text-gray-600 mb-8">
-                Now let's select your state
-              </Text>
-            </View>
-
-            {/* State Selection */}
-            <View className="mb-8">
-              <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-                🏛️ Select Your State
-              </Text>
-
-              <View className="space-y-3">
-                {availableStates.map((state) => (
-                  <TouchableOpacity
-                    key={state}
-                    onPress={() => handleStateSelect(state)}
-                    className={`p-4 rounded-lg border-2 ${
-                      selectedState === state
-                        ? "border-primary bg-primary/5"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <Text className="text-base font-Jakarta-Medium text-gray-800">
-                      {state}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Navigation Buttons */}
-            <View className="mb-8">
-              <View className="flex-row space-x-4">
-                <TouchableOpacity
-                  onPress={handleStateBack}
-                  className="flex-1 bg-gray-200 rounded-full py-3 items-center"
-                >
-                  <Text className="text-gray-700 font-Jakarta-Bold">Back</Text>
-                </TouchableOpacity>
-                <View className="w-4" />
-                <CustomButton
-                  title="Next"
-                  onPress={handleStateNext}
-                  disabled={!selectedState}
-                  loading={isLoading}
-                  className="flex-1"
-                />
-              </View>
-            </View>
-          </View>
-        )}
-
-        {currentWizardStep === 'city' && (
-          <View className="flex-1">
-            <View className="mb-8">
-              <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-                Almost there! 🏛️
-              </Text>
-              <Text className="text-base font-Jakarta-Medium text-center text-gray-600 mb-8">
-                Just need your city
-              </Text>
-            </View>
-
-            {/* City Selection */}
-            <View className="mb-8">
-              <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-                🏙️ Select Your City
-              </Text>
-
-              <View className="space-y-3">
-                {availableCities.map((city) => (
-                  <TouchableOpacity
-                    key={city}
-                    onPress={() => handleCitySelect(city)}
-                    className={`p-4 rounded-lg border-2 ${
-                      selectedCity === city
-                        ? "border-primary bg-primary/5"
-                        : "border-gray-200"
-                    }`}
-                  >
-                    <Text className="text-base font-Jakarta-Medium text-gray-800">
-                      {city}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
-
-            {/* Navigation Buttons */}
-            <View className="mb-8">
-              <View className="flex-row space-x-4">
-                <TouchableOpacity
-                  onPress={handleCityBack}
-                  className="flex-1 bg-gray-200 rounded-full py-3 items-center"
-                >
-                  <Text className="text-gray-700 font-Jakarta-Bold">Back</Text>
-                </TouchableOpacity>
-                <View className="w-4" />
-                <CustomButton
-                  title="Continue"
-                  onPress={handleContinue}
-                  disabled={!selectedCity}
-                  loading={isLoading}
-                  className="flex-1"
-                />
-              </View>
-            </View>
-          </View>
-        )}
+        <CustomButton title="Continue" onPress={handleContinue} disabled={!selectedCountry || !selectedCity} loading={isLoading} className="w-full" />
+        <View className="h-6" />
       </ScrollView>
     </SafeAreaView>
   );

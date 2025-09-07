@@ -220,7 +220,7 @@ export default function PersonalInfo() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={5}
+        totalSteps={4}
       />
 
       <ScrollView className="flex-1 px-5">

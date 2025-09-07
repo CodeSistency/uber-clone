@@ -24,6 +24,7 @@ export interface OnboardingData {
   emailVerified?: boolean;
 
   // Profile
+  address?: string;
   profileImage?: string;
   emergencyContact?: {
     name: string;
@@ -54,6 +55,8 @@ export interface OnboardingState {
   setError: (error: string | null) => void;
   resetOnboarding: () => void;
   completeOnboarding: () => void;
+  // Helpers
+  stepIdToIndex?: (id: string | number | undefined) => number;
 
   // Persistence actions
   loadFromStorage: () => Promise<void>;
@@ -67,11 +70,10 @@ export interface OnboardingState {
 }
 
 const STEPS = [
-  "location", // Combined location step
-  "personal-info",
-  "travel-preferences",
-  "phone-verification",
-  "profile-completion"
+  "location",            // Consolidated country/state/city
+  "travel-preferences",  // Preferences (optional)
+  "phone-verification",  // Optional per user request
+  "profile-completion"    // Address + optional emergency contact
 ];
 
 const initialState = {
@@ -180,6 +182,23 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
   setError: (error: string | null) => {
     console.log("[OnboardingStore] Setting error:", error);
     set(() => ({ error }));
+  },
+
+  // Helper to map string step ids to numeric index
+  stepIdToIndex: (id?: string | number) => {
+    const map: Record<string, number> = {
+      'location': 0,
+      'travel-preferences': 1,
+      'phone-verification': 2,
+      'profile-completion': 3,
+    };
+    if (typeof id === 'number' && Number.isFinite(id)) {
+      return Math.max(0, Math.min(STEPS.length - 1, id));
+    }
+    if (typeof id === 'string') {
+      return map[id] ?? 0;
+    }
+    return 0;
   },
 
   completeOnboarding: () => {

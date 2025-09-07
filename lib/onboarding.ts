@@ -17,38 +17,64 @@ export interface OnboardingStatus {
 export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
   try {
     console.log("[OnboardingCheck] Checking onboarding status");
-
-    // 1. Check local storage first (fast)
-    const isCompletedLocal = await onboardingStorage.isCompleted();
-    console.log("[OnboardingCheck] Local storage completion status:", isCompletedLocal);
-
-    if (isCompletedLocal) {
-      console.log("[OnboardingCheck] Onboarding completed according to local storage");
-      return {
-        isCompleted: true,
-        source: 'storage'
-      };
-    }
-
-    // 2. If not completed locally, check API
+    // API-first to avoid stale local completion states
     console.log("[OnboardingCheck] Checking API for onboarding status");
     try {
       const response = await fetchAPI("onboarding/status", { requiresAuth: true });
       console.log("[OnboardingCheck] API response:", response);
 
       const isCompletedAPI = response?.data?.isCompleted === true;
-      const nextStep = response?.data?.nextStep || 0;
+      const nextStepRaw = response?.data?.nextStep;
+      // Map string step ids to numeric indices
+      const stepMap: Record<string, number> = {
+        "location": 0,
+        "travel-preferences": 1,
+        "phone-verification": 2,
+        "profile-completion": 3,
+      };
+      let nextStep: number = 0;
+      if (typeof nextStepRaw === 'string') {
+        nextStep = stepMap[nextStepRaw] ?? 0;
+      } else if (typeof nextStepRaw === 'number' && Number.isFinite(nextStepRaw)) {
+        nextStep = Math.max(0, Math.min(3, nextStepRaw));
+      } else {
+        nextStep = 0;
+      }
       const userData = response?.data;
 
       console.log("[OnboardingCheck] API completion status:", isCompletedAPI);
 
       // If API says it's completed, update local storage
-      if (isCompletedAPI) {
-        await onboardingStorage.setCompleted(true);
-        if (userData) {
-          await onboardingStorage.saveData(userData);
+      // Always sync local storage with API
+      await onboardingStorage.setCompleted(!!isCompletedAPI);
+      await onboardingStorage.saveStep(nextStep);
+      if (userData) {
+        await onboardingStorage.saveData(userData);
+      }
+      console.log("[OnboardingCheck] Local storage synchronized with API", { isCompletedAPI, nextStep });
+
+      // Fallback inference: some legacy users may be effectively completed
+      // even if API hasn't updated their onboarding status. Consider completed
+      // if the profile already contains essential location data.
+      if (!isCompletedAPI) {
+        try {
+          const profileResp = await fetchAPI("auth/profile", { requiresAuth: true });
+          const profile = profileResp?.data ?? profileResp;
+          const hasLocation = !!(profile?.country && profile?.city);
+          if (hasLocation) {
+            console.log("[OnboardingCheck] Inferred completed from profile (country/city present). Overriding to completed.");
+            await onboardingStorage.setCompleted(true);
+            await onboardingStorage.saveStep(3);
+            return {
+              isCompleted: true,
+              nextStep: 3,
+              userData: userData,
+              source: 'api',
+            };
+          }
+        } catch (inferErr) {
+          console.warn("[OnboardingCheck] Profile inference failed:", inferErr);
         }
-        console.log("[OnboardingCheck] Updated local storage with API data");
       }
 
       return {
@@ -60,13 +86,12 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
 
     } catch (apiError) {
       console.error("[OnboardingCheck] API check failed:", apiError);
-
-      // 3. Fallback: assume not completed if both local and API fail
-      console.log("[OnboardingCheck] Using fallback - assuming not completed");
-      return {
-        isCompleted: false,
-        source: 'fallback'
-      };
+      // Fallback to local only if API not reachable
+      const isCompletedLocal = await onboardingStorage.isCompleted();
+      const stepLocal = await onboardingStorage.getStep();
+      const userDataLocal = await onboardingStorage.getData();
+      console.log("[OnboardingCheck] Fallback to local:", { isCompletedLocal, stepLocal });
+      return { isCompleted: !!isCompletedLocal, nextStep: stepLocal || 0, userData: userDataLocal || undefined, source: 'storage' };
     }
 
   } catch (error) {

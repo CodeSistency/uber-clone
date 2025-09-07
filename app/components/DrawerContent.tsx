@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { logoutUser } from "@/lib/auth";
 
 import ModeSwitcher from "./ModeSwitcher";
+import { useUI } from "@/components/UIWrapper";
 
 interface DrawerContentProps {
   currentMode?: "customer" | "driver" | "business";
@@ -27,6 +28,7 @@ const DrawerContent = ({
   onClose,
   onModeChange,
 }: DrawerContentProps) => {
+  const { theme, toggleTheme, setTheme } = useUI();
   console.log(
     "DrawerContent rendered, visible:",
     visible,
@@ -90,6 +92,16 @@ const DrawerContent = ({
       route: "/(root)/(tabs)/profile",
     },
     {
+      title: "Componentes",
+      icon: "🧩",
+      route: "/(root)/componentes",
+    },
+    {
+      title: "Servicios",
+      icon: "🧭",
+      route: "/(root)/services-hub",
+    },
+    {
       title: "Wallet",
       icon: "💳",
       route: "/(wallet)",
@@ -119,21 +131,21 @@ const DrawerContent = ({
       onRequestClose={onClose}
     >
       <View className="flex-1 bg-black/50">
-        <View className="flex-1 bg-white w-80">
+        <View className={`flex-1 w-80 bg-brand-primary ${theme === 'dark' ? 'bg-brand-primaryDark' : ''}`}>
           <SafeAreaView className="flex-1">
             {/* Header with Close Button */}
-            <View className="flex-row items-center justify-between p-6 border-b border-general-500">
+            <View className={`flex-row items-center justify-between p-6 border-b border-general-500 border-opacity-40 ${theme === 'dark' ? 'border-opacity-20' : ''}`}>
               <View>
-                <Text className="text-2xl font-JakartaExtraBold text-primary-500">
+                <Text className={`text-2xl font-JakartaExtraBold text-black ${theme === 'dark' ? 'text-white' : ''}`}>
                   UberClone
                 </Text>
-                <Text className="text-secondary-600 mt-1">Super App</Text>
+                <Text className={`mt-1 text-secondary-600 ${theme === 'dark' ? 'text-gray-300' : ''}`}>Super App</Text>
               </View>
               <TouchableOpacity
                 onPress={onClose}
                 className="w-8 h-8 items-center justify-center"
               >
-                <Text className="text-2xl">✕</Text>
+                <Text className={`text-2xl text-black ${theme === 'dark' ? 'text-white' : ''}`}>✕</Text>
               </TouchableOpacity>
             </View>
 
@@ -142,13 +154,14 @@ const DrawerContent = ({
               <ModeSwitcher
                 currentMode={currentMode}
                 variant="drawer"
+                theme={theme}
                 onClose={onClose}
                 onModeChange={onModeChange}
               />
 
               {/* Menu Items */}
               <View className="px-4 pb-6">
-                <Text className="text-lg font-JakartaBold mb-4 text-secondary-700">
+                <Text className={`text-lg font-JakartaBold mb-4 text-secondary-700 ${theme === 'dark' ? 'text-gray-200' : ''}`}>
                   Menu
                 </Text>
 
@@ -162,16 +175,30 @@ const DrawerContent = ({
                     className="flex-row items-center p-3 rounded-lg mb-2"
                   >
                     <Text className="text-xl mr-3">{item.icon}</Text>
-                    <Text className="font-JakartaMedium text-secondary-700">
+                    <Text className={`font-JakartaMedium text-secondary-700 ${theme === 'dark' ? 'text-gray-200' : ''}`}>
                       {item.title}
                     </Text>
                   </TouchableOpacity>
                 ))}
+
+                {/* Theme Toggle */}
+                <View className={`mt-4 p-3 rounded-lg bg-brand-secondary/20 ${theme === 'dark' ? 'bg-brand-secondary/20' : ''}`}>
+                  <View className="flex-row items-center justify-between">
+                    <Text className={`font-JakartaBold text-black ${theme === 'dark' ? 'text-white' : ''}`}>Appearance</Text>
+                    <TouchableOpacity
+                      onPress={toggleTheme}
+                      className="px-3 py-1 rounded-full bg-brand-secondary"
+                    >
+                      <Text className="font-JakartaBold text-black">{theme === 'dark' ? 'Dark' : 'Light'}</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <Text className={`mt-1 text-xs text-gray-600 ${theme === 'dark' ? 'text-gray-300' : ''}`}>Tap to toggle theme</Text>
+                </View>
               </View>
             </ScrollView>
 
             {/* Footer */}
-            <View className="p-6 border-t border-general-500">
+            <View className={`p-6 border-t border-general-500 border-opacity-40 ${theme === 'dark' ? 'border-opacity-20' : ''}`}>
               <TouchableOpacity
                 onPress={handleLogout}
                 className="flex-row items-center"

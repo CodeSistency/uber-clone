@@ -4,6 +4,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "@/components/CustomButton";
+import { Tabs, RadioGroup, Select } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
@@ -42,16 +43,18 @@ export default function TravelPreferences() {
   } = useOnboardingStore();
 
   const [preferences, setPreferences] = useState({
-    preferredVehicleType: userData.preferredVehicleType || "",
-    preferredServiceLevel: userData.preferredServiceLevel || "",
+    preferredVehicleType: (userData.preferredVehicleType || "standard") as "standard" | "suv" | "motorcycle" | "bike",
+    preferredServiceLevel: (userData.preferredServiceLevel || "economy") as "economy" | "comfort" | "premium",
+    language: userData.preferredLanguage || "es",
+    currency: userData.currency || "USD",
   });
 
-  const handleVehicleSelect = (vehicleType: string) => {
+  const handleVehicleSelect = (vehicleType: "standard" | "suv" | "motorcycle" | "bike") => {
     console.log("[TravelPreferences] Selected vehicle type:", vehicleType);
     setPreferences((prev) => ({ ...prev, preferredVehicleType: vehicleType }));
   };
 
-  const handleServiceSelect = (serviceLevel: string) => {
+  const handleServiceSelect = (serviceLevel: "economy" | "comfort" | "premium") => {
     console.log("[TravelPreferences] Selected service level:", serviceLevel);
     setPreferences((prev) => ({
       ...prev,
@@ -60,16 +63,6 @@ export default function TravelPreferences() {
   };
 
   const handleContinue = async () => {
-    if (
-      !preferences.preferredVehicleType ||
-      !preferences.preferredServiceLevel
-    ) {
-      Alert.alert(
-        "Error",
-        "Please select your vehicle type and service level preferences",
-      );
-      return;
-    }
 
     try {
       setLoading(true);
@@ -81,9 +74,9 @@ export default function TravelPreferences() {
       updateUserData({
         preferredVehicleType: preferences.preferredVehicleType as any,
         preferredServiceLevel: preferences.preferredServiceLevel as any,
-        preferredLanguage: "es",
+        preferredLanguage: preferences.language,
         timezone: "America/Caracas",
-        currency: "USD",
+        currency: preferences.currency,
       });
 
       // TODO: Backend doesn't have /api/onboarding/preferences endpoint yet
@@ -149,7 +142,7 @@ export default function TravelPreferences() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={5}
+        totalSteps={4}
       />
 
       <ScrollView className="flex-1 px-5">
@@ -160,72 +153,44 @@ export default function TravelPreferences() {
           </Text>
         </View>
 
-        {/* Vehicle Type Selection */}
+        {/* Vehicle Type Selection (segmented tabs) */}
         <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-            🚗 Preferred Vehicle Type
-          </Text>
-
-          <View className="space-y-3">
-            {VEHICLE_TYPES.map((vehicle) => (
-              <TouchableOpacity
-                key={vehicle.id}
-                onPress={() => handleVehicleSelect(vehicle.id)}
-                className={`p-4 rounded-lg border-2 ${
-                  preferences.preferredVehicleType === vehicle.id
-                    ? "border-primary bg-primary/5"
-                    : "border-gray-200"
-                }`}
-              >
-                <View className="flex-row items-center">
-                  <Text className="text-xl mr-3">{vehicle.icon}</Text>
-                  <View className="flex-1">
-                    <Text className="text-base font-Jakarta-Bold text-gray-800">
-                      {vehicle.name}
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      {vehicle.description}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">🚗 Preferred Vehicle Type</Text>
+          <Tabs
+            variant="segmented"
+            items={VEHICLE_TYPES.map(v=>({ key: v.id, label: v.icon + ' ' + v.name }))}
+            value={preferences.preferredVehicleType}
+            onChange={(k)=>handleVehicleSelect(k as 'standard' | 'suv' | 'motorcycle' | 'bike')}
+          />
         </View>
 
-        {/* Service Level Selection */}
+        {/* Service Level Selection (radio-like) */}
         <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-            💎 Service Level Preference
-          </Text>
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">💎 Service Level Preference</Text>
+          <RadioGroup
+            options={SERVICE_LEVELS.map(s=>({ value: s.id, label: `${s.name} — ${s.description} (${s.price})` }))}
+            value={preferences.preferredServiceLevel}
+            onChange={(v)=>handleServiceSelect(v as 'economy' | 'comfort' | 'premium')}
+          />
+        </View>
 
-          <View className="space-y-3">
-            {SERVICE_LEVELS.map((service) => (
-              <TouchableOpacity
-                key={service.id}
-                onPress={() => handleServiceSelect(service.id)}
-                className={`p-4 rounded-lg border-2 ${
-                  preferences.preferredServiceLevel === service.id
-                    ? "border-primary bg-primary/5"
-                    : "border-gray-200"
-                }`}
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-1">
-                    <Text className="text-base font-Jakarta-Bold text-gray-800">
-                      {service.name}
-                    </Text>
-                    <Text className="text-sm text-gray-600">
-                      {service.description}
-                    </Text>
-                  </View>
-                  <Text className="text-lg font-Jakarta-Bold text-primary">
-                    {service.price}
-                  </Text>
-                </View>
-              </TouchableOpacity>
-            ))}
+        {/* Language & Currency */}
+        <View className="mb-8">
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">🌐 Language & Currency</Text>
+          <View className="mb-3">
+            <Select
+              value={preferences.language}
+              onChange={(v)=>setPreferences(p=>({ ...p, language: v }))}
+              options={[{label:'Español', value:'es'},{label:'English', value:'en'}]}
+              placeholder="Language"
+            />
           </View>
+          <Select
+            value={preferences.currency}
+            onChange={(v)=>setPreferences(p=>({ ...p, currency: v }))}
+            options={[{label:'USD', value:'USD'},{label:'VES', value:'VES'},{label:'COP', value:'COP'}]}
+            placeholder="Currency"
+          />
         </View>
 
         {/* Continue Button */}

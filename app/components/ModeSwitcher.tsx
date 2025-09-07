@@ -3,10 +3,12 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, Alert } from "react-native";
 
 import { userModeStorage } from "../lib/storage";
+import { useUI } from "@/components/UIWrapper";
 
 interface ModeSwitcherProps {
   currentMode?: "customer" | "driver" | "business";
   variant?: "drawer" | "fab" | "modal";
+  theme?: "light" | "dark";
   onClose?: () => void;
   onModeChange?: (mode: "customer" | "driver" | "business") => void;
 }
@@ -14,6 +16,7 @@ interface ModeSwitcherProps {
 const ModeSwitcher = ({
   currentMode = "customer",
   variant = "drawer",
+  theme = "light",
   onClose,
   onModeChange,
 }: ModeSwitcherProps) => {
@@ -138,13 +141,13 @@ const ModeSwitcher = ({
           <Text className="text-2xl mr-3">{mode.icon}</Text>
           <View className="flex-1">
             <Text
-              className={`font-JakartaBold ${isActive ? "text-white" : "text-secondary-700"}`}
+              className={`font-JakartaBold ${isActive ? "text-white" : theme === 'dark' ? "text-gray-200" : "text-secondary-700"}`}
             >
               {mode.name}
             </Text>
             {!mode.available && (
               <Text
-                className={`text-sm ${isActive ? "text-white/80" : "text-secondary-600"}`}
+                className={`text-sm ${isActive ? "text-white/80" : theme === 'dark' ? "text-gray-300" : "text-secondary-600"}`}
               >
                 Tap to register
               </Text>
@@ -180,7 +183,7 @@ const ModeSwitcher = ({
   if (variant === "drawer") {
     return (
       <View className="p-4">
-        <Text className="text-lg font-JakartaBold mb-4 text-secondary-700">
+        <Text className={`text-lg font-JakartaBold mb-4 ${theme === 'dark' ? 'text-gray-200' : 'text-secondary-700'}`}>
           Account Modes
         </Text>
         {modes.map(renderModeButton)}
@@ -237,6 +240,7 @@ export const WelcomeModal = ({
 }: {
   onModeSelected: (mode: string) => void;
 }) => {
+  const { theme } = useUI();
   const modes = [
     {
       id: "customer",
@@ -267,13 +271,13 @@ export const WelcomeModal = ({
 
   return (
     <View className="flex-1 bg-black/50 justify-center items-center p-6">
-      <View className="bg-white rounded-3xl p-6 w-full max-w-sm">
+      <View className={`bg-white dark:bg-brand-primaryDark rounded-3xl p-6 w-full max-w-sm shadow-lg`}>
         {/* Header */}
         <View className="items-center mb-6">
-          <Text className="text-3xl font-JakartaExtraBold text-primary-500 mb-2">
+          <Text className={`text-3xl font-JakartaExtraBold text-primary-500 mb-2`}>
             Welcome! 🎉
           </Text>
-          <Text className="text-secondary-600 text-center font-JakartaMedium">
+          <Text className={`text-secondary-600 dark:text-gray-300 text-center font-JakartaMedium`}>
             Choose how you want to use our Super App
           </Text>
         </View>
@@ -284,15 +288,15 @@ export const WelcomeModal = ({
             <TouchableOpacity
               key={mode.id}
               onPress={() => onModeSelected(mode.id)}
-              className="bg-general-500 rounded-xl p-4 border-2 border-transparent active:border-primary-500"
+              className={`bg-general-500 dark:bg-gray-700 rounded-xl p-4 border-2 border-transparent active:border-primary-500`}
             >
               <View className="flex-row items-center mb-3">
                 <Text className="text-3xl mr-3">{mode.icon}</Text>
                 <View className="flex-1">
-                  <Text className="font-JakartaBold text-secondary-700 text-lg">
+                  <Text className={`font-JakartaBold text-secondary-700 dark:text-gray-200 text-lg`}>
                     {mode.name}
                   </Text>
-                  <Text className="text-secondary-600 font-JakartaMedium text-sm">
+                  <Text className={`text-secondary-600 dark:text-gray-300 font-JakartaMedium text-sm`}>
                     {mode.description}
                   </Text>
                 </View>
@@ -303,9 +307,9 @@ export const WelcomeModal = ({
                 {mode.benefits.map((benefit, index) => (
                   <View
                     key={index}
-                    className="bg-primary-500/10 rounded-full px-3 py-1"
+                    className={`bg-primary-500/10 dark:bg-primary-500/20 rounded-full px-3 py-1`}
                   >
-                    <Text className="text-primary-500 text-xs font-JakartaMedium">
+                    <Text className={`text-primary-500 dark:text-primary-400 text-xs font-JakartaMedium`}>
                       ✓ {benefit}
                     </Text>
                   </View>
@@ -316,7 +320,7 @@ export const WelcomeModal = ({
         </View>
 
         {/* Footer */}
-        <Text className="text-secondary-500 text-xs text-center font-JakartaMedium">
+        <Text className={`text-secondary-500 dark:text-gray-400 text-xs text-center font-JakartaMedium`}>
           You can change your mode later from the menu
         </Text>
       </View>

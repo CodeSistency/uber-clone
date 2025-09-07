@@ -267,7 +267,7 @@ const Map = ({ serviceType = "transport", restaurants = [], isLoadingRestaurants
           title={restaurant.name}
           description={`${restaurant.category} • ${restaurant.rating}★ • ${restaurant.deliveryTime}`}
         >
-          <View className="bg-white rounded-full p-2 shadow-lg border-2 border-primary-500">
+          <View className="bg-brand-primary dark:bg-brand-primaryDark rounded-full p-2 shadow-lg border-2 border-primary-500">
             <Text className="text-lg">{restaurant.image}</Text>
           </View>
         </Marker>

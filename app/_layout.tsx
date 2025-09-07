@@ -77,8 +77,8 @@ export default function RootLayout() {
     console.log("[RootLayout] Fonts still loading, showing loading state");
     return (
       <UIWrapper>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FFFFFF' }}>
-          <Text style={{ fontSize: 18, color: '#6B7280' }}>Loading...</Text>
+        <View className="flex-1 items-center justify-center bg-brand-primary dark:bg-brand-primaryDark">
+          <Text className="text-lg font-JakartaMedium text-secondary-600 dark:text-gray-300">Loading...</Text>
         </View>
       </UIWrapper>
     );

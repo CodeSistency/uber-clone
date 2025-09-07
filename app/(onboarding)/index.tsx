@@ -37,16 +37,16 @@ export default function OnboardingIndex() {
     );
   }
 
-  // Redirect to appropriate step based on current step
+  // Redirect to appropriate step based on current step (guard NaN)
   const stepRoutes = [
-    "/(onboarding)/country-selection", // Combined location step
-    "/(onboarding)/personal-info",
+    "/(onboarding)/country-selection", // Location setup (country/state/city)
     "/(onboarding)/travel-preferences",
-    "/(onboarding)/phone-verification",
+    "/(onboarding)/phone-verification", // optional
     "/(onboarding)/profile-completion",
   ];
 
-  const targetRoute = stepRoutes[currentStep] || stepRoutes[0];
+  const safeStep = Number.isFinite(currentStep) && currentStep >= 0 && currentStep < stepRoutes.length ? currentStep : 0;
+  const targetRoute = stepRoutes[safeStep] || stepRoutes[0];
   console.log(
     "[OnboardingIndex] Redirecting to step:",
     currentStep,

@@ -29,19 +29,19 @@ const PaymentMethod = () => {
     <RideLayout title="Payment Methods" snapPoints={["85%"]}>
       <View className="flex-1">
         {/* Trip Summary */}
-        <View className="bg-gray-50 rounded-lg p-4 mx-5 mb-6">
-          <Text className="font-JakartaSemiBold mb-2">Trip Summary</Text>
+        <View className="bg-gray-50 dark:bg-brand-primary rounded-lg p-4 mx-5 mb-6">
+          <Text className="font-JakartaSemiBold mb-2 text-black dark:text-white">Trip Summary</Text>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-sm">Downtown Mall</Text>
-            <Text className="text-sm font-JakartaMedium">5.2 miles</Text>
+            <Text className="text-sm text-black dark:text-white">Downtown Mall</Text>
+            <Text className="text-sm font-JakartaMedium text-black dark:text-white">5.2 miles</Text>
           </View>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-sm">Comfort Service</Text>
-            <Text className="text-sm font-JakartaMedium">18 min</Text>
+            <Text className="text-sm text-black dark:text-white">Comfort Service</Text>
+            <Text className="text-sm font-JakartaMedium text-black dark:text-white">18 min</Text>
           </View>
-          <View className="flex-row justify-between border-t border-gray-300 pt-2 mt-2">
-            <Text className="font-JakartaBold">Total</Text>
-            <Text className="font-JakartaBold">${tripTotal.toFixed(2)}</Text>
+          <View className="flex-row justify-between border-t border-gray-300 dark:border-brand-primaryDark pt-2 mt-2">
+            <Text className="font-JakartaBold text-black dark:text-white">Total</Text>
+            <Text className="font-JakartaBold text-black dark:text-white">${tripTotal.toFixed(2)}</Text>
           </View>
         </View>
 
@@ -53,15 +53,15 @@ const PaymentMethod = () => {
 
         {/* Add New Card Option */}
         {selectedMethodId === 'add_new' && (
-          <View className="mx-5 p-4 bg-blue-50 rounded-lg mb-4">
-            <Text className="text-sm font-JakartaSemiBold text-blue-800 mb-2">
+          <View className="mx-5 p-4 bg-blue-50 dark:bg-brand-primary rounded-lg mb-4">
+            <Text className="text-sm font-JakartaSemiBold text-blue-800 dark:text-white mb-2">
               Add New Payment Method
             </Text>
-            <Text className="text-xs text-blue-600 mb-3">
+            <Text className="text-xs text-blue-600 dark:text-gray-300 mb-3">
               This would open a form to add a new credit/debit card or link a digital wallet.
             </Text>
-            <TouchableOpacity className="bg-blue-500 rounded-lg py-2 px-4">
-              <Text className="text-white text-center font-JakartaMedium">Add Card</Text>
+            <TouchableOpacity className="bg-brand-secondary rounded-lg py-2 px-4">
+              <Text className="text-black text-center font-JakartaMedium">Add Card</Text>
             </TouchableOpacity>
           </View>
         )}

@@ -4,7 +4,7 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "@/components/CustomButton";
-import InputField from "@/components/InputField";
+import { TextField, Button, Glass } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
@@ -93,7 +93,7 @@ export default function ProfileCompletion() {
       if (isSuccess) {
         console.log("[ProfileCompletion] Onboarding completed successfully");
         completeOnboarding();
-        router.replace("/(onboarding)/welcome" as any);
+        router.replace("/(onboarding)/completion-success" as any);
       } else {
         throw new Error(response.message || "Failed to complete setup");
       }
@@ -148,7 +148,7 @@ export default function ProfileCompletion() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={5}
+        totalSteps={4}
       />
 
       <ScrollView className="flex-1 px-5">
@@ -164,7 +164,7 @@ export default function ProfileCompletion() {
 
         {/* Home Address */}
         <View className="mb-6">
-          <InputField
+          <TextField
             label="Home Address"
             placeholder="Calle 123, Centro, Caracas"
             value={form.address}
@@ -180,23 +180,12 @@ export default function ProfileCompletion() {
           </Text>
 
           <View className="flex-row justify-center space-x-4">
-            <TouchableOpacity
-              className="bg-gray-100 p-4 rounded-lg"
-              onPress={() => Alert.alert("Coming Soon", "Photo capture feature will be available soon!")}
-            >
-              <Text className="text-center font-Jakarta-Medium text-gray-700">
-                📷 Take Photo
-              </Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              className="bg-gray-100 p-4 rounded-lg"
-              onPress={() => Alert.alert("Coming Soon", "Gallery selection feature will be available soon!")}
-            >
-              <Text className="text-center font-Jakarta-Medium text-gray-700">
-                🖼️ Choose from Gallery
-              </Text>
-            </TouchableOpacity>
+            <Glass className="p-4 mr-2">
+              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">📷 Take Photo</Text>
+            </Glass>
+            <Glass className="p-4">
+              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">🖼️ Choose from Gallery</Text>
+            </Glass>
           </View>
         </View>
 
@@ -209,34 +198,28 @@ export default function ProfileCompletion() {
             Optional - Leave all fields empty to skip
           </Text>
 
-          <InputField
+          <TextField
             label="Contact Name"
             placeholder="Maria Perez"
             value={form.emergencyContactName}
-            onChangeText={(value) =>
-              handleInputChange("emergencyContactName", value)
-            }
+            onChangeText={(value) => handleInputChange("emergencyContactName", value)}
             className="mb-4"
           />
 
-          <InputField
+          <TextField
             label="Contact Phone"
             placeholder="+58 414-123-4568"
             value={form.emergencyContactPhone}
-            onChangeText={(value) =>
-              handleInputChange("emergencyContactPhone", value)
-            }
+            onChangeText={(value) => handleInputChange("emergencyContactPhone", value)}
             keyboardType="phone-pad"
             className="mb-4"
           />
 
-          <InputField
+          <TextField
             label="Relationship"
             placeholder="Sister, Brother, Friend..."
             value={form.emergencyContactRelationship}
-            onChangeText={(value) =>
-              handleInputChange("emergencyContactRelationship", value)
-            }
+            onChangeText={(value) => handleInputChange("emergencyContactRelationship", value)}
           />
         </View>
 

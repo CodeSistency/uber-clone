@@ -11,6 +11,7 @@ import {
   Modal
 } from 'react-native';
 import { icons } from '@/constants';
+import { useUI } from '@/components/UIWrapper';
 
 interface ChatMessage {
   id: string;
@@ -45,6 +46,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
 }) => {
   const [messageText, setMessageText] = useState('');
   const flatListRef = useRef<FlatList>(null);
+  const { theme } = useUI();
 
   useEffect(() => {
     if (visible && flatListRef.current) {
@@ -80,26 +82,26 @@ const ChatModal: React.FC<ChatModalProps> = ({
             isOwn
               ? 'bg-primary rounded-br-md'
               : item.messageType === 'system'
-              ? 'bg-gray-100 rounded-lg'
-              : 'bg-white border border-gray-200 rounded-bl-md'
+              ? `bg-gray-100 dark:bg-gray-700 rounded-lg`
+              : `bg-brand-primary dark:bg-brand-primaryDark border border-gray-200 dark:border-gray-600 rounded-bl-md`
           }`}>
             {/* Sender name for received messages */}
             {!isOwn && item.messageType !== 'system' && (
-              <Text className="text-xs text-gray-500 mb-1 font-JakartaMedium">
+              <Text className={`text-xs text-gray-500 dark:text-gray-400 mb-1 font-JakartaMedium`}>
                 {item.senderName}
               </Text>
             )}
 
             {/* Message text */}
             <Text className={`text-sm ${
-              isOwn ? 'text-white' : 'text-gray-800'
+              isOwn ? 'text-white' : `text-gray-800 dark:text-gray-200`
             }`}>
               {item.message}
             </Text>
 
             {/* Timestamp */}
             <Text className={`text-xs mt-1 ${
-              isOwn ? 'text-blue-100' : 'text-gray-500'
+              isOwn ? 'text-blue-100' : `text-gray-500 dark:text-gray-400`
             }`}>
               {item.timestamp.toLocaleTimeString([], {
                 hour: '2-digit',
@@ -121,10 +123,10 @@ const ChatModal: React.FC<ChatModalProps> = ({
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1 bg-white"
+        className={`flex-1 bg-brand-primary dark:bg-brand-primaryDark`}
       >
         {/* Header */}
-        <View className="flex-row items-center justify-between p-4 border-b border-gray-200 bg-white">
+        <View className={`flex-row items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`}>
           <View className="flex-row items-center">
             {driverImage && (
               <Image
@@ -133,8 +135,8 @@ const ChatModal: React.FC<ChatModalProps> = ({
               />
             )}
             <View>
-              <Text className="font-JakartaBold text-lg">{driverName}</Text>
-              <Text className="text-sm text-gray-600">Driver</Text>
+              <Text className={`font-JakartaBold text-lg text-black dark:text-white`}>{driverName}</Text>
+              <Text className={`text-sm text-gray-600 dark:text-gray-300`}>Driver</Text>
             </View>
           </View>
 
@@ -171,20 +173,21 @@ const ChatModal: React.FC<ChatModalProps> = ({
                   className="w-6 h-6 rounded-full mr-2"
                 />
               )}
-              <View className="bg-gray-100 px-3 py-2 rounded-full">
-                <Text className="text-xs text-gray-500">{driverName} is typing...</Text>
+              <View className={`bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-full`}>
+                <Text className={`text-xs text-gray-500 dark:text-gray-400`}>{driverName} is typing...</Text>
               </View>
             </View>
           </View>
         )}
 
         {/* Message Input */}
-        <View className="flex-row items-center p-4 border-t border-gray-200 bg-white">
+        <View className={`flex-row items-center p-4 border-t border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`}>
           <TextInput
             value={messageText}
             onChangeText={setMessageText}
             placeholder="Type a message..."
-            className="flex-1 border border-gray-300 rounded-full px-4 py-3 mr-3 text-sm"
+            className={`flex-1 border border-gray-300 dark:border-gray-600 rounded-full px-4 py-3 mr-3 text-sm text-black dark:text-white`}
+            placeholderTextColor={`#6b7280`}
             multiline
             maxLength={500}
             onSubmitEditing={handleSendMessage}
@@ -194,7 +197,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
             onPress={handleSendMessage}
             disabled={!messageText.trim()}
             className={`w-12 h-12 rounded-full items-center justify-center ${
-              messageText.trim() ? 'bg-primary' : 'bg-gray-300'
+              messageText.trim() ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
             }`}
           >
             <Image

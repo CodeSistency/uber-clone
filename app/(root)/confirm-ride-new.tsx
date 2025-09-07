@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { FlatList, View, Text, TouchableOpacity, Image } from "react-native";
 
 import CustomButton from "@/components/CustomButton";
@@ -170,6 +170,10 @@ const ConfirmRide = () => {
     }))
   });
 
+  // Refs used by onContinue (ensure defined)
+  const listRef = useRef<FlatList<any>>(null);
+  const sheetApiRef = useRef<{ snapToIndex: (i: number) => void } | null>(null);
+
   return (
     <View className="flex-1 bg-general-500">
       {/* Mapa visible ocupando 40% superior */}
@@ -202,8 +206,9 @@ const ConfirmRide = () => {
           estimatedTime={18}
           continueLabel="Continue to Drivers"
           onContinue={() => {
-            // Expandir sheet para mostrar drivers
-            sheetApiRef.current?.snapToIndex(1);
+            try {
+              sheetApiRef.current?.snapToIndex(1);
+            } catch {}
             setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 50);
           }}
         />
@@ -212,6 +217,7 @@ const ConfirmRide = () => {
         <View className="mt-4 flex-1">
           <Text className="text-lg font-JakartaSemiBold mb-3">Available Drivers</Text>
           <FlatList
+            ref={listRef}
             data={drivers}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item, index }) => {

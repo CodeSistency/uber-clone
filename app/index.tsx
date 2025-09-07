@@ -55,17 +55,26 @@ const Page = () => {
           const onboardingStatus = await checkOnboardingStatus();
           console.log("[IndexPage] Onboarding status result:", onboardingStatus);
 
+          // Force-sync local Zustand store with the latest status (no UI toast)
+          try {
+            if (onboardingStatus.userData) {
+              setUserData(onboardingStatus.userData);
+            }
+            const ns = typeof onboardingStatus.nextStep === 'number' && Number.isFinite(onboardingStatus.nextStep)
+              ? Math.max(0, Math.min(3, onboardingStatus.nextStep))
+              : 0;
+            setCurrentStep(ns);
+            setCompleted(onboardingStatus.isCompleted);
+          } catch (e) {
+            console.warn("[IndexPage] Failed to sync store with onboarding status:", e);
+          }
+
           setOnboardingStatus(onboardingStatus);
 
           if (!onboardingStatus.isCompleted) {
             console.log(
               "[IndexPage] Onboarding not completed, redirecting to onboarding",
             );
-            // Set onboarding data in store if available
-            if (onboardingStatus.userData) {
-              setUserData(onboardingStatus.userData);
-            }
-            setCurrentStep(onboardingStatus.nextStep || 0);
             router.replace("/(onboarding)" as any);
             return;
           }

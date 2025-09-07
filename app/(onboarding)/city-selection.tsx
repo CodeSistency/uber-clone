@@ -131,7 +131,7 @@ export default function CitySelection() {
       <ProgressBar
         progress={progress}
         currentStep={currentStep}
-        totalSteps={7}
+        totalSteps={4}
       />
 
       <ScrollView className="flex-1 px-5">

@@ -108,22 +108,22 @@ const MarketplaceHome = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-general-500">
+    <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header */}
-      <View className="bg-white p-5">
-        <Text className="text-xl font-JakartaBold">Delivery</Text>
-        <Text className="text-secondary-600 mt-1">
+      <View className="bg-white dark:bg-brand-primary p-5">
+        <Text className="text-xl font-JakartaBold text-black dark:text-white">Delivery</Text>
+        <Text className="text-secondary-600 dark:text-gray-300 mt-1">
           Order from your favorite restaurants
         </Text>
       </View>
 
       <ScrollView className="flex-1 px-5">
         {/* Search Bar */}
-        <View className="bg-white rounded-full p-1 mb-4 flex-row items-center">
+        <View className="bg-white dark:bg-brand-primary rounded-full p-1 mb-4 flex-row items-center">
           <Text className="text-lg ml-3">🔍</Text>
           <TextInput
             placeholder="Search restaurants, cuisines..."
-            className="flex-1 p-3 font-JakartaMedium"
+            className="flex-1 p-3 font-JakartaMedium text-black dark:text-white"
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
@@ -131,7 +131,7 @@ const MarketplaceHome = () => {
 
         {/* Categories */}
         <View className="mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Categories</Text>
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Categories</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View className="flex-row space-x-3">
               {DUMMY_CATEGORIES.map((category) => (
@@ -140,16 +140,16 @@ const MarketplaceHome = () => {
                   onPress={() => setSelectedCategory(category.id)}
                   className={`items-center p-3 rounded-lg ${
                     selectedCategory === category.id
-                      ? "bg-primary-500"
-                      : "bg-white"
+                      ? "bg-brand-secondary"
+                      : "bg-white dark:bg-brand-primary"
                   }`}
                 >
                   <Text className="text-2xl mb-2">{category.icon}</Text>
                   <Text
                     className={`font-JakartaBold ${
                       selectedCategory === category.id
-                        ? "text-white"
-                        : "text-secondary-700"
+                        ? "text-black"
+                        : "text-secondary-700 dark:text-gray-200"
                     }`}
                   >
                     {category.name}
@@ -162,19 +162,19 @@ const MarketplaceHome = () => {
 
         {/* Stores List */}
         <View className="mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">
             {selectedCategory === "all"
               ? "All Restaurants"
               : `${selectedCategory} Restaurants`}
           </Text>
 
           {filteredStores.length === 0 ? (
-            <View className="bg-white rounded-lg p-8 items-center">
+            <View className="bg-white dark:bg-brand-primary rounded-lg p-8 items-center">
               <Text className="text-4xl mb-3">🔍</Text>
-              <Text className="text-xl font-JakartaBold mb-2">
+              <Text className="text-xl font-JakartaBold mb-2 text-black dark:text-white">
                 No results found
               </Text>
-              <Text className="text-secondary-600 text-center">
+              <Text className="text-secondary-600 dark:text-gray-300 text-center">
                 Try adjusting your search or category filter
               </Text>
             </View>
@@ -183,13 +183,13 @@ const MarketplaceHome = () => {
               <TouchableOpacity
                 key={store.id}
                 onPress={() => handleStorePress(store.id)}
-                className="bg-white rounded-lg p-4 mb-3"
+                className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-3"
               >
                 <View className="flex-row items-center">
                   <Text className="text-4xl mr-4">{store.image}</Text>
                   <View className="flex-1">
                     <View className="flex-row justify-between items-start mb-1">
-                      <Text className="font-JakartaBold text-lg flex-1 mr-2">
+                      <Text className="font-JakartaBold text-lg flex-1 mr-2 text-black dark:text-white">
                         {store.name}
                       </Text>
                       <View
@@ -203,26 +203,26 @@ const MarketplaceHome = () => {
                       </View>
                     </View>
 
-                    <Text className="text-secondary-600 mb-2">
+                    <Text className="text-secondary-600 dark:text-gray-300 mb-2">
                       {store.category}
                     </Text>
 
                     <View className="flex-row items-center justify-between">
                       <View className="flex-row items-center">
                         <Text className="text-warning-500 mr-1">⭐</Text>
-                        <Text className="font-JakartaBold mr-1">
+                        <Text className="font-JakartaBold mr-1 text-black dark:text-white">
                           {store.rating}
                         </Text>
-                        <Text className="text-secondary-600">
+                        <Text className="text-secondary-600 dark:text-gray-300">
                           ({store.reviewCount} reviews)
                         </Text>
                       </View>
 
                       <View className="items-end">
-                        <Text className="text-secondary-600 text-sm">
+                        <Text className="text-secondary-600 dark:text-gray-300 text-sm">
                           {store.deliveryTime}
                         </Text>
-                        <Text className="text-secondary-600 text-sm">
+                        <Text className="text-secondary-600 dark:text-gray-300 text-sm">
                           ${store.deliveryFee} delivery
                         </Text>
                       </View>

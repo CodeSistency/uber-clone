@@ -19,6 +19,8 @@ const Layout = () => {
           headerShown: false,
         }}
       />
+      <Stack.Screen name="services-hub" options={{ headerShown: false }} />
+      <Stack.Screen name="componentes" options={{ headerShown: false }} />
     </Stack>
   );
 };

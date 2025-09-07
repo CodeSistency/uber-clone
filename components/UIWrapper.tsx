@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useUIStore } from "@/store";
+import { useColorScheme } from "react-native";
 
 interface UIWrapperProps {
   children: React.ReactNode;
@@ -709,11 +710,20 @@ export const UIWrapper: React.FC<UIWrapperProps> = ({
     hideSnackbar,
     hideLoadingState,
     hideProgress,
+    theme,
+    loadTheme,
   } = useUIStore();
+
+  // Load saved theme once
+  useEffect(() => {
+    loadTheme();
+  }, []);
 
   return (
     <>
-      {children}
+      <View className={theme === 'dark' ? 'dark flex-1 bg-brand-primaryDark' : 'flex-1 bg-brand-primary'}>
+        {children}
+      </View>
 
       {/* Global Loading Overlay */}
       {showGlobalLoading && <GlobalLoadingOverlay />}
@@ -1066,6 +1076,9 @@ export const useUI = () => {
     loadingStates: uiStore.loadingStates,
     progressIndicators: uiStore.progressIndicators,
     globalLoading: uiStore.globalLoading,
+    theme: uiStore.theme,
+    setTheme: uiStore.setTheme,
+    toggleTheme: uiStore.toggleTheme,
   };
 };
 

@@ -166,9 +166,9 @@ const DriverDashboard = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-general-500">
+    <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header with Hamburger Menu and Online Toggle */}
-      <View className="flex-row items-center justify-between p-5 bg-white">
+      <View className="flex-row items-center justify-between p-5 bg-white dark:bg-brand-primary">
         <View className="flex-row items-center">
           <TouchableOpacity
             onPress={() => setDrawerVisible(true)}
@@ -182,7 +182,7 @@ const DriverDashboard = () => {
               </View>
             </View>
           </TouchableOpacity>
-          <Text className="text-xl font-JakartaBold">Driver Dashboard</Text>
+          <Text className="text-xl font-JakartaBold text-black dark:text-white">Driver Dashboard</Text>
         </View>
         <TouchableOpacity
           onPress={handleToggleOnline}
@@ -207,33 +207,33 @@ const DriverDashboard = () => {
 
       <ScrollView className="flex-1 px-5">
         {/* Quick Stats */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Today's Summary</Text>
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Today's Summary</Text>
           <View className="flex-row justify-between mb-2">
             <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-primary-500">
+              <Text className="text-2xl font-JakartaExtraBold text-brand-secondary">
                 ${DUMMY_STATS.todayEarnings}
               </Text>
-              <Text className="text-sm text-secondary-600">Earnings</Text>
+              <Text className="text-sm text-secondary-600 dark:text-gray-300">Earnings</Text>
             </View>
             <View className="items-center">
               <Text className="text-2xl font-JakartaExtraBold text-success-500">
                 {DUMMY_STATS.todayTrips}
               </Text>
-              <Text className="text-sm text-secondary-600">Trips</Text>
+              <Text className="text-sm text-secondary-600 dark:text-gray-300">Trips</Text>
             </View>
             <View className="items-center">
               <Text className="text-2xl font-JakartaExtraBold text-warning-500">
                 {DUMMY_STATS.rating}
               </Text>
-              <Text className="text-sm text-secondary-600">Rating</Text>
+              <Text className="text-sm text-secondary-600 dark:text-gray-300">Rating</Text>
             </View>
           </View>
         </View>
 
         {/* Active Ride Card */}
         {hasActiveRide && (
-          <View className="bg-white rounded-lg p-4 mb-4">
+          <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
             <Text className="text-lg font-JakartaBold mb-3 text-primary-500">
               🚗 Active Ride
             </Text>
@@ -274,8 +274,8 @@ const DriverDashboard = () => {
         )}
 
         {/* Enhanced Quick Actions */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">🚀 Enhanced Features</Text>
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">🚀 Enhanced Features</Text>
           <View className="space-y-3">
             <TouchableOpacity
               onPress={handleTestRideNotification}
@@ -324,8 +324,8 @@ const DriverDashboard = () => {
         </View>
 
         {/* Traditional Actions */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Classic Actions</Text>
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Classic Actions</Text>
           <View className="space-y-3">
             <TouchableOpacity
               onPress={() => router.push("/(driver)/ride-requests" as any)}
@@ -354,11 +354,11 @@ const DriverDashboard = () => {
         </View>
 
         {/* Service Toggle */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Service Type</Text>
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Service Type</Text>
           <View className="flex-row justify-between">
-            <TouchableOpacity className="flex-1 mr-2 p-3 bg-primary-500 rounded-lg items-center">
-              <Text className="text-white font-JakartaBold">Rides Only</Text>
+            <TouchableOpacity className="flex-1 mr-2 p-3 bg-brand-secondary rounded-lg items-center">
+              <Text className="text-black font-JakartaBold">Rides Only</Text>
             </TouchableOpacity>
             <TouchableOpacity className="flex-1 ml-2 p-3 bg-general-500 rounded-lg items-center">
               <Text className="text-secondary-700 font-JakartaBold">
@@ -377,14 +377,14 @@ const DriverDashboard = () => {
             onRequestClose={() => setShowEarningsTracker(false)}
           >
             <View className="flex-1 bg-black/50 justify-end">
-              <View className="bg-white rounded-t-3xl max-h-96">
-                <View className="flex-row justify-between items-center p-4 border-b border-gray-200">
-                  <Text className="text-lg font-JakartaBold">💰 Earnings Tracker</Text>
+              <View className="bg-white dark:bg-brand-primary rounded-t-3xl max-h-96">
+                <View className="flex-row justify-between items-center p-4 border-b border-gray-200 dark:border-brand-primaryDark">
+                  <Text className="text-lg font-JakartaBold text-black dark:text-white">💰 Earnings Tracker</Text>
                   <TouchableOpacity
                     onPress={() => setShowEarningsTracker(false)}
                     className="w-8 h-8 items-center justify-center"
                   >
-                    <Text className="text-xl">✕</Text>
+                    <Text className="text-xl text-black dark:text-white">✕</Text>
                   </TouchableOpacity>
                 </View>
                 <EarningsTracker

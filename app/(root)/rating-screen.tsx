@@ -122,7 +122,7 @@ const RatingScreen = () => {
         {/* Action Buttons */}
         <View className="space-y-3">
           <TouchableOpacity
-            onPress={() => handleSubmitRating(5, '', selectedTip || 0)}
+            onPress={() => handleSubmitRating(5, '')}
             className="bg-primary py-4 rounded-lg"
           >
             <Text className="text-white text-center font-JakartaBold">Submit Rating</Text>

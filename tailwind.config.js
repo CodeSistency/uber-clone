@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
+  darkMode: 'class',
   content: ["./app/**/*.{js,jsx,ts,tsx}", "./components/**/*.{js,jsx,ts,tsx}"],
   theme: {
     extend: {
@@ -13,6 +14,14 @@ module.exports = {
         JakartaSemiBold: ["Jakarta-SemiBold", "sans-serif"],
       },
       colors: {
+        // Brand palette from design for light/dark modes
+        brand: {
+          primary: "#FFFFFF",
+          primaryDark: "#363531",
+          secondary: "#FFE014",
+          tertiary: "#000000",
+          accent: "#737268",
+        },
         primary: {
           100: "#F5F8FF",
           200: "#EBF4FF",

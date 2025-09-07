@@ -42,6 +42,9 @@ export const STORAGE_KEYS = {
   ONBOARDING_COMPLETED: "onboarding_completed",
   ONBOARDING_DATA: "onboarding_data",
   ONBOARDING_STEP: "onboarding_step",
+
+  // Theme keys
+  APP_THEME: "app_theme",
 } as const;
 
 // Generic storage functions
@@ -492,7 +495,19 @@ export const onboardingStorage = {
   getStep: async (): Promise<number> => {
     try {
       const step = await storage.getItem(STORAGE_KEYS.ONBOARDING_STEP);
-      return step ? parseInt(step, 10) : 0;
+      // Some legacy values may be string ids, normalize here
+      const map: Record<string, number> = {
+        'location': 0,
+        'travel-preferences': 1,
+        'phone-verification': 2,
+        'profile-completion': 3,
+      };
+      if (!step) return 0;
+      if (/^\d+$/.test(step)) {
+        const n = parseInt(step, 10);
+        return Number.isFinite(n) ? Math.max(0, Math.min(3, n)) : 0;
+      }
+      return map[step] ?? 0;
     } catch (error) {
       console.error("[OnboardingStorage] Error getting step:", error);
       return 0;
@@ -513,6 +528,30 @@ export const onboardingStorage = {
   },
 };
 
+// Theme storage utilities
+export const themeStorage = {
+  // Save theme ('light' | 'dark' | 'system')
+  saveTheme: async (theme: 'light' | 'dark' | 'system'): Promise<void> => {
+    try {
+      await storage.setItem(STORAGE_KEYS.APP_THEME, theme);
+    } catch (error) {
+      console.error("[ThemeStorage] Error saving theme:", error);
+      throw error;
+    }
+  },
+
+  // Get theme
+  getTheme: async (): Promise<'light' | 'dark' | 'system' | null> => {
+    try {
+      const t = await storage.getItem(STORAGE_KEYS.APP_THEME);
+      return (t as any) || null;
+    } catch (error) {
+      console.error("[ThemeStorage] Error getting theme:", error);
+      return null;
+    }
+  },
+};
+
 export default {
   storage,
   userModeStorage,
@@ -521,5 +560,6 @@ export default {
   emergencyStorage,
   realtimeStorage,
   onboardingStorage,
+  themeStorage,
   STORAGE_KEYS,
 };

@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
-import { Image, ImageSourcePropType, View } from "react-native";
+import { Image, ImageSourcePropType, View, Text, TouchableOpacity } from "react-native";
+import { useUI } from "@/components/UIWrapper";
 
 import { icons } from "../../../constants";
 
@@ -11,14 +12,14 @@ const TabIcon = ({
   focused: boolean;
 }) => (
   <View
-    className={`flex flex-row justify-center items-center rounded-full ${focused ? "bg-general-300" : ""}`}
+    className={`flex flex-row justify-center items-center rounded-full ${focused ? "bg-brand-secondary/40" : ""}`}
   >
     <View
-      className={`rounded-full w-12 h-12 items-center justify-center ${focused ? "bg-general-400" : ""}`}
+      className={`rounded-full w-12 h-12 items-center justify-center ${focused ? "bg-brand-secondary" : ""}`}
     >
       <Image
         source={source}
-        tintColor="white"
+        tintColor="black"
         resizeMode="contain"
         className="w-7 h-7"
       />
@@ -29,6 +30,8 @@ const TabIcon = ({
 export default function Layout() {
   // Load current mode from AsyncStorage
 
+  const { theme, toggleTheme } = useUI();
+
   return (
     <>
       {/* Global Header */}
@@ -36,11 +39,11 @@ export default function Layout() {
       <Tabs
         initialRouteName="home"
         screenOptions={{
-          tabBarActiveTintColor: "white",
-          tabBarInactiveTintColor: "white",
+          tabBarActiveTintColor: "black",
+          tabBarInactiveTintColor: "black",
           tabBarShowLabel: false,
           tabBarStyle: {
-            backgroundColor: "#333333",
+            backgroundColor: "#FFE014",
             borderRadius: 50,
             paddingBottom: 0, // ios only
             overflow: "hidden",
@@ -96,6 +99,17 @@ export default function Layout() {
           }}
         />
       </Tabs>
+
+      {/* Floating theme chip */}
+      <View className="absolute right-6 bottom-28">
+        <TouchableOpacity
+          onPress={toggleTheme}
+          className="px-3 py-2 rounded-full bg-brand-secondary shadow-lg"
+          activeOpacity={0.8}
+        >
+          <Text className="font-JakartaBold text-black">{theme === 'dark' ? 'Dark' : 'Light'}</Text>
+        </TouchableOpacity>
+      </View>
     </>
   );
 }

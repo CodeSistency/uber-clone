@@ -186,7 +186,7 @@ const BusinessDashboard = () => {
   const bottomSheetContent = (
     <View className="pb-8">
       {/* Header with Store Info */}
-      <View className="bg-white rounded-t-2xl">
+      <View className="bg-white dark:bg-brand-primary rounded-t-2xl">
         <View className="flex-row items-center justify-between p-5">
           <View className="flex-row items-center flex-1">
             <TouchableOpacity
@@ -202,10 +202,10 @@ const BusinessDashboard = () => {
               </View>
             </TouchableOpacity>
             <View className="flex-1">
-              <Text className="text-xl font-JakartaBold">
+              <Text className="text-xl font-JakartaBold text-black dark:text-white">
                 {DUMMY_BUSINESS.name}
               </Text>
-              <Text className="text-secondary-600 mt-1">
+              <Text className="text-secondary-600 dark:text-gray-300 mt-1">
                 ⭐ {DUMMY_BUSINESS.rating} ({DUMMY_BUSINESS.totalReviews} reviews)
               </Text>
             </View>
@@ -222,16 +222,16 @@ const BusinessDashboard = () => {
 
         {/* Store Status */}
         <View className="px-5 pb-4">
-          <View className="bg-general-500 rounded-lg p-3">
-            <Text className="text-sm text-secondary-600 mb-1">Operating Hours</Text>
-            <Text className="font-JakartaBold">{DUMMY_BUSINESS.operatingHours}</Text>
+          <View className="bg-general-500 dark:bg-brand-primary rounded-lg p-3">
+            <Text className="text-sm text-secondary-600 dark:text-gray-300 mb-1">Operating Hours</Text>
+            <Text className="font-JakartaBold text-black dark:text-white">{DUMMY_BUSINESS.operatingHours}</Text>
           </View>
         </View>
       </View>
 
       {/* Today's Stats */}
-      <View className="bg-white px-5 py-4">
-        <Text className="text-lg font-JakartaBold mb-4">
+      <View className="bg-white dark:bg-brand-primary px-5 py-4">
+        <Text className="text-lg font-JakartaBold mb-4 text-black dark:text-white">
           Today's Performance
         </Text>
 
@@ -283,9 +283,9 @@ const BusinessDashboard = () => {
       </View>
 
       {/* Active Orders */}
-      <View className="bg-white px-5 py-4">
+      <View className="bg-white dark:bg-brand-primary px-5 py-4">
         <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-lg font-JakartaBold">Active Orders</Text>
+          <Text className="text-lg font-JakartaBold text-black dark:text-white">Active Orders</Text>
                       <TouchableOpacity
               onPress={() => router.push("/orders" as any)}
             >
@@ -299,7 +299,7 @@ const BusinessDashboard = () => {
           {DUMMY_ACTIVE_ORDERS.map((order) => (
             <View
               key={order.id}
-              className="border border-general-500 rounded-lg p-3"
+              className="border border-general-500 dark:border-brand-primaryDark rounded-lg p-3"
             >
               <View className="flex-row justify-between items-center mb-2">
                 <View className="flex-row items-center">
@@ -307,10 +307,10 @@ const BusinessDashboard = () => {
                     {getStatusIcon(order.status)}
                   </Text>
                   <View>
-                    <Text className="font-JakartaBold">
+                    <Text className="font-JakartaBold text-black dark:text-white">
                       {order.customerName}
                     </Text>
-                    <Text className="text-sm text-secondary-600">
+                    <Text className="text-sm text-secondary-600 dark:text-gray-300">
                       {order.time}
                     </Text>
                   </View>
@@ -322,7 +322,7 @@ const BusinessDashboard = () => {
 
               <View className="flex-row justify-between items-center">
                 <Text
-                  className="text-sm text-secondary-600 flex-1"
+                  className="text-sm text-secondary-600 dark:text-gray-300 flex-1"
                   numberOfLines={1}
                 >
                   {order.items.join(", ")}
@@ -349,8 +349,8 @@ const BusinessDashboard = () => {
       </View>
 
       {/* Quick Actions */}
-      <View className="bg-white px-5 py-4">
-        <Text className="text-lg font-JakartaBold mb-4">Quick Actions</Text>
+      <View className="bg-brand-primary dark:bg-brand-primaryDark px-5 py-4">
+        <Text className="text-lg font-JakartaBold mb-4 text-black dark:text-white">Quick Actions</Text>
         <View className="grid grid-cols-2 gap-3">
           <TouchableOpacity
             onPress={() => router.push("/menu" as any)}

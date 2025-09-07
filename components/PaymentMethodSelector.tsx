@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
 import { icons } from '@/constants';
+import { useUI } from '@/components/UIWrapper';
 
 interface PaymentMethod {
   id: string;
@@ -68,6 +69,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   onSelectMethod,
   className = '',
 }) => {
+  const { theme } = useUI();
   const renderPaymentMethod = ({ item }: { item: PaymentMethod }) => {
     const isSelected = selectedMethodId === item.id;
     const isAddNew = item.id === 'add_new';
@@ -78,7 +80,7 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         className={`mr-4 p-4 rounded-xl border-2 min-w-[140px] ${
           isSelected
             ? 'border-primary bg-primary-50'
-            : 'border-gray-200 bg-white'
+            : `border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`
         } shadow-sm`}
       >
         <View className="items-center mb-3">
@@ -89,14 +91,14 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 
         <Text
           className={`font-JakartaSemiBold text-sm mb-1 text-center ${
-            isSelected ? 'text-primary' : 'text-gray-800'
+            isSelected ? 'text-primary' : `text-gray-800 dark:text-gray-200`
           }`}
         >
           {item.title}
         </Text>
 
         <Text className={`text-xs text-center mb-2 ${
-          isSelected ? 'text-primary-600' : 'text-gray-600'
+          isSelected ? 'text-primary-600' : `text-gray-600 dark:text-gray-400`
         }`}>
           {item.details}
         </Text>

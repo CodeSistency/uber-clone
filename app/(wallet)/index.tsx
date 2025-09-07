@@ -82,22 +82,22 @@ const Wallet = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-general-500">
+    <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header */}
-      <View className="bg-white p-5">
-        <Text className="text-xl font-JakartaBold">Wallet</Text>
-        <Text className="text-secondary-600 mt-1">
+      <View className="bg-white dark:bg-brand-primary p-5">
+        <Text className="text-xl font-JakartaBold text-black dark:text-white">Wallet</Text>
+        <Text className="text-secondary-600 dark:text-gray-300 mt-1">
           Manage your funds and payment history
         </Text>
       </View>
 
       <ScrollView className="flex-1 px-5">
         {/* Balance Card */}
-        <View className="bg-primary-500 rounded-lg p-6 mb-6">
-          <Text className="text-white text-secondary-600 mb-2">
+        <View className="bg-brand-secondary rounded-lg p-6 mb-6">
+          <Text className="text-black mb-2">
             Current Balance
           </Text>
-          <Text className="text-white text-4xl font-JakartaExtraBold mb-4">
+          <Text className="text-black text-4xl font-JakartaExtraBold mb-4">
             ${wallet.balance.toFixed(2)}
           </Text>
 
@@ -106,23 +106,23 @@ const Wallet = () => {
               onPress={handleAddFunds}
               className="flex-1 bg-white rounded-full py-3 items-center"
             >
-              <Text className="text-primary-500 font-JakartaBold">
+              <Text className="text-brand-secondary font-JakartaBold">
                 Add Funds
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleWithdraw}
-              className="flex-1 bg-white/20 rounded-full py-3 items-center border border-white/30"
+              className="flex-1 bg-black/10 dark:bg-white/10 rounded-full py-3 items-center border border-black/10 dark:border-white/30"
             >
-              <Text className="text-white font-JakartaBold">Withdraw</Text>
+              <Text className="text-black dark:text-white font-JakartaBold">Withdraw</Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Quick Actions */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Quick Actions</Text>
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Quick Actions</Text>
           <View className="flex-row space-x-3">
             <TouchableOpacity className="flex-1 bg-general-500 rounded-lg p-4 items-center">
               <Text className="text-2xl mb-2">💳</Text>
@@ -140,15 +140,15 @@ const Wallet = () => {
         </View>
 
         {/* Transaction History */}
-        <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-8">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">
             Recent Transactions
           </Text>
 
           {transactions.length === 0 ? (
             <View className="py-8 items-center">
               <Text className="text-4xl mb-3">💳</Text>
-              <Text className="text-secondary-600 text-center">
+              <Text className="text-secondary-600 dark:text-gray-300 text-center">
                 No transactions yet
               </Text>
             </View>
@@ -156,16 +156,16 @@ const Wallet = () => {
             transactions.map((transaction) => (
               <View
                 key={transaction.id}
-                className="flex-row items-center py-3 border-b border-general-500 last:border-b-0"
+                className="flex-row items-center py-3 border-b border-general-500 dark:border-brand-primaryDark last:border-b-0"
               >
                 <Text className="text-2xl mr-3">
                   {getTransactionIcon(transaction.type)}
                 </Text>
                 <View className="flex-1">
-                  <Text className="font-JakartaBold">
+                  <Text className="font-JakartaBold text-black dark:text-white">
                     {transaction.description}
                   </Text>
-                  <Text className="text-secondary-600 text-sm">
+                  <Text className="text-secondary-600 dark:text-gray-300 text-sm">
                     {transaction.date} • {transaction.time}
                   </Text>
                 </View>
@@ -181,8 +181,8 @@ const Wallet = () => {
         </View>
 
         {/* Wallet Stats */}
-        <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">This Month</Text>
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-8">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">This Month</Text>
 
           <View className="grid grid-cols-2 gap-4">
             <View className="items-center p-4 bg-success-50 rounded-lg">
@@ -200,22 +200,22 @@ const Wallet = () => {
             </View>
           </View>
 
-          <View className="mt-4 p-3 bg-general-500 rounded-lg">
-            <Text className="font-JakartaBold text-center text-primary-500">
+          <View className="mt-4 p-3 bg-general-500 dark:bg-brand-primary rounded-lg">
+            <Text className="font-JakartaBold text-center text-brand-secondary">
               Net: +$142.75 this month
             </Text>
           </View>
         </View>
 
         {/* Security Notice */}
-        <View className="bg-warning-50 border border-warning-200 rounded-lg p-4 mb-8">
+        <View className="bg-warning-50 dark:bg-brand-secondary/20 border border-warning-200 dark:border-brand-secondary/30 rounded-lg p-4 mb-8">
           <View className="flex-row items-center mb-2">
             <Text className="text-2xl mr-2">🔒</Text>
-            <Text className="font-JakartaBold text-warning-700">
+            <Text className="font-JakartaBold text-warning-700 dark:text-yellow-200">
               Secure & Protected
             </Text>
           </View>
-          <Text className="text-warning-700 text-sm">
+          <Text className="text-warning-700 dark:text-yellow-200 text-sm">
             Your wallet is protected by bank-level security. All transactions
             are encrypted and monitored.
           </Text>

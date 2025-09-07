@@ -16,6 +16,7 @@ import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { HamburgerMenu } from "@/app/components/DrawerContent";
 import DrawerContent from "@/app/components/DrawerContent";
+import { useUI } from "@/components/UIWrapper";
 
 import GoogleTextInput from "../../../components/GoogleTextInput";
 import Map from "../../../components/Map";
@@ -31,6 +32,7 @@ import { DUMMY_RESTAURANTS, loadNearbyRestaurants, DELIVERY_CATEGORIES, TRANSPOR
 // Hamburger menu and drawer are now in the layout
 
 const Home = () => {
+  const { theme } = useUI();
   const { user } = useUserStore();
   const { setUserLocation, setDestinationLocation } = useLocationStore();
 
@@ -176,7 +178,7 @@ const Home = () => {
   const tabBarHeight = useBottomTabBarHeight();
 
   return (
-    <View className="flex-1 bg-general-500">
+    <View className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Mapa completo ocupando toda la pantalla */}
       <View className="flex-1 relative">
         <Map
@@ -206,7 +208,7 @@ const Home = () => {
             {/* Traffic Toggle Button */}
             <TouchableOpacity
               onPress={() => setShowTrafficOverlay(!showTrafficOverlay)}
-              className="bg-white rounded-full w-8 h-8 items-center justify-center mt-2 shadow-lg"
+              className="bg-white dark:bg-brand-primary rounded-full w-8 h-8 items-center justify-center mt-2 shadow-lg"
             >
               <Text className="text-xs">🚦</Text>
             </TouchableOpacity>
@@ -238,7 +240,7 @@ const Home = () => {
           <View className="flex-row items-center space-x-2">
             <TouchableOpacity
               onPress={handleSignOut}
-              className="w-10 h-10 rounded-full bg-white shadow-lg items-center justify-center"
+              className="w-10 h-10 rounded-full bg-white dark:bg-brand-primary shadow-lg items-center justify-center"
             >
               <Image source={icons.out} className="w-4 h-4" />
             </TouchableOpacity>

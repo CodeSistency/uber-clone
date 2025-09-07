@@ -95,11 +95,11 @@ const EmergencyContacts = () => {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-general-500">
+    <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header */}
-      <View className="bg-white p-5">
-        <Text className="text-xl font-JakartaBold">Emergency Contacts</Text>
-        <Text className="text-secondary-600 mt-1">
+      <View className="bg-white dark:bg-brand-primary p-5">
+        <Text className="text-xl font-JakartaBold text-black dark:text-white">Emergency Contacts</Text>
+        <Text className="text-secondary-600 dark:text-gray-300 mt-1">
           Keep trusted contacts for safety emergencies
         </Text>
       </View>
@@ -120,9 +120,9 @@ const EmergencyContacts = () => {
         </TouchableOpacity>
 
         {/* Emergency Contacts List */}
-        <View className="bg-white rounded-lg p-4 mb-4">
+        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
           <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-lg font-JakartaBold">
+            <Text className="text-lg font-JakartaBold text-black dark:text-white">
               Your Emergency Contacts
             </Text>
             <TouchableOpacity
@@ -138,7 +138,7 @@ const EmergencyContacts = () => {
           {contacts.length === 0 && !showAddForm ? (
             <View className="py-8 items-center">
               <Text className="text-4xl mb-3">📞</Text>
-              <Text className="text-secondary-600 text-center mb-4">
+              <Text className="text-secondary-600 dark:text-gray-300 text-center mb-4">
                 No emergency contacts yet
               </Text>
               <TouchableOpacity
@@ -154,14 +154,14 @@ const EmergencyContacts = () => {
             contacts.map((contact) => (
               <View
                 key={contact.id}
-                className="flex-row items-center py-3 border-b border-general-500 last:border-b-0"
+                className="flex-row items-center py-3 border-b border-general-500 dark:border-brand-primaryDark last:border-b-0"
               >
                 <View className="flex-1">
-                  <Text className="font-JakartaBold text-lg">
+                  <Text className="font-JakartaBold text-lg text-black dark:text-white">
                     {contact.name}
                   </Text>
-                  <Text className="text-secondary-600">{contact.phone}</Text>
-                  <Text className="text-secondary-600 text-sm">
+                  <Text className="text-secondary-600 dark:text-gray-300">{contact.phone}</Text>
+                  <Text className="text-secondary-600 dark:text-gray-300 text-sm">
                     {contact.relationship}
                   </Text>
                 </View>
@@ -190,7 +190,7 @@ const EmergencyContacts = () => {
 
         {/* Add Contact Form */}
         {showAddForm && (
-          <View className="bg-white rounded-lg p-4 mb-6">
+          <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-6">
             <Text className="text-lg font-JakartaBold mb-3">
               Add Emergency Contact
             </Text>
@@ -204,7 +204,7 @@ const EmergencyContacts = () => {
                     setNewContact({ ...newContact, name: text })
                   }
                   placeholder="Enter full name"
-                  className="border border-general-500 rounded-lg p-3 font-JakartaMedium"
+                  className="border border-general-500 dark:border-brand-primaryDark rounded-lg p-3 font-JakartaMedium text-black dark:text-white"
                 />
               </View>
 
@@ -217,7 +217,7 @@ const EmergencyContacts = () => {
                   }
                   placeholder="+1 (555) 123-4567"
                   keyboardType="phone-pad"
-                  className="border border-general-500 rounded-lg p-3 font-JakartaMedium"
+                  className="border border-general-500 dark:border-brand-primaryDark rounded-lg p-3 font-JakartaMedium text-black dark:text-white"
                 />
               </View>
 
@@ -229,7 +229,7 @@ const EmergencyContacts = () => {
                     setNewContact({ ...newContact, relationship: text })
                   }
                   placeholder="e.g., Family, Friend, Spouse"
-                  className="border border-general-500 rounded-lg p-3 font-JakartaMedium"
+                  className="border border-general-500 dark:border-brand-primaryDark rounded-lg p-3 font-JakartaMedium text-black dark:text-white"
                 />
               </View>
 
@@ -246,8 +246,8 @@ const EmergencyContacts = () => {
         )}
 
         {/* Safety Tips */}
-        <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">Safety Tips</Text>
+        <View className="bg-brand-primary dark:bg-brand-primaryDark rounded-lg p-4 mb-8">
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Safety Tips</Text>
 
           <View className="space-y-3">
             <View className="flex-row items-start">

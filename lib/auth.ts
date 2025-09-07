@@ -1,5 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { fetchAPI } from "@/lib/fetch";
+import { resetOnboardingStatus } from "@/lib/onboarding";
 
 // Types for authentication
 export interface User {
@@ -462,6 +463,14 @@ export const logoutUser = async (): Promise<{ success: boolean; message: string 
     console.log("[Auth] Clearing user data from global store");
     getUserStore().clearUser();
 
+    // Reset onboarding local status to avoid skipping flow on next login
+    try {
+      await resetOnboardingStatus();
+      console.log("[Auth] Onboarding status reset locally (and API if available)");
+    } catch (e) {
+      console.warn("[Auth] Failed to reset onboarding status:", e);
+    }
+
     console.log("[Auth] User logged out successfully");
     return {
       success: true,
@@ -475,6 +484,10 @@ export const logoutUser = async (): Promise<{ success: boolean; message: string 
     // Clear user data from global store even on error
     console.log("[Auth] Clearing user data from global store (error case)");
     getUserStore().clearUser();
+
+    try {
+      await resetOnboardingStatus();
+    } catch {}
 
     return {
       success: true,

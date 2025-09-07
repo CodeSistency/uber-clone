@@ -284,7 +284,7 @@ const GoogleTextInput = ({
     <View
       className={`flex flex-row items-center justify-center relative z-50 rounded-xl ${containerStyle}`}
     >
-      <View className="flex-row items-center bg-white rounded-full px-4 py-2 shadow-md flex-1">
+      <View className="flex-row items-center bg-white dark:bg-brand-primary rounded-full px-4 py-2 shadow-md flex-1">
         {icon && (
           <View className="justify-center items-center w-6 h-6 mr-2">
             <Image
@@ -301,7 +301,7 @@ const GoogleTextInput = ({
           onChangeText={handleTextChange}
           placeholder={initialLocation ?? "Where do you want to go?"}
           placeholderTextColor="gray"
-          className="flex-1 text-base font-JakartaSemiBold"
+          className="flex-1 text-base font-JakartaSemiBold text-black dark:text-white"
           onFocus={() => {
             console.log("[GoogleTextInput] 🎯 Input focused");
             setShowResults(true);
@@ -320,7 +320,7 @@ const GoogleTextInput = ({
 
       {showResults && results.length > 0 && (
         <View
-          className="absolute top-14 left-0 right-0 bg-white rounded-xl shadow-lg z-50 max-h-60 border border-gray-200"
+          className="absolute top-14 left-0 right-0 bg-white dark:bg-brand-primary rounded-xl shadow-lg z-50 max-h-60 border border-gray-200 dark:border-brand-primaryDark"
           style={{ elevation: 10 }}
         >
           <FlatList

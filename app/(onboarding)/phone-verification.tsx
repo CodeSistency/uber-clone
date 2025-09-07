@@ -24,22 +24,33 @@ export default function PhoneVerification() {
   } = useOnboardingStore();
   const [isVerificationSent, setIsVerificationSent] = useState(false);
 
+  // Dial code by country (subset for supported countries)
+  const DIAL_CODES: Record<string, string> = {
+    VE: "+58",
+    CO: "+57",
+    MX: "+52",
+    AR: "+54",
+    PE: "+51",
+    CL: "+56",
+    EC: "+593",
+    BO: "+591",
+  };
+  const dialCode = userData.country && DIAL_CODES[userData.country] ? DIAL_CODES[userData.country] : "";
+
   const handleSendVerification = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log(
-        "[PhoneVerification] Sending verification code to:",
-        userData.phone,
-      );
+      const fullPhone = `${dialCode}${userData.phone || ''}`.trim();
+      console.log("[PhoneVerification] Sending verification code to:", fullPhone);
 
       // API call to send verification code
       const response = await fetchAPI("onboarding/verify-phone", {
         method: "POST",
         requiresAuth: true,
         body: JSON.stringify({
-          phone: userData.phone,
+          phone: fullPhone,
         }),
       });
 
@@ -128,7 +139,7 @@ export default function PhoneVerification() {
         {/* Phone Display */}
         <View className="bg-gray-50 p-6 rounded-lg mb-8">
           <Text className="text-lg font-Jakarta-Bold text-center text-gray-800 mb-2">
-            📱 {userData.phone}
+            📱 {dialCode} {userData.phone}
           </Text>
           <Text className="text-base text-center text-gray-600">
             We'll send a code to verify your number

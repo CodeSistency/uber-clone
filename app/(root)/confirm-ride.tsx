@@ -208,7 +208,7 @@ const ConfirmRide = () => {
         sheetApiRef.current = api;
       }}
     >
-      <Text className="text-sm text-gray-600 mb-3">Available drivers ({drivers?.length || 0}) • Auto-select in {secondsLeft}s ⏱️</Text>
+      <Text className="text-sm text-gray-600 dark:text-gray-300 mb-3">Available drivers ({drivers?.length || 0}) • Auto-select in {secondsLeft}s ⏱️</Text>
 
       <ServiceLevelSelector
         selectedServiceLevel={selectedTierId}
@@ -225,7 +225,7 @@ const ConfirmRide = () => {
       {/* CTA inline provisto por el selector */}
 
       <View className="mt-4 flex-1">
-        <Text className="text-lg font-JakartaSemiBold mb-3">Available Drivers</Text>
+        <Text className="text-lg font-JakartaSemiBold mb-3 text-black dark:text-white">Available Drivers</Text>
         <FlatList
           ref={listRef}
           data={drivers}
@@ -268,21 +268,21 @@ const ConfirmRide = () => {
       </View>
 
       {selectedDriverData && selectedTier && (
-        <View className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <Text className="font-JakartaSemiBold mb-2">Ride Summary</Text>
+        <View className="mt-4 p-4 bg-gray-50 dark:bg-brand-primary rounded-lg">
+          <Text className="font-JakartaSemiBold mb-2 text-black dark:text-white">Ride Summary</Text>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-sm">Base fare ({selectedTier.name})</Text>
-            <Text className="text-sm font-JakartaMedium">${selectedTier.baseFare.toFixed(2)}</Text>
+            <Text className="text-sm text-black dark:text-white">Base fare ({selectedTier.name})</Text>
+            <Text className="text-sm font-JakartaMedium text-black dark:text-white">${selectedTier.baseFare.toFixed(2)}</Text>
           </View>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-sm">Time ({selectedDriverData.time?.toFixed(1)} min)</Text>
-            <Text className="text-sm font-JakartaMedium">
+            <Text className="text-sm text-black dark:text-white">Time ({selectedDriverData.time?.toFixed(1)} min)</Text>
+            <Text className="text-sm font-JakartaMedium text-black dark:text-white">
               ${(selectedDriverData.time || 0 * selectedTier.perMinuteRate).toFixed(2)}
             </Text>
           </View>
-          <View className="flex-row justify-between border-t border-gray-300 pt-2 mt-2">
-            <Text className="font-JakartaBold">Total</Text>
-            <Text className="font-JakartaBold">${calculateFare().toFixed(2)}</Text>
+          <View className="flex-row justify-between border-t border-gray-300 dark:border-brand-primaryDark pt-2 mt-2">
+            <Text className="font-JakartaBold text-black dark:text-white">Total</Text>
+            <Text className="font-JakartaBold text-black dark:text-white">${calculateFare().toFixed(2)}</Text>
           </View>
         </View>
       )}
