@@ -7,65 +7,167 @@ export type ServiceType = 'transport' | 'delivery' | 'mandado' | 'envio';
 
 export type FlowRole = 'customer' | 'driver';
 
-export type FlowStep =
-  // Selection steps
-  | 'SELECCION_SERVICIO'
+// Tipos más específicos para mejor type safety
+export type SelectionStep = 'SELECCION_SERVICIO';
 
-  // Customer Transport steps
+export type CustomerTransportStep =
   | 'CUSTOMER_TRANSPORT_DEFINICION_VIAJE'
   | 'CUSTOMER_TRANSPORT_SELECCION_VEHICULO'
   | 'CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR'
   | 'CUSTOMER_TRANSPORT_GESTION_CONFIRMACION'
-  | 'CUSTOMER_TRANSPORT_DURANTE_FINALIZACION'
+  | 'CUSTOMER_TRANSPORT_DURANTE_FINALIZACION';
 
-  // Driver Transport steps
+export type DriverTransportStep =
   | 'DRIVER_TRANSPORT_RECIBIR_SOLICITUD'
   | 'DRIVER_TRANSPORT_ACEPTAR_RECHAZAR'
   | 'DRIVER_TRANSPORT_EN_CAMINO_ORIGEN'
   | 'DRIVER_TRANSPORT_EN_ORIGEN'
   | 'DRIVER_TRANSPORT_INICIAR_VIAJE'
   | 'DRIVER_TRANSPORT_EN_VIAJE'
-  | 'DRIVER_TRANSPORT_COMPLETAR_VIAJE'
+  | 'DRIVER_TRANSPORT_COMPLETAR_VIAJE';
 
-  // Customer Delivery steps
+export type CustomerDeliveryStep =
   | 'CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO'
   | 'CUSTOMER_DELIVERY_ARMADO_PEDIDO'
   | 'CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION'
-  | 'CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY'
+  | 'CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY';
 
-  // Driver Delivery steps
+export type DriverDeliveryStep =
   | 'DRIVER_DELIVERY_RECIBIR_SOLICITUD'
   | 'DRIVER_DELIVERY_PREPARAR_PEDIDO'
   | 'DRIVER_DELIVERY_RECOGER_PEDIDO'
   | 'DRIVER_DELIVERY_EN_CAMINO_ENTREGA'
-  | 'DRIVER_DELIVERY_ENTREGAR_PEDIDO'
+  | 'DRIVER_DELIVERY_ENTREGAR_PEDIDO';
 
-  // Customer Mandado steps
+export type CustomerMandadoStep =
   | 'CUSTOMER_MANDADO_DETALLES_MANDADO'
   | 'CUSTOMER_MANDADO_PRECIO_PAGO'
   | 'CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR'
   | 'CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION'
-  | 'CUSTOMER_MANDADO_FINALIZACION'
+  | 'CUSTOMER_MANDADO_FINALIZACION';
 
-  // Driver Mandado steps
+export type DriverMandadoStep =
   | 'DRIVER_MANDADO_RECIBIR_SOLICITUD'
   | 'DRIVER_MANDADO_EN_CAMINO_ORIGEN'
   | 'DRIVER_MANDADO_RECOGER_PRODUCTOS'
   | 'DRIVER_MANDADO_EN_CAMINO_DESTINO'
-  | 'DRIVER_MANDADO_ENTREGAR_MANDADO'
+  | 'DRIVER_MANDADO_ENTREGAR_MANDADO';
 
-  // Customer Envío steps
+export type CustomerEnvioStep =
   | 'CUSTOMER_ENVIO_DETALLES_ENVIO'
   | 'CUSTOMER_ENVIO_CALCULAR_PRECIO'
   | 'CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE'
-  | 'CUSTOMER_ENVIO_CONFIRMACION_ENTREGA'
+  | 'CUSTOMER_ENVIO_CONFIRMACION_ENTREGA';
 
-  // Driver Envío steps
+export type DriverEnvioStep =
   | 'DRIVER_ENVIO_RECIBIR_SOLICITUD'
   | 'DRIVER_ENVIO_EN_CAMINO_ORIGEN'
   | 'DRIVER_ENVIO_RECOGER_PAQUETE'
   | 'DRIVER_ENVIO_EN_CAMINO_DESTINO'
   | 'DRIVER_ENVIO_ENTREGAR_PAQUETE';
+
+// Tipos combinados por rol
+export type CustomerFlowStep =
+  | SelectionStep
+  | CustomerTransportStep
+  | CustomerDeliveryStep
+  | CustomerMandadoStep
+  | CustomerEnvioStep;
+
+export type DriverFlowStep =
+  | DriverTransportStep
+  | DriverDeliveryStep
+  | DriverMandadoStep
+  | DriverEnvioStep;
+
+export type FlowStep =
+  | SelectionStep
+  | CustomerTransportStep
+  | DriverTransportStep
+  | CustomerDeliveryStep
+  | DriverDeliveryStep
+  | CustomerMandadoStep
+  | DriverMandadoStep
+  | CustomerEnvioStep
+  | DriverEnvioStep;
+
+// Constantes para facilitar el uso type-safe
+export const FLOW_STEPS = {
+  // Selection
+  SELECCION_SERVICIO: 'SELECCION_SERVICIO' as SelectionStep,
+
+  // Customer Transport
+  CUSTOMER_TRANSPORT: {
+    DEFINICION_VIAJE: 'CUSTOMER_TRANSPORT_DEFINICION_VIAJE' as CustomerTransportStep,
+    SELECCION_VEHICULO: 'CUSTOMER_TRANSPORT_SELECCION_VEHICULO' as CustomerTransportStep,
+    ELECCION_CONDUCTOR: 'CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR' as CustomerTransportStep,
+    GESTION_CONFIRMACION: 'CUSTOMER_TRANSPORT_GESTION_CONFIRMACION' as CustomerTransportStep,
+    DURANTE_FINALIZACION: 'CUSTOMER_TRANSPORT_DURANTE_FINALIZACION' as CustomerTransportStep,
+  } as const,
+
+  // Driver Transport
+  DRIVER_TRANSPORT: {
+    RECIBIR_SOLICITUD: 'DRIVER_TRANSPORT_RECIBIR_SOLICITUD' as DriverTransportStep,
+    ACEPTAR_RECHAZAR: 'DRIVER_TRANSPORT_ACEPTAR_RECHAZAR' as DriverTransportStep,
+    EN_CAMINO_ORIGEN: 'DRIVER_TRANSPORT_EN_CAMINO_ORIGEN' as DriverTransportStep,
+    EN_ORIGEN: 'DRIVER_TRANSPORT_EN_ORIGEN' as DriverTransportStep,
+    INICIAR_VIAJE: 'DRIVER_TRANSPORT_INICIAR_VIAJE' as DriverTransportStep,
+    EN_VIAJE: 'DRIVER_TRANSPORT_EN_VIAJE' as DriverTransportStep,
+    COMPLETAR_VIAJE: 'DRIVER_TRANSPORT_COMPLETAR_VIAJE' as DriverTransportStep,
+  } as const,
+
+  // Customer Delivery
+  CUSTOMER_DELIVERY: {
+    BUSQUEDA_NEGOCIO: 'CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO' as CustomerDeliveryStep,
+    ARMADO_PEDIDO: 'CUSTOMER_DELIVERY_ARMADO_PEDIDO' as CustomerDeliveryStep,
+    CHECKOUT_CONFIRMACION: 'CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION' as CustomerDeliveryStep,
+    SEGUIMIENTO_DELIVERY: 'CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY' as CustomerDeliveryStep,
+  } as const,
+
+  // Driver Delivery
+  DRIVER_DELIVERY: {
+    RECIBIR_SOLICITUD: 'DRIVER_DELIVERY_RECIBIR_SOLICITUD' as DriverDeliveryStep,
+    PREPARAR_PEDIDO: 'DRIVER_DELIVERY_PREPARAR_PEDIDO' as DriverDeliveryStep,
+    RECOGER_PEDIDO: 'DRIVER_DELIVERY_RECOGER_PEDIDO' as DriverDeliveryStep,
+    EN_CAMINO_ENTREGA: 'DRIVER_DELIVERY_EN_CAMINO_ENTREGA' as DriverDeliveryStep,
+    ENTREGAR_PEDIDO: 'DRIVER_DELIVERY_ENTREGAR_PEDIDO' as DriverDeliveryStep,
+  } as const,
+
+  // Customer Mandado
+  CUSTOMER_MANDADO: {
+    DETALLES_MANDADO: 'CUSTOMER_MANDADO_DETALLES_MANDADO' as CustomerMandadoStep,
+    PRECIO_PAGO: 'CUSTOMER_MANDADO_PRECIO_PAGO' as CustomerMandadoStep,
+    BUSCANDO_CONDUCTOR: 'CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR' as CustomerMandadoStep,
+    COMUNICACION_CONFIRMACION: 'CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION' as CustomerMandadoStep,
+    FINALIZACION: 'CUSTOMER_MANDADO_FINALIZACION' as CustomerMandadoStep,
+  } as const,
+
+  // Driver Mandado
+  DRIVER_MANDADO: {
+    RECIBIR_SOLICITUD: 'DRIVER_MANDADO_RECIBIR_SOLICITUD' as DriverMandadoStep,
+    EN_CAMINO_ORIGEN: 'DRIVER_MANDADO_EN_CAMINO_ORIGEN' as DriverMandadoStep,
+    RECOGER_PRODUCTOS: 'DRIVER_MANDADO_RECOGER_PRODUCTOS' as DriverMandadoStep,
+    EN_CAMINO_DESTINO: 'DRIVER_MANDADO_EN_CAMINO_DESTINO' as DriverMandadoStep,
+    ENTREGAR_MANDADO: 'DRIVER_MANDADO_ENTREGAR_MANDADO' as DriverMandadoStep,
+  } as const,
+
+  // Customer Envío
+  CUSTOMER_ENVIO: {
+    DETALLES_ENVIO: 'CUSTOMER_ENVIO_DETALLES_ENVIO' as CustomerEnvioStep,
+    CALCULAR_PRECIO: 'CUSTOMER_ENVIO_CALCULAR_PRECIO' as CustomerEnvioStep,
+    SEGUIMIENTO_PAQUETE: 'CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE' as CustomerEnvioStep,
+    CONFIRMACION_ENTREGA: 'CUSTOMER_ENVIO_CONFIRMACION_ENTREGA' as CustomerEnvioStep,
+  } as const,
+
+  // Driver Envío
+  DRIVER_ENVIO: {
+    RECIBIR_SOLICITUD: 'DRIVER_ENVIO_RECIBIR_SOLICITUD' as DriverEnvioStep,
+    EN_CAMINO_ORIGEN: 'DRIVER_ENVIO_EN_CAMINO_ORIGEN' as DriverEnvioStep,
+    RECOGER_PAQUETE: 'DRIVER_ENVIO_RECOGER_PAQUETE' as DriverEnvioStep,
+    EN_CAMINO_DESTINO: 'DRIVER_ENVIO_EN_CAMINO_DESTINO' as DriverEnvioStep,
+    ENTREGAR_PAQUETE: 'DRIVER_ENVIO_ENTREGAR_PAQUETE' as DriverEnvioStep,
+  } as const,
+} as const;
 
 export type MapFlowStep =
   | 'idle'
@@ -124,11 +226,24 @@ export interface MapFlowState {
   stop: () => void;
   reset: () => void;
   goTo: (step: MapFlowStep) => void;
+  goToStep: (stepName: string) => void;
   next: () => void;
   back: () => void;
   updateStepBottomSheet: (step: MapFlowStep, cfg: Partial<StepConfig['bottomSheet']>) => void;
   setMapInteraction: (step: MapFlowStep, interaction: NonNullable<StepConfig['mapInteraction']>) => void;
   updateStepTransition: (step: MapFlowStep, cfg: Partial<NonNullable<StepConfig['transition']>>) => void;
+
+  // Helper methods
+  getInitialStepConfig: (step: MapFlowStep) => ReturnType<typeof getInitialStepConfig>;
+  startWithConfig: (step: MapFlowStep, role?: MapFlowRole) => ReturnType<typeof getInitialStepConfig>;
+
+  // Type-safe helper methods
+  startWithCustomerStep: (step: CustomerFlowStep) => ReturnType<typeof getInitialStepConfig>;
+  startWithDriverStep: (step: DriverFlowStep) => ReturnType<typeof getInitialStepConfig>;
+  startWithTransportStep: (step: CustomerTransportStep | DriverTransportStep, role: FlowRole) => ReturnType<typeof getInitialStepConfig>;
+  startWithDeliveryStep: (step: CustomerDeliveryStep | DriverDeliveryStep, role: FlowRole) => ReturnType<typeof getInitialStepConfig>;
+  startWithMandadoStep: (step: CustomerMandadoStep | DriverMandadoStep, role: FlowRole) => ReturnType<typeof getInitialStepConfig>;
+  startWithEnvioStep: (step: CustomerEnvioStep | DriverEnvioStep, role: FlowRole) => ReturnType<typeof getInitialStepConfig>;
 }
 
 // Service flows configuration for unified flow
@@ -506,25 +621,34 @@ const DEFAULT_CONFIG: Record<MapFlowStep, StepConfig> = {
   },
 };
 
+// Helper function to get initial config for a step
+const getInitialStepConfig = (step: MapFlowStep) => {
+  const config = DEFAULT_CONFIG[step];
+  return {
+    bottomSheetVisible: config.bottomSheet.visible,
+    bottomSheetMinHeight: config.bottomSheet.minHeight,
+    bottomSheetMaxHeight: config.bottomSheet.maxHeight,
+    bottomSheetInitialHeight: config.bottomSheet.initialHeight,
+    bottomSheetAllowDrag: config.bottomSheet.allowDrag ?? true,
+    bottomSheetClassName: config.bottomSheet.className,
+    bottomSheetSnapPoints: config.bottomSheet.snapPoints,
+    bottomSheetHandleHeight: config.bottomSheet.handleHeight ?? 44,
+    mapInteraction: config.mapInteraction || 'none',
+    transitionType: config.transition?.type || 'none',
+    transitionDuration: config.transition?.duration || 0,
+  };
+};
+
 export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   role: 'customer',
   service: undefined,
   step: 'SELECCION_SERVICIO', // Start with service selection
   history: ['SELECCION_SERVICIO'],
-  isActive: false,
+  isActive: true, // Start as active
   stepConfig: DEFAULT_CONFIG,
 
-  bottomSheetVisible: false,
-  bottomSheetMinHeight: 0,
-  bottomSheetMaxHeight: 0,
-  bottomSheetInitialHeight: 0,
-  bottomSheetAllowDrag: true,
-  bottomSheetClassName: undefined,
-  bottomSheetSnapPoints: undefined,
-  bottomSheetHandleHeight: 44,
-  mapInteraction: 'none',
-  transitionType: 'none',
-  transitionDuration: 0,
+  // Initialize with correct config for SELECCION_SERVICIO
+  ...getInitialStepConfig('SELECCION_SERVICIO'),
 
   start: (role) => {
     console.log('[MapFlowStore] Starting flow with role:', role);
@@ -631,6 +755,27 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
       transitionType: cfg.transition?.type || 'none',
       transitionDuration: cfg.transition?.duration || 0,
     }));
+  },
+
+  goToStep: (stepName: string) => {
+    console.log('[MapFlowStore] goToStep called with:', stepName);
+
+    // Validate that the step exists in our configuration
+    const stepConfig = get().stepConfig;
+    const validStepNames = Object.keys(stepConfig);
+
+    if (!validStepNames.includes(stepName)) {
+      console.error(`[MapFlowStore] Invalid step name: ${stepName}. Valid steps:`, validStepNames);
+      console.warn('[MapFlowStore] goToStep ignored - step does not exist');
+      return;
+    }
+
+    // Convert string to MapFlowStep type (it's safe now that we validated)
+    const step = stepName as MapFlowStep;
+    console.log('[MapFlowStore] Navigating to valid step:', step);
+
+    // Use the existing goTo method
+    get().goTo(step);
   },
 
   next: () => {
@@ -746,6 +891,71 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
           : {}),
       } as Partial<MapFlowState> as MapFlowState;
     });
+  },
+
+  // Helper methods
+  getInitialStepConfig: (step) => {
+    console.log('[MapFlowStore] getInitialStepConfig called for step:', step);
+    return getInitialStepConfig(step);
+  },
+
+  startWithConfig: (step, role) => {
+    console.log('[MapFlowStore] startWithConfig called:', { step, role });
+
+    // Get the configuration for the step
+    const config = getInitialStepConfig(step);
+
+    // Update the store state with the step configuration
+    set(() => ({
+      step,
+      history: [step],
+      isActive: true,
+      bottomSheetVisible: config.bottomSheetVisible,
+      bottomSheetMinHeight: config.bottomSheetMinHeight,
+      bottomSheetMaxHeight: config.bottomSheetMaxHeight,
+      bottomSheetInitialHeight: config.bottomSheetInitialHeight,
+      bottomSheetAllowDrag: config.bottomSheetAllowDrag,
+      bottomSheetClassName: config.bottomSheetClassName,
+      bottomSheetSnapPoints: config.bottomSheetSnapPoints,
+      bottomSheetHandleHeight: config.bottomSheetHandleHeight,
+      mapInteraction: config.mapInteraction,
+      transitionType: config.transitionType,
+      transitionDuration: config.transitionDuration,
+      ...(role ? { role } : {}), // Update role if provided
+    }));
+
+    return config;
+  },
+
+  // Type-safe helper methods
+  startWithCustomerStep: (step) => {
+    console.log('[MapFlowStore] startWithCustomerStep called:', step);
+    return get().startWithConfig(step, 'customer');
+  },
+
+  startWithDriverStep: (step) => {
+    console.log('[MapFlowStore] startWithDriverStep called:', step);
+    return get().startWithConfig(step, 'driver');
+  },
+
+  startWithTransportStep: (step, role) => {
+    console.log('[MapFlowStore] startWithTransportStep called:', { step, role });
+    return get().startWithConfig(step, role);
+  },
+
+  startWithDeliveryStep: (step, role) => {
+    console.log('[MapFlowStore] startWithDeliveryStep called:', { step, role });
+    return get().startWithConfig(step, role);
+  },
+
+  startWithMandadoStep: (step, role) => {
+    console.log('[MapFlowStore] startWithMandadoStep called:', { step, role });
+    return get().startWithConfig(step, role);
+  },
+
+  startWithEnvioStep: (step, role) => {
+    console.log('[MapFlowStore] startWithEnvioStep called:', { step, role });
+    return get().startWithConfig(step, role);
   },
 }));
 

@@ -1,15 +1,17 @@
 import React from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useMapFlow } from '@/hooks/useMapFlow';
+import FlowHeader from '../FlowHeader';
 
 const TransportDefinition: React.FC = () => {
-  const { next } = useMapFlow();
+  const { next, back } = useMapFlow();
 
   return (
     <View className="flex-1">
-      <Text className="font-JakartaBold text-xl mb-3 text-center">
-        Definir Viaje
-      </Text>
+      <FlowHeader
+        title="Definir Viaje"
+        onBack={back}
+      />
 
       {/* Origen */}
       <View className="bg-gray-50 rounded-lg p-4 mb-3">

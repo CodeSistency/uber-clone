@@ -2,16 +2,18 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useMapFlow } from '@/hooks/useMapFlow';
 import { AVAILABLE_SERVICES } from '@/lib/unified-flow/constants';
+import FlowHeader from '../FlowHeader';
 
 const ServiceSelection: React.FC = () => {
   console.log('[ServiceSelection] Component rendered');
-  const { startService } = useMapFlow();
+  const { startService, role } = useMapFlow();
 
   return (
     <View className="flex-1">
-      <Text className="font-JakartaBold text-xl mb-4 text-center">
-        ¿Qué necesitas hoy?
-      </Text>
+      <FlowHeader
+        title="¿Qué necesitas hoy?"
+        subtitle="Selecciona el servicio que mejor se adapte a tus necesidades"
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <View className="space-y-3">
@@ -19,8 +21,8 @@ const ServiceSelection: React.FC = () => {
             <TouchableOpacity
               key={service.id}
               onPress={() => {
-                console.log('[ServiceSelection] Service selected:', service.id);
-                startService(service.id);
+                console.log('[ServiceSelection] Service selected:', service.id, 'role:', role);
+                startService(service.id, role);
               }}
               className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
               activeOpacity={0.7}

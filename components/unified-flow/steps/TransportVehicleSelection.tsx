@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useMapFlow } from '@/hooks/useMapFlow';
+import FlowHeader from '../FlowHeader';
 
 const VEHICLE_TYPES = [
   {
@@ -25,7 +26,7 @@ const VEHICLE_TYPES = [
 ];
 
 const TransportVehicleSelection: React.FC = () => {
-  const { next } = useMapFlow();
+  const { next, back } = useMapFlow();
   const [selectedTab, setSelectedTab] = useState<'car' | 'motorcycle'>('car');
   const [selectedVehicle, setSelectedVehicle] = useState<string>('');
 
@@ -33,9 +34,10 @@ const TransportVehicleSelection: React.FC = () => {
 
   return (
     <View className="flex-1">
-      <Text className="font-JakartaBold text-xl mb-4 text-center">
-        Seleccionar Vehículo
-      </Text>
+      <FlowHeader
+        title="Seleccionar Vehículo"
+        onBack={back}
+      />
 
       {/* Tabs */}
       <View className="flex-row mb-4 bg-gray-100 rounded-lg p-1">

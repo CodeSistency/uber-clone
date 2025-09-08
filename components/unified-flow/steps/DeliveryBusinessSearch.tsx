@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { useMapFlow } from '@/hooks/useMapFlow';
+import FlowHeader from '../FlowHeader';
 
 const BUSINESSES = [
   {
@@ -35,7 +36,7 @@ const BUSINESSES = [
 const CATEGORIES = ['Todo', 'Italiana', 'Americana', 'Japonesa', 'Mexicana', 'China'];
 
 const DeliveryBusinessSearch: React.FC = () => {
-  const { next } = useMapFlow();
+  const { next, back } = useMapFlow();
   const [searchText, setSearchText] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todo');
 
@@ -46,9 +47,10 @@ const DeliveryBusinessSearch: React.FC = () => {
 
   return (
     <View className="flex-1">
-      <Text className="font-JakartaBold text-xl mb-4 text-center">
-        Buscar Restaurante
-      </Text>
+      <FlowHeader
+        title="Buscar Restaurante"
+        onBack={back}
+      />
 
       {/* Barra de búsqueda */}
       <View className="mb-4">

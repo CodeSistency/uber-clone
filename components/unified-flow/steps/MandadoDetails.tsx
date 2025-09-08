@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { useMapFlow } from '@/hooks/useMapFlow';
+import FlowHeader from '../FlowHeader';
 
 const MandadoDetails: React.FC = () => {
-  const { next } = useMapFlow();
+  const { next, back } = useMapFlow();
   const [description, setDescription] = useState('');
   const [pickupAddress, setPickupAddress] = useState('');
   const [deliveryAddress, setDeliveryAddress] = useState('');
@@ -22,9 +23,10 @@ const MandadoDetails: React.FC = () => {
 
   return (
     <View className="flex-1">
-      <Text className="font-JakartaBold text-xl mb-4 text-center">
-        Detalles del Mandado
-      </Text>
+      <FlowHeader
+        title="Detalles del Mandado"
+        onBack={back}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
         {/* Descripción del mandado */}
