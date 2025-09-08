@@ -15,7 +15,6 @@ import {
   PanGestureHandlerStateChangeEvent,
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useUIStore } from "@/store";
 import { useColorScheme } from "react-native";

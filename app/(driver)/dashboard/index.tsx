@@ -1,457 +1,448 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
-import { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert, Modal } from "react-native";
+import { useRef, useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, Animated, PanResponder, Dimensions, ColorValue, StyleSheet, Modal } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
-import CustomButton from "../../../components/CustomButton";
-import DrawerContent, { HamburgerMenu } from "../../components/DrawerContent";
-import RideNotificationSystem from "../../../components/RideNotificationSystem";
-import GPSNavigationView from "../../../components/GPSNavigationView";
-import EarningsTracker from "../../../components/EarningsTracker";
-import VehicleChecklist from "../../../components/VehicleChecklist";
-import PerformanceDashboard from "../../../components/PerformanceDashboard";
+import Map from "@/components/Map";
+import { useDriverStore, useEarningsStore, useSafetyStore, useRatingsStore, useDriverConfigStore } from "@/store";
+import { useUI } from "@/components/UIWrapper";
+import FloatingIcons from "@/components/driver/FloatingIcons";
+import SafetyBottomSheet from "@/components/driver/SafetyBottomSheet";
+import EarningsBottomSheet from "@/components/driver/EarningsBottomSheet";
+import RatingsBottomSheet from "@/components/driver/RatingsBottomSheet";
+import ConfigBottomSheet from "@/components/driver/ConfigBottomSheet";
+import DestinationBottomSheet from "@/components/driver/DestinationBottomSheet";
+import PromotionsBottomSheet from "@/components/driver/PromotionsBottomSheet";
 
-// Enhanced dummy data for testing
-const DUMMY_STATS = {
-  todayEarnings: 142.30,
-  todayTrips: 9,
-  rating: 4.8,
-  onlineStatus: true,
-  onlineHours: 6.5,
-  weeklyEarnings: 892.50,
-  monthlyEarnings: 3456.75,
-};
+// Lightweight bottom sheet implemented locally for this screen
+const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
 
-const DUMMY_ACTIVE_RIDE = {
-  id: "RIDE_001",
-  pickupAddress: "123 Main St, Downtown",
-  dropoffAddress: "456 Broadway Ave, Uptown",
-  passengerName: "John Doe",
-  fare: 18.5,
-  distance: 3.2,
-  duration: 15, // minutes
-  latitude: 37.7749,
-  longitude: -122.4194,
-};
+const BottomSheet = ({
+  children,
+  minHeight = 140,
+  maxHeight = 560,
+  initialHeight = 320,
+  useGradient = true,
+  gradientColors = ["rgba(0,0,0,0.65)", "rgba(0,0,0,0.25)", "rgba(0,0,0,0.05)", "rgba(0,0,0,0)"] as const,
+  bottomBar,
+  bottomBarHeight = 64,
+  showBottomBarAt = 0.6,
+}: {
+  children: React.ReactNode;
+  minHeight?: number;
+  maxHeight?: number;
+  initialHeight?: number;
+  useGradient?: boolean;
+  gradientColors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
+  bottomBar?: React.ReactNode;
+  bottomBarHeight?: number;
+  showBottomBarAt?: number;
+}) => {
+  const screenHeight = Dimensions.get("window").height;
+  const cappedMax = Math.min(maxHeight, Math.floor(screenHeight * 0.85));
 
-const MOCK_PERFORMANCE_DATA = {
-  weeklyEarnings: 892.50,
-  weeklyTrips: 67,
-  avgRating: 4.8,
-  onlineHours: 45,
-  bestDay: 'Saturday',
-  peakHours: ['6PM', '9PM'],
-  topPerformingHours: ['7PM', '9PM'],
-  recommendations: [
-    'Stay online during peak hours (6PM - 9PM)',
-    'Focus on high-demand areas downtown',
-    'Maintain 4.8+ rating for better trip matching',
-    'Consider driving during weekends for higher earnings'
-  ]
+  const heightAnim = useRef(new Animated.Value(initialHeight)).current;
+  const startHeightRef = useRef(initialHeight);
+  const currentHeightRef = useRef(initialHeight);
+
+  useEffect(() => {
+    const id = heightAnim.addListener(({ value }) => {
+      currentHeightRef.current = value;
+    });
+    return () => heightAnim.removeListener(id);
+  }, [heightAnim]);
+
+  const animateTo = (toValue: number) => {
+    Animated.spring(heightAnim, {
+      toValue,
+      useNativeDriver: false,
+      bounciness: 0,
+    }).start();
+  };
+
+  const panResponder = useRef(
+    PanResponder.create({
+      onMoveShouldSetPanResponder: (_, g) => Math.abs(g.dy) > 6,
+      onPanResponderGrant: () => {
+        startHeightRef.current = currentHeightRef.current;
+      },
+      onPanResponderMove: (_, g) => {
+        const next = clamp(startHeightRef.current - g.dy, minHeight, cappedMax);
+        heightAnim.setValue(next);
+      },
+      onPanResponderRelease: (_, g) => {
+        const end = clamp(startHeightRef.current - g.dy, minHeight, cappedMax);
+        const mid = (minHeight + cappedMax) / 2;
+        const snaps = [minHeight, mid, cappedMax];
+        const nearest = snaps.reduce((a, b) => (Math.abs(b - end) < Math.abs(a - end) ? b : a));
+        animateTo(nearest);
+      },
+    })
+  ).current;
+
+  const threshold = minHeight + (cappedMax - minHeight) * showBottomBarAt;
+  const barTranslate = heightAnim.interpolate({
+    inputRange: [threshold - 40, threshold + 40],
+    outputRange: [bottomBarHeight, 0],
+    extrapolate: 'clamp',
+  });
+  const barOpacity = heightAnim.interpolate({
+    inputRange: [threshold - 20, threshold + 20],
+    outputRange: [0, 1],
+    extrapolate: 'clamp',
+  });
+
+  return (
+    <View className="absolute left-0 right-0 bottom-0">
+      <Animated.View
+        style={{ height: heightAnim }}
+        className="rounded-t-3xl overflow-hidden shadow-2xl"
+      >
+        {useGradient ? (
+          <LinearGradient
+            colors={gradientColors}
+            start={{ x: 0, y: 1 }}
+            end={{ x: 0, y: 0 }}
+            style={{ ...StyleSheet.absoluteFillObject }}
+          />
+        ) : (
+          <View className="absolute inset-0 bg-white dark:bg-brand-primary" />
+        )}
+        <View
+          {...panResponder.panHandlers}
+          className="items-center pt-2 pb-1"
+        >
+          <View className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500" />
+        </View>
+        {children}
+        {bottomBar && (
+          <Animated.View style={{ transform: [{ translateY: barTranslate }], opacity: barOpacity }} className="absolute left-0 right-0 bottom-0">
+            <View className="mx-4 mb-4 rounded-2xl px-4 py-3 bg-white/95 dark:bg-black/70 border border-black/5 dark:border-white/10">
+              {bottomBar}
+            </View>
+          </Animated.View>
+        )}
+      </Animated.View>
+    </View>
+  );
 };
 
 const DriverDashboard = () => {
-  const [isOnline, setIsOnline] = useState(DUMMY_STATS.onlineStatus);
-  const [hasActiveRide] = useState(false); // For testing purposes
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [currentMode, setCurrentMode] = useState<
-    "customer" | "driver" | "business"
-  >("driver");
+  const { theme } = useUI();
+  const { drivers } = useDriverStore();
+  const { dailyEarnings } = useEarningsStore();
+  const { isInRide } = useSafetyStore();
+  const { overallRating } = useRatingsStore();
+  const { profile } = useDriverConfigStore();
 
-  // New state for enhanced features
-  const [showRideNotification, setShowRideNotification] = useState(false);
-  const [showGPSNavigation, setShowGPSNavigation] = useState(false);
-  const [showEarningsTracker, setShowEarningsTracker] = useState(false);
-  const [showVehicleChecklist, setShowVehicleChecklist] = useState(false);
-  const [showPerformanceDashboard, setShowPerformanceDashboard] = useState(false);
-  const [mockRideRequest, setMockRideRequest] = useState<any>(null);
+  // Estados del conductor
+  const [isOnline, setIsOnline] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [activeBottomSheet, setActiveBottomSheet] = useState<string | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [menuTitle, setMenuTitle] = useState<string>('');
+  const [menuOptions, setMenuOptions] = useState<Array<{ label: string; route?: string; action?: () => void; emoji?: string }>>([]);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
 
-  // Load current mode from AsyncStorage
-  useEffect(() => {
-    const loadCurrentMode = async () => {
-      try {
-        const savedMode = (await AsyncStorage.getItem("user_mode")) as
-          | "customer"
-          | "driver"
-          | "business"
-          | null;
-        if (savedMode) {
-          setCurrentMode(savedMode);
-        }
-      } catch (error) {
-        console.error("Error loading current mode:", error);
-      }
+  // Datos de ejemplo para el conductor
+  const [dailyStats] = useState({
+    rides: 12,
+    earnings: 144.50
+  });
+
+  const handleGoOnline = () => {
+    setIsOnline(true);
+  };
+
+  const handleGoOffline = () => {
+    setIsOnline(false);
+  };
+
+  const handleIconPress = (iconId: string) => {
+    // Build menu content instead of opening a bottom sheet
+    const toOption = (label: string, route?: string, emoji?: string, action?: () => void) => ({ label, route, emoji, action });
+
+    const menus: Record<string, { title: string; options: Array<{ label: string; route?: string; action?: () => void; emoji?: string }> }> = {
+      safety: {
+        title: 'Seguridad',
+        options: [
+          toOption('Emergencia', '/(driver)/safety', '🆘'),
+          toOption('Compartir Viaje', '/(driver)/safety', '📍'),
+          toOption('Contactos Emergencia', '/(driver)/safety', '📞'),
+          toOption('Reportar Incidente', '/(driver)/safety', '📋'),
+        ],
+      },
+      earnings: {
+        title: 'Ganancias',
+        options: [
+          toOption('Ver Detalles', '/(driver)/earnings', '📊'),
+          toOption('Pago Instantáneo', '/(driver)/earnings', '💳'),
+          toOption('Gráficos por Hora', '/(driver)/earnings', '📈'),
+          toOption('Promociones Activas', '/(driver)/earnings', '🎯'),
+        ],
+      },
+      ratings: {
+        title: 'Calificaciones',
+        options: [
+          toOption('Métricas Completas', '/(driver)/ratings', '📊'),
+          toOption('Comentarios Recientes', '/(driver)/ratings', '💬'),
+          toOption('Soporte y Ayuda', '/(driver)/ratings', '🆘'),
+        ],
+      },
+      config: {
+        title: 'Configuración',
+        options: [
+          toOption('Perfil del Conductor', '/(driver)/settings', '👤'),
+          toOption('Mis Vehículos', '/(driver)/settings', '🚗'),
+          toOption('Tipos de Servicio', '/(driver)/settings', '🎯'),
+          toOption('Documentos', '/(driver)/settings', '📄'),
+        ],
+      },
+      destination: {
+        title: 'Modo Destino',
+        options: [
+          toOption('Casa', '/(driver)/settings', '🏠'),
+          toOption('Trabajo', '/(driver)/settings', '🏢'),
+          toOption('Nuevo Destino', '/(driver)/settings', '📍'),
+        ],
+      },
+      promotions: {
+        title: 'Promociones',
+        options: [
+          toOption('Weekend Warrior', '/(driver)/earnings', '🎯'),
+          toOption('Bonificación por Zona', '/(driver)/earnings', '💰'),
+          toOption('Ver Todas', '/(driver)/earnings', '📊'),
+        ],
+      },
     };
-    loadCurrentMode();
-  }, []);
 
-  // Function to handle mode changes from drawer
-  const handleModeChange = (newMode: "customer" | "driver" | "business") => {
-    console.log("Mode changed from driver dashboard to:", newMode);
-    setCurrentMode(newMode);
-    setDrawerVisible(false);
+    const menu = menus[iconId];
+    if (menu) {
+      setMenuTitle(menu.title);
+      setMenuOptions(menu.options);
+      setIsMenuOpen(true);
+    }
   };
 
-  const handleToggleOnline = () => {
-    setIsOnline(!isOnline);
-    Alert.alert(
-      "Status Updated",
-      `You are now ${!isOnline ? "online" : "offline"}`,
+  const handleCloseBottomSheet = () => {
+    setActiveBottomSheet(null);
+  };
+
+  const handleNavigate = (route: string) => {
+    setActiveBottomSheet(null);
+    router.push(route as any);
+  };
+
+  const renderBottomSheetContent = () => {
+    if (isExpanded) {
+      return (
+        <View className="px-4">
+          <View className="flex-row items-center mb-4">
+            <View className={`w-3 h-3 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+            <Text className="text-white font-JakartaBold text-lg">
+              {isOnline ? 'En linea' : 'Fuera de linea'}
+            </Text>
+          </View>
+
+          <View className="flex-row mb-4 bg-black/30 rounded-xl p-1">
+            {(['Video', 'Photos', 'Audio'] as const).map((tab) => (
+              <TouchableOpacity
+                key={tab}
+                className="flex-1 py-2 rounded-lg bg-yellow-500"
+              >
+                <Text className="text-center font-JakartaBold text-black">{tab}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View className="space-y-2">
+            {[
+              { icon: '🔔', title: 'Notificacion' },
+              { icon: '🚕', title: 'Carrera' },
+              { icon: '📦', title: 'Delivery' },
+              { icon: '📦', title: 'Delivery' },
+              { icon: '📦', title: 'Delivery' },
+              { icon: '📦', title: 'Delivery' },
+              { icon: '🚕', title: 'Carrera' },
+            ].map((item, index) => (
+              <TouchableOpacity
+                key={index}
+                className="bg-black/40 rounded-xl px-4 py-3 flex-row items-center"
+              >
+                <Text className="text-xl mr-3">{item.icon}</Text>
+                <Text className="text-white font-JakartaBold flex-1">{item.title}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      );
+    }
+
+    return (
+      <View className="px-4">
+        <View className="flex-row items-center mb-4">
+          <View className={`w-3 h-3 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+          <Text className="text-white font-JakartaBold text-lg">
+            {isOnline ? 'En linea' : 'Fuera de linea'}
+          </Text>
+        </View>
+
+        <View className="bg-black/40 rounded-xl px-4 py-3 flex-row items-center">
+          <Text className="text-xl mr-3">🔔</Text>
+          <Text className="text-white font-JakartaBold flex-1">Notificacion</Text>
+        </View>
+      </View>
     );
   };
 
-  const handleAcceptRide = () => {
-    // For now, just show an alert since the active ride view doesn't exist yet
-    Alert.alert(
-      "Ride Started",
-      "You have started the ride. Navigation would begin now.",
-    );
-  };
-
-  // Enhanced handlers for new features
-  const handleTestRideNotification = () => {
-    const mockRide = {
-      id: "RIDE_123",
-      pickupAddress: "456 Oak St, Midtown",
-      dropoffAddress: "789 Pine Ave, Downtown",
-      distance: 2.1,
-      duration: 12,
-      fare: 15.50,
-      passengerName: "Sarah Johnson",
-      passengerRating: 4.9,
-      specialRequests: ["Quiet ride preferred", "No smoking"]
-    };
-    setMockRideRequest(mockRide);
-    setShowRideNotification(true);
-  };
-
-  const handleRideAccepted = (rideId: string) => {
-    console.log("[DriverDashboard] Ride accepted:", rideId);
-    Alert.alert(
-      "Ride Accepted! 🎉",
-      "Starting navigation to pickup location...",
-      [
-        {
-          text: "Start Navigation",
-          onPress: () => {
-            setShowGPSNavigation(true);
-          }
-        }
-      ]
-    );
-  };
-
-  const handleRideDeclined = (rideId: string) => {
-    console.log("[DriverDashboard] Ride declined:", rideId);
-  };
-
-  const handleVehicleCheckComplete = () => {
-    console.log("[DriverDashboard] Vehicle check completed");
-    Alert.alert(
-      "Ready to Drive! 🚗",
-      "Your vehicle is ready. You can now accept rides.",
-      [{ text: "OK" }]
-    );
-  };
-
-  const handleArrivedAtPickup = () => {
-    console.log("[DriverDashboard] Arrived at pickup");
-    setShowGPSNavigation(false);
-    Alert.alert(
-      "Arrived at Pickup 📍",
-      "Please wait for the passenger to board.",
-      [{ text: "OK" }]
-    );
-  };
+  const renderBottomBar = () => (
+    <View className="flex-row items-center justify-between">
+      <Text className="font-JakartaBold text-black dark:text-white">Conductor</Text>
+      <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/home' as any)} className="px-3 py-2 bg-brand-secondary rounded-full">
+        <Text className="text-black font-JakartaBold">Ir a Home</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
-      {/* Header with Hamburger Menu and Online Toggle */}
-      <View className="flex-row items-center justify-between p-5 bg-white dark:bg-brand-primary">
-        <View className="flex-row items-center">
-          <TouchableOpacity
-            onPress={() => setDrawerVisible(true)}
-            className="mr-3"
-          >
-            <View className="w-8 h-8 items-center justify-center">
-              <View className="flex-col space-y-1">
-                <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
-                <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
-                <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
-              </View>
-            </View>
+      <View className="flex-1">
+        {/* Top bar */}
+        <View className="px-4 pt-2 pb-3 flex-row items-center justify-between">
+          <TouchableOpacity onPress={() => setIsDrawerOpen(true)} className="w-8 h-8 items-center justify-center">
+            <Text className="text-white text-2xl">☰</Text>
           </TouchableOpacity>
-          <Text className="text-xl font-JakartaBold text-black dark:text-white">Driver Dashboard</Text>
-        </View>
-        <TouchableOpacity
-          onPress={handleToggleOnline}
-          className={`px-4 py-2 rounded-full ${isOnline ? "bg-success-500" : "bg-danger-500"}`}
-        >
-          <Text className="text-white font-JakartaBold">
-            {isOnline ? "Online" : "Offline"}
+          
+          <Text className="text-white font-JakartaBold text-lg">
+            {dailyStats.rides} RIDES | ${dailyStats.earnings} Today
           </Text>
-        </TouchableOpacity>
+          
+          <TouchableOpacity className="w-8 h-8 items-center justify-center">
+            <View className="w-6 h-6 bg-white rounded-full" />
+          </TouchableOpacity>
+        </View>
+
+        {/* Map background */}
+        <View className="flex-1">
+          <Map serviceType="transport" />
+
+          {/* Floating Icons */}
+          <FloatingIcons onIconPress={handleIconPress} />
+
+          {/* GO ONLINE Button - Solo visible cuando está offline y no expandido */}
+          {!isOnline && !isExpanded && (
+            <View className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+              <TouchableOpacity
+                onPress={handleGoOnline}
+                className="w-32 h-32 bg-yellow-500 rounded-full items-center justify-center shadow-2xl"
+              >
+                <Text className="text-black font-JakartaBold text-lg">GO ONLINE</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
+
+          {/* Bottom sheet with conductor interface (hidden when an overlay sheet is open) */}
+          {!activeBottomSheet && (
+            <BottomSheet 
+              minHeight={140} 
+              maxHeight={isExpanded ? 600 : 200} 
+              initialHeight={isExpanded ? 500 : 160} 
+              useGradient 
+              bottomBar={renderBottomBar()} 
+              bottomBarHeight={64} 
+              showBottomBarAt={0.6}
+              gradientColors={theme === 'dark'
+                ? (['rgba(0,0,0,0.92)','rgba(0,0,0,0.78)','rgba(18,18,18,0.66)','rgba(30,30,30,0.64)'] as const)
+                : (['rgba(20,20,20,0.9)','rgba(50,50,50,0.75)','rgba(160,160,160,0.55)','rgba(235,235,235,0.55)'] as const)
+              }
+            >
+              {renderBottomSheetContent()}
+            </BottomSheet>
+          )}
+        </View>
+
+        {/* Bottom navigation bar */}
+        <View className="bg-gray-800 px-4 py-2 flex-row items-center justify-around">
+          <TouchableOpacity onPress={() => router.push('/(driver)/ride-requests' as any)} className="items-center" activeOpacity={0.8}>
+            <View className="w-8 h-8 bg-yellow-500 rounded-full items-center justify-center mb-1">
+              <Text className="text-black text-lg">🧾</Text>
+            </View>
+            <Text className="text-yellow-500 text-xs font-JakartaBold">Solicitudes</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(driver)/earnings' as any)} className="items-center" activeOpacity={0.8}>
+            <View className="w-8 h-8 bg-gray-600 rounded-full items-center justify-center mb-1">
+              <Text className="text-white text-lg">💰</Text>
+            </View>
+            <Text className="text-gray-200 text-xs font-JakartaBold">Ganancias</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/(driver)/safety' as any)} className="items-center" activeOpacity={0.8}>
+            <View className="w-8 h-8 bg-gray-600 rounded-full items-center justify-center mb-1">
+              <Text className="text-white text-lg">🛡️</Text>
+            </View>
+            <Text className="text-gray-200 text-xs font-JakartaBold">Seguridad</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
-      {/* Drawer Modal */}
-      <DrawerContent
-        visible={drawerVisible}
-        currentMode={currentMode}
-        onModeChange={handleModeChange}
-        onClose={() => {
-          console.log("Driver drawer closed");
-          setDrawerVisible(false);
-        }}
-      />
-
-      <ScrollView className="flex-1 px-5">
-        {/* Quick Stats */}
-        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Today's Summary</Text>
-          <View className="flex-row justify-between mb-2">
-            <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-brand-secondary">
-                ${DUMMY_STATS.todayEarnings}
-              </Text>
-              <Text className="text-sm text-secondary-600 dark:text-gray-300">Earnings</Text>
+      {/* Active Bottom Sheet Overlay */}
+      {/* Modern modal menu for floating icons */}
+      <Modal visible={isMenuOpen} transparent animationType="fade" onRequestClose={() => setIsMenuOpen(false)}>
+        <View className="flex-1">
+          <TouchableOpacity className="flex-1 bg-black/50" activeOpacity={1} onPress={() => setIsMenuOpen(false)} />
+          <View className="absolute left-4 right-4 bottom-6 bg-white dark:bg-gray-900 rounded-3xl p-4 shadow-2xl border border-black/5 dark:border-white/10">
+            <View className="flex-row items-center justify-between mb-2">
+              <Text className="font-JakartaBold text-lg text-black dark:text-white">{menuTitle}</Text>
+              <TouchableOpacity onPress={() => setIsMenuOpen(false)} className="px-3 py-1 rounded-full bg-black/5 dark:bg-white/10">
+                <Text className="text-black dark:text-white">✕</Text>
+              </TouchableOpacity>
             </View>
-            <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-success-500">
-                {DUMMY_STATS.todayTrips}
-              </Text>
-              <Text className="text-sm text-secondary-600 dark:text-gray-300">Trips</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-warning-500">
-                {DUMMY_STATS.rating}
-              </Text>
-              <Text className="text-sm text-secondary-600 dark:text-gray-300">Rating</Text>
+            <View className="mt-1">
+              {menuOptions.map((opt, idx) => (
+                <TouchableOpacity
+                  key={`${opt.label}-${idx}`}
+                  onPress={() => { setIsMenuOpen(false); opt.action ? opt.action() : (opt.route && router.push(opt.route as any)); }}
+                  className="flex-row items-center px-3 py-3 rounded-xl mb-2 bg-neutral-50 dark:bg-white/5"
+                  activeOpacity={0.8}
+                >
+                  {opt.emoji ? <Text className="text-xl mr-3">{opt.emoji}</Text> : null}
+                  <Text className="font-JakartaMedium text-black dark:text-white">{opt.label}</Text>
+                </TouchableOpacity>
+              ))}
             </View>
           </View>
         </View>
-
-        {/* Active Ride Card */}
-        {hasActiveRide && (
-          <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
-            <Text className="text-lg font-JakartaBold mb-3 text-primary-500">
-              🚗 Active Ride
-            </Text>
-            <View className="mb-3">
-              <Text className="text-sm text-secondary-600 mb-1">From</Text>
-              <Text className="font-JakartaMedium">
-                {DUMMY_ACTIVE_RIDE.pickupAddress}
-              </Text>
-            </View>
-            <View className="mb-3">
-              <Text className="text-sm text-secondary-600 mb-1">To</Text>
-              <Text className="font-JakartaMedium">
-                {DUMMY_ACTIVE_RIDE.dropoffAddress}
-              </Text>
-            </View>
-            <View className="flex-row justify-between items-center">
-              <View>
-                <Text className="text-sm text-secondary-600">Passenger</Text>
-                <Text className="font-JakartaBold">
-                  {DUMMY_ACTIVE_RIDE.passengerName}
-                </Text>
-              </View>
-              <View className="items-end">
-                <Text className="text-lg font-JakartaExtraBold text-success-500">
-                  ${DUMMY_ACTIVE_RIDE.fare}
-                </Text>
-                <Text className="text-sm text-secondary-600">
-                  {DUMMY_ACTIVE_RIDE.distance} mi
-                </Text>
-              </View>
-            </View>
-            <CustomButton
-              title="View Ride Details"
-              onPress={handleAcceptRide}
-              className="mt-4"
-            />
-          </View>
-        )}
-
-        {/* Enhanced Quick Actions */}
-        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">🚀 Enhanced Features</Text>
-          <View className="space-y-3">
-            <TouchableOpacity
-              onPress={handleTestRideNotification}
-              className="flex-row items-center p-3 bg-primary-500/10 border border-primary-500/20 rounded-lg"
-            >
-              <Text className="text-lg mr-3">🔔</Text>
-              <View className="flex-1">
-                <Text className="font-JakartaBold text-primary-500">Test Ride Notification</Text>
-                <Text className="text-sm text-primary-600">Try the new notification system</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setShowEarningsTracker(!showEarningsTracker)}
-              className="flex-row items-center p-3 bg-success-500/10 border border-success-500/20 rounded-lg"
-            >
-              <Text className="text-lg mr-3">💰</Text>
-              <View className="flex-1">
-                <Text className="font-JakartaBold text-success-500">Earnings Tracker</Text>
-                <Text className="text-sm text-success-600">Real-time earnings dashboard</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setShowVehicleChecklist(true)}
-              className="flex-row items-center p-3 bg-warning-500/10 border border-warning-500/20 rounded-lg"
-            >
-              <Text className="text-lg mr-3">🚗</Text>
-              <View className="flex-1">
-                <Text className="font-JakartaBold text-warning-500">Vehicle Checklist</Text>
-                <Text className="text-sm text-warning-600">Pre-ride vehicle preparation</Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => setShowPerformanceDashboard(true)}
-              className="flex-row items-center p-3 bg-secondary-500/10 border border-secondary-500/20 rounded-lg"
-            >
-              <Text className="text-lg mr-3">📊</Text>
-              <View className="flex-1">
-                <Text className="font-JakartaBold text-secondary-500">Performance Analytics</Text>
-                <Text className="text-sm text-secondary-600">Weekly insights & recommendations</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Traditional Actions */}
-        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Classic Actions</Text>
-          <View className="space-y-3">
-            <TouchableOpacity
-              onPress={() => router.push("/(driver)/ride-requests" as any)}
-              className="flex-row items-center p-3 bg-general-500 rounded-lg"
-            >
-              <Text className="text-lg mr-3">🚕</Text>
-              <Text className="font-JakartaMedium">View Ride Requests</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => router.push("/(driver)/earnings" as any)}
-              className="flex-row items-center p-3 bg-general-500 rounded-lg"
-            >
-              <Text className="text-lg mr-3">💰</Text>
-              <Text className="font-JakartaMedium">Earnings & History</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => router.push("/(driver)/profile" as any)}
-              className="flex-row items-center p-3 bg-general-500 rounded-lg"
-            >
-              <Text className="text-lg mr-3">👤</Text>
-              <Text className="font-JakartaMedium">Profile & Settings</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Service Toggle */}
-        <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Service Type</Text>
-          <View className="flex-row justify-between">
-            <TouchableOpacity className="flex-1 mr-2 p-3 bg-brand-secondary rounded-lg items-center">
-              <Text className="text-black font-JakartaBold">Rides Only</Text>
-            </TouchableOpacity>
-            <TouchableOpacity className="flex-1 ml-2 p-3 bg-general-500 rounded-lg items-center">
-              <Text className="text-secondary-700 font-JakartaBold">
-                All Services
-              </Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Earnings Tracker Modal */}
-        {showEarningsTracker && (
-          <Modal
-            visible={showEarningsTracker}
-            animationType="slide"
-            transparent={true}
-            onRequestClose={() => setShowEarningsTracker(false)}
-          >
-            <View className="flex-1 bg-black/50 justify-end">
-              <View className="bg-white dark:bg-brand-primary rounded-t-3xl max-h-96">
-                <View className="flex-row justify-between items-center p-4 border-b border-gray-200 dark:border-brand-primaryDark">
-                  <Text className="text-lg font-JakartaBold text-black dark:text-white">💰 Earnings Tracker</Text>
-                  <TouchableOpacity
-                    onPress={() => setShowEarningsTracker(false)}
-                    className="w-8 h-8 items-center justify-center"
-                  >
-                    <Text className="text-xl text-black dark:text-white">✕</Text>
-                  </TouchableOpacity>
-                </View>
-                <EarningsTracker
-                  isVisible={true}
-                  earnings={{
-                    todayEarnings: DUMMY_STATS.todayEarnings,
-                    todayTrips: DUMMY_STATS.todayTrips,
-                    currentTripEarnings: 0,
-                    totalEarnings: DUMMY_STATS.weeklyEarnings,
-                    weeklyEarnings: DUMMY_STATS.weeklyEarnings,
-                    monthlyEarnings: DUMMY_STATS.monthlyEarnings,
-                    rating: DUMMY_STATS.rating,
-                    onlineHours: DUMMY_STATS.onlineHours,
-                  }}
-                  currentRide={hasActiveRide ? DUMMY_ACTIVE_RIDE : null}
-                />
-              </View>
-            </View>
-          </Modal>
-        )}
-      </ScrollView>
-
-      {/* Full Screen Modals */}
-      <RideNotificationSystem
-        visible={showRideNotification}
-        rideRequest={mockRideRequest}
-        onAccept={handleRideAccepted}
-        onDecline={handleRideDeclined}
-        onClose={() => setShowRideNotification(false)}
-      />
-
-      <Modal
-        visible={showGPSNavigation}
-        animationType="slide"
-        onRequestClose={() => setShowGPSNavigation(false)}
-      >
-        <GPSNavigationView
-          destinationLatitude={DUMMY_ACTIVE_RIDE.latitude}
-          destinationLongitude={DUMMY_ACTIVE_RIDE.longitude}
-          destinationAddress={DUMMY_ACTIVE_RIDE.pickupAddress}
-          onArrived={handleArrivedAtPickup}
-          onClose={() => setShowGPSNavigation(false)}
-        />
       </Modal>
 
-      <Modal
-        visible={showVehicleChecklist}
-        animationType="slide"
-        onRequestClose={() => setShowVehicleChecklist(false)}
-      >
-        <VehicleChecklist
-          isVisible={showVehicleChecklist}
-          onComplete={handleVehicleCheckComplete}
-          onClose={() => setShowVehicleChecklist(false)}
-        />
-      </Modal>
-
-      <Modal
-        visible={showPerformanceDashboard}
-        animationType="slide"
-        onRequestClose={() => setShowPerformanceDashboard(false)}
-      >
-        <PerformanceDashboard
-          isVisible={showPerformanceDashboard}
-          performance={MOCK_PERFORMANCE_DATA}
-          onClose={() => setShowPerformanceDashboard(false)}
-        />
+      {/* Drawer lateral con accesos rápidos */}
+      <Modal visible={isDrawerOpen} transparent animationType="slide" onRequestClose={() => setIsDrawerOpen(false)}>
+        <View className="flex-1 flex-row">
+          <TouchableOpacity className="flex-1 bg-black/50" activeOpacity={1} onPress={() => setIsDrawerOpen(false)} />
+          <View className="w-72 bg-white dark:bg-gray-900 h-full p-4 border-l border-black/5 dark:border-white/10">
+            <Text className="font-JakartaBold text-lg mb-3 text-black dark:text-white">Menú Conductor</Text>
+            {[
+              { label: 'Dashboard', route: '/(driver)/dashboard', emoji: '🏠' },
+              { label: 'Solicitudes', route: '/(driver)/ride-requests', emoji: '🧾' },
+              { label: 'Viaje Activo', route: '/(driver)/active-ride', emoji: '🚕' },
+              { label: 'Ganancias', route: '/(driver)/earnings', emoji: '💰' },
+              { label: 'Seguridad', route: '/(driver)/safety', emoji: '🛡️' },
+              { label: 'Calificaciones', route: '/(driver)/ratings', emoji: '⭐' },
+              { label: 'Perfil', route: '/(driver)/profile', emoji: '👤' },
+              { label: 'Ajustes', route: '/(driver)/settings', emoji: '⚙️' },
+            ].map((item, idx) => (
+              <TouchableOpacity
+                key={`${item.label}-${idx}`}
+                onPress={() => { setIsDrawerOpen(false); router.push(item.route as any); }}
+                className="flex-row items-center px-3 py-3 rounded-xl mb-2 bg-neutral-50 dark:bg-white/5"
+                activeOpacity={0.8}
+              >
+                <Text className="text-xl mr-3">{item.emoji}</Text>
+                <Text className="font-JakartaMedium text-black dark:text-white">{item.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
       </Modal>
     </SafeAreaView>
   );

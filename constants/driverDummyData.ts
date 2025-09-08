@@ -1,0 +1,448 @@
+// Dummy data for Uber Driver app development
+
+export const dummyDriverProfile = {
+  id: "driver_123",
+  firstName: "Carlos",
+  lastName: "Rodriguez",
+  email: "carlos.rodriguez@email.com",
+  phone: "+1 (555) 123-4567",
+  profilePicture: undefined,
+  dateOfBirth: new Date("1985-06-15"),
+  licenseNumber: "DL123456789",
+  licenseExpiry: new Date("2025-12-31"),
+  insuranceProvider: "State Farm",
+  insuranceExpiry: new Date("2024-12-31"),
+  vehicleRegistration: "ABC123",
+  registrationExpiry: new Date("2024-12-31"),
+  isVerified: true,
+  verificationStatus: "approved" as const,
+  joinedDate: new Date("2023-01-15"),
+  totalRides: 1234,
+  totalEarnings: 18765.40,
+  averageRating: 4.8
+};
+
+export const dummyEarningsSummary = {
+  today: {
+    rides: 12,
+    earnings: 144.50,
+    hours: 8.5,
+    averagePerRide: 12.04
+  },
+  week: {
+    rides: 67,
+    earnings: 892.30,
+    hours: 45.2,
+    averagePerRide: 13.32
+  },
+  month: {
+    rides: 234,
+    earnings: 3245.80,
+    hours: 156.7,
+    averagePerRide: 13.87
+  },
+  total: {
+    rides: 1234,
+    earnings: 18765.40,
+    hours: 987.3,
+    averagePerRide: 15.21
+  }
+};
+
+export const dummyTripHistory = [
+  {
+    id: "1",
+    date: new Date(),
+    passengerName: "John Doe",
+    pickupLocation: "123 Main St",
+    dropoffLocation: "456 Oak Ave",
+    fare: 12.50,
+    tip: 3.00,
+    bonus: 0,
+    total: 15.50,
+    duration: 18,
+    distance: 4.2,
+    serviceType: "UberX",
+    rating: 5
+  },
+  {
+    id: "2",
+    date: new Date(Date.now() - 3600000),
+    passengerName: "Jane Smith",
+    pickupLocation: "789 Pine St",
+    dropoffLocation: "321 Elm St",
+    fare: 8.75,
+    tip: 2.25,
+    bonus: 5.00,
+    total: 16.00,
+    duration: 12,
+    distance: 2.8,
+    serviceType: "UberX",
+    rating: 4
+  },
+  {
+    id: "3",
+    date: new Date(Date.now() - 7200000),
+    passengerName: "Mike Johnson",
+    pickupLocation: "555 Broadway",
+    dropoffLocation: "999 Park Ave",
+    fare: 15.25,
+    tip: 4.75,
+    bonus: 0,
+    total: 20.00,
+    duration: 22,
+    distance: 5.1,
+    serviceType: "UberXL",
+    rating: 5
+  }
+];
+
+export const dummyPromotions = [
+  {
+    id: "1",
+    name: "Weekend Warrior",
+    description: "Complete 20 rides this weekend",
+    type: "bonus" as const,
+    value: 50,
+    target: 20,
+    progress: 12,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    isActive: true,
+    requirements: ["Complete 20 rides", "Drive during weekend hours"],
+    reward: "$50 bonus"
+  },
+  {
+    id: "2",
+    name: "Downtown Surge",
+    description: "2.5x earnings in downtown area",
+    type: "multiplier" as const,
+    value: 2.5,
+    target: 0,
+    progress: 0,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
+    isActive: true,
+    requirements: ["Drive in downtown area", "During peak hours"],
+    reward: "2.5x multiplier"
+  },
+  {
+    id: "3",
+    name: "Early Bird Special",
+    description: "Complete 5 rides before 8 AM",
+    type: "bonus" as const,
+    value: 25,
+    target: 5,
+    progress: 3,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    isActive: true,
+    requirements: ["Complete 5 rides", "Before 8:00 AM"],
+    reward: "$25 bonus"
+  }
+];
+
+export const dummyChallenges = [
+  {
+    id: "1",
+    name: "Ride Streak",
+    description: "Complete 5 rides in a row",
+    target: 5,
+    progress: 3,
+    reward: 25,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    isActive: true,
+    category: "rides" as const
+  },
+  {
+    id: "2",
+    name: "Earnings Goal",
+    description: "Earn $200 in one day",
+    target: 200,
+    progress: 144.50,
+    reward: 50,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    isActive: true,
+    category: "earnings" as const
+  }
+];
+
+export const dummyRatingSummary = {
+  overallRating: 4.8,
+  totalRatings: 1247,
+  ratingDistribution: {
+    five: 892,
+    four: 234,
+    three: 89,
+    two: 23,
+    one: 9
+  },
+  categoryAverages: {
+    driving: 4.9,
+    cleanliness: 4.7,
+    communication: 4.6,
+    punctuality: 4.8,
+    safety: 4.9
+  },
+  recentTrend: 'up' as const,
+  lastRatingDate: new Date(),
+  averageRatingLastWeek: 4.7,
+  averageRatingLastMonth: 4.6
+};
+
+export const dummyRecentRatings = [
+  {
+    id: "1",
+    rideId: "ride_123",
+    passengerId: "passenger_456",
+    passengerName: "John Doe",
+    rating: 5,
+    comment: "Excellent driver! Very professional and friendly.",
+    timestamp: new Date(),
+    categories: {
+      driving: 5,
+      cleanliness: 5,
+      communication: 5,
+      punctuality: 5,
+      safety: 5
+    },
+    tags: ["professional", "friendly", "clean"],
+    isPublic: true
+  },
+  {
+    id: "2",
+    rideId: "ride_124",
+    passengerId: "passenger_789",
+    passengerName: "Jane Smith",
+    rating: 4,
+    comment: "Good ride, arrived on time.",
+    timestamp: new Date(Date.now() - 3600000),
+    categories: {
+      driving: 4,
+      cleanliness: 4,
+      communication: 4,
+      punctuality: 5,
+      safety: 4
+    },
+    tags: ["punctual"],
+    isPublic: true
+  },
+  {
+    id: "3",
+    rideId: "ride_125",
+    passengerId: "passenger_101",
+    passengerName: "Mike Johnson",
+    rating: 5,
+    comment: "Great conversation and very safe driver!",
+    timestamp: new Date(Date.now() - 7200000),
+    categories: {
+      driving: 5,
+      cleanliness: 5,
+      communication: 5,
+      punctuality: 5,
+      safety: 5
+    },
+    tags: ["conversational", "safe"],
+    isPublic: true
+  }
+];
+
+export const dummyPerformanceMetrics = {
+  acceptanceRate: 95.2,
+  cancellationRate: 2.1,
+  completionRate: 98.7,
+  onTimeRate: 94.5,
+  responseTime: 12.3,
+  customerSatisfaction: 4.8,
+  safetyScore: 4.9,
+  cleanlinessScore: 4.7,
+  communicationScore: 4.6,
+  drivingScore: 4.9,
+  punctualityScore: 4.8
+};
+
+export const dummyEmergencyContacts = [
+  {
+    id: "1",
+    name: "Maria Rodriguez",
+    phone: "+1 (555) 123-4567",
+    relationship: "Spouse",
+    isPrimary: true,
+    isVerified: true
+  },
+  {
+    id: "2",
+    name: "Carlos Rodriguez Jr.",
+    phone: "+1 (555) 987-6543",
+    relationship: "Son",
+    isPrimary: false,
+    isVerified: true
+  },
+  {
+    id: "3",
+    name: "Ana Rodriguez",
+    phone: "+1 (555) 456-7890",
+    relationship: "Sister",
+    isPrimary: false,
+    isVerified: false
+  }
+];
+
+export const dummyIncidentReports = [
+  {
+    id: "1",
+    type: "safety_concern" as const,
+    timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+    location: {
+      latitude: 40.7128,
+      longitude: -74.0060,
+      address: "123 Main St, New York, NY"
+    },
+    description: "Passenger was acting suspiciously during the ride",
+    severity: "medium" as const,
+    status: "investigating" as const,
+    reportedBy: "driver_123",
+    rideId: "ride_456",
+    passengerId: "passenger_789",
+    evidence: {
+      photos: [],
+      videos: [],
+      audio: []
+    },
+    followUpRequired: true,
+    followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000)
+  },
+  {
+    id: "2",
+    type: "vehicle_issue" as const,
+    timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+    location: {
+      latitude: 40.7589,
+      longitude: -73.9851,
+      address: "456 Broadway, New York, NY"
+    },
+    description: "Vehicle had a flat tire during ride",
+    severity: "high" as const,
+    status: "resolved" as const,
+    reportedBy: "driver_123",
+    rideId: "ride_789",
+    passengerId: "passenger_101",
+    evidence: {
+      photos: ["tire_photo_1.jpg"],
+      videos: [],
+      audio: []
+    },
+    followUpRequired: false,
+    resolvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
+  }
+];
+
+export const dummyFeedback = [
+  {
+    id: "1",
+    rideId: "ride_125",
+    passengerId: "passenger_101",
+    passengerName: "Mike Johnson",
+    type: "compliment" as const,
+    category: "service" as const,
+    message: "Great conversation during the ride!",
+    timestamp: new Date(Date.now() - 7200000),
+    status: "new" as const,
+    priority: "low" as const
+  },
+  {
+    id: "2",
+    rideId: "ride_126",
+    passengerId: "passenger_202",
+    passengerName: "Sarah Wilson",
+    type: "suggestion" as const,
+    category: "vehicle" as const,
+    message: "Consider adding phone chargers for passengers",
+    timestamp: new Date(Date.now() - 14400000),
+    status: "acknowledged" as const,
+    priority: "low" as const
+  }
+];
+
+export const dummyVehicleDocuments = [
+  {
+    id: "1",
+    type: "license" as const,
+    number: "DL123456789",
+    expiryDate: new Date("2025-12-31"),
+    status: "valid" as const,
+    uploadedAt: new Date("2023-01-15"),
+    verifiedAt: new Date("2023-01-16")
+  },
+  {
+    id: "2",
+    type: "insurance" as const,
+    provider: "State Farm",
+    policyNumber: "SF123456789",
+    expiryDate: new Date("2024-12-31"),
+    status: "valid" as const,
+    uploadedAt: new Date("2023-01-15"),
+    verifiedAt: new Date("2023-01-16")
+  },
+  {
+    id: "3",
+    type: "registration" as const,
+    number: "ABC123",
+    expiryDate: new Date("2024-12-31"),
+    status: "valid" as const,
+    uploadedAt: new Date("2023-01-15"),
+    verifiedAt: new Date("2023-01-16")
+  }
+];
+
+export const dummyServiceTypes = [
+  {
+    id: "1",
+    name: "UberX",
+    description: "Affordable rides for up to 4 passengers",
+    isActive: true,
+    requirements: ["Valid driver's license", "Clean driving record"],
+    earnings: "Standard rates"
+  },
+  {
+    id: "2",
+    name: "UberXL",
+    description: "Larger vehicles for up to 6 passengers",
+    isActive: true,
+    requirements: ["Valid driver's license", "XL vehicle", "Clean driving record"],
+    earnings: "Higher rates"
+  },
+  {
+    id: "3",
+    name: "Uber Pet",
+    description: "Pet-friendly rides",
+    isActive: false,
+    requirements: ["Valid driver's license", "Pet-friendly vehicle"],
+    earnings: "Standard rates + pet fee"
+  }
+];
+
+export const dummyAppSettings = {
+  theme: 'auto' as const,
+  language: 'en',
+  notifications: {
+    rideRequests: true,
+    earnings: true,
+    promotions: true,
+    safety: true,
+    system: true
+  },
+  autoAccept: false,
+  destinationFilter: false,
+  workingHours: {
+    monday: { start: "08:00", end: "18:00", enabled: true },
+    tuesday: { start: "08:00", end: "18:00", enabled: true },
+    wednesday: { start: "08:00", end: "18:00", enabled: true },
+    thursday: { start: "08:00", end: "18:00", enabled: true },
+    friday: { start: "08:00", end: "20:00", enabled: true },
+    saturday: { start: "10:00", end: "22:00", enabled: true },
+    sunday: { start: "10:00", end: "18:00", enabled: false }
+  }
+};

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef } from "react";
 import { ActivityIndicator, Text, View, Platform } from "react-native";
-import MapView, { Marker, Polyline, PROVIDER_DEFAULT } from "react-native-maps";
+import MapView, { Marker, Polyline, PROVIDER_DEFAULT, Region, LatLng } from "react-native-maps";
 
 import { icons } from "@/constants";
 import { useFetch } from "@/lib/fetch";
@@ -17,13 +17,21 @@ const directionsAPI =
   process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ||
   "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
 
+export interface MapHandle {
+  animateToRegion: (region: Region, duration?: number) => void;
+  animateToCoordinate: (coord: LatLng, duration?: number) => void;
+  fitToCoordinates: (coords: LatLng[], options?: { edgePadding?: { top: number; right: number; bottom: number; left: number }; animated?: boolean }) => void;
+  setCamera: (config: any) => void;
+}
+
 interface MapProps {
   serviceType?: "transport" | "delivery";
   restaurants?: Restaurant[];
   isLoadingRestaurants?: boolean;
 }
 
-const Map = ({ serviceType = "transport", restaurants = [], isLoadingRestaurants = false }: MapProps) => {
+const Map = forwardRef<MapHandle, MapProps>(({ serviceType = "transport", restaurants = [], isLoadingRestaurants = false }: MapProps, ref) => {
+  const mapRef = useRef<MapView | null>(null);
   const {
     userLongitude,
     userLatitude,
@@ -216,6 +224,22 @@ const Map = ({ serviceType = "transport", restaurants = [], isLoadingRestaurants
 
   console.log("[Map] region", region);
 
+  // Expose imperative map controls - must be declared unconditionally before any return
+  useImperativeHandle(ref, () => ({
+    animateToRegion: (region: Region, duration = 500) => {
+      mapRef.current?.animateToRegion(region, duration);
+    },
+    animateToCoordinate: (coord: LatLng, duration = 500) => {
+      mapRef.current?.animateCamera({ center: coord }, { duration });
+    },
+    fitToCoordinates: (coords: LatLng[], options) => {
+      mapRef.current?.fitToCoordinates(coords, options);
+    },
+    setCamera: (config: any) => {
+      mapRef.current?.setCamera(config);
+    },
+  }), []);
+
   if (loading || (!userLatitude && !userLongitude))
     return (
       <View className="flex justify-between items-center w-full">
@@ -232,6 +256,7 @@ const Map = ({ serviceType = "transport", restaurants = [], isLoadingRestaurants
 
   return (
     <MapView
+      ref={(r) => { mapRef.current = r; }}
       provider={PROVIDER_DEFAULT}
       className="w-full h-full rounded-2xl"
       tintColor="black"
@@ -307,6 +332,6 @@ const Map = ({ serviceType = "transport", restaurants = [], isLoadingRestaurants
       )}
     </MapView>
   );
-};
+});
 
 export default Map;

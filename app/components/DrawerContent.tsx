@@ -102,6 +102,16 @@ const DrawerContent = ({
       route: "/(root)/services-hub",
     },
     {
+      title: "Map Flows Demo",
+      icon: "🗺️",
+      route: "/(root)/map-flows-demo",
+    },
+      {
+        title: "Conductor",
+        icon: "🚗",
+        route: "/(driver)/dashboard",
+      },
+    {
       title: "Wallet",
       icon: "💳",
       route: "/(wallet)",

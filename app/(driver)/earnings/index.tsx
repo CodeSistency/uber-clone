@@ -1,230 +1,422 @@
-import { useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity } from "react-native";
+import { useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
+import { LinearGradient } from "expo-linear-gradient";
 
-// Dummy data for earnings
-const DUMMY_EARNINGS = {
+import { useEarningsStore } from "@/store";
+import { earningsService, EarningsSummary, TripEarning, Promotion, Challenge } from "@/app/services/earningsService";
+import { useUI } from "@/components/UIWrapper";
+
+// Dummy data for development
+const dummyEarningsSummary: EarningsSummary = {
   today: {
-    total: 45.75,
-    trips: 3,
-    hours: 6.5,
-    tips: 8.5,
+    rides: 12,
+    earnings: 144.50,
+    hours: 8.5,
+    averagePerRide: 12.04
   },
   week: {
-    total: 285.25,
-    trips: 18,
-    hours: 42.0,
-    tips: 45.75,
+    rides: 67,
+    earnings: 892.30,
+    hours: 45.2,
+    averagePerRide: 13.32
   },
   month: {
-    total: 1250.8,
-    trips: 78,
-    hours: 180.5,
-    tips: 187.5,
+    rides: 234,
+    earnings: 3245.80,
+    hours: 156.7,
+    averagePerRide: 13.87
   },
+  total: {
+    rides: 1234,
+    earnings: 18765.40,
+    hours: 987.3,
+    averagePerRide: 15.21
+  }
 };
 
-const DUMMY_TRIP_HISTORY = [
+const dummyTripHistory: TripEarning[] = [
   {
-    id: "TRIP_001",
-    date: "2024-01-15",
-    time: "14:30",
-    fare: 18.5,
-    tips: 3.0,
-    distance: 3.2,
-    rating: 4.9,
+    id: "1",
+    date: new Date(),
+    passengerName: "John Doe",
+    pickupLocation: "123 Main St",
+    dropoffLocation: "456 Oak Ave",
+    fare: 12.50,
+    tip: 3.00,
+    bonus: 0,
+    total: 15.50,
+    duration: 18,
+    distance: 4.2,
+    serviceType: "UberX",
+    rating: 5
   },
   {
-    id: "TRIP_002",
-    date: "2024-01-15",
-    time: "12:15",
-    fare: 15.25,
-    tips: 2.5,
+    id: "2",
+    date: new Date(Date.now() - 3600000),
+    passengerName: "Jane Smith",
+    pickupLocation: "789 Pine St",
+    dropoffLocation: "321 Elm St",
+    fare: 8.75,
+    tip: 2.25,
+    bonus: 5.00,
+    total: 16.00,
+    duration: 12,
     distance: 2.8,
-    rating: 5.0,
-  },
-  {
-    id: "TRIP_003",
-    date: "2024-01-15",
-    time: "09:45",
-    fare: 12.0,
-    tips: 3.0,
-    distance: 1.9,
-    rating: 4.7,
-  },
+    serviceType: "UberX",
+    rating: 4
+  }
 ];
 
-const Earnings = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState<
-    "today" | "week" | "month"
-  >("today");
+const dummyPromotions: Promotion[] = [
+  {
+    id: "1",
+    name: "Weekend Warrior",
+    description: "Complete 20 rides this weekend",
+    type: "bonus",
+    value: 50,
+    target: 20,
+    progress: 12,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+    isActive: true,
+    requirements: ["Complete 20 rides", "Drive during weekend hours"],
+    reward: "$50 bonus"
+  },
+  {
+    id: "2",
+    name: "Downtown Surge",
+    description: "2.5x earnings in downtown area",
+    type: "multiplier",
+    value: 2.5,
+    target: 0,
+    progress: 0,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
+    isActive: true,
+    requirements: ["Drive in downtown area", "During peak hours"],
+    reward: "2.5x multiplier"
+  }
+];
 
-  const currentData = DUMMY_EARNINGS[selectedPeriod];
-  const hourlyRate = currentData.total / currentData.hours;
+const dummyChallenges: Challenge[] = [
+  {
+    id: "1",
+    name: "Ride Streak",
+    description: "Complete 5 rides in a row",
+    target: 5,
+    progress: 3,
+    reward: 25,
+    startDate: new Date(),
+    endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
+    isActive: true,
+    category: "rides"
+  }
+];
+
+const EarningsScreen = () => {
+  const { theme } = useUI();
+  const { dailyEarnings, weeklyEarnings, monthlyEarnings, isLoading, error } = useEarningsStore();
+  
+  const [selectedPeriod, setSelectedPeriod] = useState<'today' | 'week' | 'month' | 'total'>('today');
+  const [refreshing, setRefreshing] = useState(false);
+  const [earningsData, setEarningsData] = useState<EarningsSummary>(dummyEarningsSummary);
+  const [tripHistory, setTripHistory] = useState<TripEarning[]>(dummyTripHistory);
+  const [promotions, setPromotions] = useState<Promotion[]>(dummyPromotions);
+  const [challenges, setChallenges] = useState<Challenge[]>(dummyChallenges);
+
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      // In real implementation, fetch from API
+    } catch (error) {
+      console.error('Error refreshing earnings:', error);
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const getCurrentEarnings = () => {
+    switch (selectedPeriod) {
+      case 'today':
+        return {
+          rides: dailyEarnings?.totalRides || 0,
+          earnings: dailyEarnings?.totalEarnings || 0,
+          hours: (dailyEarnings?.totalTime || 0) / 60,
+          averagePerRide: dailyEarnings ? dailyEarnings.totalEarnings / dailyEarnings.totalRides : 0
+        };
+      case 'week':
+        return {
+          rides: weeklyEarnings?.totalRides || 0,
+          earnings: weeklyEarnings?.totalEarnings || 0,
+          hours: (weeklyEarnings?.totalTime || 0) / 60,
+          averagePerRide: weeklyEarnings ? weeklyEarnings.totalEarnings / weeklyEarnings.totalRides : 0
+        };
+      case 'month':
+        return {
+          rides: monthlyEarnings?.totalRides || 0,
+          earnings: monthlyEarnings?.totalEarnings || 0,
+          hours: (monthlyEarnings?.totalTime || 0) / 60,
+          averagePerRide: monthlyEarnings ? monthlyEarnings.totalEarnings / monthlyEarnings.totalRides : 0
+        };
+      default:
+        return earningsData.total;
+    }
+  };
+
+  const formatCurrency = (amount: number) => {
+    return `$${amount.toFixed(2)}`;
+  };
+
+  const formatTime = (hours: number) => {
+    const wholeHours = Math.floor(hours);
+    const minutes = Math.round((hours - wholeHours) * 60);
+    return `${wholeHours}h ${minutes}m`;
+  };
+
+  const renderEarningsCard = () => {
+    const current = getCurrentEarnings();
+    
+    return (
+      <View className="bg-white dark:bg-gray-800 rounded-2xl p-6 mx-4 mb-4 shadow-lg">
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-2xl font-JakartaBold text-black dark:text-white">
+            {formatCurrency(current.earnings)}
+          </Text>
+          <View className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full">
+            <Text className="text-green-800 dark:text-green-200 font-JakartaBold text-sm">
+              +{formatCurrency(current.earnings * 0.1)}
+            </Text>
+          </View>
+        </View>
+        
+        <View className="flex-row justify-between">
+          <View className="items-center">
+            <Text className="text-3xl font-JakartaBold text-black dark:text-white">{current.rides}</Text>
+            <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">Rides</Text>
+          </View>
+          <View className="items-center">
+            <Text className="text-3xl font-JakartaBold text-black dark:text-white">{formatTime(current.hours)}</Text>
+            <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">Hours</Text>
+          </View>
+          <View className="items-center">
+            <Text className="text-3xl font-JakartaBold text-black dark:text-white">
+              {formatCurrency(current.averagePerRide)}
+            </Text>
+            <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">Avg/Ride</Text>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const renderPeriodSelector = () => (
+    <View className="flex-row mx-4 mb-4 bg-gray-100 dark:bg-gray-700 rounded-xl p-1">
+      {(['today', 'week', 'month', 'total'] as const).map((period) => (
+        <TouchableOpacity
+          key={period}
+          onPress={() => setSelectedPeriod(period)}
+          className={`flex-1 py-2 rounded-lg ${
+            selectedPeriod === period 
+              ? 'bg-white dark:bg-gray-600 shadow-sm' 
+              : 'bg-transparent'
+          }`}
+        >
+          <Text className={`text-center font-JakartaBold capitalize ${
+            selectedPeriod === period 
+              ? 'text-black dark:text-white' 
+              : 'text-gray-600 dark:text-gray-400'
+          }`}>
+            {period}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
+  const renderTripHistory = () => (
+    <View className="mx-4 mb-4">
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-lg font-JakartaBold text-black dark:text-white">Recent Trips</Text>
+        <TouchableOpacity onPress={() => router.push('/(driver)/earnings/history' as any)}>
+          <Text className="text-brand-primary font-JakartaBold">View All</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {tripHistory.map((trip) => (
+        <View key={trip.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 shadow-sm">
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-JakartaBold text-black dark:text-white">{trip.passengerName}</Text>
+            <Text className="text-lg font-JakartaBold text-green-600">{formatCurrency(trip.total)}</Text>
+          </View>
+          
+          <View className="flex-row items-center mb-2">
+            <Text className="text-gray-600 dark:text-gray-400 text-sm">📍 {trip.pickupLocation}</Text>
+          </View>
+          
+          <View className="flex-row items-center justify-between">
+            <Text className="text-gray-600 dark:text-gray-400 text-sm">📍 {trip.dropoffLocation}</Text>
+            <View className="flex-row items-center">
+              <Text className="text-yellow-500 mr-1">⭐</Text>
+              <Text className="text-gray-600 dark:text-gray-400 text-sm">{trip.rating}</Text>
+            </View>
+          </View>
+          
+          {trip.bonus > 0 && (
+            <View className="mt-2 bg-yellow-100 dark:bg-yellow-900 px-2 py-1 rounded-full self-start">
+              <Text className="text-yellow-800 dark:text-yellow-200 font-JakartaBold text-xs">
+                +{formatCurrency(trip.bonus)} bonus
+              </Text>
+            </View>
+          )}
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderPromotions = () => (
+    <View className="mx-4 mb-4">
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-lg font-JakartaBold text-black dark:text-white">Active Promotions</Text>
+        <TouchableOpacity onPress={() => router.push('/(driver)/earnings/promotions' as any)}>
+          <Text className="text-brand-primary font-JakartaBold">View All</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {promotions.map((promotion) => (
+        <View key={promotion.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 shadow-sm">
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-JakartaBold text-black dark:text-white">{promotion.name}</Text>
+            <View className="bg-green-100 dark:bg-green-900 px-2 py-1 rounded-full">
+              <Text className="text-green-800 dark:text-green-200 font-JakartaBold text-xs">
+                {promotion.reward}
+              </Text>
+            </View>
+          </View>
+          
+          <Text className="text-gray-600 dark:text-gray-400 text-sm mb-3">{promotion.description}</Text>
+          
+          <View className="mb-2">
+            <View className="flex-row items-center justify-between mb-1">
+              <Text className="text-gray-600 dark:text-gray-400 text-sm">Progress</Text>
+              <Text className="text-gray-600 dark:text-gray-400 text-sm">
+                {promotion.progress}/{promotion.target}
+              </Text>
+            </View>
+            <View className="bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+              <View 
+                className="bg-brand-primary rounded-full h-2"
+                style={{ width: `${(promotion.progress / promotion.target) * 100}%` }}
+              />
+            </View>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderChallenges = () => (
+    <View className="mx-4 mb-4">
+      <View className="flex-row items-center justify-between mb-3">
+        <Text className="text-lg font-JakartaBold text-black dark:text-white">Challenges</Text>
+        <TouchableOpacity onPress={() => router.push('/(driver)/earnings/challenges' as any)}>
+          <Text className="text-brand-primary font-JakartaBold">View All</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {challenges.map((challenge) => (
+        <View key={challenge.id} className="bg-white dark:bg-gray-800 rounded-xl p-4 mb-3 shadow-sm">
+          <View className="flex-row items-center justify-between mb-2">
+            <Text className="font-JakartaBold text-black dark:text-white">{challenge.name}</Text>
+            <Text className="text-lg font-JakartaBold text-green-600">
+              {formatCurrency(challenge.reward)}
+            </Text>
+          </View>
+          
+          <Text className="text-gray-600 dark:text-gray-400 text-sm mb-3">{challenge.description}</Text>
+          
+          <View className="mb-2">
+            <View className="flex-row items-center justify-between mb-1">
+              <Text className="text-gray-600 dark:text-gray-400 text-sm">Progress</Text>
+              <Text className="text-gray-600 dark:text-gray-400 text-sm">
+                {challenge.progress}/{challenge.target}
+              </Text>
+            </View>
+            <View className="bg-gray-200 dark:bg-gray-600 rounded-full h-2">
+              <View 
+                className="bg-blue-500 rounded-full h-2"
+                style={{ width: `${(challenge.progress / challenge.target) * 100}%` }}
+              />
+            </View>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+
+  const renderQuickActions = () => (
+    <View className="mx-4 mb-4">
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Quick Actions</Text>
+      
+      <View className="flex-row space-x-3">
+        <TouchableOpacity 
+          onPress={() => router.push('/(driver)/earnings/instant-pay' as any)}
+          className="flex-1 bg-green-500 rounded-xl p-4 items-center"
+        >
+          <Text className="text-white text-2xl mb-1">💳</Text>
+          <Text className="text-white font-JakartaBold">Instant Pay</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          onPress={() => router.push('/(driver)/earnings/analytics' as any)}
+          className="flex-1 bg-blue-500 rounded-xl p-4 items-center"
+        >
+          <Text className="text-white text-2xl mb-1">📊</Text>
+          <Text className="text-white font-JakartaBold">Analytics</Text>
+        </TouchableOpacity>
+        
+        <TouchableOpacity 
+          onPress={() => router.push('/(driver)/earnings/settings' as any)}
+          className="flex-1 bg-gray-500 rounded-xl p-4 items-center"
+        >
+          <Text className="text-white text-2xl mb-1">⚙️</Text>
+          <Text className="text-white font-JakartaBold">Settings</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
 
   return (
-    <SafeAreaView className="flex-1 bg-general-500">
+    <SafeAreaView className="flex-1 bg-gray-50 dark:bg-gray-900">
       {/* Header */}
-      <View className="bg-white p-5">
-        <Text className="text-xl font-JakartaBold">Earnings</Text>
-        <Text className="text-secondary-600 mt-1">
-          Track your income and performance
-        </Text>
+      <View className="flex-row items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text className="text-2xl">←</Text>
+        </TouchableOpacity>
+        <Text className="text-lg font-JakartaBold text-black dark:text-white">Earnings</Text>
+        <TouchableOpacity onPress={() => router.push('/(driver)/earnings/settings' as any)}>
+          <Text className="text-2xl">⚙️</Text>
+        </TouchableOpacity>
       </View>
 
-      <ScrollView className="flex-1 px-5">
-        {/* Period Selector */}
-        <View className="bg-white rounded-lg p-1 mb-4 flex-row">
-          {[
-            { key: "today", label: "Today" },
-            { key: "week", label: "This Week" },
-            { key: "month", label: "This Month" },
-          ].map((period) => (
-            <TouchableOpacity
-              key={period.key}
-              onPress={() => setSelectedPeriod(period.key as any)}
-              className={`flex-1 py-2 px-4 rounded-md ${
-                selectedPeriod === period.key
-                  ? "bg-primary-500"
-                  : "bg-transparent"
-              }`}
-            >
-              <Text
-                className={`text-center font-JakartaBold ${
-                  selectedPeriod === period.key
-                    ? "text-white"
-                    : "text-secondary-600"
-                }`}
-              >
-                {period.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {/* Main Earnings Card */}
-        <View className="bg-white rounded-lg p-6 mb-4">
-          <Text className="text-lg font-JakartaBold mb-4">Total Earnings</Text>
-          <Text className="text-4xl font-JakartaExtraBold text-primary-500 mb-6">
-            ${currentData.total.toFixed(2)}
-          </Text>
-
-          <View className="flex-row justify-between mb-4">
-            <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-success-500">
-                {currentData.trips}
-              </Text>
-              <Text className="text-sm text-secondary-600">Trips</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-primary-500">
-                {currentData.hours.toFixed(1)}
-              </Text>
-              <Text className="text-sm text-secondary-600">Hours</Text>
-            </View>
-            <View className="items-center">
-              <Text className="text-2xl font-JakartaExtraBold text-warning-500">
-                ${hourlyRate.toFixed(2)}
-              </Text>
-              <Text className="text-sm text-secondary-600">/hour</Text>
-            </View>
-          </View>
-
-          <View className="bg-general-500 rounded-lg p-3">
-            <View className="flex-row justify-between">
-              <Text className="font-JakartaMedium">Base Fare</Text>
-              <Text className="font-JakartaBold">
-                ${(currentData.total - currentData.tips).toFixed(2)}
-              </Text>
-            </View>
-            <View className="flex-row justify-between mt-2">
-              <Text className="font-JakartaMedium">Tips</Text>
-              <Text className="font-JakartaBold text-success-500">
-                +${currentData.tips.toFixed(2)}
-              </Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Trip History */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Recent Trips</Text>
-
-          {DUMMY_TRIP_HISTORY.map((trip) => (
-            <View
-              key={trip.id}
-              className="border-b border-general-500 py-3 last:border-b-0"
-            >
-              <View className="flex-row justify-between items-center mb-2">
-                <Text className="font-JakartaBold">
-                  ${trip.fare.toFixed(2)}
-                  {trip.tips > 0 && (
-                    <Text className="text-success-500">
-                      {" "}
-                      +${trip.tips.toFixed(2)} tip
-                    </Text>
-                  )}
-                </Text>
-                <Text className="text-sm text-secondary-600">
-                  {trip.date} • {trip.time}
-                </Text>
-              </View>
-
-              <View className="flex-row justify-between items-center">
-                <View className="flex-row items-center">
-                  <Text className="text-sm text-secondary-600 mr-2">
-                    {trip.distance} mi • ⭐ {trip.rating}
-                  </Text>
-                </View>
-                <TouchableOpacity className="bg-primary-500 px-3 py-1 rounded-full">
-                  <Text className="text-white text-xs font-JakartaBold">
-                    Details
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))}
-        </View>
-
-        {/* Weekly Goal Progress */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">Weekly Goal</Text>
-          <View className="bg-general-500 rounded-full h-3 mb-2">
-            <View
-              className="bg-success-500 h-3 rounded-full"
-              style={{ width: "75%" }}
-            />
-          </View>
-          <View className="flex-row justify-between">
-            <Text className="text-sm text-secondary-600">$285.25 earned</Text>
-            <Text className="text-sm text-secondary-600">$350 goal</Text>
-          </View>
-          <Text className="text-sm text-success-500 mt-1">
-            75% complete • $64.75 to go
-          </Text>
-        </View>
-
-        {/* Payout Information */}
-        <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">Next Payout</Text>
-          <View className="flex-row justify-between items-center">
-            <View>
-              <Text className="font-JakartaBold text-success-500">$285.25</Text>
-              <Text className="text-sm text-secondary-600">
-                Available to withdraw
-              </Text>
-            </View>
-            <TouchableOpacity className="bg-primary-500 px-6 py-3 rounded-full">
-              <Text className="text-white font-JakartaBold">Withdraw</Text>
-            </TouchableOpacity>
-          </View>
-          <Text className="text-xs text-secondary-600 mt-2">
-            Payout processed every Monday • Bank account ending in ****1234
-          </Text>
-        </View>
+      <ScrollView
+        className="flex-1"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
+        }
+      >
+        {renderPeriodSelector()}
+        {renderEarningsCard()}
+        {renderQuickActions()}
+        {renderTripHistory()}
+        {renderPromotions()}
+        {renderChallenges()}
       </ScrollView>
     </SafeAreaView>
   );
 };
 
-export default Earnings;
+export default EarningsScreen;
