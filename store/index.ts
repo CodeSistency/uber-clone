@@ -11,5 +11,19 @@ export * from './onboarding';
 export * from './earnings';
 export * from './safety';
 export * from './ratings';
-export * from './driverConfig';
-export * from './mapFlow/mapFlow';
+
+// Specific exports to avoid naming conflicts
+export {
+  useDriverConfigStore,
+  DriverProfile,
+  ServiceType as DriverServiceType
+} from './driverConfig';
+
+export {
+  useMapFlowStore,
+  MapFlowRole,
+  ServiceType as FlowServiceType,
+  FlowRole,
+  FlowStep,
+  MapFlowStep
+} from './mapFlow/mapFlow';

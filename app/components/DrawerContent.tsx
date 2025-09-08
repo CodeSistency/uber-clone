@@ -106,6 +106,11 @@ const DrawerContent = ({
       icon: "🗺️",
       route: "/(root)/map-flows-demo",
     },
+    {
+      title: "Flujo Unificado Demo",
+      icon: "🔄",
+      route: "/(root)/unified-flow-demo",
+    },
       {
         title: "Conductor",
         icon: "🚗",

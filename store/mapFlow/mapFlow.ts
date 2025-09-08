@@ -2,6 +2,71 @@ import { create } from 'zustand';
 
 export type MapFlowRole = 'customer' | 'driver';
 
+// Global flow types
+export type ServiceType = 'transport' | 'delivery' | 'mandado' | 'envio';
+
+export type FlowRole = 'customer' | 'driver';
+
+export type FlowStep =
+  // Selection steps
+  | 'SELECCION_SERVICIO'
+
+  // Customer Transport steps
+  | 'CUSTOMER_TRANSPORT_DEFINICION_VIAJE'
+  | 'CUSTOMER_TRANSPORT_SELECCION_VEHICULO'
+  | 'CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR'
+  | 'CUSTOMER_TRANSPORT_GESTION_CONFIRMACION'
+  | 'CUSTOMER_TRANSPORT_DURANTE_FINALIZACION'
+
+  // Driver Transport steps
+  | 'DRIVER_TRANSPORT_RECIBIR_SOLICITUD'
+  | 'DRIVER_TRANSPORT_ACEPTAR_RECHAZAR'
+  | 'DRIVER_TRANSPORT_EN_CAMINO_ORIGEN'
+  | 'DRIVER_TRANSPORT_EN_ORIGEN'
+  | 'DRIVER_TRANSPORT_INICIAR_VIAJE'
+  | 'DRIVER_TRANSPORT_EN_VIAJE'
+  | 'DRIVER_TRANSPORT_COMPLETAR_VIAJE'
+
+  // Customer Delivery steps
+  | 'CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO'
+  | 'CUSTOMER_DELIVERY_ARMADO_PEDIDO'
+  | 'CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION'
+  | 'CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY'
+
+  // Driver Delivery steps
+  | 'DRIVER_DELIVERY_RECIBIR_SOLICITUD'
+  | 'DRIVER_DELIVERY_PREPARAR_PEDIDO'
+  | 'DRIVER_DELIVERY_RECOGER_PEDIDO'
+  | 'DRIVER_DELIVERY_EN_CAMINO_ENTREGA'
+  | 'DRIVER_DELIVERY_ENTREGAR_PEDIDO'
+
+  // Customer Mandado steps
+  | 'CUSTOMER_MANDADO_DETALLES_MANDADO'
+  | 'CUSTOMER_MANDADO_PRECIO_PAGO'
+  | 'CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR'
+  | 'CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION'
+  | 'CUSTOMER_MANDADO_FINALIZACION'
+
+  // Driver Mandado steps
+  | 'DRIVER_MANDADO_RECIBIR_SOLICITUD'
+  | 'DRIVER_MANDADO_EN_CAMINO_ORIGEN'
+  | 'DRIVER_MANDADO_RECOGER_PRODUCTOS'
+  | 'DRIVER_MANDADO_EN_CAMINO_DESTINO'
+  | 'DRIVER_MANDADO_ENTREGAR_MANDADO'
+
+  // Customer Envío steps
+  | 'CUSTOMER_ENVIO_DETALLES_ENVIO'
+  | 'CUSTOMER_ENVIO_CALCULAR_PRECIO'
+  | 'CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE'
+  | 'CUSTOMER_ENVIO_CONFIRMACION_ENTREGA'
+
+  // Driver Envío steps
+  | 'DRIVER_ENVIO_RECIBIR_SOLICITUD'
+  | 'DRIVER_ENVIO_EN_CAMINO_ORIGEN'
+  | 'DRIVER_ENVIO_RECOGER_PAQUETE'
+  | 'DRIVER_ENVIO_EN_CAMINO_DESTINO'
+  | 'DRIVER_ENVIO_ENTREGAR_PAQUETE';
+
 export type MapFlowStep =
   | 'idle'
   | 'travel_start'
@@ -9,7 +74,8 @@ export type MapFlowStep =
   | 'confirm_origin'
   | 'choose_service'
   | 'choose_driver'
-  | 'summary';
+  | 'summary'
+  | FlowStep;
 
 interface StepConfig {
   id: MapFlowStep;
@@ -33,6 +99,7 @@ interface StepConfig {
 
 export interface MapFlowState {
   role: MapFlowRole;
+  service?: ServiceType; // For unified flow
   step: MapFlowStep;
   history: MapFlowStep[];
   isActive: boolean;
@@ -53,6 +120,7 @@ export interface MapFlowState {
 
   // Actions
   start: (role: MapFlowRole) => void;
+  startService: (service: ServiceType, role?: FlowRole) => void; // For unified flow
   stop: () => void;
   reset: () => void;
   goTo: (step: MapFlowStep) => void;
@@ -62,6 +130,72 @@ export interface MapFlowState {
   setMapInteraction: (step: MapFlowStep, interaction: NonNullable<StepConfig['mapInteraction']>) => void;
   updateStepTransition: (step: MapFlowStep, cfg: Partial<NonNullable<StepConfig['transition']>>) => void;
 }
+
+// Service flows configuration for unified flow
+const SERVICE_FLOWS: Record<FlowRole, Record<ServiceType, FlowStep[]>> = {
+  // Customer flows
+  customer: {
+    transport: [
+      'CUSTOMER_TRANSPORT_DEFINICION_VIAJE',
+      'CUSTOMER_TRANSPORT_SELECCION_VEHICULO',
+      'CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR',
+      'CUSTOMER_TRANSPORT_GESTION_CONFIRMACION',
+      'CUSTOMER_TRANSPORT_DURANTE_FINALIZACION'
+    ],
+    delivery: [
+      'CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO',
+      'CUSTOMER_DELIVERY_ARMADO_PEDIDO',
+      'CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION',
+      'CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY'
+    ],
+    mandado: [
+      'CUSTOMER_MANDADO_DETALLES_MANDADO',
+      'CUSTOMER_MANDADO_PRECIO_PAGO',
+      'CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR',
+      'CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION',
+      'CUSTOMER_MANDADO_FINALIZACION'
+    ],
+    envio: [
+      'CUSTOMER_ENVIO_DETALLES_ENVIO',
+      'CUSTOMER_ENVIO_CALCULAR_PRECIO',
+      'CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE',
+      'CUSTOMER_ENVIO_CONFIRMACION_ENTREGA'
+    ]
+  },
+  // Driver flows
+  driver: {
+    transport: [
+      'DRIVER_TRANSPORT_RECIBIR_SOLICITUD',
+      'DRIVER_TRANSPORT_ACEPTAR_RECHAZAR',
+      'DRIVER_TRANSPORT_EN_CAMINO_ORIGEN',
+      'DRIVER_TRANSPORT_EN_ORIGEN',
+      'DRIVER_TRANSPORT_INICIAR_VIAJE',
+      'DRIVER_TRANSPORT_EN_VIAJE',
+      'DRIVER_TRANSPORT_COMPLETAR_VIAJE'
+    ],
+    delivery: [
+      'DRIVER_DELIVERY_RECIBIR_SOLICITUD',
+      'DRIVER_DELIVERY_PREPARAR_PEDIDO',
+      'DRIVER_DELIVERY_RECOGER_PEDIDO',
+      'DRIVER_DELIVERY_EN_CAMINO_ENTREGA',
+      'DRIVER_DELIVERY_ENTREGAR_PEDIDO'
+    ],
+    mandado: [
+      'DRIVER_MANDADO_RECIBIR_SOLICITUD',
+      'DRIVER_MANDADO_EN_CAMINO_ORIGEN',
+      'DRIVER_MANDADO_RECOGER_PRODUCTOS',
+      'DRIVER_MANDADO_EN_CAMINO_DESTINO',
+      'DRIVER_MANDADO_ENTREGAR_MANDADO'
+    ],
+    envio: [
+      'DRIVER_ENVIO_RECIBIR_SOLICITUD',
+      'DRIVER_ENVIO_EN_CAMINO_ORIGEN',
+      'DRIVER_ENVIO_RECOGER_PAQUETE',
+      'DRIVER_ENVIO_EN_CAMINO_DESTINO',
+      'DRIVER_ENVIO_ENTREGAR_PAQUETE'
+    ]
+  }
+};
 
 const DEFAULT_CONFIG: Record<MapFlowStep, StepConfig> = {
   idle: {
@@ -106,12 +240,277 @@ const DEFAULT_CONFIG: Record<MapFlowStep, StepConfig> = {
     mapInteraction: 'follow_route',
     transition: { type: 'slide', duration: 220 },
   },
+
+  // Unified flow steps
+  SELECCION_SERVICIO: {
+    id: 'SELECCION_SERVICIO',
+    bottomSheet: { visible: true, minHeight: 140, maxHeight: 420, initialHeight: 200, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Customer Transport
+  CUSTOMER_TRANSPORT_DEFINICION_VIAJE: {
+    id: 'CUSTOMER_TRANSPORT_DEFINICION_VIAJE',
+    bottomSheet: { visible: true, minHeight: 160, maxHeight: 520, initialHeight: 320, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_TRANSPORT_SELECCION_VEHICULO: {
+    id: 'CUSTOMER_TRANSPORT_SELECCION_VEHICULO',
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 560, initialHeight: 440, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR: {
+    id: 'CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR',
+    bottomSheet: { visible: true, minHeight: 160, maxHeight: 520, initialHeight: 380, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  CUSTOMER_TRANSPORT_GESTION_CONFIRMACION: {
+    id: 'CUSTOMER_TRANSPORT_GESTION_CONFIRMACION',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 260, initialHeight: 120, showHandle: true, allowDrag: false },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'fade', duration: 180 }
+  },
+  CUSTOMER_TRANSPORT_DURANTE_FINALIZACION: {
+    id: 'CUSTOMER_TRANSPORT_DURANTE_FINALIZACION',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 520, initialHeight: 320, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Customer Delivery
+  CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO: {
+    id: 'CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO',
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 600, initialHeight: 400, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_DELIVERY_ARMADO_PEDIDO: {
+    id: 'CUSTOMER_DELIVERY_ARMADO_PEDIDO',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 800, initialHeight: 600, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION: {
+    id: 'CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 800, initialHeight: 600, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY: {
+    id: 'CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_driver',
+    transition: { type: 'fade', duration: 200 }
+  },
+
+  // Customer Mandado
+  CUSTOMER_MANDADO_DETALLES_MANDADO: {
+    id: 'CUSTOMER_MANDADO_DETALLES_MANDADO',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 800, initialHeight: 600, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_MANDADO_PRECIO_PAGO: {
+    id: 'CUSTOMER_MANDADO_PRECIO_PAGO',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 800, initialHeight: 600, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR: {
+    id: 'CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 200, initialHeight: 120, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'fade', duration: 200 }
+  },
+  CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION: {
+    id: 'CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION',
+    bottomSheet: { visible: true, minHeight: 140, maxHeight: 400, initialHeight: 240, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_driver',
+    transition: { type: 'fade', duration: 200 }
+  },
+  CUSTOMER_MANDADO_FINALIZACION: {
+    id: 'CUSTOMER_MANDADO_FINALIZACION',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 520, initialHeight: 320, showHandle: true, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Customer Envío
+  CUSTOMER_ENVIO_DETALLES_ENVIO: {
+    id: 'CUSTOMER_ENVIO_DETALLES_ENVIO',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 800, initialHeight: 600, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_ENVIO_CALCULAR_PRECIO: {
+    id: 'CUSTOMER_ENVIO_CALCULAR_PRECIO',
+    bottomSheet: { visible: true, minHeight: 100, maxHeight: 800, initialHeight: 600, showHandle: false, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE: {
+    id: 'CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_driver',
+    transition: { type: 'fade', duration: 200 }
+  },
+  CUSTOMER_ENVIO_CONFIRMACION_ENTREGA: {
+    id: 'CUSTOMER_ENVIO_CONFIRMACION_ENTREGA',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 520, initialHeight: 320, showHandle: true, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Driver Transport
+  DRIVER_TRANSPORT_RECIBIR_SOLICITUD: {
+    id: 'DRIVER_TRANSPORT_RECIBIR_SOLICITUD',
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  DRIVER_TRANSPORT_ACEPTAR_RECHAZAR: {
+    id: 'DRIVER_TRANSPORT_ACEPTAR_RECHAZAR',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 400, initialHeight: 220, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_TRANSPORT_EN_CAMINO_ORIGEN: {
+    id: 'DRIVER_TRANSPORT_EN_CAMINO_ORIGEN',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_TRANSPORT_EN_ORIGEN: {
+    id: 'DRIVER_TRANSPORT_EN_ORIGEN',
+    bottomSheet: { visible: true, minHeight: 140, maxHeight: 350, initialHeight: 180, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'fade', duration: 180 }
+  },
+  DRIVER_TRANSPORT_INICIAR_VIAJE: {
+    id: 'DRIVER_TRANSPORT_INICIAR_VIAJE',
+    bottomSheet: { visible: true, minHeight: 160, maxHeight: 400, initialHeight: 200, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'slide', duration: 220 }
+  },
+  DRIVER_TRANSPORT_EN_VIAJE: {
+    id: 'DRIVER_TRANSPORT_EN_VIAJE',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_TRANSPORT_COMPLETAR_VIAJE: {
+    id: 'DRIVER_TRANSPORT_COMPLETAR_VIAJE',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Driver Delivery
+  DRIVER_DELIVERY_RECIBIR_SOLICITUD: {
+    id: 'DRIVER_DELIVERY_RECIBIR_SOLICITUD',
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  DRIVER_DELIVERY_PREPARAR_PEDIDO: {
+    id: 'DRIVER_DELIVERY_PREPARAR_PEDIDO',
+    bottomSheet: { visible: true, minHeight: 140, maxHeight: 350, initialHeight: 180, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_DELIVERY_RECOGER_PEDIDO: {
+    id: 'DRIVER_DELIVERY_RECOGER_PEDIDO',
+    bottomSheet: { visible: true, minHeight: 160, maxHeight: 400, initialHeight: 200, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'fade', duration: 180 }
+  },
+  DRIVER_DELIVERY_EN_CAMINO_ENTREGA: {
+    id: 'DRIVER_DELIVERY_EN_CAMINO_ENTREGA',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_DELIVERY_ENTREGAR_PEDIDO: {
+    id: 'DRIVER_DELIVERY_ENTREGAR_PEDIDO',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Driver Mandado
+  DRIVER_MANDADO_RECIBIR_SOLICITUD: {
+    id: 'DRIVER_MANDADO_RECIBIR_SOLICITUD',
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  DRIVER_MANDADO_EN_CAMINO_ORIGEN: {
+    id: 'DRIVER_MANDADO_EN_CAMINO_ORIGEN',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_MANDADO_RECOGER_PRODUCTOS: {
+    id: 'DRIVER_MANDADO_RECOGER_PRODUCTOS',
+    bottomSheet: { visible: true, minHeight: 160, maxHeight: 400, initialHeight: 200, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'fade', duration: 180 }
+  },
+  DRIVER_MANDADO_EN_CAMINO_DESTINO: {
+    id: 'DRIVER_MANDADO_EN_CAMINO_DESTINO',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_MANDADO_ENTREGAR_MANDADO: {
+    id: 'DRIVER_MANDADO_ENTREGAR_MANDADO',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'slide', duration: 220 }
+  },
+
+  // Driver Envío
+  DRIVER_ENVIO_RECIBIR_SOLICITUD: {
+    id: 'DRIVER_ENVIO_RECIBIR_SOLICITUD',
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+  DRIVER_ENVIO_EN_CAMINO_ORIGEN: {
+    id: 'DRIVER_ENVIO_EN_CAMINO_ORIGEN',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_ENVIO_RECOGER_PAQUETE: {
+    id: 'DRIVER_ENVIO_RECOGER_PAQUETE',
+    bottomSheet: { visible: true, minHeight: 160, maxHeight: 400, initialHeight: 200, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'fade', duration: 180 }
+  },
+  DRIVER_ENVIO_EN_CAMINO_DESTINO: {
+    id: 'DRIVER_ENVIO_EN_CAMINO_DESTINO',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 300, initialHeight: 150, showHandle: true, allowDrag: true },
+    mapInteraction: 'follow_route',
+    transition: { type: 'fade', duration: 200 }
+  },
+  DRIVER_ENVIO_ENTREGAR_PAQUETE: {
+    id: 'DRIVER_ENVIO_ENTREGAR_PAQUETE',
+    bottomSheet: { visible: true, minHeight: 180, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    mapInteraction: 'pan_to_confirm',
+    transition: { type: 'slide', duration: 220 }
+  },
 };
 
 export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   role: 'customer',
-  step: 'idle',
-  history: [],
+  service: undefined,
+  step: 'SELECCION_SERVICIO', // Start with service selection
+  history: ['SELECCION_SERVICIO'],
   isActive: false,
   stepConfig: DEFAULT_CONFIG,
 
@@ -150,6 +549,31 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
     };
     console.log('[MapFlowStore] Setting new state:', newState);
     set(() => newState as MapFlowState);
+  },
+
+  startService: (service: ServiceType, role: FlowRole = 'customer') => {
+    console.log('[MapFlowStore] Starting service flow:', { service, role });
+    const firstStep = SERVICE_FLOWS[role][service][0];
+    const cfg = get().stepConfig[firstStep];
+
+    set(() => ({
+      role,
+      service,
+      isActive: true,
+      step: firstStep,
+      history: [firstStep],
+      bottomSheetVisible: cfg.bottomSheet.visible,
+      bottomSheetMinHeight: cfg.bottomSheet.minHeight,
+      bottomSheetMaxHeight: cfg.bottomSheet.maxHeight,
+      bottomSheetInitialHeight: cfg.bottomSheet.initialHeight,
+      bottomSheetAllowDrag: cfg.bottomSheet.allowDrag ?? true,
+      bottomSheetClassName: cfg.bottomSheet.className,
+      bottomSheetSnapPoints: cfg.bottomSheet.snapPoints,
+      bottomSheetHandleHeight: cfg.bottomSheet.handleHeight ?? 44,
+      mapInteraction: cfg.mapInteraction || 'none',
+      transitionType: cfg.transition?.type || 'none',
+      transitionDuration: cfg.transition?.duration || 0,
+    }));
   },
 
   stop: () => {
@@ -210,7 +634,10 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   },
 
   next: () => {
-    const order: MapFlowStep[] = [
+    const state = get();
+
+    // Handle original flow steps
+    const originalOrder: MapFlowStep[] = [
       'travel_start',
       'set_locations',
       'confirm_origin',
@@ -218,10 +645,25 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
       'choose_driver',
       'summary',
     ];
-    const current = get().step;
-    const idx = order.indexOf(current);
-    const nextStep = order[Math.min(idx + 1, order.length - 1)];
-    get().goTo(nextStep);
+
+    // Handle unified flow steps
+    if (state.service && state.role && SERVICE_FLOWS[state.role]?.[state.service]) {
+      const serviceFlow = SERVICE_FLOWS[state.role][state.service];
+      const currentIndex = serviceFlow.indexOf(state.step as FlowStep);
+
+      if (currentIndex >= 0 && currentIndex < serviceFlow.length - 1) {
+        const nextStep = serviceFlow[currentIndex + 1];
+        get().goTo(nextStep);
+      }
+    } else {
+      // Handle original flow
+      const current = state.step;
+      const idx = originalOrder.indexOf(current);
+      if (idx !== -1 && idx < originalOrder.length - 1) {
+        const nextStep = originalOrder[idx + 1];
+        get().goTo(nextStep);
+      }
+    }
   },
 
   back: () => {
