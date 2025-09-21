@@ -1,14 +1,16 @@
 import { router } from "expo-router";
+import { useState } from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
 
 import CustomButton from "@/components/CustomButton";
-import VehicleTypeSelector from "@/components/VehicleTypeSelector";
 import RideLayout from "@/components/RideLayout";
+import VehicleTypeSelector from "@/components/VehicleTypeSelector";
 import { icons } from "@/constants";
-import { useState } from "react";
 
 const VehicleSelection = () => {
-  const [selectedVehicleType, setSelectedVehicleType] = useState<number | null>(null);
+  const [selectedVehicleType, setSelectedVehicleType] = useState<number | null>(
+    null,
+  );
 
   return (
     <RideLayout title="Choose Vehicle" snapPoints={["25%", "50%"]}>

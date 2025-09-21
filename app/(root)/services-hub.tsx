@@ -1,17 +1,42 @@
-import { useRef, useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, FlatList, ScrollView, Animated, PanResponder, Dimensions, ColorValue, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useRef, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  ScrollView,
+  Animated,
+  PanResponder,
+  Dimensions,
+  ColorValue,
+  StyleSheet,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import Map from "@/components/Map";
-import { useDriverStore } from "@/store";
-import { icons } from "@/constants";
 import { useUI } from "@/components/UIWrapper";
+import { icons } from "@/constants";
 import { Restaurant, loadNearbyRestaurants } from "@/constants/dummyData";
+import { useDriverStore } from "@/store";
 
-const ServicePill = ({ title, icon, active = false, onPress }: { title: string; icon: string; active?: boolean; onPress?: () => void }) => (
-  <TouchableOpacity onPress={onPress} className={`px-5 py-3 rounded-xl mr-3 ${active ? 'bg-brand-secondary' : 'bg-white dark:bg-brand-primaryDark'}`}>
+const ServicePill = ({
+  title,
+  icon,
+  active = false,
+  onPress,
+}: {
+  title: string;
+  icon: string;
+  active?: boolean;
+  onPress?: () => void;
+}) => (
+  <TouchableOpacity
+    onPress={onPress}
+    className={`px-5 py-3 rounded-xl mr-3 ${active ? "bg-brand-secondary" : "bg-white dark:bg-brand-primaryDark"}`}
+  >
     <View className="flex-row items-center">
       <Text className="text-base font-JakartaBold mr-2">{title}</Text>
       <Text className="text-lg">{icon}</Text>
@@ -20,7 +45,8 @@ const ServicePill = ({ title, icon, active = false, onPress }: { title: string; 
 );
 
 // Lightweight bottom sheet implemented locally for this screen
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const BottomSheet = ({
   children,
@@ -28,7 +54,12 @@ const BottomSheet = ({
   maxHeight = 560,
   initialHeight = 320,
   useGradient = true,
-  gradientColors = ["rgba(0,0,0,0.65)", "rgba(0,0,0,0.25)", "rgba(0,0,0,0.05)", "rgba(0,0,0,0)"] as const,
+  gradientColors = [
+    "rgba(0,0,0,0.65)",
+    "rgba(0,0,0,0.25)",
+    "rgba(0,0,0,0.05)",
+    "rgba(0,0,0,0)",
+  ] as const,
   bottomBar,
   bottomBarHeight = 64,
   showBottomBarAt = 0.6,
@@ -79,10 +110,12 @@ const BottomSheet = ({
         const end = clamp(startHeightRef.current - g.dy, minHeight, cappedMax);
         const mid = (minHeight + cappedMax) / 2;
         const snaps = [minHeight, mid, cappedMax];
-        const nearest = snaps.reduce((a, b) => (Math.abs(b - end) < Math.abs(a - end) ? b : a));
+        const nearest = snaps.reduce((a, b) =>
+          Math.abs(b - end) < Math.abs(a - end) ? b : a,
+        );
         animateTo(nearest);
       },
-    })
+    }),
   ).current;
 
   // Animated bottom bar
@@ -90,12 +123,12 @@ const BottomSheet = ({
   const barTranslate = heightAnim.interpolate({
     inputRange: [threshold - 40, threshold + 40],
     outputRange: [bottomBarHeight, 0],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
   const barOpacity = heightAnim.interpolate({
     inputRange: [threshold - 20, threshold + 20],
     outputRange: [0, 1],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   return (
@@ -115,20 +148,28 @@ const BottomSheet = ({
           <View className="absolute inset-0 bg-white dark:bg-brand-primary" />
         )}
         {/* Drag handle */}
-        <View
-          {...panResponder.panHandlers}
-          className="items-center pt-2 pb-1"
-        >
+        <View {...panResponder.panHandlers} className="items-center pt-2 pb-1">
           <View className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500" />
         </View>
 
         {/* Scrollable content */}
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: bottomBar ? bottomBarHeight + 24 : 16 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: bottomBar ? bottomBarHeight + 24 : 16,
+          }}
+        >
           {children}
         </ScrollView>
 
         {bottomBar && (
-          <Animated.View style={{ transform: [{ translateY: barTranslate }], opacity: barOpacity }} className="absolute left-0 right-0 bottom-0">
+          <Animated.View
+            style={{
+              transform: [{ translateY: barTranslate }],
+              opacity: barOpacity,
+            }}
+            className="absolute left-0 right-0 bottom-0"
+          >
             <View className="mx-4 mb-4 rounded-2xl px-4 py-3 bg-white/95 dark:bg-black/70 border border-black/5 dark:border-white/10">
               {bottomBar}
             </View>
@@ -164,7 +205,9 @@ const ServicesHub = () => {
       <View className="flex-1">
         {/* Top bar */}
         <View className="px-4 pt-2 pb-3 flex-row items-center justify-between">
-          <Text className="text-lg font-JakartaBold text-white">¡Hola, Jose!</Text>
+          <Text className="text-lg font-JakartaBold text-white">
+            ¡Hola, Jose!
+          </Text>
           <View className="flex-row items-center">
             <Text className="text-white mr-1">0.00 $</Text>
             <Text className="text-white">4.4/5 ⭐</Text>
@@ -179,34 +222,74 @@ const ServicesHub = () => {
 
         {/* Map background */}
         <View className="flex-1">
-          <Map serviceType="transport" restaurants={restaurants} isLoadingRestaurants={loadingRestaurants} />
+          <Map
+            serviceType="transport"
+            restaurants={restaurants}
+            isLoadingRestaurants={loadingRestaurants}
+          />
 
           {/* Bottom sheet with service lists */}
-          <BottomSheet minHeight={140} maxHeight={560} initialHeight={320} useGradient bottomBar={(
-            <View className="flex-row items-center justify-between">
-              <Text className="font-JakartaBold text-black dark:text-white">Servicios</Text>
-              <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/home' as any)} className="px-3 py-2 bg-brand-secondary rounded-full">
-                <Text className="text-black font-JakartaBold">Ir a Home</Text>
-              </TouchableOpacity>
-            </View>
-          )} bottomBarHeight={64} showBottomBarAt={0.6}
-            gradientColors={theme === 'dark'
-              ? (['rgba(0,0,0,0.92)','rgba(0,0,0,0.78)','rgba(18,18,18,0.66)','rgba(30,30,30,0.64)'] as const)
-              : (['rgba(20,20,20,0.9)','rgba(50,50,50,0.75)','rgba(160,160,160,0.55)','rgba(235,235,235,0.55)'] as const)
+          <BottomSheet
+            minHeight={140}
+            maxHeight={560}
+            initialHeight={320}
+            useGradient
+            bottomBar={
+              <View className="flex-row items-center justify-between">
+                <Text className="font-JakartaBold text-black dark:text-white">
+                  Servicios
+                </Text>
+                <TouchableOpacity
+                  onPress={() => router.push("/(root)/(tabs)/home" as any)}
+                  className="px-3 py-2 bg-brand-secondary rounded-full"
+                >
+                  <Text className="text-black font-JakartaBold">Ir a Home</Text>
+                </TouchableOpacity>
+              </View>
+            }
+            bottomBarHeight={64}
+            showBottomBarAt={0.6}
+            gradientColors={
+              theme === "dark"
+                ? ([
+                    "rgba(0,0,0,0.92)",
+                    "rgba(0,0,0,0.78)",
+                    "rgba(18,18,18,0.66)",
+                    "rgba(30,30,30,0.64)",
+                  ] as const)
+                : ([
+                    "rgba(20,20,20,0.9)",
+                    "rgba(50,50,50,0.75)",
+                    "rgba(160,160,160,0.55)",
+                    "rgba(235,235,235,0.55)",
+                  ] as const)
             }
           >
             {/* Servicios */}
             <View className="px-4">
-              <Text className="text-white font-JakartaBold text-lg mb-2">Servicios</Text>
+              <Text className="text-white font-JakartaBold text-lg mb-2">
+                Servicios
+              </Text>
               <View className="flex-row">
-                <ServicePill title="Viajes" icon="🚕" active onPress={() => router.push("/(root)/find-ride" as any)} />
-                <ServicePill title="Envios" icon="📦" onPress={() => router.push("/(marketplace)" as any)} />
+                <ServicePill
+                  title="Viajes"
+                  icon="🚕"
+                  active
+                  onPress={() => router.push("/(root)/find-ride" as any)}
+                />
+                <ServicePill
+                  title="Envios"
+                  icon="📦"
+                  onPress={() => router.push("/(marketplace)" as any)}
+                />
               </View>
             </View>
 
             {/* Compra */}
             <View className="px-4 mt-4">
-              <Text className="text-white font-JakartaBold text-lg mb-2">Compra!</Text>
+              <Text className="text-white font-JakartaBold text-lg mb-2">
+                Compra!
+              </Text>
               <View className="flex-row">
                 <ServicePill title="Comida" icon="🍔" />
                 <ServicePill title="Medicina" icon="💊" />
@@ -215,7 +298,9 @@ const ServicesHub = () => {
 
             {/* Popular */}
             <View className="px-4 mt-4">
-              <Text className="text-white font-JakartaBold text-lg mb-2">Popular!</Text>
+              <Text className="text-white font-JakartaBold text-lg mb-2">
+                Popular!
+              </Text>
               <View className="flex-row">
                 <TouchableOpacity className="flex-1 h-28 mr-3 rounded-2xl bg-white/10 border border-white/20 items-center justify-center">
                   <Text className="text-white font-JakartaBold">Imagen</Text>
@@ -229,7 +314,9 @@ const ServicesHub = () => {
             {/* Cerca de ti */}
             <View className="px-4 mt-4">
               <View className="flex-row items-center justify-between mb-2">
-                <Text className="text-white font-JakartaBold text-lg">Cerca de ti!</Text>
+                <Text className="text-white font-JakartaBold text-lg">
+                  Cerca de ti!
+                </Text>
                 <View className="px-3 py-1 rounded-full bg-black/70">
                   <Text className="text-white text-xs">transporte 🚗</Text>
                 </View>
@@ -245,15 +332,23 @@ const ServicesHub = () => {
                       <View className="flex-row items-center flex-1 mr-3">
                         <Text className="text-xl mr-3">🚕</Text>
                         <View>
-                          <Text className="font-JakartaBold text-black dark:text-white">{item.first_name}</Text>
-                          <Text className="text-xs text-gray-600 dark:text-gray-300">Nissan v1 • 6 min • 6 km</Text>
+                          <Text className="font-JakartaBold text-black dark:text-white">
+                            {item.first_name}
+                          </Text>
+                          <Text className="text-xs text-gray-600 dark:text-gray-300">
+                            Nissan v1 • 6 min • 6 km
+                          </Text>
                         </View>
                       </View>
-                      <Text className="font-JakartaBold text-green-600">6.5$</Text>
+                      <Text className="font-JakartaBold text-green-600">
+                        6.5$
+                      </Text>
                     </View>
                   )}
                   ListEmptyComponent={() => (
-                    <Text className="text-gray-500 dark:text-gray-300">No drivers nearby</Text>
+                    <Text className="text-gray-500 dark:text-gray-300">
+                      No drivers nearby
+                    </Text>
                   )}
                 />
               </View>
@@ -266,5 +361,3 @@ const ServicesHub = () => {
 };
 
 export default ServicesHub;
-
-

@@ -12,11 +12,11 @@ const PaymentConfirmation = () => {
 
   // Mock data - in real app this would come from route params and API
   const paymentData = {
-    methodId: 'card_1',
+    methodId: "card_1",
     amount: 4.75,
-    methodTitle: '**** 4567',
-    methodDetails: 'Visa',
-    transactionId: 'TXN_' + Date.now()
+    methodTitle: "**** 4567",
+    methodDetails: "Visa",
+    transactionId: "TXN_" + Date.now(),
   };
 
   const handlePaymentConfirm = async () => {
@@ -29,14 +29,14 @@ const PaymentConfirmation = () => {
 
       // Navigate to rating after 2 seconds
       setTimeout(() => {
-        router.replace('/(root)/rating-screen' as any);
+        router.replace("/(root)/rating-screen" as any);
       }, 2000);
     }, 2000);
   };
 
   const handleViewReceipt = () => {
     // In real app, this would open receipt modal or navigate to receipt screen
-    console.log('View receipt clicked');
+    console.log("View receipt clicked");
   };
 
   if (isComplete) {
@@ -56,15 +56,21 @@ const PaymentConfirmation = () => {
             <Text className="font-JakartaSemiBold mb-2">Payment Details</Text>
             <View className="flex-row justify-between mb-1">
               <Text className="text-sm">Amount</Text>
-              <Text className="text-sm font-JakartaMedium">${paymentData.amount.toFixed(2)}</Text>
+              <Text className="text-sm font-JakartaMedium">
+                ${paymentData.amount.toFixed(2)}
+              </Text>
             </View>
             <View className="flex-row justify-between mb-1">
               <Text className="text-sm">Method</Text>
-              <Text className="text-sm font-JakartaMedium">{paymentData.methodTitle} • {paymentData.methodDetails}</Text>
+              <Text className="text-sm font-JakartaMedium">
+                {paymentData.methodTitle} • {paymentData.methodDetails}
+              </Text>
             </View>
             <View className="flex-row justify-between mb-1">
               <Text className="text-sm">Transaction ID</Text>
-              <Text className="text-sm font-JakartaMedium">{paymentData.transactionId}</Text>
+              <Text className="text-sm font-JakartaMedium">
+                {paymentData.transactionId}
+              </Text>
             </View>
           </View>
 
@@ -82,7 +88,7 @@ const PaymentConfirmation = () => {
 
             <CustomButton
               title="Continue to Rating"
-              onPress={() => router.replace('/(root)/rating-screen' as any)}
+              onPress={() => router.replace("/(root)/rating-screen" as any)}
             />
           </View>
         </View>
@@ -99,7 +105,9 @@ const PaymentConfirmation = () => {
 
           <View className="flex-row justify-between mb-2">
             <Text className="text-sm">Trip Total</Text>
-            <Text className="text-sm font-JakartaMedium">${paymentData.amount.toFixed(2)}</Text>
+            <Text className="text-sm font-JakartaMedium">
+              ${paymentData.amount.toFixed(2)}
+            </Text>
           </View>
 
           <View className="flex-row justify-between mb-2">
@@ -109,7 +117,9 @@ const PaymentConfirmation = () => {
 
           <View className="flex-row justify-between border-t border-gray-300 pt-2">
             <Text className="font-JakartaBold">Total to Pay</Text>
-            <Text className="font-JakartaBold text-primary">${paymentData.amount.toFixed(2)}</Text>
+            <Text className="font-JakartaBold text-primary">
+              ${paymentData.amount.toFixed(2)}
+            </Text>
           </View>
         </View>
 
@@ -119,8 +129,12 @@ const PaymentConfirmation = () => {
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">💳</Text>
             <View className="flex-1">
-              <Text className="font-JakartaMedium">{paymentData.methodTitle}</Text>
-              <Text className="text-sm text-gray-600">{paymentData.methodDetails}</Text>
+              <Text className="font-JakartaMedium">
+                {paymentData.methodTitle}
+              </Text>
+              <Text className="text-sm text-gray-600">
+                {paymentData.methodDetails}
+              </Text>
             </View>
           </View>
         </View>
@@ -130,7 +144,9 @@ const PaymentConfirmation = () => {
           <View className="bg-blue-50 rounded-lg p-4 mb-6">
             <View className="flex-row items-center">
               <View className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mr-3" />
-              <Text className="text-blue-800 font-JakartaMedium">Processing payment...</Text>
+              <Text className="text-blue-800 font-JakartaMedium">
+                Processing payment...
+              </Text>
             </View>
           </View>
         )}

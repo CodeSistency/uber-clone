@@ -1,5 +1,5 @@
-import { View, Text, TouchableOpacity } from "react-native";
 import { router } from "expo-router";
+import { View, Text, TouchableOpacity } from "react-native";
 
 interface DriverNavigationProps {
   currentRoute?: string;
@@ -8,40 +8,40 @@ interface DriverNavigationProps {
 const DriverNavigation = ({ currentRoute }: DriverNavigationProps) => {
   const navigationItems = [
     {
-      id: 'dashboard',
-      title: 'Dashboard',
-      icon: '🏠',
-      route: '/(driver)/dashboard',
-      isActive: currentRoute === '/(driver)/dashboard'
+      id: "dashboard",
+      title: "Dashboard",
+      icon: "🏠",
+      route: "/(driver)/dashboard",
+      isActive: currentRoute === "/(driver)/dashboard",
     },
     {
-      id: 'earnings',
-      title: 'Earnings',
-      icon: '💰',
-      route: '/(driver)/earnings',
-      isActive: currentRoute === '/(driver)/earnings'
+      id: "earnings",
+      title: "Earnings",
+      icon: "💰",
+      route: "/(driver)/earnings",
+      isActive: currentRoute === "/(driver)/earnings",
     },
     {
-      id: 'safety',
-      title: 'Safety',
-      icon: '🚨',
-      route: '/(driver)/safety',
-      isActive: currentRoute === '/(driver)/safety'
+      id: "safety",
+      title: "Safety",
+      icon: "🚨",
+      route: "/(driver)/safety",
+      isActive: currentRoute === "/(driver)/safety",
     },
     {
-      id: 'ratings',
-      title: 'Ratings',
-      icon: '⭐',
-      route: '/(driver)/ratings',
-      isActive: currentRoute === '/(driver)/ratings'
+      id: "ratings",
+      title: "Ratings",
+      icon: "⭐",
+      route: "/(driver)/ratings",
+      isActive: currentRoute === "/(driver)/ratings",
     },
     {
-      id: 'settings',
-      title: 'Settings',
-      icon: '⚙️',
-      route: '/(driver)/settings',
-      isActive: currentRoute === '/(driver)/settings'
-    }
+      id: "settings",
+      title: "Settings",
+      icon: "⚙️",
+      route: "/(driver)/settings",
+      isActive: currentRoute === "/(driver)/settings",
+    },
   ];
 
   const handleNavigation = (route: string) => {
@@ -56,20 +56,24 @@ const DriverNavigation = ({ currentRoute }: DriverNavigationProps) => {
             key={item.id}
             onPress={() => handleNavigation(item.route)}
             className={`flex-1 items-center py-2 ${
-              item.isActive ? 'bg-brand-primary/10' : ''
+              item.isActive ? "bg-brand-primary/10" : ""
             }`}
             activeOpacity={0.7}
           >
-            <Text className={`text-2xl mb-1 ${
-              item.isActive ? 'opacity-100' : 'opacity-60'
-            }`}>
+            <Text
+              className={`text-2xl mb-1 ${
+                item.isActive ? "opacity-100" : "opacity-60"
+              }`}
+            >
               {item.icon}
             </Text>
-            <Text className={`text-xs font-JakartaBold ${
-              item.isActive 
-                ? 'text-brand-primary dark:text-brand-primary' 
-                : 'text-gray-600 dark:text-gray-400'
-            }`}>
+            <Text
+              className={`text-xs font-JakartaBold ${
+                item.isActive
+                  ? "text-brand-primary dark:text-brand-primary"
+                  : "text-gray-600 dark:text-gray-400"
+              }`}
+            >
               {item.title}
             </Text>
           </TouchableOpacity>

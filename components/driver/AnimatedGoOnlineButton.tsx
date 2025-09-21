@@ -7,7 +7,11 @@ interface AnimatedGoOnlineButtonProps {
   isVisible: boolean;
 }
 
-const AnimatedGoOnlineButton = ({ isOnline, onPress, isVisible }: AnimatedGoOnlineButtonProps) => {
+const AnimatedGoOnlineButton = ({
+  isOnline,
+  onPress,
+  isVisible,
+}: AnimatedGoOnlineButtonProps) => {
   const scaleAnim = useRef(new Animated.Value(0)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
   const pulseAnim = useRef(new Animated.Value(1)).current;
@@ -43,7 +47,7 @@ const AnimatedGoOnlineButton = ({ isOnline, onPress, isVisible }: AnimatedGoOnli
             duration: 1000,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
       pulseAnimation.start();
 
@@ -97,7 +101,7 @@ const AnimatedGoOnlineButton = ({ isOnline, onPress, isVisible }: AnimatedGoOnli
 
   const rotateInterpolate = rotateAnim.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '360deg'],
+    outputRange: ["0deg", "360deg"],
   });
 
   if (!isVisible || isOnline) return null;
@@ -110,8 +114,8 @@ const AnimatedGoOnlineButton = ({ isOnline, onPress, isVisible }: AnimatedGoOnli
         transform: [
           { scale: scaleAnim },
           { scale: pulseAnim },
-          { rotate: rotateInterpolate }
-        ]
+          { rotate: rotateInterpolate },
+        ],
       }}
     >
       <TouchableOpacity

@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface PerformanceData {
   weeklyEarnings: number;
@@ -24,7 +24,9 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
   performance,
   onClose,
 }) => {
-  const [selectedPeriod, setSelectedPeriod] = useState<'week' | 'month'>('week');
+  const [selectedPeriod, setSelectedPeriod] = useState<"week" | "month">(
+    "week",
+  );
 
   if (!isVisible) return null;
 
@@ -37,7 +39,9 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
         {/* Header */}
         <View className="p-5 border-b border-gray-200">
           <View className="flex-row justify-between items-center mb-3">
-            <Text className="text-xl font-JakartaBold">Performance Analytics</Text>
+            <Text className="text-xl font-JakartaBold">
+              Performance Analytics
+            </Text>
             {onClose && (
               <TouchableOpacity onPress={onClose}>
                 <Text className="text-xl">✕</Text>
@@ -48,28 +52,32 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
           {/* Period Selector */}
           <View className="flex-row bg-general-500 rounded-lg p-1">
             <TouchableOpacity
-              onPress={() => setSelectedPeriod('week')}
+              onPress={() => setSelectedPeriod("week")}
               className={`flex-1 py-2 rounded-md items-center ${
-                selectedPeriod === 'week' ? 'bg-white shadow-sm' : ''
+                selectedPeriod === "week" ? "bg-white shadow-sm" : ""
               }`}
             >
               <Text
                 className={`font-JakartaBold ${
-                  selectedPeriod === 'week' ? 'text-primary-500' : 'text-secondary-600'
+                  selectedPeriod === "week"
+                    ? "text-primary-500"
+                    : "text-secondary-600"
                 }`}
               >
                 This Week
               </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() => setSelectedPeriod('month')}
+              onPress={() => setSelectedPeriod("month")}
               className={`flex-1 py-2 rounded-md items-center ${
-                selectedPeriod === 'month' ? 'bg-white shadow-sm' : ''
+                selectedPeriod === "month" ? "bg-white shadow-sm" : ""
               }`}
             >
               <Text
                 className={`font-JakartaBold ${
-                  selectedPeriod === 'month' ? 'text-primary-500' : 'text-secondary-600'
+                  selectedPeriod === "month"
+                    ? "text-primary-500"
+                    : "text-secondary-600"
                 }`}
               >
                 This Month
@@ -87,35 +95,45 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
               <Text className="text-2xl font-JakartaExtraBold text-primary-500 mb-1">
                 {formatCurrency(performance.weeklyEarnings)}
               </Text>
-              <Text className="text-secondary-600 font-JakartaMedium">Total Earnings</Text>
+              <Text className="text-secondary-600 font-JakartaMedium">
+                Total Earnings
+              </Text>
             </View>
 
             <View className="bg-success-500/10 rounded-lg p-4">
               <Text className="text-2xl font-JakartaExtraBold text-success-500 mb-1">
                 {performance.weeklyTrips}
               </Text>
-              <Text className="text-secondary-600 font-JakartaMedium">Total Trips</Text>
+              <Text className="text-secondary-600 font-JakartaMedium">
+                Total Trips
+              </Text>
             </View>
 
             <View className="bg-warning-500/10 rounded-lg p-4">
               <Text className="text-xl font-JakartaExtraBold text-warning-500 mb-1">
                 ⭐ {performance.avgRating}
               </Text>
-              <Text className="text-secondary-600 font-JakartaMedium">Average Rating</Text>
+              <Text className="text-secondary-600 font-JakartaMedium">
+                Average Rating
+              </Text>
             </View>
 
             <View className="bg-secondary-500/10 rounded-lg p-4">
               <Text className="text-xl font-JakartaExtraBold text-secondary-700 mb-1">
                 {formatTime(performance.onlineHours)}
               </Text>
-              <Text className="text-secondary-600 font-JakartaMedium">Online Time</Text>
+              <Text className="text-secondary-600 font-JakartaMedium">
+                Online Time
+              </Text>
             </View>
           </View>
         </View>
 
         {/* Performance Insights */}
         <View className="p-5 border-b border-gray-200">
-          <Text className="text-lg font-JakartaBold mb-4">💡 Performance Insights</Text>
+          <Text className="text-lg font-JakartaBold mb-4">
+            💡 Performance Insights
+          </Text>
 
           <View className="space-y-4">
             <View className="bg-success-500/10 rounded-lg p-4">
@@ -132,7 +150,7 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                 ⏰ Peak Hours
               </Text>
               <Text className="text-primary-600">
-                Best performance between {performance.peakHours.join(' and ')}
+                Best performance between {performance.peakHours.join(" and ")}
               </Text>
             </View>
 
@@ -141,7 +159,8 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                 💵 Top Earning Hours
               </Text>
               <Text className="text-warning-600">
-                Highest earnings from {performance.topPerformingHours.join(' to ')}
+                Highest earnings from{" "}
+                {performance.topPerformingHours.join(" to ")}
               </Text>
             </View>
           </View>
@@ -149,7 +168,9 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
 
         {/* Recommendations */}
         <View className="p-5 border-b border-gray-200">
-          <Text className="text-lg font-JakartaBold mb-4">🎯 Recommendations</Text>
+          <Text className="text-lg font-JakartaBold mb-4">
+            🎯 Recommendations
+          </Text>
 
           <View className="space-y-3">
             {performance.recommendations.map((recommendation, index) => (
@@ -165,19 +186,24 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
 
         {/* Weekly Breakdown */}
         <View className="p-5">
-          <Text className="text-lg font-JakartaBold mb-4">📊 Weekly Breakdown</Text>
+          <Text className="text-lg font-JakartaBold mb-4">
+            📊 Weekly Breakdown
+          </Text>
 
           <View className="space-y-3">
             {[
-              { day: 'Mon', earnings: 145.75, trips: 12, hours: 6.5 },
-              { day: 'Tue', earnings: 167.50, trips: 14, hours: 7.0 },
-              { day: 'Wed', earnings: 134.25, trips: 11, hours: 5.5 },
-              { day: 'Thu', earnings: 189.00, trips: 15, hours: 8.0 },
-              { day: 'Fri', earnings: 156.80, trips: 13, hours: 7.5 },
-              { day: 'Sat', earnings: 201.30, trips: 16, hours: 9.0 },
-              { day: 'Sun', earnings: 98.40, trips: 8, hours: 4.5 },
+              { day: "Mon", earnings: 145.75, trips: 12, hours: 6.5 },
+              { day: "Tue", earnings: 167.5, trips: 14, hours: 7.0 },
+              { day: "Wed", earnings: 134.25, trips: 11, hours: 5.5 },
+              { day: "Thu", earnings: 189.0, trips: 15, hours: 8.0 },
+              { day: "Fri", earnings: 156.8, trips: 13, hours: 7.5 },
+              { day: "Sat", earnings: 201.3, trips: 16, hours: 9.0 },
+              { day: "Sun", earnings: 98.4, trips: 8, hours: 4.5 },
             ].map((dayData) => (
-              <View key={dayData.day} className="flex-row items-center justify-between">
+              <View
+                key={dayData.day}
+                className="flex-row items-center justify-between"
+              >
                 <View className="w-12">
                   <Text className="font-JakartaBold">{dayData.day}</Text>
                 </View>
@@ -187,14 +213,16 @@ const PerformanceDashboard: React.FC<PerformanceDashboardProps> = ({
                     <View
                       className="bg-primary-500 h-2 rounded-full"
                       style={{
-                        width: `${(dayData.earnings / 201.30) * 100}%`,
+                        width: `${(dayData.earnings / 201.3) * 100}%`,
                       }}
                     />
                   </View>
                 </View>
 
                 <View className="items-end">
-                  <Text className="font-JakartaBold">{formatCurrency(dayData.earnings)}</Text>
+                  <Text className="font-JakartaBold">
+                    {formatCurrency(dayData.earnings)}
+                  </Text>
                   <Text className="text-sm text-secondary-600">
                     {dayData.trips} trips • {formatTime(dayData.hours)}
                   </Text>

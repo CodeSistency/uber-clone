@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,10 +8,11 @@ import {
   Image,
   KeyboardAvoidingView,
   Platform,
-  Modal
-} from 'react-native';
-import { icons } from '@/constants';
-import { useUI } from '@/components/UIWrapper';
+  Modal,
+} from "react-native";
+
+import { useUI } from "@/components/UIWrapper";
+import { icons } from "@/constants";
 
 interface ChatMessage {
   id: string;
@@ -20,7 +21,7 @@ interface ChatMessage {
   message: string;
   timestamp: Date;
   isOwnMessage: boolean;
-  messageType: 'text' | 'system';
+  messageType: "text" | "system";
 }
 
 interface ChatModalProps {
@@ -42,9 +43,9 @@ const ChatModal: React.FC<ChatModalProps> = ({
   rideId,
   onSendMessage,
   messages,
-  isTyping = false
+  isTyping = false,
 }) => {
-  const [messageText, setMessageText] = useState('');
+  const [messageText, setMessageText] = useState("");
   const flatListRef = useRef<FlatList>(null);
   const { theme } = useUI();
 
@@ -59,7 +60,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
   const handleSendMessage = () => {
     if (messageText.trim()) {
       onSendMessage(messageText.trim());
-      setMessageText('');
+      setMessageText("");
     }
   };
 
@@ -67,8 +68,10 @@ const ChatModal: React.FC<ChatModalProps> = ({
     const isOwn = item.isOwnMessage;
 
     return (
-      <View className={`mb-3 ${isOwn ? 'items-end' : 'items-start'}`}>
-        <View className={`max-w-[80%] ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-end`}>
+      <View className={`mb-3 ${isOwn ? "items-end" : "items-start"}`}>
+        <View
+          className={`max-w-[80%] ${isOwn ? "flex-row-reverse" : "flex-row"} items-end`}
+        >
           {/* Driver Avatar (only for received messages) */}
           {!isOwn && driverImage && (
             <Image
@@ -78,34 +81,42 @@ const ChatModal: React.FC<ChatModalProps> = ({
           )}
 
           {/* Message Bubble */}
-          <View className={`px-4 py-2 rounded-2xl max-w-[70%] ${
-            isOwn
-              ? 'bg-primary rounded-br-md'
-              : item.messageType === 'system'
-              ? `bg-gray-100 dark:bg-gray-700 rounded-lg`
-              : `bg-brand-primary dark:bg-brand-primaryDark border border-gray-200 dark:border-gray-600 rounded-bl-md`
-          }`}>
+          <View
+            className={`px-4 py-2 rounded-2xl max-w-[70%] ${
+              isOwn
+                ? "bg-primary rounded-br-md"
+                : item.messageType === "system"
+                  ? `bg-gray-100 dark:bg-gray-700 rounded-lg`
+                  : `bg-brand-primary dark:bg-brand-primaryDark border border-gray-200 dark:border-gray-600 rounded-bl-md`
+            }`}
+          >
             {/* Sender name for received messages */}
-            {!isOwn && item.messageType !== 'system' && (
-              <Text className={`text-xs text-gray-500 dark:text-gray-400 mb-1 font-JakartaMedium`}>
+            {!isOwn && item.messageType !== "system" && (
+              <Text
+                className={`text-xs text-gray-500 dark:text-gray-400 mb-1 font-JakartaMedium`}
+              >
                 {item.senderName}
               </Text>
             )}
 
             {/* Message text */}
-            <Text className={`text-sm ${
-              isOwn ? 'text-white' : `text-gray-800 dark:text-gray-200`
-            }`}>
+            <Text
+              className={`text-sm ${
+                isOwn ? "text-white" : `text-gray-800 dark:text-gray-200`
+              }`}
+            >
               {item.message}
             </Text>
 
             {/* Timestamp */}
-            <Text className={`text-xs mt-1 ${
-              isOwn ? 'text-blue-100' : `text-gray-500 dark:text-gray-400`
-            }`}>
+            <Text
+              className={`text-xs mt-1 ${
+                isOwn ? "text-blue-100" : `text-gray-500 dark:text-gray-400`
+              }`}
+            >
               {item.timestamp.toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit'
+                hour: "2-digit",
+                minute: "2-digit",
               })}
             </Text>
           </View>
@@ -122,11 +133,13 @@ const ChatModal: React.FC<ChatModalProps> = ({
       onRequestClose={onClose}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
         className={`flex-1 bg-brand-primary dark:bg-brand-primaryDark`}
       >
         {/* Header */}
-        <View className={`flex-row items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`}>
+        <View
+          className={`flex-row items-center justify-between p-4 border-b border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`}
+        >
           <View className="flex-row items-center">
             {driverImage && (
               <Image
@@ -135,8 +148,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
               />
             )}
             <View>
-              <Text className={`font-JakartaBold text-lg text-black dark:text-white`}>{driverName}</Text>
-              <Text className={`text-sm text-gray-600 dark:text-gray-300`}>Driver</Text>
+              <Text
+                className={`font-JakartaBold text-lg text-black dark:text-white`}
+              >
+                {driverName}
+              </Text>
+              <Text className={`text-sm text-gray-600 dark:text-gray-300`}>
+                Driver
+              </Text>
             </View>
           </View>
 
@@ -173,15 +192,21 @@ const ChatModal: React.FC<ChatModalProps> = ({
                   className="w-6 h-6 rounded-full mr-2"
                 />
               )}
-              <View className={`bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-full`}>
-                <Text className={`text-xs text-gray-500 dark:text-gray-400`}>{driverName} is typing...</Text>
+              <View
+                className={`bg-gray-100 dark:bg-gray-700 px-3 py-2 rounded-full`}
+              >
+                <Text className={`text-xs text-gray-500 dark:text-gray-400`}>
+                  {driverName} is typing...
+                </Text>
               </View>
             </View>
           </View>
         )}
 
         {/* Message Input */}
-        <View className={`flex-row items-center p-4 border-t border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`}>
+        <View
+          className={`flex-row items-center p-4 border-t border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`}
+        >
           <TextInput
             value={messageText}
             onChangeText={setMessageText}
@@ -197,14 +222,14 @@ const ChatModal: React.FC<ChatModalProps> = ({
             onPress={handleSendMessage}
             disabled={!messageText.trim()}
             className={`w-12 h-12 rounded-full items-center justify-center ${
-              messageText.trim() ? 'bg-primary' : 'bg-gray-300 dark:bg-gray-600'
+              messageText.trim() ? "bg-primary" : "bg-gray-300 dark:bg-gray-600"
             }`}
           >
             <Image
               source={icons.send}
               className="w-5 h-5"
               style={{
-                tintColor: messageText.trim() ? 'white' : '#9CA3AF'
+                tintColor: messageText.trim() ? "white" : "#9CA3AF",
               }}
             />
           </TouchableOpacity>

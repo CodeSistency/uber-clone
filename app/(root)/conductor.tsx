@@ -1,16 +1,29 @@
-import { useRef, useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, Image, FlatList, ScrollView, Animated, PanResponder, Dimensions, ColorValue, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useRef, useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  ScrollView,
+  Animated,
+  PanResponder,
+  Dimensions,
+  ColorValue,
+  StyleSheet,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 import Map from "@/components/Map";
-import { useDriverStore } from "@/store";
-import { icons } from "@/constants";
 import { useUI } from "@/components/UIWrapper";
+import { icons } from "@/constants";
+import { useDriverStore } from "@/store";
 
 // Lightweight bottom sheet implemented locally for this screen
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const BottomSheet = ({
   children,
@@ -18,7 +31,12 @@ const BottomSheet = ({
   maxHeight = 560,
   initialHeight = 320,
   useGradient = true,
-  gradientColors = ["rgba(0,0,0,0.65)", "rgba(0,0,0,0.25)", "rgba(0,0,0,0.05)", "rgba(0,0,0,0)"] as const,
+  gradientColors = [
+    "rgba(0,0,0,0.65)",
+    "rgba(0,0,0,0.25)",
+    "rgba(0,0,0,0.05)",
+    "rgba(0,0,0,0)",
+  ] as const,
   bottomBar,
   bottomBarHeight = 64,
   showBottomBarAt = 0.6,
@@ -69,10 +87,12 @@ const BottomSheet = ({
         const end = clamp(startHeightRef.current - g.dy, minHeight, cappedMax);
         const mid = (minHeight + cappedMax) / 2;
         const snaps = [minHeight, mid, cappedMax];
-        const nearest = snaps.reduce((a, b) => (Math.abs(b - end) < Math.abs(a - end) ? b : a));
+        const nearest = snaps.reduce((a, b) =>
+          Math.abs(b - end) < Math.abs(a - end) ? b : a,
+        );
         animateTo(nearest);
       },
-    })
+    }),
   ).current;
 
   // Animated bottom bar
@@ -80,12 +100,12 @@ const BottomSheet = ({
   const barTranslate = heightAnim.interpolate({
     inputRange: [threshold - 40, threshold + 40],
     outputRange: [bottomBarHeight, 0],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
   const barOpacity = heightAnim.interpolate({
     inputRange: [threshold - 20, threshold + 20],
     outputRange: [0, 1],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   return (
@@ -105,20 +125,28 @@ const BottomSheet = ({
           <View className="absolute inset-0 bg-white dark:bg-brand-primary" />
         )}
         {/* Drag handle */}
-        <View
-          {...panResponder.panHandlers}
-          className="items-center pt-2 pb-1"
-        >
+        <View {...panResponder.panHandlers} className="items-center pt-2 pb-1">
           <View className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500" />
         </View>
 
         {/* Scrollable content */}
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: bottomBar ? bottomBarHeight + 24 : 16 }}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingBottom: bottomBar ? bottomBarHeight + 24 : 16,
+          }}
+        >
           {children}
         </ScrollView>
 
         {bottomBar && (
-          <Animated.View style={{ transform: [{ translateY: barTranslate }], opacity: barOpacity }} className="absolute left-0 right-0 bottom-0">
+          <Animated.View
+            style={{
+              transform: [{ translateY: barTranslate }],
+              opacity: barOpacity,
+            }}
+            className="absolute left-0 right-0 bottom-0"
+          >
             <View className="mx-4 mb-4 rounded-2xl px-4 py-3 bg-white/95 dark:bg-black/70 border border-black/5 dark:border-white/10">
               {bottomBar}
             </View>
@@ -136,22 +164,24 @@ const Conductor = () => {
   // Estados del conductor
   const [isOnline, setIsOnline] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState<'Video' | 'Photos' | 'Audio'>('Video');
+  const [activeTab, setActiveTab] = useState<"Video" | "Photos" | "Audio">(
+    "Video",
+  );
 
   // Datos de ejemplo para el conductor
   const [dailyStats] = useState({
     rides: 12,
-    earnings: 144.50
+    earnings: 144.5,
   });
 
   const [notifications] = useState([
-    { id: 1, type: 'notification', title: 'Notificacion', icon: '🔔' },
-    { id: 2, type: 'ride', title: 'Carrera', icon: '🚕' },
-    { id: 3, type: 'delivery', title: 'Delivery', icon: '📦' },
-    { id: 4, type: 'delivery', title: 'Delivery', icon: '📦' },
-    { id: 5, type: 'delivery', title: 'Delivery', icon: '📦' },
-    { id: 6, type: 'delivery', title: 'Delivery', icon: '📦' },
-    { id: 7, type: 'ride', title: 'Carrera', icon: '🚕' },
+    { id: 1, type: "notification", title: "Notificacion", icon: "🔔" },
+    { id: 2, type: "ride", title: "Carrera", icon: "🚕" },
+    { id: 3, type: "delivery", title: "Delivery", icon: "📦" },
+    { id: 4, type: "delivery", title: "Delivery", icon: "📦" },
+    { id: 5, type: "delivery", title: "Delivery", icon: "📦" },
+    { id: 6, type: "delivery", title: "Delivery", icon: "📦" },
+    { id: 7, type: "ride", title: "Carrera", icon: "🚕" },
   ]);
 
   const handleGoOnline = () => {
@@ -172,21 +202,25 @@ const Conductor = () => {
         <View className="px-4">
           {/* Status indicator */}
           <View className="flex-row items-center mb-4">
-            <View className={`w-3 h-3 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+            <View
+              className={`w-3 h-3 rounded-full mr-2 ${isOnline ? "bg-green-500" : "bg-red-500"}`}
+            />
             <Text className="text-white font-JakartaBold text-lg">
-              {isOnline ? 'En linea' : 'Fuera de linea'}
+              {isOnline ? "En linea" : "Fuera de linea"}
             </Text>
           </View>
 
           {/* Tabbed Navigation */}
           <View className="flex-row mb-4 bg-black/30 rounded-xl p-1">
-            {(['Video', 'Photos', 'Audio'] as const).map((tab) => (
+            {(["Video", "Photos", "Audio"] as const).map((tab) => (
               <TouchableOpacity
                 key={tab}
                 onPress={() => setActiveTab(tab)}
-                className={`flex-1 py-2 rounded-lg ${activeTab === tab ? 'bg-yellow-500' : ''}`}
+                className={`flex-1 py-2 rounded-lg ${activeTab === tab ? "bg-yellow-500" : ""}`}
               >
-                <Text className={`text-center font-JakartaBold ${activeTab === tab ? 'text-black' : 'text-white'}`}>
+                <Text
+                  className={`text-center font-JakartaBold ${activeTab === tab ? "text-black" : "text-white"}`}
+                >
                   {tab}
                 </Text>
               </TouchableOpacity>
@@ -201,7 +235,9 @@ const Conductor = () => {
                 className="bg-black/40 rounded-xl px-4 py-3 flex-row items-center"
               >
                 <Text className="text-xl mr-3">{item.icon}</Text>
-                <Text className="text-white font-JakartaBold flex-1">{item.title}</Text>
+                <Text className="text-white font-JakartaBold flex-1">
+                  {item.title}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -213,16 +249,20 @@ const Conductor = () => {
       <View className="px-4">
         {/* Status indicator */}
         <View className="flex-row items-center mb-4">
-          <View className={`w-3 h-3 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`} />
+          <View
+            className={`w-3 h-3 rounded-full mr-2 ${isOnline ? "bg-green-500" : "bg-red-500"}`}
+          />
           <Text className="text-white font-JakartaBold text-lg">
-            {isOnline ? 'En linea' : 'Fuera de linea'}
+            {isOnline ? "En linea" : "Fuera de linea"}
           </Text>
         </View>
 
         {/* Notification card */}
         <View className="bg-black/40 rounded-xl px-4 py-3 flex-row items-center">
           <Text className="text-xl mr-3">🔔</Text>
-          <Text className="text-white font-JakartaBold flex-1">Notificacion</Text>
+          <Text className="text-white font-JakartaBold flex-1">
+            Notificacion
+          </Text>
         </View>
       </View>
     );
@@ -232,8 +272,13 @@ const Conductor = () => {
     if (isExpanded) {
       return (
         <View className="flex-row items-center justify-between">
-          <Text className="font-JakartaBold text-black dark:text-white">Conductor</Text>
-          <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/home' as any)} className="px-3 py-2 bg-brand-secondary rounded-full">
+          <Text className="font-JakartaBold text-black dark:text-white">
+            Conductor
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(root)/(tabs)/home" as any)}
+            className="px-3 py-2 bg-brand-secondary rounded-full"
+          >
             <Text className="text-black font-JakartaBold">Ir a Home</Text>
           </TouchableOpacity>
         </View>
@@ -242,8 +287,13 @@ const Conductor = () => {
 
     return (
       <View className="flex-row items-center justify-between">
-        <Text className="font-JakartaBold text-black dark:text-white">Conductor</Text>
-        <TouchableOpacity onPress={() => router.push('/(root)/(tabs)/home' as any)} className="px-3 py-2 bg-brand-secondary rounded-full">
+        <Text className="font-JakartaBold text-black dark:text-white">
+          Conductor
+        </Text>
+        <TouchableOpacity
+          onPress={() => router.push("/(root)/(tabs)/home" as any)}
+          className="px-3 py-2 bg-brand-secondary rounded-full"
+        >
           <Text className="text-black font-JakartaBold">Ir a Home</Text>
         </TouchableOpacity>
       </View>
@@ -262,11 +312,11 @@ const Conductor = () => {
               <View className="w-6 h-0.5 bg-white rounded-full" />
             </View>
           </TouchableOpacity>
-          
+
           <Text className="text-white font-JakartaBold text-lg">
             {dailyStats.rides} RIDES | ${dailyStats.earnings} Today
           </Text>
-          
+
           <TouchableOpacity className="w-8 h-8 items-center justify-center">
             <View className="w-6 h-6 bg-white rounded-full" />
           </TouchableOpacity>
@@ -283,23 +333,36 @@ const Conductor = () => {
                 onPress={handleGoOnline}
                 className="w-32 h-32 bg-yellow-500 rounded-full items-center justify-center shadow-2xl"
               >
-                <Text className="text-black font-JakartaBold text-lg">GO ONLINE</Text>
+                <Text className="text-black font-JakartaBold text-lg">
+                  GO ONLINE
+                </Text>
               </TouchableOpacity>
             </View>
           )}
 
           {/* Bottom sheet with conductor interface */}
-          <BottomSheet 
-            minHeight={140} 
-            maxHeight={isExpanded ? 600 : 200} 
-            initialHeight={isExpanded ? 500 : 160} 
-            useGradient 
-            bottomBar={renderBottomBar()} 
-            bottomBarHeight={64} 
+          <BottomSheet
+            minHeight={140}
+            maxHeight={isExpanded ? 600 : 200}
+            initialHeight={isExpanded ? 500 : 160}
+            useGradient
+            bottomBar={renderBottomBar()}
+            bottomBarHeight={64}
             showBottomBarAt={0.6}
-            gradientColors={theme === 'dark'
-              ? (['rgba(0,0,0,0.92)','rgba(0,0,0,0.78)','rgba(18,18,18,0.66)','rgba(30,30,30,0.64)'] as const)
-              : (['rgba(20,20,20,0.9)','rgba(50,50,50,0.75)','rgba(160,160,160,0.55)','rgba(235,235,235,0.55)'] as const)
+            gradientColors={
+              theme === "dark"
+                ? ([
+                    "rgba(0,0,0,0.92)",
+                    "rgba(0,0,0,0.78)",
+                    "rgba(18,18,18,0.66)",
+                    "rgba(30,30,30,0.64)",
+                  ] as const)
+                : ([
+                    "rgba(20,20,20,0.9)",
+                    "rgba(50,50,50,0.75)",
+                    "rgba(160,160,160,0.55)",
+                    "rgba(235,235,235,0.55)",
+                  ] as const)
             }
           >
             {renderBottomSheetContent()}
@@ -312,7 +375,9 @@ const Conductor = () => {
             <View className="w-8 h-8 bg-yellow-500 rounded-full items-center justify-center mb-1">
               <Text className="text-black text-lg">⭐</Text>
             </View>
-            <Text className="text-yellow-500 text-xs font-JakartaBold">Label</Text>
+            <Text className="text-yellow-500 text-xs font-JakartaBold">
+              Label
+            </Text>
           </View>
           <View className="items-center">
             <View className="w-8 h-8 bg-gray-600 rounded-full items-center justify-center mb-1">

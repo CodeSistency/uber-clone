@@ -98,7 +98,9 @@ const EmergencyContacts = () => {
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header */}
       <View className="bg-white dark:bg-brand-primary p-5">
-        <Text className="text-xl font-JakartaBold text-black dark:text-white">Emergency Contacts</Text>
+        <Text className="text-xl font-JakartaBold text-black dark:text-white">
+          Emergency Contacts
+        </Text>
         <Text className="text-secondary-600 dark:text-gray-300 mt-1">
           Keep trusted contacts for safety emergencies
         </Text>
@@ -160,7 +162,9 @@ const EmergencyContacts = () => {
                   <Text className="font-JakartaBold text-lg text-black dark:text-white">
                     {contact.name}
                   </Text>
-                  <Text className="text-secondary-600 dark:text-gray-300">{contact.phone}</Text>
+                  <Text className="text-secondary-600 dark:text-gray-300">
+                    {contact.phone}
+                  </Text>
                   <Text className="text-secondary-600 dark:text-gray-300 text-sm">
                     {contact.relationship}
                   </Text>
@@ -247,7 +251,9 @@ const EmergencyContacts = () => {
 
         {/* Safety Tips */}
         <View className="bg-brand-primary dark:bg-brand-primaryDark rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Safety Tips</Text>
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">
+            Safety Tips
+          </Text>
 
           <View className="space-y-3">
             <View className="flex-row items-start">

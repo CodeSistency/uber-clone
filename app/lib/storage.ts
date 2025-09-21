@@ -440,10 +440,15 @@ export const onboardingStorage = {
   // Check if onboarding is completed
   isCompleted: async (): Promise<boolean> => {
     try {
-      const completed = await storage.getItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
+      const completed = await storage.getItem(
+        STORAGE_KEYS.ONBOARDING_COMPLETED,
+      );
       return completed === "true";
     } catch (error) {
-      console.error("[OnboardingStorage] Error checking completion status:", error);
+      console.error(
+        "[OnboardingStorage] Error checking completion status:",
+        error,
+      );
       return false;
     }
   },
@@ -451,10 +456,19 @@ export const onboardingStorage = {
   // Set onboarding as completed
   setCompleted: async (completed: boolean = true): Promise<void> => {
     try {
-      await storage.setItem(STORAGE_KEYS.ONBOARDING_COMPLETED, completed.toString());
-      console.log("[OnboardingStorage] Onboarding completion status saved:", completed);
+      await storage.setItem(
+        STORAGE_KEYS.ONBOARDING_COMPLETED,
+        completed.toString(),
+      );
+      console.log(
+        "[OnboardingStorage] Onboarding completion status saved:",
+        completed,
+      );
     } catch (error) {
-      console.error("[OnboardingStorage] Error saving completion status:", error);
+      console.error(
+        "[OnboardingStorage] Error saving completion status:",
+        error,
+      );
       throw error;
     }
   },
@@ -476,7 +490,10 @@ export const onboardingStorage = {
       const data = await storage.getItem(STORAGE_KEYS.ONBOARDING_DATA);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error("[OnboardingStorage] Error getting onboarding data:", error);
+      console.error(
+        "[OnboardingStorage] Error getting onboarding data:",
+        error,
+      );
       return null;
     }
   },
@@ -497,10 +514,10 @@ export const onboardingStorage = {
       const step = await storage.getItem(STORAGE_KEYS.ONBOARDING_STEP);
       // Some legacy values may be string ids, normalize here
       const map: Record<string, number> = {
-        'location': 0,
-        'travel-preferences': 1,
-        'phone-verification': 2,
-        'profile-completion': 3,
+        location: 0,
+        "travel-preferences": 1,
+        "phone-verification": 2,
+        "profile-completion": 3,
       };
       if (!step) return 0;
       if (/^\d+$/.test(step)) {
@@ -522,7 +539,10 @@ export const onboardingStorage = {
       await storage.removeItem(STORAGE_KEYS.ONBOARDING_STEP);
       console.log("[OnboardingStorage] All onboarding data cleared");
     } catch (error) {
-      console.error("[OnboardingStorage] Error clearing onboarding data:", error);
+      console.error(
+        "[OnboardingStorage] Error clearing onboarding data:",
+        error,
+      );
       throw error;
     }
   },
@@ -531,7 +551,7 @@ export const onboardingStorage = {
 // Theme storage utilities
 export const themeStorage = {
   // Save theme ('light' | 'dark' | 'system')
-  saveTheme: async (theme: 'light' | 'dark' | 'system'): Promise<void> => {
+  saveTheme: async (theme: "light" | "dark" | "system"): Promise<void> => {
     try {
       await storage.setItem(STORAGE_KEYS.APP_THEME, theme);
     } catch (error) {
@@ -541,7 +561,7 @@ export const themeStorage = {
   },
 
   // Get theme
-  getTheme: async (): Promise<'light' | 'dark' | 'system' | null> => {
+  getTheme: async (): Promise<"light" | "dark" | "system" | null> => {
     try {
       const t = await storage.getItem(STORAGE_KEYS.APP_THEME);
       return (t as any) || null;

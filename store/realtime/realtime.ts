@@ -8,6 +8,7 @@ interface RealtimeStore {
   driverLocation: LocationData | null;
   rideStatus: RideStatus;
   isTracking: boolean;
+  simulationEnabled: boolean;
 
   // Actions
   setConnectionStatus: (status: ConnectionStatus) => void;
@@ -16,6 +17,7 @@ interface RealtimeStore {
   startTracking: (rideId: number) => void;
   stopTracking: () => void;
   setActiveRide: (ride: Ride | null) => void;
+  setSimulationEnabled: (enabled: boolean) => void;
 }
 
 export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
@@ -29,6 +31,7 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
   driverLocation: null,
   rideStatus: "requested",
   isTracking: false,
+  simulationEnabled: true,
 
   setConnectionStatus: (status: ConnectionStatus) => {
     set(() => ({ connectionStatus: status }));
@@ -62,5 +65,9 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
 
   setActiveRide: (ride: Ride | null) => {
     set(() => ({ activeRide: ride }));
+  },
+
+  setSimulationEnabled: (enabled: boolean) => {
+    set(() => ({ simulationEnabled: enabled }));
   },
 }));

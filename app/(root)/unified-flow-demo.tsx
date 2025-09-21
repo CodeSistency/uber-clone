@@ -1,10 +1,46 @@
-import React from 'react';
-import { Stack } from 'expo-router';
-import { View, Text, TouchableOpacity } from 'react-native';
-import UnifiedFlowWrapper from '@/components/unified-flow/UnifiedFlowWrapper';
-import FlowHeader from '@/components/unified-flow/FlowHeader';
-import { useMapFlow } from '@/hooks/useMapFlow';
-import { FLOW_STEPS, MapFlowStep } from '@/store/mapFlow/mapFlow';
+import { Stack } from "expo-router";
+import React from "react";
+import { View, Text, TouchableOpacity, Animated } from "react-native";
+
+import { useDrawer, Drawer } from "@/components/drawer";
+import { useUI } from "@/components/UIWrapper";
+import {
+  ErrorBoundaryStep,
+  LoadingTransition,
+  WebSocketStatus,
+  NotificationSettings,
+  VenezuelanPaymentSelector,
+  DriverFlowControls,
+  PerformanceMetrics,
+  DevModeIndicator,
+  RideStatusControls,
+  SimulationControls as BaseSimulationControls,
+} from "@/components/unified-flow/BaseComponents";
+import FlowHeader from "@/components/unified-flow/FlowHeader";
+import ChooseDriver from "@/components/unified-flow/steps/Client/ChooseDriver";
+import DeliveryBusinessSearch from "@/components/unified-flow/steps/Client/Delivery/DeliveryBusinessSearch";
+import DeliveryCheckout from "@/components/unified-flow/steps/Client/Delivery/DeliveryCheckout";
+import DeliveryTracking from "@/components/unified-flow/steps/Client/Delivery/DeliveryTracking";
+import EnvioDeliveryConfirm from "@/components/unified-flow/steps/Client/Envio/EnvioDeliveryConfirm";
+import EnvioDetails from "@/components/unified-flow/steps/Client/Envio/EnvioDetails";
+import EnvioPricingAndPayment from "@/components/unified-flow/steps/Client/Envio/EnvioPricingAndPayment";
+import EnvioTracking from "@/components/unified-flow/steps/Client/Envio/EnvioTracking";
+import MandadoCommsAndConfirm from "@/components/unified-flow/steps/Client/Mandado/MandadoCommsAndConfirm";
+import MandadoDetails from "@/components/unified-flow/steps/Client/Mandado/MandadoDetails";
+import MandadoFinalize from "@/components/unified-flow/steps/Client/Mandado/MandadoFinalize";
+import MandadoPriceAndPayment from "@/components/unified-flow/steps/Client/Mandado/MandadoPriceAndPayment";
+import MandadoSearching from "@/components/unified-flow/steps/Client/Mandado/MandadoSearching";
+import ServiceSelection from "@/components/unified-flow/steps/Client/ServiceSelection";
+import TransportDefinition from "@/components/unified-flow/steps/Client/Viaje/TransportDefinition";
+import TransportVehicleSelection from "@/components/unified-flow/steps/Client/Viaje/TransportVehicleSelection";
+import DriverConfirmation from "@/components/unified-flow/steps/Driver/DriverConfirmation";
+import OrderBuilder from "@/components/unified-flow/steps/OrderBuilder";
+import RideInProgressAndFinalize from "@/components/unified-flow/steps/RideInProgressAndFinalize";
+import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
+import { useMapFlowContext } from "@/context/MapFlowContext";
+import { useMapFlow } from "@/hooks/useMapFlow";
+import { useRealtimeStore, useDevStore } from "@/store";
+import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
 
 // Ejemplo de cómo usar métodos type-safe para diferentes escenarios
 /*
@@ -70,13 +106,6 @@ const stepComponents = {
 
 const typeSafeRenderStep = createTypeSafeRenderStep(stepComponents);
 */
-
-// Importar componentes de pasos del flujo unificado
-import ServiceSelection from '@/components/unified-flow/steps/ServiceSelection';
-import TransportDefinition from '@/components/unified-flow/steps/TransportDefinition';
-import TransportVehicleSelection from '@/components/unified-flow/steps/TransportVehicleSelection';
-import DeliveryBusinessSearch from '@/components/unified-flow/steps/DeliveryBusinessSearch';
-import MandadoDetails from '@/components/unified-flow/steps/MandadoDetails';
 
 // Ejemplo de componente que demuestra el uso type-safe
 /*
@@ -209,10 +238,7 @@ const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
 
   return (
     <View className="flex-1">
-      <FlowHeader
-        title="Paso en Desarrollo"
-        onBack={back}
-      />
+      <FlowHeader title="Paso en Desarrollo" onBack={back} />
 
       <View className="flex-1 justify-center items-center px-6">
         <Text className="text-6xl mb-6">🚧</Text>
@@ -220,10 +246,11 @@ const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
           Funcionalidad Próximamente
         </Text>
         <Text className="font-Jakarta text-base text-gray-600 text-center mb-4">
-          Este paso aún no está implementado pero puedes navegar hacia atrás para continuar con tu flujo.
+          Este paso aún no está implementado pero puedes navegar hacia atrás
+          para continuar con tu flujo.
         </Text>
         <Text className="font-Jakarta text-sm text-gray-500 text-center bg-gray-50 px-4 py-2 rounded-lg">
-          Paso actual: {step.replace(/_/g, ' ').toLowerCase()}
+          Paso actual: {step.replace(/_/g, " ").toLowerCase()}
         </Text>
       </View>
     </View>
@@ -237,7 +264,7 @@ const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
 // - Error de TypeScript si intentas mapear un paso que no existe
 // - Validación automática de que todos los componentes existen
 const createTypeSafeRenderStep = (
-  stepMappings: Partial<Record<MapFlowStep, () => React.ReactNode>>
+  stepMappings: Partial<Record<MapFlowStep, () => React.ReactNode>>,
 ) => {
   return (step: MapFlowStep) => {
     const renderFn = stepMappings[step];
@@ -261,14 +288,47 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.SELECCION_SERVICIO]: () => <ServiceSelection />,
 
   // Customer Transport - Flujo de transporte del cliente
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE]: () => <TransportDefinition />,
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.SELECCION_VEHICULO]: () => <TransportVehicleSelection />,
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE]: () => (
+    <TransportDefinition />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.SELECCION_VEHICULO]: () => (
+    <TransportVehicleSelection />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.ELECCION_CONDUCTOR]: () => <ChooseDriver />,
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.GESTION_CONFIRMACION]: () => (
+    <DriverConfirmation />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.DURANTE_FINALIZACION]: () => (
+    <RideInProgressAndFinalize />
+  ),
 
   // Customer Delivery - Flujo de delivery del cliente
-  [FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO]: () => <DeliveryBusinessSearch />,
+  [FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO]: () => (
+    <DeliveryBusinessSearch />
+  ),
+  [FLOW_STEPS.CUSTOMER_DELIVERY.ARMADO_PEDIDO]: () => <OrderBuilder />,
+  [FLOW_STEPS.CUSTOMER_DELIVERY.CHECKOUT_CONFIRMACION]: () => (
+    <DeliveryCheckout />
+  ),
+  [FLOW_STEPS.CUSTOMER_DELIVERY.SEGUIMIENTO_DELIVERY]: () => (
+    <DeliveryTracking />
+  ),
 
   // Customer Mandado - Flujo de mandado del cliente
   [FLOW_STEPS.CUSTOMER_MANDADO.DETALLES_MANDADO]: () => <MandadoDetails />,
+  [FLOW_STEPS.CUSTOMER_MANDADO.PRECIO_PAGO]: () => <MandadoPriceAndPayment />,
+  [FLOW_STEPS.CUSTOMER_MANDADO.BUSCANDO_CONDUCTOR]: () => <MandadoSearching />,
+  [FLOW_STEPS.CUSTOMER_MANDADO.COMUNICACION_CONFIRMACION]: () => (
+    <MandadoCommsAndConfirm />
+  ),
+  [FLOW_STEPS.CUSTOMER_MANDADO.FINALIZACION]: () => <MandadoFinalize />,
+  // Customer Envío - Flujo de envío de paquetes
+  [FLOW_STEPS.CUSTOMER_ENVIO.DETALLES_ENVIO]: () => <EnvioDetails />,
+  [FLOW_STEPS.CUSTOMER_ENVIO.CALCULAR_PRECIO]: () => <EnvioPricingAndPayment />,
+  [FLOW_STEPS.CUSTOMER_ENVIO.SEGUIMIENTO_PAQUETE]: () => <EnvioTracking />,
+  [FLOW_STEPS.CUSTOMER_ENVIO.CONFIRMACION_ENTREGA]: () => (
+    <EnvioDeliveryConfirm />
+  ),
 
   // ❌ Ejemplos de errores que TypeScript detecta:
   // ['CUSTOMER_TRANSPORT_DEFINICION_VIAJE']: () => <TransportDefinition />, // Error: debe usar FLOW_STEPS
@@ -288,6 +348,55 @@ const renderStep = createTypeSafeRenderStep(STEP_COMPONENTS);
 const quietRenderStep = (step: MapFlowStep) => {
   const renderFn = STEP_COMPONENTS[step];
   return renderFn ? renderFn() : <DefaultStep step={step} />;
+};
+
+// Función para manejar errores de flujo
+const handleFlowError = (error: Error, context: string) => {
+  console.error(`[UnifiedFlowDemo] Error in ${context}:`, error);
+  return <ErrorBoundaryStep error={error.message} />;
+};
+
+// Función para transiciones de carga
+const renderLoadingState = (message: string) => {
+  return <LoadingTransition message={message} />;
+};
+
+// Hook personalizado para manejar estados de error
+const useFlowErrorHandler = () => {
+  const [error, setError] = React.useState<Error | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  const handleAsync = async <T,>(
+    asyncFn: () => Promise<T>,
+    loadingMessage: string = "Cargando...",
+  ): Promise<T | null> => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const result = await asyncFn();
+      return result;
+    } catch (err) {
+      const errorObj = err instanceof Error ? err : new Error(String(err));
+      setError(errorObj);
+      console.error("[useFlowErrorHandler] Error:", errorObj);
+      return null;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const clearError = () => setError(null);
+
+  return {
+    error,
+    isLoading,
+    handleAsync,
+    clearError,
+    errorComponent: error ? <ErrorBoundaryStep error={error.message} /> : null,
+    loadingComponent: isLoading ? (
+      <LoadingTransition message="Procesando..." />
+    ) : null,
+  };
 };
 
 // Ejemplo de componente completamente type-safe
@@ -336,42 +445,268 @@ const TypeSafeUnifiedFlow: React.FC = () => {
 */
 
 // Componente wrapper que maneja la inicialización del flujo
-const UnifiedFlowDemoContent: React.FC = () => {
+const UnifiedFlowDemoContentInner: React.FC<{ drawer: ReturnType<typeof useDrawer> }> = ({ drawer }) => {
   const { startWithCustomerStep, step, isActive } = useMapFlow();
   const hasInitialized = React.useRef(false);
-
+  const realtime = useRealtimeStore();
+  const ui = useUI();
+  const errorHandler = useFlowErrorHandler();
   // Inicializar con el paso de selección de servicio cuando se monta
   React.useEffect(() => {
-    // Solo inicializar una vez y si no está ya en el estado correcto
-    if (!hasInitialized.current) {
-      console.log('[UnifiedFlowDemo] Initializing with SELECCION_SERVICIO');
+    const initializeFlow = async () => {
+      if (!hasInitialized.current) {
+        console.log("[UnifiedFlowDemo] Initializing with SELECCION_SERVICIO");
 
-      // ✅ Type-safe: FLOW_STEPS.SELECCION_SERVICIO es de tipo SelectionStep
-      // Esto garantiza que solo podemos pasar pasos válidos para customer
-      const config = startWithCustomerStep(FLOW_STEPS.SELECCION_SERVICIO);
+        try {
+          // ✅ Type-safe: FLOW_STEPS.SELECCION_SERVICIO es de tipo SelectionStep
+          // Esto garantiza que solo podemos pasar pasos válidos para customer
+          const config = startWithCustomerStep(FLOW_STEPS.SELECCION_SERVICIO);
 
-      console.log('[UnifiedFlowDemo] Started with config:', {
-        bottomSheetVisible: config.bottomSheetVisible,
-        bottomSheetMinHeight: config.bottomSheetMinHeight,
-        bottomSheetMaxHeight: config.bottomSheetMaxHeight,
-        bottomSheetInitialHeight: config.bottomSheetInitialHeight,
-        mapInteraction: config.mapInteraction,
-        transitionType: config.transitionType
-      });
+          if (config) {
+            console.log("[UnifiedFlowDemo] Started with config:", {
+              bottomSheetVisible: config.bottomSheetVisible ?? false,
+              bottomSheetMinHeight: config.bottomSheetMinHeight ?? 0,
+              bottomSheetMaxHeight: config.bottomSheetMaxHeight ?? 0,
+              bottomSheetInitialHeight: config.bottomSheetInitialHeight ?? 0,
+              mapInteraction: config.mapInteraction ?? "default",
+              transitionType: config.transitionType ?? "default",
+            });
+          }
 
-      hasInitialized.current = true;
-    }
+          hasInitialized.current = true;
+        } catch (error) {
+          console.error("[UnifiedFlowDemo] Failed to initialize flow:", error);
+        }
+      }
+    };
+
+    initializeFlow();
   }, []); // Dependencia vacía para ejecutar solo una vez al montar
 
-  return <UnifiedFlowWrapper role="customer" renderStep={quietRenderStep} />;
+  // Renderizar componentes de error o loading si es necesario
+  if (errorHandler.error) {
+    return errorHandler.errorComponent;
+  }
+
+  if (errorHandler.isLoading) {
+    return errorHandler.loadingComponent;
+  }
+
+  return (
+    <>
+      {/* Header con drawer */}
+      <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
+        <TouchableOpacity onPress={drawer.toggle} className="p-2">
+          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">☰</Text>
+        </TouchableOpacity>
+        <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">Flujo Unificado Demo</Text>
+        <View className="w-10" />
+      </View>
+
+      <UnifiedFlowWrapper role="customer" renderStep={quietRenderStep}>
+        <SimulationControls />
+      </UnifiedFlowWrapper>
+    </>
+  );
+};
+
+const SimulationControls: React.FC = () => {
+  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [animationValue] = React.useState(new Animated.Value(0));
+  const realtime = useRealtimeStore();
+  const devStore = useDevStore();
+  const ui = useUI();
+  const { map } = useMapFlowContext();
+
+  // Animación de expansión/colapso
+  React.useEffect(() => {
+    Animated.spring(animationValue, {
+      toValue: isExpanded ? 1 : 0,
+      useNativeDriver: true,
+      tension: 50,
+      friction: 8,
+    }).start();
+  }, [isExpanded]);
+
+  // Debug logging para verificar que los estados cambian
+  React.useEffect(() => {
+    console.log("[SimulationControls] DevStore state changed:", {
+      developerMode: devStore.developerMode,
+      networkBypass: devStore.networkBypass,
+      wsBypass: devStore.wsBypass,
+    });
+  }, [devStore.developerMode, devStore.networkBypass, devStore.wsBypass]);
+
+  return (
+    <View
+      style={{
+        position: "absolute",
+        top: 120, // Aumentado para evitar el header
+        right: 16,
+        zIndex: 2000,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 10,
+      }}
+    >
+      {/* Overlay para cerrar al tocar fuera */}
+      {isExpanded && (
+        <TouchableOpacity
+          style={{
+            position: "absolute",
+            top: -120,
+            left: -1000,
+            right: -1000,
+            bottom: -1000,
+            zIndex: -1,
+          }}
+          onPress={() => setIsExpanded(false)}
+          activeOpacity={1}
+        />
+      )}
+      {/* Botón principal de toggle */}
+      <TouchableOpacity
+        className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full w-14 h-14 items-center justify-center shadow-lg border-2 border-white/20"
+        onPress={() => setIsExpanded(!isExpanded)}
+        activeOpacity={0.8}
+      >
+        <Text className="text-white text-xl font-bold">
+          {isExpanded ? "✕" : "🔧"}
+        </Text>
+        {/* Indicador de estado activo */}
+        {devStore.developerMode && (
+          <View className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border border-white" />
+        )}
+      </TouchableOpacity>
+
+      {/* Panel expandible */}
+      {isExpanded && (
+        <Animated.View
+          className="mt-2 bg-white/95 dark:bg-brand-primaryDark rounded-xl shadow-lg border border-gray-200/50 overflow-hidden min-w-[280px] max-w-[320px]"
+          style={{
+            opacity: animationValue,
+            transform: [
+              {
+                scale: animationValue.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: [0.8, 1],
+                }),
+              },
+            ],
+          }}
+        >
+          {/* Header */}
+          <View className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 px-4 py-3">
+            <View className="flex-row items-center justify-between">
+              <Text className="font-JakartaBold text-sm text-white">
+                ⚙️ Simulation Controls
+              </Text>
+              {/* Estado actual del developer mode */}
+              <View className="flex-row items-center space-x-1">
+                <View
+                  className={`w-2 h-2 rounded-full ${
+                    devStore.developerMode
+                      ? "bg-emerald-300"
+                      : devStore.networkBypass
+                        ? "bg-orange-300"
+                        : devStore.wsBypass
+                          ? "bg-red-300"
+                          : "bg-gray-400"
+                  }`}
+                />
+                <Text className="text-white text-xs font-JakartaMedium">
+                  {devStore.developerMode
+                    ? "DEV ON"
+                    : devStore.networkBypass
+                      ? "MOCK"
+                      : devStore.wsBypass
+                        ? "WS OFF"
+                        : "LIVE"}
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* WebSocket Status */}
+          <View className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+            <View className="flex-row items-center justify-between">
+              <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-wide">
+                WebSocket Status
+              </Text>
+              <WebSocketStatus />
+            </View>
+          </View>
+
+          {/* Developer Mode Section */}
+          <DevModeIndicator />
+
+          {/* Notification Settings */}
+          <NotificationSettings />
+
+          {/* Venezuelan Payment System */}
+          <VenezuelanPaymentSelector />
+
+          {/* Driver Flow Controls */}
+          <DriverFlowControls />
+
+          {/* Ride Status Controls */}
+          <RideStatusControls />
+
+          {/* Performance Metrics */}
+          <PerformanceMetrics />
+
+          {/* Simulation & Map Controls */}
+          <BaseSimulationControls />
+        </Animated.View>
+      )}
+    </View>
+  );
+};
+
+// Componente del drawer customer separado para estar encima de todo
+const DrawerCustomer: React.FC<{ drawerState?: ReturnType<typeof useDrawer> }> = ({ drawerState }) => {
+  // Si se proporciona drawerState, úsalo. Si no, crea uno nuevo.
+  const drawer = drawerState || useDrawer({ module: "customer" });
+
+  return (
+    <Drawer
+      config={drawer.config}
+      isOpen={drawer.isOpen}
+      activeRoute={drawer.activeRoute}
+      expandedRoutes={drawer.expandedRoutes}
+      currentModule={drawer.currentModule}
+      isTransitioning={drawer.isTransitioning}
+      onRoutePress={drawer.handleRoutePress}
+      onToggleExpanded={drawer.toggleExpanded}
+      onClose={drawer.close}
+      onModuleChange={drawer.switchModule}
+    />
+  );
+};
+
+// Hook para compartir el estado del drawer entre componentes
+const useCustomerDrawer = () => {
+  return useDrawer({ module: "customer" });
+};
+
+// Wrapper para compartir el estado del drawer
+const UnifiedFlowDemoContent: React.FC = () => {
+  const drawer = useCustomerDrawer();
+
+  return (
+    <>
+      <UnifiedFlowDemoContentInner drawer={drawer} />
+      <DrawerCustomer drawerState={drawer} />
+    </>
+  );
 };
 
 export default function UnifiedFlowDemo() {
   return (
     <>
-      <Stack.Screen options={{ headerShown: true, title: 'Flujo Unificado Demo' }} />
-
-      {/* Integración del Flujo Unificado con inicialización */}
+      <Stack.Screen options={{ headerShown: false }} />
       <UnifiedFlowDemoContent />
     </>
   );

@@ -44,7 +44,9 @@ const Home = () => {
         }}
         className="w-full flex justify-end items-end p-5"
       >
-        <Text className="text-black dark:text-white text-md font-JakartaBold">Skip</Text>
+        <Text className="text-black dark:text-white text-md font-JakartaBold">
+          Skip
+        </Text>
       </TouchableOpacity>
 
       <View className="flex-1 w-full">
@@ -82,7 +84,9 @@ const Home = () => {
             <View
               key={index}
               className={`w-[32px] h-[4px] mx-1 rounded-full ${
-                index === activeIndex ? "bg-brand-secondary" : "bg-[#E2E8F0] dark:bg-gray-600"
+                index === activeIndex
+                  ? "bg-brand-secondary"
+                  : "bg-[#E2E8F0] dark:bg-gray-600"
               }`}
             />
           ))}

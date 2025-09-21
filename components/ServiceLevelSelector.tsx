@@ -1,6 +1,7 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image, FlatList } from 'react-native';
-import CustomButton from '@/components/CustomButton';
+import React from "react";
+import { View, Text, TouchableOpacity, Image, FlatList } from "react-native";
+
+import CustomButton from "@/components/CustomButton";
 
 interface ServiceLevel {
   id: number;
@@ -28,44 +29,44 @@ interface ServiceLevelSelectorProps {
 const serviceLevels: ServiceLevel[] = [
   {
     id: 1,
-    name: 'Economy',
-    description: 'Most affordable option',
-    baseFare: 2.50,
+    name: "Economy",
+    description: "Most affordable option",
+    baseFare: 2.5,
     perMinuteRate: 0.15,
     perMileRate: 1.25,
-    features: ['Basic vehicle', 'Standard service', 'Cash/Card payment'],
-    color: 'bg-green-50 border-green-200'
+    features: ["Basic vehicle", "Standard service", "Cash/Card payment"],
+    color: "bg-green-50 border-green-200",
   },
   {
     id: 2,
-    name: 'Comfort',
-    description: 'Extra space, premium cars',
-    baseFare: 4.00,
+    name: "Comfort",
+    description: "Extra space, premium cars",
+    baseFare: 4.0,
     perMinuteRate: 0.25,
-    perMileRate: 2.00,
-    features: ['Premium vehicle', 'Extra space', 'Professional driver'],
-    color: 'bg-blue-50 border-blue-200'
+    perMileRate: 2.0,
+    features: ["Premium vehicle", "Extra space", "Professional driver"],
+    color: "bg-blue-50 border-blue-200",
   },
   {
     id: 3,
-    name: 'XL',
-    description: 'Large vehicles, 6+ seats',
-    baseFare: 6.00,
+    name: "XL",
+    description: "Large vehicles, 6+ seats",
+    baseFare: 6.0,
     perMinuteRate: 0.35,
-    perMileRate: 3.00,
-    features: ['Large vehicle', '6+ seats', 'Group friendly'],
-    color: 'bg-purple-50 border-purple-200'
+    perMileRate: 3.0,
+    features: ["Large vehicle", "6+ seats", "Group friendly"],
+    color: "bg-purple-50 border-purple-200",
   },
   {
     id: 4,
-    name: 'Premium',
-    description: 'Luxury experience',
-    baseFare: 8.00,
+    name: "Premium",
+    description: "Luxury experience",
+    baseFare: 8.0,
     perMinuteRate: 0.45,
-    perMileRate: 4.00,
-    features: ['Luxury vehicle', 'Premium service', 'Concierge support'],
-    color: 'bg-yellow-50 border-yellow-200'
-  }
+    perMileRate: 4.0,
+    features: ["Luxury vehicle", "Premium service", "Concierge support"],
+    color: "bg-yellow-50 border-yellow-200",
+  },
 ];
 
 const ServiceLevelSelector: React.FC<ServiceLevelSelectorProps> = ({
@@ -73,10 +74,10 @@ const ServiceLevelSelector: React.FC<ServiceLevelSelectorProps> = ({
   onSelectServiceLevel,
   estimatedDistance = 5.2,
   estimatedTime = 18,
-  className = '',
+  className = "",
   onContinue,
-  continueLabel = 'Continue',
-  hideContinueButton = false
+  continueLabel = "Continue",
+  hideContinueButton = false,
 }) => {
   const calculateFare = (service: ServiceLevel) => {
     const timeFare = service.perMinuteRate * estimatedTime;
@@ -93,24 +94,28 @@ const ServiceLevelSelector: React.FC<ServiceLevelSelectorProps> = ({
         onPress={() => onSelectServiceLevel(item.id)}
         className={`mb-3 p-4 rounded-xl border-2 mx-5 ${
           isSelected
-            ? 'border-primary bg-primary-50'
+            ? "border-primary bg-primary-50"
             : `border-gray-200 ${item.color}`
         } shadow-sm`}
       >
         <View className="flex-row justify-between items-start mb-2">
           <View className="flex-1">
-            <Text className={`font-JakartaBold text-lg mb-1 ${
-              isSelected ? 'text-primary' : 'text-gray-800'
-            }`}>
+            <Text
+              className={`font-JakartaBold text-lg mb-1 ${
+                isSelected ? "text-primary" : "text-gray-800"
+              }`}
+            >
               {item.name}
             </Text>
             <Text className="text-sm text-gray-600 mb-2">
               {item.description}
             </Text>
           </View>
-          <Text className={`font-JakartaBold text-lg ${
-            isSelected ? 'text-primary' : 'text-gray-800'
-          }`}>
+          <Text
+            className={`font-JakartaBold text-lg ${
+              isSelected ? "text-primary" : "text-gray-800"
+            }`}
+          >
             ${estimatedFare.toFixed(2)}
           </Text>
         </View>
@@ -155,10 +160,14 @@ const ServiceLevelSelector: React.FC<ServiceLevelSelectorProps> = ({
       {selectedServiceLevel && (
         <View className="mt-4 p-4 bg-primary-50 rounded-lg mx-5">
           <Text className="text-sm font-JakartaSemiBold text-primary mb-2">
-            Selected: {serviceLevels.find(s => s.id === selectedServiceLevel)?.name}
+            Selected:{" "}
+            {serviceLevels.find((s) => s.id === selectedServiceLevel)?.name}
           </Text>
           <Text className="text-xs text-primary-600">
-            Estimated fare: ${calculateFare(serviceLevels.find(s => s.id === selectedServiceLevel)!).toFixed(2)}
+            Estimated fare: $
+            {calculateFare(
+              serviceLevels.find((s) => s.id === selectedServiceLevel)!,
+            ).toFixed(2)}
           </Text>
           <Text className="text-xs text-primary-600">
             ~{estimatedTime} min • {estimatedDistance} miles

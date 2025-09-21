@@ -1,9 +1,11 @@
-import * as Notifications from 'expo-notifications';
+import * as Device from "expo-device";
+import * as Haptics from "expo-haptics";
+import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
-import * as Haptics from 'expo-haptics';
-import * as Device from 'expo-device';
+
 import { useNotificationStore } from "../../store";
 import { NotificationType } from "../../types/type";
+
 import { firebaseService } from "./firebaseService";
 
 export class NotificationService {
@@ -28,8 +30,10 @@ export class NotificationService {
       // Request permissions using Firebase service
       const hasPermission = await firebaseService.requestPermissions();
       if (!hasPermission) {
-        console.warn('[NotificationService] Notification permissions not granted');
-        throw new Error('Notification permissions not granted');
+        console.warn(
+          "[NotificationService] Notification permissions not granted",
+        );
+        throw new Error("Notification permissions not granted");
       }
 
       // Set notification handler
@@ -58,13 +62,13 @@ export class NotificationService {
 
     // Handle notification received while app is foreground
     Notifications.addNotificationReceivedListener((notification: any) => {
-      console.log('[NotificationService] Notification received:', notification);
+      console.log("[NotificationService] Notification received:", notification);
       this.handleNotificationReceived(notification);
     });
 
     // Handle notification tapped
     Notifications.addNotificationResponseReceivedListener((response: any) => {
-      console.log('[NotificationService] Notification tapped:', response);
+      console.log("[NotificationService] Notification tapped:", response);
       this.handleNotificationTapped(response);
     });
   }
@@ -87,13 +91,16 @@ export class NotificationService {
           title,
           body,
           data: data || {},
-          sound: this.shouldPlaySound() ? 'default' : undefined,
+          sound: this.shouldPlaySound() ? "default" : undefined,
           priority: Notifications.AndroidNotificationPriority.HIGH,
         },
         trigger: null, // Send immediately
       });
 
-      console.log('[NotificationService] Local notification sent:', notificationId);
+      console.log(
+        "[NotificationService] Local notification sent:",
+        notificationId,
+      );
 
       // Also add to notification store for persistence
       const notificationData = {
@@ -111,7 +118,9 @@ export class NotificationService {
 
       // Trigger haptic feedback if enabled
       if (this.shouldVibrate()) {
-        await Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        await Haptics.notificationAsync(
+          Haptics.NotificationFeedbackType.Success,
+        );
       }
     } catch (error) {
       console.error(
@@ -229,7 +238,10 @@ export class NotificationService {
 
       // Use Firebase service to get FCM token
       const token = await firebaseService.getFCMToken();
-      console.log('[NotificationService] FCM token obtained:', token ? token.substring(0, 20) + '...' : 'null');
+      console.log(
+        "[NotificationService] FCM token obtained:",
+        token ? token.substring(0, 20) + "..." : "null",
+      );
 
       return token;
     } catch (error) {

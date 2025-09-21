@@ -1,6 +1,6 @@
 import { Redirect } from "expo-router";
-import { Text } from "react-native";
 import { useEffect } from "react";
+import { Text } from "react-native";
 import { View, ActivityIndicator } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -9,7 +9,8 @@ import { useOnboardingStore } from "@/store";
 export default function OnboardingIndex() {
   console.log("[OnboardingIndex] Rendering onboarding index");
 
-  const { currentStep, isCompleted, isLoading, completedSteps } = useOnboardingStore();
+  const { currentStep, isCompleted, isLoading, completedSteps } =
+    useOnboardingStore();
 
   useEffect(() => {
     console.log(
@@ -19,7 +20,10 @@ export default function OnboardingIndex() {
       isCompleted,
     );
     console.log("[OnboardingIndex] Step routes:", stepRoutes);
-    console.log("[OnboardingIndex] Target route:", stepRoutes[currentStep] || stepRoutes[0]);
+    console.log(
+      "[OnboardingIndex] Target route:",
+      stepRoutes[currentStep] || stepRoutes[0],
+    );
   }, [currentStep, isCompleted]);
 
   // If onboarding is completed, redirect to home
@@ -45,7 +49,12 @@ export default function OnboardingIndex() {
     "/(onboarding)/profile-completion",
   ];
 
-  const safeStep = Number.isFinite(currentStep) && currentStep >= 0 && currentStep < stepRoutes.length ? currentStep : 0;
+  const safeStep =
+    Number.isFinite(currentStep) &&
+    currentStep >= 0 &&
+    currentStep < stepRoutes.length
+      ? currentStep
+      : 0;
   const targetRoute = stepRoutes[safeStep] || stepRoutes[0];
   console.log(
     "[OnboardingIndex] Redirecting to step:",

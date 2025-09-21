@@ -23,9 +23,14 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
     totalSteps,
   );
 
-  const safeTotal = totalSteps > 0 && Number.isFinite(totalSteps) ? totalSteps : 1;
-  const safeStep = Number.isFinite(currentStep) && currentStep >= 0 ? currentStep : 0;
-  const safeProgress = Number.isFinite(progress) && progress >= 0 ? Math.min(100, Math.max(0, progress)) : Math.round(((safeStep + 1) / safeTotal) * 100);
+  const safeTotal =
+    totalSteps > 0 && Number.isFinite(totalSteps) ? totalSteps : 1;
+  const safeStep =
+    Number.isFinite(currentStep) && currentStep >= 0 ? currentStep : 0;
+  const safeProgress =
+    Number.isFinite(progress) && progress >= 0
+      ? Math.min(100, Math.max(0, progress))
+      : Math.round(((safeStep + 1) / safeTotal) * 100);
 
   return (
     <View className={`px-5 py-2 ${className}`}>

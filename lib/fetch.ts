@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { router } from "expo-router";
+import { maybeMockResponse, simulateLatency, maybeFail } from '@/lib/dev';
 
 // Base URL for the new backend API
 const API_BASE_URL = `${process.env.EXPO_PUBLIC_SERVER_URL || "https://gnuhealth-back.alcaravan.com.ve"}/api`;
@@ -11,6 +12,14 @@ let refreshPromise: Promise<any> | null = null;
 export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean }) => {
   const startMs = Date.now();
   const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}/${endpoint}`;
+
+  // Dev mock path (only for relative endpoints)
+  if (!endpoint.startsWith('http')) {
+    const mock = await maybeMockResponse((options?.method || 'GET').toUpperCase(), endpoint, options?.body);
+    if (mock) {
+      return mock;
+    }
+  }
 
   // Add authentication headers if required
   let headers = { ...options?.headers };
@@ -40,6 +49,8 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
   });
 
   try {
+    await simulateLatency();
+    maybeFail();
     const response = await fetch(fullUrl, requestOptions);
     console.log("[fetchAPI] ◀ ResponseMeta", {
       endpoint,

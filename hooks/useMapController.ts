@@ -31,12 +31,29 @@ export const useMapController = () => {
     mapRef.current?.setCamera(config);
   };
 
+  // Route & markers (imperative API extension via events on MapHandle soon)
+  // For now, expose pass-through helpers that components can use with MapHandle methods
+  const setRoutePolyline = (polyline: LatLng[]) => {
+    mapRef.current?.setRoutePolyline(polyline);
+  };
+
+  const clearRoutePolyline = () => {
+    mapRef.current?.clearRoutePolyline();
+  };
+
+  const setNavMarkers = (markers: { pickup?: LatLng | null; destination?: LatLng | null }) => {
+    mapRef.current?.setNavMarkers(markers);
+  };
+
   return {
     setRef,
     zoomTo,
     panTo,
     fitBounds,
     setCamera,
+    setRoutePolyline,
+    clearRoutePolyline,
+    setNavMarkers,
   };
 };
 

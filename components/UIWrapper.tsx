@@ -9,6 +9,7 @@ import {
   Animated,
   Easing,
 } from "react-native";
+import { useColorScheme } from "react-native";
 import {
   PanGestureHandler,
   State,
@@ -17,7 +18,6 @@ import {
 } from "react-native-gesture-handler";
 
 import { useUIStore } from "@/store";
-import { useColorScheme } from "react-native";
 
 interface UIWrapperProps {
   children: React.ReactNode;
@@ -720,7 +720,13 @@ export const UIWrapper: React.FC<UIWrapperProps> = ({
 
   return (
     <>
-      <View className={theme === 'dark' ? 'dark flex-1 bg-brand-primaryDark' : 'flex-1 bg-brand-primary'}>
+      <View
+        className={
+          theme === "dark"
+            ? "dark flex-1 bg-brand-primaryDark"
+            : "flex-1 bg-brand-primary"
+        }
+      >
         {children}
       </View>
 

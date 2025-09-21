@@ -40,11 +40,46 @@ const DUMMY_ANALYTICS = {
 };
 
 const DUMMY_POPULAR_ITEMS = [
-  { name: "Margherita Pizza", sold: 145, revenue: 2465.55, trend: "+12%", rating: 4.8, profit: 1846.55 },
-  { name: "Pepperoni Pizza", sold: 128, revenue: 2430.72, trend: "+8%", rating: 4.7, profit: 1791.72 },
-  { name: "Vegetarian Pizza", sold: 98, revenue: 1663.02, trend: "+15%", rating: 4.6, profit: 1273.02 },
-  { name: "Spaghetti Carbonara", sold: 87, revenue: 1306.13, trend: "+5%", rating: 4.5, profit: 986.13 },
-  { name: "Garlic Bread", sold: 76, revenue: 531.24, trend: "-3%", rating: 4.4, profit: 411.24 },
+  {
+    name: "Margherita Pizza",
+    sold: 145,
+    revenue: 2465.55,
+    trend: "+12%",
+    rating: 4.8,
+    profit: 1846.55,
+  },
+  {
+    name: "Pepperoni Pizza",
+    sold: 128,
+    revenue: 2430.72,
+    trend: "+8%",
+    rating: 4.7,
+    profit: 1791.72,
+  },
+  {
+    name: "Vegetarian Pizza",
+    sold: 98,
+    revenue: 1663.02,
+    trend: "+15%",
+    rating: 4.6,
+    profit: 1273.02,
+  },
+  {
+    name: "Spaghetti Carbonara",
+    sold: 87,
+    revenue: 1306.13,
+    trend: "+5%",
+    rating: 4.5,
+    profit: 986.13,
+  },
+  {
+    name: "Garlic Bread",
+    sold: 76,
+    revenue: 531.24,
+    trend: "-3%",
+    rating: 4.4,
+    profit: 411.24,
+  },
 ];
 
 const DUMMY_HOURLY_DATA = [
@@ -53,7 +88,7 @@ const DUMMY_HOURLY_DATA = [
   { hour: "1 PM", orders: 22, revenue: 585.42 },
   { hour: "2 PM", orders: 18, revenue: 478.98 },
   { hour: "3 PM", orders: 12, revenue: 319.32 },
-  { hour: "4 PM", orders: 10, revenue: 266.10 },
+  { hour: "4 PM", orders: 10, revenue: 266.1 },
   { hour: "5 PM", orders: 14, revenue: 372.54 },
   { hour: "6 PM", orders: 28, revenue: 745.08 },
   { hour: "7 PM", orders: 35, revenue: 931.35 },
@@ -67,7 +102,8 @@ const DUMMY_CUSTOMER_REVIEWS = [
     id: "REV_001",
     customerName: "Sarah Johnson",
     rating: 5,
-    review: "Amazing pizza! The delivery was super fast and the food was hot and fresh.",
+    review:
+      "Amazing pizza! The delivery was super fast and the food was hot and fresh.",
     date: "2024-01-15",
     orderItems: ["Margherita Pizza", "Garlic Bread"],
   },
@@ -75,7 +111,8 @@ const DUMMY_CUSTOMER_REVIEWS = [
     id: "REV_002",
     customerName: "Mike Chen",
     rating: 4,
-    review: "Good food but delivery took longer than expected. Still tasty though!",
+    review:
+      "Good food but delivery took longer than expected. Still tasty though!",
     date: "2024-01-14",
     orderItems: ["Pepperoni Pizza", "Coca Cola"],
   },
@@ -132,7 +169,9 @@ const BusinessAnalytics = () => {
   const [selectedPeriod, setSelectedPeriod] = useState<
     "today" | "week" | "month"
   >("today");
-  const [selectedTab, setSelectedTab] = useState<"overview" | "insights" | "reviews">("overview");
+  const [selectedTab, setSelectedTab] = useState<
+    "overview" | "insights" | "reviews"
+  >("overview");
 
   const currentData = DUMMY_ANALYTICS[selectedPeriod];
   const maxHourlyOrders = Math.max(...DUMMY_HOURLY_DATA.map((h) => h.orders));
@@ -141,9 +180,12 @@ const BusinessAnalytics = () => {
     const stars = [];
     for (let i = 1; i <= 5; i++) {
       stars.push(
-        <Text key={i} className={i <= rating ? "text-warning-500" : "text-secondary-300"}>
+        <Text
+          key={i}
+          className={i <= rating ? "text-warning-500" : "text-secondary-300"}
+        >
           ⭐
-        </Text>
+        </Text>,
       );
     }
     return stars;
@@ -235,7 +277,9 @@ const BusinessAnalytics = () => {
           <>
             {/* Enhanced Key Metrics */}
             <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-JakartaBold mb-4">Key Performance Metrics</Text>
+              <Text className="text-lg font-JakartaBold mb-4">
+                Key Performance Metrics
+              </Text>
 
               <View className="grid grid-cols-2 gap-4 mb-4">
                 <View className="items-center p-4 bg-primary-50 rounded-lg">
@@ -273,21 +317,27 @@ const BusinessAnalytics = () => {
                   <Text className="text-lg font-JakartaExtraBold text-blue-500">
                     {currentData.deliveryTime}
                   </Text>
-                  <Text className="text-xs text-secondary-600">Avg Delivery</Text>
+                  <Text className="text-xs text-secondary-600">
+                    Avg Delivery
+                  </Text>
                 </View>
 
                 <View className="items-center p-3 bg-green-50 rounded-lg">
                   <Text className="text-lg font-JakartaExtraBold text-green-500">
                     {currentData.satisfaction}
                   </Text>
-                  <Text className="text-xs text-secondary-600">Satisfaction</Text>
+                  <Text className="text-xs text-secondary-600">
+                    Satisfaction
+                  </Text>
                 </View>
               </View>
             </View>
 
             {/* Customer Analytics */}
             <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-JakartaBold mb-4">Customer Analytics</Text>
+              <Text className="text-lg font-JakartaBold mb-4">
+                Customer Analytics
+              </Text>
 
               <View className="space-y-4">
                 <View className="flex-row justify-between items-center">
@@ -295,7 +345,9 @@ const BusinessAnalytics = () => {
                     <Text className="text-2xl mr-3">👥</Text>
                     <View>
                       <Text className="font-JakartaBold">New Customers</Text>
-                      <Text className="text-sm text-secondary-600">First-time buyers</Text>
+                      <Text className="text-sm text-secondary-600">
+                        First-time buyers
+                      </Text>
                     </View>
                   </View>
                   <Text className="text-xl font-JakartaExtraBold text-success-500">
@@ -308,7 +360,9 @@ const BusinessAnalytics = () => {
                     <Text className="text-2xl mr-3">🔄</Text>
                     <View>
                       <Text className="font-JakartaBold">Repeat Customers</Text>
-                      <Text className="text-sm text-secondary-600">Returning buyers</Text>
+                      <Text className="text-sm text-secondary-600">
+                        Returning buyers
+                      </Text>
                     </View>
                   </View>
                   <Text className="text-xl font-JakartaExtraBold text-primary-500">
@@ -321,7 +375,9 @@ const BusinessAnalytics = () => {
                     <Text className="text-2xl mr-3">⭐</Text>
                     <View>
                       <Text className="font-JakartaBold">Average Rating</Text>
-                      <Text className="text-sm text-secondary-600">From all reviews</Text>
+                      <Text className="text-sm text-secondary-600">
+                        From all reviews
+                      </Text>
                     </View>
                   </View>
                   <View className="flex-row items-center">
@@ -336,7 +392,9 @@ const BusinessAnalytics = () => {
 
             {/* Enhanced Popular Items */}
             <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-JakartaBold mb-4">Top Performing Items</Text>
+              <Text className="text-lg font-JakartaBold mb-4">
+                Top Performing Items
+              </Text>
 
               {DUMMY_POPULAR_ITEMS.map((item, index) => (
                 <View
@@ -374,7 +432,9 @@ const BusinessAnalytics = () => {
 
             {/* Hourly Distribution */}
             <View className="bg-white rounded-lg p-4 mb-4">
-              <Text className="text-lg font-JakartaBold mb-4">Revenue by Hour</Text>
+              <Text className="text-lg font-JakartaBold mb-4">
+                Revenue by Hour
+              </Text>
 
               <View className="space-y-3">
                 {DUMMY_HOURLY_DATA.map((hourData) => (
@@ -416,8 +476,12 @@ const BusinessAnalytics = () => {
                 <View className="flex-row items-start">
                   <Text className="text-2xl mr-3">{insight.icon}</Text>
                   <View className="flex-1">
-                    <Text className="font-JakartaBold mb-2">{insight.title}</Text>
-                    <Text className="text-secondary-700 mb-3">{insight.message}</Text>
+                    <Text className="font-JakartaBold mb-2">
+                      {insight.title}
+                    </Text>
+                    <Text className="text-secondary-700 mb-3">
+                      {insight.message}
+                    </Text>
                     <View className="bg-white px-3 py-2 rounded-full">
                       <Text className="text-sm font-JakartaBold text-primary-500">
                         💡 {insight.action}
@@ -435,7 +499,9 @@ const BusinessAnalytics = () => {
           <View className="space-y-4 mb-8">
             {/* Rating Summary */}
             <View className="bg-white rounded-lg p-4">
-              <Text className="text-lg font-JakartaBold mb-4">Rating Summary</Text>
+              <Text className="text-lg font-JakartaBold mb-4">
+                Rating Summary
+              </Text>
               <View className="flex-row items-center justify-center mb-4">
                 <Text className="text-4xl font-JakartaExtraBold text-warning-500 mr-2">
                   {currentData.avgRating}
@@ -454,19 +520,24 @@ const BusinessAnalytics = () => {
               <View key={review.id} className="bg-white rounded-lg p-4">
                 <View className="flex-row justify-between items-start mb-3">
                   <View>
-                    <Text className="font-JakartaBold">{review.customerName}</Text>
-                    <Text className="text-sm text-secondary-600">{review.date}</Text>
+                    <Text className="font-JakartaBold">
+                      {review.customerName}
+                    </Text>
+                    <Text className="text-sm text-secondary-600">
+                      {review.date}
+                    </Text>
                   </View>
-                  <View className="flex-row">
-                    {renderStars(review.rating)}
-                  </View>
+                  <View className="flex-row">{renderStars(review.rating)}</View>
                 </View>
 
                 <Text className="text-secondary-700 mb-3">{review.review}</Text>
 
                 <View className="flex-row flex-wrap">
                   {review.orderItems.map((item, index) => (
-                    <View key={index} className="bg-general-500 px-2 py-1 rounded-full mr-2 mb-1">
+                    <View
+                      key={index}
+                      className="bg-general-500 px-2 py-1 rounded-full mr-2 mb-1"
+                    >
                       <Text className="text-xs text-secondary-700">{item}</Text>
                     </View>
                   ))}
@@ -478,7 +549,9 @@ const BusinessAnalytics = () => {
 
         {/* Export Actions */}
         <View className="bg-white rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3">Export & Reports</Text>
+          <Text className="text-lg font-JakartaBold mb-3">
+            Export & Reports
+          </Text>
 
           <View className="grid grid-cols-2 gap-3">
             <TouchableOpacity className="flex-row items-center p-3 bg-general-500 rounded-lg">

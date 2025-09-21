@@ -111,7 +111,9 @@ const MarketplaceHome = () => {
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header */}
       <View className="bg-white dark:bg-brand-primary p-5">
-        <Text className="text-xl font-JakartaBold text-black dark:text-white">Delivery</Text>
+        <Text className="text-xl font-JakartaBold text-black dark:text-white">
+          Delivery
+        </Text>
         <Text className="text-secondary-600 dark:text-gray-300 mt-1">
           Order from your favorite restaurants
         </Text>
@@ -131,7 +133,9 @@ const MarketplaceHome = () => {
 
         {/* Categories */}
         <View className="mb-4">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Categories</Text>
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">
+            Categories
+          </Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false}>
             <View className="flex-row space-x-3">
               {DUMMY_CATEGORIES.map((category) => (

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
+import { router } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, Modal, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 interface RideRequest {
   id: string;
@@ -159,24 +159,25 @@ const RideNotificationSystem: React.FC<RideNotificationSystemProps> = ({
             </View>
 
             {/* Special Requests */}
-            {rideRequest.specialRequests && rideRequest.specialRequests.length > 0 && (
-              <View className="mb-4">
-                <Text className="font-JakartaBold mb-2">Special Requests:</Text>
-                {rideRequest.specialRequests.map((request, index) => (
-                  <Text key={index} className="text-secondary-600 text-sm">
-                    • {request}
+            {rideRequest.specialRequests &&
+              rideRequest.specialRequests.length > 0 && (
+                <View className="mb-4">
+                  <Text className="font-JakartaBold mb-2">
+                    Special Requests:
                   </Text>
-                ))}
-              </View>
-            )}
+                  {rideRequest.specialRequests.map((request, index) => (
+                    <Text key={index} className="text-secondary-600 text-sm">
+                      • {request}
+                    </Text>
+                  ))}
+                </View>
+              )}
 
             {/* Timer and Progress */}
             <View className="mb-6">
               <View className="flex-row justify-between items-center mb-2">
                 <Text className="font-JakartaBold">Accept in:</Text>
-                <Text className="font-JakartaBold text-lg">
-                  {timeLeft}s
-                </Text>
+                <Text className="font-JakartaBold text-lg">{timeLeft}s</Text>
               </View>
               <View className="w-full bg-gray-200 rounded-full h-3">
                 <View

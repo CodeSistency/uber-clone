@@ -1,4 +1,5 @@
 import { Stack } from "expo-router";
+
 import { useUI } from "@/components/UIWrapper";
 
 export default function DriverLayout() {
@@ -9,7 +10,7 @@ export default function DriverLayout() {
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: theme === 'dark' ? '#000000' : '#FFFFFF',
+          backgroundColor: theme === "dark" ? "#000000" : "#FFFFFF",
         },
       }}
     >

@@ -34,7 +34,10 @@ const Page = () => {
         await useOnboardingStore.getState().loadFromStorage();
         console.log("[IndexPage] Onboarding initialized from storage");
       } catch (error) {
-        console.error("[IndexPage] Error initializing onboarding from storage:", error);
+        console.error(
+          "[IndexPage] Error initializing onboarding from storage:",
+          error,
+        );
       }
     };
 
@@ -53,20 +56,28 @@ const Page = () => {
           // Check onboarding status using the new utility function
           console.log("[IndexPage] Checking onboarding status...");
           const onboardingStatus = await checkOnboardingStatus();
-          console.log("[IndexPage] Onboarding status result:", onboardingStatus);
+          console.log(
+            "[IndexPage] Onboarding status result:",
+            onboardingStatus,
+          );
 
           // Force-sync local Zustand store with the latest status (no UI toast)
           try {
             if (onboardingStatus.userData) {
               setUserData(onboardingStatus.userData);
             }
-            const ns = typeof onboardingStatus.nextStep === 'number' && Number.isFinite(onboardingStatus.nextStep)
-              ? Math.max(0, Math.min(3, onboardingStatus.nextStep))
-              : 0;
+            const ns =
+              typeof onboardingStatus.nextStep === "number" &&
+              Number.isFinite(onboardingStatus.nextStep)
+                ? Math.max(0, Math.min(3, onboardingStatus.nextStep))
+                : 0;
             setCurrentStep(ns);
             setCompleted(onboardingStatus.isCompleted);
           } catch (e) {
-            console.warn("[IndexPage] Failed to sync store with onboarding status:", e);
+            console.warn(
+              "[IndexPage] Failed to sync store with onboarding status:",
+              e,
+            );
           }
 
           setOnboardingStatus(onboardingStatus);

@@ -8,6 +8,8 @@ import {
   FlatList,
   TouchableOpacity,
   ActivityIndicator,
+  Modal,
+  Dimensions,
 } from "react-native";
 
 import { icons } from "@/constants";
@@ -69,7 +71,9 @@ const GoogleTextInput = ({
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
+  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
   const inputRef = useRef<TextInput>(null);
+  const containerRef = useRef<View>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSearchRef = useRef<string>("");
 
@@ -87,6 +91,13 @@ const GoogleTextInput = ({
       }
     };
   }, []);
+
+  // Update dropdown position when showResults changes
+  React.useEffect(() => {
+    if (showResults) {
+      setTimeout(updateDropdownPosition, 50);
+    }
+  }, [showResults]);
 
   // Additional validation
   if (!apiKeyToUse) {
@@ -151,6 +162,8 @@ const GoogleTextInput = ({
       if (data.status === "OK" && data.predictions) {
         setResults(data.predictions.slice(0, 5)); // Limit to 5 results
         setShowResults(true);
+        // Update position when results change
+        setTimeout(updateDropdownPosition, 100);
       } else {
         console.warn(
           "[GoogleTextInput] ⚠️ API returned non-OK status:",
@@ -280,59 +293,111 @@ const GoogleTextInput = ({
     </TouchableOpacity>
   );
 
+  const updateDropdownPosition = () => {
+    if (containerRef.current) {
+      containerRef.current.measureInWindow((x: number, y: number, width: number, height: number) => {
+        setDropdownPosition({
+          top: y + height + 5,
+          left: x,
+          width: width,
+        });
+      });
+    }
+  };
+
+  const handleFocus = () => {
+    console.log("[GoogleTextInput] 🎯 Input focused");
+    updateDropdownPosition();
+    setShowResults(true);
+  };
+
   return (
-    <View
-      className={`flex flex-row items-center justify-center relative z-50 rounded-xl ${containerStyle}`}
-    >
-      <View className="flex-row items-center bg-white dark:bg-brand-primary rounded-full px-4 py-2 shadow-md flex-1">
-        {icon && (
-          <View className="justify-center items-center w-6 h-6 mr-2">
-            <Image
-              source={icon ? icon : icons.search}
-              className="w-6 h-6"
-              resizeMode="contain"
-            />
-          </View>
-        )}
+    <>
+      <View
+        ref={containerRef}
+        className={`flex flex-row items-center justify-center rounded-xl ${containerStyle}`}
+      >
+        <View className="flex-row items-center bg-white dark:bg-brand-primary rounded-full px-4 py-2 shadow-md flex-1">
+          {icon && (
+            <View className="justify-center items-center w-6 h-6 mr-2">
+              <Image
+                source={icon ? icon : icons.search}
+                className="w-6 h-6"
+                resizeMode="contain"
+              />
+            </View>
+          )}
 
-        <TextInput
-          ref={inputRef}
-          value={query}
-          onChangeText={handleTextChange}
-          placeholder={initialLocation ?? "Where do you want to go?"}
-          placeholderTextColor="gray"
-          className="flex-1 text-base font-JakartaSemiBold text-black dark:text-white"
-          onFocus={() => {
-            console.log("[GoogleTextInput] 🎯 Input focused");
-            setShowResults(true);
-          }}
-          onBlur={() => {
-            console.log("[GoogleTextInput] 👀 Input blurred");
-            // Delay hiding results to allow selection
-            setTimeout(() => setShowResults(false), 200);
-          }}
-        />
+          <TextInput
+            ref={inputRef}
+            value={query}
+            onChangeText={handleTextChange}
+            placeholder={initialLocation ?? "Where do you want to go?"}
+            placeholderTextColor="gray"
+            className="flex-1 text-base font-JakartaSemiBold text-black dark:text-white"
+          onFocus={handleFocus}
+            onBlur={() => {
+              console.log("[GoogleTextInput] 👀 Input blurred");
+              // Delay hiding results to allow selection
+              setTimeout(() => setShowResults(false), 200);
+            }}
+          />
 
-        {loading && (
-          <ActivityIndicator size="small" color="#000" className="ml-2" />
-        )}
+          {loading && (
+            <ActivityIndicator size="small" color="#000" className="ml-2" />
+          )}
+        </View>
       </View>
 
-      {showResults && results.length > 0 && (
-        <View
-          className="absolute top-14 left-0 right-0 bg-white dark:bg-brand-primary rounded-xl shadow-lg z-50 max-h-60 border border-gray-200 dark:border-brand-primaryDark"
-          style={{ elevation: 10 }}
+      {/* Modal para resultados - renderizado fuera del ScrollView */}
+      <Modal
+        visible={showResults && results.length > 0}
+        transparent={true}
+        animationType="none"
+        onRequestClose={() => setShowResults(false)}
+      >
+        <TouchableOpacity
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'transparent',
+          }}
+          activeOpacity={1}
+          onPress={() => setShowResults(false)}
         >
-          <FlatList
-            data={results}
-            keyExtractor={(item) => item.place_id}
-            renderItem={renderResultItem}
-            showsVerticalScrollIndicator={false}
-            keyboardShouldPersistTaps="handled"
-          />
-        </View>
-      )}
-    </View>
+          <View
+            style={{
+              position: 'absolute',
+              top: dropdownPosition.top,
+              left: dropdownPosition.left,
+              width: dropdownPosition.width,
+              maxHeight: 200,
+              backgroundColor: 'white',
+              borderRadius: 12,
+              shadowColor: '#000',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 1000,
+              borderWidth: 1,
+              borderColor: '#e5e7eb',
+            }}
+          >
+            <FlatList
+              data={results}
+              keyExtractor={(item) => item.place_id}
+              renderItem={renderResultItem}
+              showsVerticalScrollIndicator={false}
+              keyboardShouldPersistTaps="handled"
+              style={{ maxHeight: 200 }}
+            />
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </>
   );
 };
 

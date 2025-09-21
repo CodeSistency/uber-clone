@@ -1,6 +1,15 @@
-import { useRef, useEffect } from "react";
-import { View, Text, TouchableOpacity, Animated, PanResponder, Dimensions, ColorValue, StyleSheet } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRef, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  PanResponder,
+  Dimensions,
+  ColorValue,
+  StyleSheet,
+} from "react-native";
 
 interface AnimatedBottomSheetProps {
   children: React.ReactNode;
@@ -16,7 +25,8 @@ interface AnimatedBottomSheetProps {
   showBottomBarAt?: number;
 }
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(value, min), max);
 
 const AnimatedBottomSheet = ({
   children,
@@ -26,7 +36,12 @@ const AnimatedBottomSheet = ({
   maxHeight = 560,
   initialHeight = 320,
   useGradient = true,
-  gradientColors = ["rgba(0,0,0,0.65)", "rgba(0,0,0,0.25)", "rgba(0,0,0,0.05)", "rgba(0,0,0,0)"] as const,
+  gradientColors = [
+    "rgba(0,0,0,0.65)",
+    "rgba(0,0,0,0.25)",
+    "rgba(0,0,0,0.05)",
+    "rgba(0,0,0,0)",
+  ] as const,
   bottomBar,
   bottomBarHeight = 64,
   showBottomBarAt = 0.6,
@@ -100,22 +115,24 @@ const AnimatedBottomSheet = ({
         const end = clamp(startHeightRef.current - g.dy, minHeight, cappedMax);
         const mid = (minHeight + cappedMax) / 2;
         const snaps = [minHeight, mid, cappedMax];
-        const nearest = snaps.reduce((a, b) => (Math.abs(b - end) < Math.abs(a - end) ? b : a));
+        const nearest = snaps.reduce((a, b) =>
+          Math.abs(b - end) < Math.abs(a - end) ? b : a,
+        );
         animateTo(nearest);
       },
-    })
+    }),
   ).current;
 
   const threshold = minHeight + (cappedMax - minHeight) * showBottomBarAt;
   const barTranslate = heightAnim.interpolate({
     inputRange: [threshold - 40, threshold + 40],
     outputRange: [bottomBarHeight, 0],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
   const barOpacity = heightAnim.interpolate({
     inputRange: [threshold - 20, threshold + 20],
     outputRange: [0, 1],
-    extrapolate: 'clamp',
+    extrapolate: "clamp",
   });
 
   if (!isVisible) return null;
@@ -123,12 +140,12 @@ const AnimatedBottomSheet = ({
   return (
     <View className="absolute inset-0 z-20">
       {/* Backdrop */}
-      <Animated.View 
+      <Animated.View
         className="absolute inset-0 bg-black/50"
         style={{ opacity: backdropAnim }}
       >
-        <TouchableOpacity 
-          className="flex-1" 
+        <TouchableOpacity
+          className="flex-1"
           onPress={onClose}
           activeOpacity={1}
         />
@@ -138,7 +155,7 @@ const AnimatedBottomSheet = ({
       <Animated.View
         className="absolute left-0 right-0 bottom-0"
         style={{
-          transform: [{ translateY: slideAnim }]
+          transform: [{ translateY: slideAnim }],
         }}
       >
         <Animated.View
@@ -163,7 +180,13 @@ const AnimatedBottomSheet = ({
           </View>
           {children}
           {bottomBar && (
-            <Animated.View style={{ transform: [{ translateY: barTranslate }], opacity: barOpacity }} className="absolute left-0 right-0 bottom-0">
+            <Animated.View
+              style={{
+                transform: [{ translateY: barTranslate }],
+                opacity: barOpacity,
+              }}
+              className="absolute left-0 right-0 bottom-0"
+            >
               <View className="mx-4 mb-4 rounded-2xl px-4 py-3 bg-white/95 dark:bg-black/70 border border-black/5 dark:border-white/10">
                 {bottomBar}
               </View>

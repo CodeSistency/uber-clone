@@ -4,8 +4,8 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "@/components/CustomButton";
-import { Tabs, RadioGroup, Select } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
+import { Tabs, RadioGroup, Select } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
@@ -43,18 +43,29 @@ export default function TravelPreferences() {
   } = useOnboardingStore();
 
   const [preferences, setPreferences] = useState({
-    preferredVehicleType: (userData.preferredVehicleType || "standard") as "standard" | "suv" | "motorcycle" | "bike",
-    preferredServiceLevel: (userData.preferredServiceLevel || "economy") as "economy" | "comfort" | "premium",
+    preferredVehicleType: (userData.preferredVehicleType || "standard") as
+      | "standard"
+      | "suv"
+      | "motorcycle"
+      | "bike",
+    preferredServiceLevel: (userData.preferredServiceLevel || "economy") as
+      | "economy"
+      | "comfort"
+      | "premium",
     language: userData.preferredLanguage || "es",
     currency: userData.currency || "USD",
   });
 
-  const handleVehicleSelect = (vehicleType: "standard" | "suv" | "motorcycle" | "bike") => {
+  const handleVehicleSelect = (
+    vehicleType: "standard" | "suv" | "motorcycle" | "bike",
+  ) => {
     console.log("[TravelPreferences] Selected vehicle type:", vehicleType);
     setPreferences((prev) => ({ ...prev, preferredVehicleType: vehicleType }));
   };
 
-  const handleServiceSelect = (serviceLevel: "economy" | "comfort" | "premium") => {
+  const handleServiceSelect = (
+    serviceLevel: "economy" | "comfort" | "premium",
+  ) => {
     console.log("[TravelPreferences] Selected service level:", serviceLevel);
     setPreferences((prev) => ({
       ...prev,
@@ -63,7 +74,6 @@ export default function TravelPreferences() {
   };
 
   const handleContinue = async () => {
-
     try {
       setLoading(true);
       setError(null);
@@ -83,18 +93,22 @@ export default function TravelPreferences() {
       // According to documentation, it should accept:
       // { preferredVehicleType, preferredServiceLevel, preferredLanguage, timezone, currency }
       // For now, preferences are stored locally and saved with profile completion
-      console.log("[TravelPreferences] Preferences stored locally, will save with profile completion");
+      console.log(
+        "[TravelPreferences] Preferences stored locally, will save with profile completion",
+      );
 
       // Continue to next step (preferences saved locally)
       nextStep();
-      router.replace('/(onboarding)');
+      router.replace("/(onboarding)");
     } catch (error: any) {
       console.error("[TravelPreferences] Error saving preferences:", error);
 
       // Handle authentication errors specially
-      if (error.message?.includes("Authentication expired") ||
-          error.message?.includes("Token inválido") ||
-          error.statusCode === 401) {
+      if (
+        error.message?.includes("Authentication expired") ||
+        error.message?.includes("Token inválido") ||
+        error.statusCode === 401
+      ) {
         setError("Your session has expired. Please log in again.");
         Alert.alert(
           "Session Expired",
@@ -102,9 +116,9 @@ export default function TravelPreferences() {
           [
             {
               text: "OK",
-              onPress: () => router.replace("/(auth)/sign-in")
-            }
-          ]
+              onPress: () => router.replace("/(auth)/sign-in"),
+            },
+          ],
         );
         return;
       }
@@ -155,40 +169,65 @@ export default function TravelPreferences() {
 
         {/* Vehicle Type Selection (segmented tabs) */}
         <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">🚗 Preferred Vehicle Type</Text>
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
+            🚗 Preferred Vehicle Type
+          </Text>
           <Tabs
             variant="segmented"
-            items={VEHICLE_TYPES.map(v=>({ key: v.id, label: v.icon + ' ' + v.name }))}
+            items={VEHICLE_TYPES.map((v) => ({
+              key: v.id,
+              label: v.icon + " " + v.name,
+            }))}
             value={preferences.preferredVehicleType}
-            onChange={(k)=>handleVehicleSelect(k as 'standard' | 'suv' | 'motorcycle' | 'bike')}
+            onChange={(k) =>
+              handleVehicleSelect(
+                k as "standard" | "suv" | "motorcycle" | "bike",
+              )
+            }
           />
         </View>
 
         {/* Service Level Selection (radio-like) */}
         <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">💎 Service Level Preference</Text>
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
+            💎 Service Level Preference
+          </Text>
           <RadioGroup
-            options={SERVICE_LEVELS.map(s=>({ value: s.id, label: `${s.name} — ${s.description} (${s.price})` }))}
+            options={SERVICE_LEVELS.map((s) => ({
+              value: s.id,
+              label: `${s.name} — ${s.description} (${s.price})`,
+            }))}
             value={preferences.preferredServiceLevel}
-            onChange={(v)=>handleServiceSelect(v as 'economy' | 'comfort' | 'premium')}
+            onChange={(v) =>
+              handleServiceSelect(v as "economy" | "comfort" | "premium")
+            }
           />
         </View>
 
         {/* Language & Currency */}
         <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">🌐 Language & Currency</Text>
+          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
+            🌐 Language & Currency
+          </Text>
           <View className="mb-3">
             <Select
               value={preferences.language}
-              onChange={(v)=>setPreferences(p=>({ ...p, language: v }))}
-              options={[{label:'Español', value:'es'},{label:'English', value:'en'}]}
+              onChange={(v) => setPreferences((p) => ({ ...p, language: v }))}
+              options={[
+                { label: "Español", value: "es" },
+                { label: "English", value: "en" },
+              ]}
               placeholder="Language"
             />
           </View>
           <Select
             value={preferences.currency}
-            onChange={(v)=>setPreferences(p=>({ ...p, currency: v }))}
-            options={[{label:'USD', value:'USD'},{label:'VES', value:'VES'},{label:'COP', value:'COP'}]}
+            onChange={(v) => setPreferences((p) => ({ ...p, currency: v }))}
+            options={[
+              { label: "USD", value: "USD" },
+              { label: "VES", value: "VES" },
+              { label: "COP", value: "COP" },
+            ]}
             placeholder="Currency"
           />
         </View>

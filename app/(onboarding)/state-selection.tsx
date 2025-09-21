@@ -97,7 +97,7 @@ export default function StateSelection() {
         body: JSON.stringify({
           country: userData.country,
           state: selectedState,
-          city: null // Send null for city
+          city: null, // Send null for city
         }),
       });
 
