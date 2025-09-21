@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import MapViewWithBottomSheet from '../../../components/MapViewWithBottomSheet';
+import MapViewWithBottomSheet from "../../../components/MapViewWithBottomSheet";
 
 // Dummy data for driver assignment
 const DUMMY_ORDER = {
@@ -23,7 +23,7 @@ const DUMMY_AVAILABLE_DRIVERS = [
     rating: 4.9,
     totalDeliveries: 1247,
     vehicle: "Toyota Camry",
-    currentLocation: { latitude: 40.7128, longitude: -74.0060 },
+    currentLocation: { latitude: 40.7128, longitude: -74.006 },
     distance: 2.1,
     eta: 8,
     fee: 3.99,
@@ -35,10 +35,10 @@ const DUMMY_AVAILABLE_DRIVERS = [
     rating: 4.7,
     totalDeliveries: 892,
     vehicle: "Honda Civic",
-    currentLocation: { latitude: 40.7580, longitude: -73.9857 },
+    currentLocation: { latitude: 40.758, longitude: -73.9857 },
     distance: 0.3,
     eta: 3,
-    fee: 4.50,
+    fee: 4.5,
     status: "available",
   },
   {
@@ -50,7 +50,7 @@ const DUMMY_AVAILABLE_DRIVERS = [
     currentLocation: { latitude: 40.7505, longitude: -73.9934 },
     distance: 1.2,
     eta: 5,
-    fee: 3.50,
+    fee: 3.5,
     status: "available",
   },
   {
@@ -59,7 +59,7 @@ const DUMMY_AVAILABLE_DRIVERS = [
     rating: 4.6,
     totalDeliveries: 634,
     vehicle: "Ford Focus",
-    currentLocation: { latitude: 40.7300, longitude: -74.0100 },
+    currentLocation: { latitude: 40.73, longitude: -74.01 },
     distance: 3.8,
     eta: 15,
     fee: 5.25,
@@ -82,7 +82,7 @@ const getMapMarkers = (drivers: typeof DUMMY_AVAILABLE_DRIVERS) => [
   {
     id: "restaurant",
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: -74.006,
     title: "Mario's Pizza",
     description: "Restaurant Location",
     image: require("@/assets/icons/home.png"),
@@ -100,7 +100,9 @@ const getMapMarkers = (drivers: typeof DUMMY_AVAILABLE_DRIVERS) => [
 
 const DriverAssignmentScreen = () => {
   const { orderId } = useLocalSearchParams();
-  const [availableDrivers, setAvailableDrivers] = useState(DUMMY_AVAILABLE_DRIVERS);
+  const [availableDrivers, setAvailableDrivers] = useState(
+    DUMMY_AVAILABLE_DRIVERS,
+  );
   const [selectedDriver, setSelectedDriver] = useState<string | null>(null);
   const [isAutoAssigning, setIsAutoAssigning] = useState(false);
   const [autoAssignProgress, setAutoAssignProgress] = useState(0);
@@ -112,15 +114,18 @@ const DriverAssignmentScreen = () => {
 
     // Simulate progress
     const progressInterval = setInterval(() => {
-      setAutoAssignProgress(prev => {
+      setAutoAssignProgress((prev) => {
         if (prev >= 100) {
           clearInterval(progressInterval);
           setIsAutoAssigning(false);
 
           // Auto-select best driver (closest with highest rating)
           const bestDriver = availableDrivers.reduce((best, current) => {
-            if (current.distance < best.distance ||
-                (current.distance === best.distance && current.rating > best.rating)) {
+            if (
+              current.distance < best.distance ||
+              (current.distance === best.distance &&
+                current.rating > best.rating)
+            ) {
               return current;
             }
             return best;
@@ -130,9 +135,7 @@ const DriverAssignmentScreen = () => {
           Alert.alert(
             "Driver Assigned!",
             `${bestDriver.name} has been assigned to deliver order ${orderId}`,
-            [
-              { text: "OK", onPress: () => router.back() }
-            ]
+            [{ text: "OK", onPress: () => router.back() }],
           );
           return 100;
         }
@@ -142,7 +145,7 @@ const DriverAssignmentScreen = () => {
   };
 
   const handleManualAssign = (driverId: string) => {
-    const driver = availableDrivers.find(d => d.id === driverId);
+    const driver = availableDrivers.find((d) => d.id === driverId);
     if (driver) {
       Alert.alert(
         "Confirm Assignment",
@@ -156,13 +159,11 @@ const DriverAssignmentScreen = () => {
               Alert.alert(
                 "Driver Assigned!",
                 `${driver.name} has been assigned to deliver order ${orderId}`,
-                [
-                  { text: "OK", onPress: () => router.back() }
-                ]
+                [{ text: "OK", onPress: () => router.back() }],
               );
-            }
-          }
-        ]
+            },
+          },
+        ],
       );
     }
   };
@@ -218,7 +219,8 @@ const DriverAssignmentScreen = () => {
           }`}
         >
           <Text className="text-white font-JakartaBold text-lg">
-            🤖 {isAutoAssigning ? "Finding Best Driver..." : "Auto-Assign Driver"}
+            🤖{" "}
+            {isAutoAssigning ? "Finding Best Driver..." : "Auto-Assign Driver"}
           </Text>
           {isAutoAssigning && (
             <View className="w-full bg-primary-200 rounded-full h-2 mt-3">
@@ -259,8 +261,12 @@ const DriverAssignmentScreen = () => {
                 <View className="flex-row justify-between items-start mb-2">
                   <View className="flex-1">
                     <View className="flex-row items-center mb-1">
-                      <Text className="font-JakartaBold mr-2">{driver.name}</Text>
-                      <View className={`px-2 py-1 rounded-full ${getDriverStatusColor(driver.status)}`}>
+                      <Text className="font-JakartaBold mr-2">
+                        {driver.name}
+                      </Text>
+                      <View
+                        className={`px-2 py-1 rounded-full ${getDriverStatusColor(driver.status)}`}
+                      >
                         <Text className="text-xs font-JakartaBold">
                           {driver.status.toUpperCase()}
                         </Text>
@@ -319,7 +325,9 @@ const DriverAssignmentScreen = () => {
           <TouchableOpacity
             onPress={() => {
               if (selectedDriver) {
-                const driver = availableDrivers.find(d => d.id === selectedDriver);
+                const driver = availableDrivers.find(
+                  (d) => d.id === selectedDriver,
+                );
                 Alert.alert(
                   "Confirm Assignment",
                   `Assign ${driver?.name} to deliver order ${orderId}?`,
@@ -331,13 +339,11 @@ const DriverAssignmentScreen = () => {
                         Alert.alert(
                           "Driver Assigned!",
                           `${driver?.name} has been assigned to deliver order ${orderId}`,
-                          [
-                            { text: "OK", onPress: () => router.back() }
-                          ]
+                          [{ text: "OK", onPress: () => router.back() }],
                         );
-                      }
-                    }
-                  ]
+                      },
+                    },
+                  ],
                 );
               }
             }}
@@ -346,9 +352,11 @@ const DriverAssignmentScreen = () => {
               selectedDriver ? "bg-primary-500" : "bg-general-500"
             }`}
           >
-            <Text className={`font-JakartaBold ${
-              selectedDriver ? "text-white" : "text-secondary-600"
-            }`}>
+            <Text
+              className={`font-JakartaBold ${
+                selectedDriver ? "text-white" : "text-secondary-600"
+              }`}
+            >
               Assign Selected
             </Text>
           </TouchableOpacity>

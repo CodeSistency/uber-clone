@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Alert } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { View, Text, TouchableOpacity, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import MapViewWithBottomSheet from '../../../components/MapViewWithBottomSheet';
+import MapViewWithBottomSheet from "../../../components/MapViewWithBottomSheet";
 
 // Dummy data for order fulfillment
 const DUMMY_ORDER = {
@@ -29,10 +29,10 @@ const DUMMY_ORDER = {
 // Simulate driver movement
 const simulateDriverMovement = () => {
   const positions = [
-    { latitude: 40.7128, longitude: -74.0060, progress: 0 }, // Restaurant
-    { latitude: 40.7200, longitude: -74.0020, progress: 25 },
-    { latitude: 40.7300, longitude: -73.9980, progress: 50 },
-    { latitude: 40.7400, longitude: -73.9940, progress: 75 },
+    { latitude: 40.7128, longitude: -74.006, progress: 0 }, // Restaurant
+    { latitude: 40.72, longitude: -74.002, progress: 25 },
+    { latitude: 40.73, longitude: -73.998, progress: 50 },
+    { latitude: 40.74, longitude: -73.994, progress: 75 },
     { latitude: 40.7589, longitude: -73.9851, progress: 100 }, // Customer
   ];
 
@@ -41,7 +41,10 @@ const simulateDriverMovement = () => {
 
 const OrderFulfillmentScreen = () => {
   const { orderId } = useLocalSearchParams();
-  const [driverPosition, setDriverPosition] = useState({ latitude: 40.7128, longitude: -74.0060 });
+  const [driverPosition, setDriverPosition] = useState({
+    latitude: 40.7128,
+    longitude: -74.006,
+  });
   const [deliveryProgress, setDeliveryProgress] = useState(25);
   const [estimatedTime, setEstimatedTime] = useState("12 min");
   const [isDelivered, setIsDelivered] = useState(false);
@@ -61,7 +64,10 @@ const OrderFulfillmentScreen = () => {
         setDeliveryProgress(position.progress);
 
         // Update estimated time based on progress
-        const remainingTime = Math.max(1, Math.round((100 - position.progress) * 0.12));
+        const remainingTime = Math.max(
+          1,
+          Math.round((100 - position.progress) * 0.12),
+        );
         setEstimatedTime(`${remainingTime} min`);
 
         currentIndex++;
@@ -78,9 +84,9 @@ const OrderFulfillmentScreen = () => {
           [
             {
               text: "View Receipt",
-              onPress: () => router.replace("/(business)/dashboard" as any)
-            }
-          ]
+              onPress: () => router.replace("/(business)/dashboard" as any),
+            },
+          ],
         );
       }
     }, 3000); // Update every 3 seconds
@@ -109,9 +115,9 @@ const OrderFulfillmentScreen = () => {
             setDeliveryProgress(100);
             setEstimatedTime("Delivered");
             router.back();
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
@@ -121,7 +127,7 @@ const OrderFulfillmentScreen = () => {
     {
       id: "restaurant",
       latitude: 40.7128,
-      longitude: -74.0060,
+      longitude: -74.006,
       title: "Mario's Pizza",
       description: "Order Pickup Location",
       image: require("@/assets/icons/home.png"),
@@ -148,10 +154,10 @@ const OrderFulfillmentScreen = () => {
 
   // Route coordinates (simplified)
   const routeCoordinates = [
-    { latitude: 40.7128, longitude: -74.0060 }, // Restaurant
-    { latitude: 40.7200, longitude: -74.0020 },
-    { latitude: 40.7300, longitude: -73.9980 },
-    { latitude: 40.7400, longitude: -73.9940 },
+    { latitude: 40.7128, longitude: -74.006 }, // Restaurant
+    { latitude: 40.72, longitude: -74.002 },
+    { latitude: 40.73, longitude: -73.998 },
+    { latitude: 40.74, longitude: -73.994 },
     { latitude: 40.7589, longitude: -73.9851 }, // Customer
   ];
 
@@ -163,7 +169,9 @@ const OrderFulfillmentScreen = () => {
         <View className="flex-row justify-between items-start mb-3">
           <View>
             <Text className="text-xl font-JakartaBold">{DUMMY_ORDER.id}</Text>
-            <Text className="text-secondary-600">{DUMMY_ORDER.customerName}</Text>
+            <Text className="text-secondary-600">
+              {DUMMY_ORDER.customerName}
+            </Text>
           </View>
           <View className="bg-primary-500 px-3 py-1 rounded-full">
             <Text className="text-white text-xs font-JakartaBold">
@@ -220,12 +228,16 @@ const OrderFulfillmentScreen = () => {
 
       {/* Driver Information */}
       <View className="bg-white px-5 py-4">
-        <Text className="text-lg font-JakartaBold mb-4">Driver Information</Text>
+        <Text className="text-lg font-JakartaBold mb-4">
+          Driver Information
+        </Text>
 
         <View className="bg-general-500 rounded-lg p-4">
           <View className="flex-row justify-between items-center mb-3">
             <View>
-              <Text className="font-JakartaBold">{DUMMY_ORDER.driver.name}</Text>
+              <Text className="font-JakartaBold">
+                {DUMMY_ORDER.driver.name}
+              </Text>
               <Text className="text-sm text-secondary-600">
                 🚗 {DUMMY_ORDER.driver.vehicle}
               </Text>
@@ -243,14 +255,18 @@ const OrderFulfillmentScreen = () => {
               onPress={handleCallDriver}
               className="flex-1 bg-primary-500 rounded-full py-2 items-center"
             >
-              <Text className="text-white font-JakartaBold text-sm">📞 Call</Text>
+              <Text className="text-white font-JakartaBold text-sm">
+                📞 Call
+              </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
               onPress={handleMessageDriver}
               className="flex-1 bg-success-500 rounded-full py-2 items-center"
             >
-              <Text className="text-white font-JakartaBold text-sm">💬 Message</Text>
+              <Text className="text-white font-JakartaBold text-sm">
+                💬 Message
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -261,7 +277,9 @@ const OrderFulfillmentScreen = () => {
         <Text className="text-lg font-JakartaBold mb-4">Delivery Details</Text>
 
         <View className="bg-general-500 rounded-lg p-4">
-          <Text className="font-JakartaBold mb-1">{DUMMY_ORDER.customerName}</Text>
+          <Text className="font-JakartaBold mb-1">
+            {DUMMY_ORDER.customerName}
+          </Text>
           <Text className="text-sm text-secondary-600 mb-2">
             📞 {DUMMY_ORDER.customerPhone}
           </Text>

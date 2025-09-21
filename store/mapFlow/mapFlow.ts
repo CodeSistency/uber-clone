@@ -7,6 +7,9 @@ export type ServiceType = 'transport' | 'delivery' | 'mandado' | 'envio';
 
 export type FlowRole = 'customer' | 'driver';
 
+// Driver generic steps
+export type DriverGeneralStep = 'DRIVER_DISPONIBILIDAD' | 'DRIVER_FINALIZACION_RATING';
+
 // Tipos más específicos para mejor type safety
 export type SelectionStep = 'SELECCION_SERVICIO';
 
@@ -75,6 +78,7 @@ export type CustomerFlowStep =
   | CustomerEnvioStep;
 
 export type DriverFlowStep =
+  | DriverGeneralStep
   | DriverTransportStep
   | DriverDeliveryStep
   | DriverMandadoStep
@@ -83,6 +87,7 @@ export type DriverFlowStep =
 export type FlowStep =
   | SelectionStep
   | CustomerTransportStep
+  | DriverGeneralStep
   | DriverTransportStep
   | CustomerDeliveryStep
   | DriverDeliveryStep
@@ -95,6 +100,10 @@ export type FlowStep =
 export const FLOW_STEPS = {
   // Selection
   SELECCION_SERVICIO: 'SELECCION_SERVICIO' as SelectionStep,
+
+  // Driver General
+  DRIVER_DISPONIBILIDAD: 'DRIVER_DISPONIBILIDAD' as DriverFlowStep,
+  DRIVER_FINALIZACION_RATING: 'DRIVER_FINALIZACION_RATING' as DriverFlowStep,
 
   // Customer Transport
   CUSTOMER_TRANSPORT: {
@@ -206,6 +215,11 @@ export interface MapFlowState {
   history: MapFlowStep[];
   isActive: boolean;
   stepConfig: Record<MapFlowStep, StepConfig>;
+  // Current flow identifiers
+  rideId?: number | null;
+  orderId?: number | null;
+  errandId?: number | null;
+  parcelId?: number | null;
 
   // Derived UI state
   bottomSheetVisible: boolean;
@@ -232,6 +246,10 @@ export interface MapFlowState {
   updateStepBottomSheet: (step: MapFlowStep, cfg: Partial<StepConfig['bottomSheet']>) => void;
   setMapInteraction: (step: MapFlowStep, interaction: NonNullable<StepConfig['mapInteraction']>) => void;
   updateStepTransition: (step: MapFlowStep, cfg: Partial<NonNullable<StepConfig['transition']>>) => void;
+  setRideId: (id: number | null) => void;
+  setOrderId: (id: number | null) => void;
+  setErrandId: (id: number | null) => void;
+  setParcelId: (id: number | null) => void;
 
   // Helper methods
   getInitialStepConfig: (step: MapFlowStep) => ReturnType<typeof getInitialStepConfig>;
@@ -364,6 +382,20 @@ const DEFAULT_CONFIG: Record<MapFlowStep, StepConfig> = {
     transition: { type: 'slide', duration: 220 }
   },
 
+  // Driver General
+  DRIVER_DISPONIBILIDAD: {
+    id: 'DRIVER_DISPONIBILIDAD',
+    bottomSheet: { visible: true, minHeight: 120, maxHeight: 360, initialHeight: 160, showHandle: true, allowDrag: true },
+    mapInteraction: 'none',
+    transition: { type: 'fade', duration: 180 }
+  },
+  DRIVER_FINALIZACION_RATING: {
+    id: 'DRIVER_FINALIZACION_RATING',
+    bottomSheet: { visible: true, minHeight: 260, maxHeight: 640, initialHeight: 480, showHandle: true, allowDrag: false },
+    mapInteraction: 'none',
+    transition: { type: 'slide', duration: 220 }
+  },
+
   // Customer Transport
   CUSTOMER_TRANSPORT_DEFINICION_VIAJE: {
     id: 'CUSTOMER_TRANSPORT_DEFINICION_VIAJE',
@@ -483,7 +515,7 @@ const DEFAULT_CONFIG: Record<MapFlowStep, StepConfig> = {
   // Driver Transport
   DRIVER_TRANSPORT_RECIBIR_SOLICITUD: {
     id: 'DRIVER_TRANSPORT_RECIBIR_SOLICITUD',
-    bottomSheet: { visible: true, minHeight: 200, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: true },
+    bottomSheet: { visible: true, minHeight: 200, maxHeight: 500, initialHeight: 300, showHandle: true, allowDrag: false },
     mapInteraction: 'none',
     transition: { type: 'slide', duration: 220 }
   },
@@ -646,6 +678,10 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   history: ['SELECCION_SERVICIO'],
   isActive: true, // Start as active
   stepConfig: DEFAULT_CONFIG,
+  rideId: null,
+  orderId: null,
+  errandId: null,
+  parcelId: null,
 
   // Initialize with correct config for SELECCION_SERVICIO
   ...getInitialStepConfig('SELECCION_SERVICIO'),
@@ -705,6 +741,7 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
       isActive: false,
       step: 'idle',
       history: [],
+      rideId: null, orderId: null, errandId: null, parcelId: null,
       bottomSheetVisible: false,
       bottomSheetMinHeight: 0,
       bottomSheetMaxHeight: 0,
@@ -724,6 +761,7 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
     set(() => ({
       step: 'idle',
       history: [],
+      rideId: null, orderId: null, errandId: null, parcelId: null,
       bottomSheetVisible: cfg.bottomSheet.visible,
       bottomSheetMinHeight: cfg.bottomSheet.minHeight,
       bottomSheetMaxHeight: cfg.bottomSheet.maxHeight,
@@ -831,6 +869,11 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
       transitionDuration: cfg.transition?.duration || 0,
     }));
   },
+
+  setRideId: (id) => set(() => ({ rideId: id })),
+  setOrderId: (id) => set(() => ({ orderId: id })),
+  setErrandId: (id) => set(() => ({ errandId: id })),
+  setParcelId: (id) => set(() => ({ parcelId: id })),
 
   updateStepBottomSheet: (step, cfg) => {
     set((state) => {

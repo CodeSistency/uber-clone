@@ -6,7 +6,7 @@ import RatingSystem from "@/components/RatingSystem";
 
 const RatingScreen = () => {
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
-  const [customTip, setCustomTip] = useState<string>('');
+  const [customTip, setCustomTip] = useState<string>("");
   const [showCustomInput, setShowCustomInput] = useState(false);
 
   const tipOptions = [2, 5, 10];
@@ -14,7 +14,7 @@ const RatingScreen = () => {
   const handleTipSelect = (tip: number) => {
     setSelectedTip(tip);
     setShowCustomInput(false);
-    setCustomTip('');
+    setCustomTip("");
   };
 
   const handleCustomTip = () => {
@@ -23,8 +23,14 @@ const RatingScreen = () => {
   };
 
   const handleSubmitRating = (rating: number, comment: string) => {
-    const finalTip = showCustomInput ? parseFloat(customTip) || 0 : selectedTip || 0;
-    console.log("[RatingScreen] Rating submitted:", { rating, comment, tip: finalTip });
+    const finalTip = showCustomInput
+      ? parseFloat(customTip) || 0
+      : selectedTip || 0;
+    console.log("[RatingScreen] Rating submitted:", {
+      rating,
+      comment,
+      tip: finalTip,
+    });
 
     // Here you would typically send the rating to your backend
     // For now, we'll just navigate back to the rides list
@@ -49,12 +55,16 @@ const RatingScreen = () => {
             <Text className="text-2xl">🚗</Text>
           </View>
           <Text className="text-lg font-JakartaBold mb-1">Sarah Johnson</Text>
-          <Text className="text-sm text-gray-600">Toyota Camry 2020 • Comfort Service</Text>
+          <Text className="text-sm text-gray-600">
+            Toyota Camry 2020 • Comfort Service
+          </Text>
         </View>
 
         {/* Rating Stars */}
         <View className="items-center mb-6">
-          <Text className="text-lg font-JakartaSemiBold mb-3">How was your experience?</Text>
+          <Text className="text-lg font-JakartaSemiBold mb-3">
+            How was your experience?
+          </Text>
           <View className="flex-row mb-4">
             {[1, 2, 3, 4, 5].map((star) => (
               <TouchableOpacity key={star} className="mx-1">
@@ -66,7 +76,9 @@ const RatingScreen = () => {
 
         {/* Tip Section */}
         <View className="mb-6">
-          <Text className="text-lg font-JakartaSemiBold mb-4 text-center">Add a Tip (Optional)</Text>
+          <Text className="text-lg font-JakartaSemiBold mb-4 text-center">
+            Add a Tip (Optional)
+          </Text>
 
           {/* Tip Options */}
           <View className="flex-row justify-center mb-4">
@@ -76,13 +88,15 @@ const RatingScreen = () => {
                 onPress={() => handleTipSelect(tip)}
                 className={`mx-2 px-4 py-2 rounded-lg border-2 ${
                   selectedTip === tip
-                    ? 'border-primary bg-primary-50'
-                    : 'border-gray-300 bg-white'
+                    ? "border-primary bg-primary-50"
+                    : "border-gray-300 bg-white"
                 }`}
               >
-                <Text className={`font-JakartaMedium ${
-                  selectedTip === tip ? 'text-primary' : 'text-gray-700'
-                }`}>
+                <Text
+                  className={`font-JakartaMedium ${
+                    selectedTip === tip ? "text-primary" : "text-gray-700"
+                  }`}
+                >
                   ${tip}
                 </Text>
               </TouchableOpacity>
@@ -92,13 +106,15 @@ const RatingScreen = () => {
               onPress={handleCustomTip}
               className={`mx-2 px-4 py-2 rounded-lg border-2 ${
                 showCustomInput
-                  ? 'border-primary bg-primary-50'
-                  : 'border-gray-300 bg-white'
+                  ? "border-primary bg-primary-50"
+                  : "border-gray-300 bg-white"
               }`}
             >
-              <Text className={`font-JakartaMedium ${
-                showCustomInput ? 'text-primary' : 'text-gray-700'
-              }`}>
+              <Text
+                className={`font-JakartaMedium ${
+                  showCustomInput ? "text-primary" : "text-gray-700"
+                }`}
+              >
                 Custom
               </Text>
             </TouchableOpacity>
@@ -122,17 +138,18 @@ const RatingScreen = () => {
         {/* Action Buttons */}
         <View className="space-y-3">
           <TouchableOpacity
-            onPress={() => handleSubmitRating(5, '')}
+            onPress={() => handleSubmitRating(5, "")}
             className="bg-primary py-4 rounded-lg"
           >
-            <Text className="text-white text-center font-JakartaBold">Submit Rating</Text>
+            <Text className="text-white text-center font-JakartaBold">
+              Submit Rating
+            </Text>
           </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={handleSkip}
-            className="py-3"
-          >
-            <Text className="text-gray-500 text-center font-JakartaMedium">Skip for now</Text>
+          <TouchableOpacity onPress={handleSkip} className="py-3">
+            <Text className="text-gray-500 text-center font-JakartaMedium">
+              Skip for now
+            </Text>
           </TouchableOpacity>
         </View>
       </View>

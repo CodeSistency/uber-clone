@@ -1,7 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from "expo-router";
+import React, { useState, useEffect, useRef } from "react";
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 // Dummy data for customer chat
 const DUMMY_ORDER = {
@@ -24,7 +32,8 @@ const DUMMY_CHAT_MESSAGES = [
   {
     id: "msg_2",
     sender: "business",
-    message: "Hi Sarah! Your Margherita Pizza and Caesar Salad are being prepared and will be ready in about 10 minutes.",
+    message:
+      "Hi Sarah! Your Margherita Pizza and Caesar Salad are being prepared and will be ready in about 10 minutes.",
     timestamp: new Date(Date.now() - 14 * 60 * 1000), // 14 min ago
     isRead: true,
   },
@@ -96,31 +105,35 @@ const CustomerChatScreen = () => {
         isRead: false,
       };
 
-      setMessages(prev => [...prev, message]);
+      setMessages((prev) => [...prev, message]);
       setNewMessage("");
 
       // Simulate customer response after 2-5 seconds
-      setTimeout(() => {
-        const responses = [
-          "Thank you for the update!",
-          "That sounds great!",
-          "Perfect, I'll be waiting.",
-          "Thanks for letting me know.",
-          "Appreciate the quick response!",
-        ];
+      setTimeout(
+        () => {
+          const responses = [
+            "Thank you for the update!",
+            "That sounds great!",
+            "Perfect, I'll be waiting.",
+            "Thanks for letting me know.",
+            "Appreciate the quick response!",
+          ];
 
-        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+          const randomResponse =
+            responses[Math.floor(Math.random() * responses.length)];
 
-        const customerResponse = {
-          id: `msg_${Date.now()}_response`,
-          sender: "customer",
-          message: randomResponse,
-          timestamp: new Date(),
-          isRead: false,
-        };
+          const customerResponse = {
+            id: `msg_${Date.now()}_response`,
+            sender: "customer",
+            message: randomResponse,
+            timestamp: new Date(),
+            isRead: false,
+          };
 
-        setMessages(prev => [...prev, customerResponse]);
-      }, 2000 + Math.random() * 3000);
+          setMessages((prev) => [...prev, customerResponse]);
+        },
+        2000 + Math.random() * 3000,
+      );
     }
   };
 
@@ -133,7 +146,7 @@ const CustomerChatScreen = () => {
       isRead: false,
     };
 
-    setMessages(prev => [...prev, message]);
+    setMessages((prev) => [...prev, message]);
   };
 
   const formatTime = (timestamp: Date) => {
@@ -193,10 +206,7 @@ const CustomerChatScreen = () => {
         <View className="bg-white p-4 border-b border-general-500">
           <View className="flex-row items-center justify-between">
             <View className="flex-row items-center">
-              <TouchableOpacity
-                onPress={() => router.back()}
-                className="mr-3"
-              >
+              <TouchableOpacity onPress={() => router.back()} className="mr-3">
                 <Text className="text-xl">←</Text>
               </TouchableOpacity>
               <View>
@@ -229,15 +239,23 @@ const CustomerChatScreen = () => {
             {messages.map((msg) => (
               <View key={msg.id} className="flex-row">
                 {msg.sender === "business" && <View className="flex-1" />}
-                <View className={`max-w-[80%] ${getMessageBubbleStyle(msg.sender)} rounded-2xl px-4 py-2`}>
-                  <Text className={`${getMessageTextStyle(msg.sender)} font-JakartaMedium`}>
+                <View
+                  className={`max-w-[80%] ${getMessageBubbleStyle(msg.sender)} rounded-2xl px-4 py-2`}
+                >
+                  <Text
+                    className={`${getMessageTextStyle(msg.sender)} font-JakartaMedium`}
+                  >
                     {msg.message}
                   </Text>
-                  <Text className={`text-xs mt-1 ${
-                    msg.sender === "business" ? "text-primary-100" :
-                    msg.sender === "customer" ? "text-secondary-500" :
-                    "text-secondary-600"
-                  }`}>
+                  <Text
+                    className={`text-xs mt-1 ${
+                      msg.sender === "business"
+                        ? "text-primary-100"
+                        : msg.sender === "customer"
+                          ? "text-secondary-500"
+                          : "text-secondary-600"
+                    }`}
+                  >
                     {formatTime(msg.timestamp)}
                   </Text>
                 </View>
@@ -251,8 +269,14 @@ const CustomerChatScreen = () => {
                 <View className="bg-white border border-general-500 rounded-2xl px-4 py-2 self-start">
                   <View className="flex-row space-x-1">
                     <View className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse" />
-                    <View className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                    <View className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
+                    <View
+                      className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse"
+                      style={{ animationDelay: "0.2s" }}
+                    />
+                    <View
+                      className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse"
+                      style={{ animationDelay: "0.4s" }}
+                    />
                   </View>
                 </View>
                 <View className="flex-1" />

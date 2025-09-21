@@ -84,19 +84,28 @@ const SignIn = () => {
         successMessage: "Welcome back to UberClone!",
         errorTitle: "Login Failed",
         onSuccess: async () => {
-          console.log("[SignIn] Login successful, checking onboarding status before navigation");
+          console.log(
+            "[SignIn] Login successful, checking onboarding status before navigation",
+          );
           try {
             const status = await checkOnboardingStatus();
-            const { setUserData, setCurrentStep, setCompleted } = require("../../store").useOnboardingStore.getState();
+            const { setUserData, setCurrentStep, setCompleted } =
+              require("../../store").useOnboardingStore.getState();
             if (status.userData) {
               setUserData(status.userData);
             }
-            const ns = typeof status.nextStep === 'number' && Number.isFinite(status.nextStep) ? Math.max(0, Math.min(3, status.nextStep)) : 0;
+            const ns =
+              typeof status.nextStep === "number" &&
+              Number.isFinite(status.nextStep)
+                ? Math.max(0, Math.min(3, status.nextStep))
+                : 0;
             setCurrentStep(ns);
             setCompleted(!!status.isCompleted);
 
             if (!status.isCompleted) {
-              console.log("[SignIn] Onboarding incomplete → navigating to onboarding");
+              console.log(
+                "[SignIn] Onboarding incomplete → navigating to onboarding",
+              );
               router.replace("/(onboarding)" as any);
               return;
             }
@@ -105,18 +114,26 @@ const SignIn = () => {
             try {
               const hasSelectedMode = await userModeStorage.hasSelectedMode();
               if (!hasSelectedMode) {
-                console.log("[SignIn] No mode selected → go to root to show welcome modal");
+                console.log(
+                  "[SignIn] No mode selected → go to root to show welcome modal",
+                );
                 router.replace("/" as any);
               } else {
                 console.log("[SignIn] Mode selected → go to home");
                 router.replace("/(root)/(tabs)/home" as any);
               }
             } catch (modeErr) {
-              console.warn("[SignIn] Mode selection check failed → fallback to root:", modeErr);
+              console.warn(
+                "[SignIn] Mode selection check failed → fallback to root:",
+                modeErr,
+              );
               router.replace("/" as any);
             }
           } catch (statusErr) {
-            console.warn("[SignIn] Onboarding status check failed → fallback to root:", statusErr);
+            console.warn(
+              "[SignIn] Onboarding status check failed → fallback to root:",
+              statusErr,
+            );
             router.replace("/" as any);
           }
         },
@@ -168,7 +185,9 @@ const SignIn = () => {
             className="text-lg text-center text-general-200 dark:text-gray-300 mt-10"
           >
             Don't have an account?{" "}
-            <Text className="text-black dark:text-brand-secondary">Sign Up</Text>
+            <Text className="text-black dark:text-brand-secondary">
+              Sign Up
+            </Text>
           </Link>
         </View>
       </View>

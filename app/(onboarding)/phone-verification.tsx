@@ -35,15 +35,21 @@ export default function PhoneVerification() {
     EC: "+593",
     BO: "+591",
   };
-  const dialCode = userData.country && DIAL_CODES[userData.country] ? DIAL_CODES[userData.country] : "";
+  const dialCode =
+    userData.country && DIAL_CODES[userData.country]
+      ? DIAL_CODES[userData.country]
+      : "";
 
   const handleSendVerification = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      const fullPhone = `${dialCode}${userData.phone || ''}`.trim();
-      console.log("[PhoneVerification] Sending verification code to:", fullPhone);
+      const fullPhone = `${dialCode}${userData.phone || ""}`.trim();
+      console.log(
+        "[PhoneVerification] Sending verification code to:",
+        fullPhone,
+      );
 
       // API call to send verification code
       const response = await fetchAPI("onboarding/verify-phone", {
@@ -56,7 +62,13 @@ export default function PhoneVerification() {
 
       console.log("[PhoneVerification] Send verification response:", response);
 
-      const isSuccess = (response && (response.success === true || response.statusCode === 200 || response.statusCode === 201)) || (!('success' in (response || {})) && !('statusCode' in (response || {})));
+      const isSuccess =
+        (response &&
+          (response.success === true ||
+            response.statusCode === 200 ||
+            response.statusCode === 201)) ||
+        (!("success" in (response || {})) &&
+          !("statusCode" in (response || {})));
 
       if (isSuccess) {
         console.log("[PhoneVerification] Verification code sent successfully");
@@ -64,7 +76,7 @@ export default function PhoneVerification() {
         // In a real implementation, you'd navigate to SMS code input
         // For now, we'll just skip this step
         nextStep();
-        router.replace('/(onboarding)');
+        router.replace("/(onboarding)");
       } else {
         throw new Error(response.message || "Failed to send verification code");
       }
@@ -72,9 +84,11 @@ export default function PhoneVerification() {
       console.error("[PhoneVerification] Error sending verification:", error);
 
       // Handle authentication errors specially
-      if (error.message?.includes("Authentication expired") ||
-          error.message?.includes("Token inválido") ||
-          error.statusCode === 401) {
+      if (
+        error.message?.includes("Authentication expired") ||
+        error.message?.includes("Token inválido") ||
+        error.statusCode === 401
+      ) {
         setError("Your session has expired. Please log in again.");
         Alert.alert(
           "Session Expired",
@@ -82,9 +96,9 @@ export default function PhoneVerification() {
           [
             {
               text: "OK",
-              onPress: () => router.replace("/(auth)/sign-in")
-            }
-          ]
+              onPress: () => router.replace("/(auth)/sign-in"),
+            },
+          ],
         );
         return;
       }
@@ -99,7 +113,7 @@ export default function PhoneVerification() {
   const handleSkip = () => {
     console.log("[PhoneVerification] Skipping phone verification");
     nextStep();
-    router.replace('/(onboarding)');
+    router.replace("/(onboarding)");
   };
 
   return (

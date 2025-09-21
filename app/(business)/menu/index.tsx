@@ -9,35 +9,35 @@ const DUMMY_MENU_CATEGORIES = [
     name: "Pizzas",
     count: 8,
     icon: "🍕",
-    color: "bg-red-50 border-red-200"
+    color: "bg-red-50 border-red-200",
   },
   {
     id: "pastas",
     name: "Pastas",
     count: 5,
     icon: "🍝",
-    color: "bg-yellow-50 border-yellow-200"
+    color: "bg-yellow-50 border-yellow-200",
   },
   {
     id: "sides",
     name: "Sides",
     count: 4,
     icon: "🥗",
-    color: "bg-green-50 border-green-200"
+    color: "bg-green-50 border-green-200",
   },
   {
     id: "drinks",
     name: "Drinks",
     count: 6,
     icon: "🥤",
-    color: "bg-blue-50 border-blue-200"
+    color: "bg-blue-50 border-blue-200",
   },
   {
     id: "desserts",
     name: "Desserts",
     count: 3,
     icon: "🍰",
-    color: "bg-pink-50 border-pink-200"
+    color: "bg-pink-50 border-pink-200",
   },
 ];
 
@@ -162,15 +162,28 @@ const MenuManagement = () => {
   };
 
   const handleAddPhoto = (itemId: string) => {
-    Alert.alert("Add Photo", "Photo upload functionality would open camera/gallery");
+    Alert.alert(
+      "Add Photo",
+      "Photo upload functionality would open camera/gallery",
+    );
   };
 
   // Calculate category performance
-  const categoryStats = DUMMY_MENU_CATEGORIES.map(category => {
-    const categoryItems = menuItems.filter(item => item.category === category.id);
-    const totalSold = categoryItems.reduce((sum, item) => sum + item.soldToday, 0);
-    const totalRevenue = categoryItems.reduce((sum, item) => sum + item.revenue, 0);
-    const avgRating = categoryItems.reduce((sum, item) => sum + item.rating, 0) / categoryItems.length;
+  const categoryStats = DUMMY_MENU_CATEGORIES.map((category) => {
+    const categoryItems = menuItems.filter(
+      (item) => item.category === category.id,
+    );
+    const totalSold = categoryItems.reduce(
+      (sum, item) => sum + item.soldToday,
+      0,
+    );
+    const totalRevenue = categoryItems.reduce(
+      (sum, item) => sum + item.revenue,
+      0,
+    );
+    const avgRating =
+      categoryItems.reduce((sum, item) => sum + item.rating, 0) /
+      categoryItems.length;
 
     return {
       ...category,
@@ -191,7 +204,9 @@ const MenuManagement = () => {
               onPress={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
               className="p-2 bg-general-500 rounded-full"
             >
-              <Text className="text-lg">{viewMode === "grid" ? "📋" : "⊞"}</Text>
+              <Text className="text-lg">
+                {viewMode === "grid" ? "📋" : "⊞"}
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -248,10 +263,16 @@ const MenuManagement = () => {
         {/* Category Performance Summary */}
         <View className="bg-white rounded-lg p-4 mb-4">
           <Text className="text-lg font-JakartaBold mb-3">
-            {DUMMY_MENU_CATEGORIES.find((cat) => cat.id === selectedCategory)?.name} Performance
+            {
+              DUMMY_MENU_CATEGORIES.find((cat) => cat.id === selectedCategory)
+                ?.name
+            }{" "}
+            Performance
           </Text>
           {(() => {
-            const stats = categoryStats.find(cat => cat.id === selectedCategory);
+            const stats = categoryStats.find(
+              (cat) => cat.id === selectedCategory,
+            );
             return stats ? (
               <View className="grid grid-cols-3 gap-4">
                 <View className="items-center">
@@ -281,7 +302,11 @@ const MenuManagement = () => {
         <View className="bg-white rounded-lg p-4 mb-4">
           <View className="flex-row justify-between items-center mb-4">
             <Text className="text-lg font-JakartaBold">
-              {DUMMY_MENU_CATEGORIES.find((cat) => cat.id === selectedCategory)?.name} Items
+              {
+                DUMMY_MENU_CATEGORIES.find((cat) => cat.id === selectedCategory)
+                  ?.name
+              }{" "}
+              Items
             </Text>
             <Text className="text-secondary-600">
               {filteredItems.length} items
@@ -325,8 +350,13 @@ const MenuManagement = () => {
                       {/* Item Header */}
                       <View className="flex-row justify-between items-start mb-2">
                         <View className="flex-1 mr-2">
-                          <Text className="font-JakartaBold text-lg">{item.name}</Text>
-                          <Text className="text-secondary-600 text-sm" numberOfLines={2}>
+                          <Text className="font-JakartaBold text-lg">
+                            {item.name}
+                          </Text>
+                          <Text
+                            className="text-secondary-600 text-sm"
+                            numberOfLines={2}
+                          >
                             {item.description}
                           </Text>
                         </View>
@@ -338,8 +368,13 @@ const MenuManagement = () => {
                       {/* Item Details */}
                       <View className="flex-row flex-wrap mb-3">
                         {item.tags.map((tag, index) => (
-                          <View key={index} className="bg-general-500 px-2 py-1 rounded-full mr-2 mb-1">
-                            <Text className="text-xs text-secondary-700">{tag}</Text>
+                          <View
+                            key={index}
+                            className="bg-general-500 px-2 py-1 rounded-full mr-2 mb-1"
+                          >
+                            <Text className="text-xs text-secondary-700">
+                              {tag}
+                            </Text>
                           </View>
                         ))}
                       </View>

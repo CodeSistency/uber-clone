@@ -1,8 +1,16 @@
-export type ColorScheme = 'light' | 'dark';
+export type ColorScheme = "light" | "dark";
 
-export type BrandColor = 'primary' | 'primaryDark' | 'secondary' | 'tertiary' | 'accent';
+export type BrandColor =
+  | "primary"
+  | "primaryDark"
+  | "secondary"
+  | "tertiary"
+  | "accent";
 
-export interface VariantProps<TVariants extends string, TSizes extends string = never> {
+export interface VariantProps<
+  TVariants extends string,
+  TSizes extends string = never,
+> {
   variant?: TVariants;
   size?: TSizes extends never ? undefined : TSizes;
   className?: string;
@@ -15,5 +23,3 @@ export interface IconProps {
 }
 
 export type ReactComponent<P = any> = React.ComponentType<P>;
-
-

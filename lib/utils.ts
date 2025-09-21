@@ -51,6 +51,13 @@ export function formatDate(dateString: string): string {
   return `${day < 10 ? "0" + day : day} ${month} ${year}`;
 }
 
+// Idempotency-Key helper
+export function generateIdempotencyKey(): string {
+  // Simple RFC4122 v4-like generator
+  const s4 = () => Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+  return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
+}
+
 // Transform ride data from camelCase (backend) to snake_case (frontend)
 export function transformRideData(item: any) {
   return {

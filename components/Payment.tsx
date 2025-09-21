@@ -5,10 +5,10 @@ import { Alert, Image, Text, View } from "react-native";
 import { ReactNativeModal } from "react-native-modal";
 
 import CustomButton from "@/components/CustomButton";
+import { useUI } from "@/components/UIWrapper";
 import { images } from "@/constants";
 import { fetchAPI } from "@/lib/fetch";
 import { useLocationStore, useUserStore } from "@/store";
-import { useUI } from "@/components/UIWrapper";
 import { PaymentProps } from "@/types/type";
 
 const Payment = ({

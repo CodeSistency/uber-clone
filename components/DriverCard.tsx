@@ -30,7 +30,9 @@ const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
     <TouchableOpacity
       onPress={handlePress}
       className={`${
-        selected === item.id ? "bg-brand-secondary/20" : "bg-white dark:bg-brand-primaryDark"
+        selected === item.id
+          ? "bg-brand-secondary/20"
+          : "bg-white dark:bg-brand-primaryDark"
       } flex flex-row items-center justify-between py-5 px-3 rounded-xl`}
     >
       <Image
@@ -40,11 +42,15 @@ const DriverCard = ({ item, selected, setSelected }: DriverCardProps) => {
 
       <View className="flex-1 flex flex-col items-start justify-center mx-3">
         <View className="flex flex-row items-center justify-start mb-1">
-          <Text className="text-lg font-JakartaRegular text-black dark:text-white">{item.title}</Text>
+          <Text className="text-lg font-JakartaRegular text-black dark:text-white">
+            {item.title}
+          </Text>
 
           <View className="flex flex-row items-center space-x-1 ml-2">
             <Image source={icons.star} className="w-3.5 h-3.5" />
-            <Text className="text-sm font-JakartaRegular text-black dark:text-white">4</Text>
+            <Text className="text-sm font-JakartaRegular text-black dark:text-white">
+              4
+            </Text>
           </View>
         </View>
 

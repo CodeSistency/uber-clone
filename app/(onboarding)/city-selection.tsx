@@ -87,7 +87,7 @@ export default function CitySelection() {
         body: JSON.stringify({
           country: userData.country,
           state: userData.state,
-          city: selectedCity
+          city: selectedCity,
         }),
       });
 

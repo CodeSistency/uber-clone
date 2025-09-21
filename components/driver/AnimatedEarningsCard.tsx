@@ -10,18 +10,18 @@ interface AnimatedEarningsCardProps {
   delay?: number;
 }
 
-const AnimatedEarningsCard = ({ 
-  earnings, 
-  rides, 
-  hours, 
-  averagePerRide, 
-  isVisible, 
-  delay = 0 
+const AnimatedEarningsCard = ({
+  earnings,
+  rides,
+  hours,
+  averagePerRide,
+  isVisible,
+  delay = 0,
 }: AnimatedEarningsCardProps) => {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
-  
+
   const [earningsValue, setEarningsValue] = useState(0);
   const [ridesValue, setRidesValue] = useState(0);
   const [hoursValue, setHoursValue] = useState(0);
@@ -113,7 +113,21 @@ const AnimatedEarningsCard = ({
         }),
       ]).start();
     }
-  }, [isVisible, delay, fadeAnim, slideAnim, scaleAnim, earningsAnim, ridesAnim, hoursAnim, avgAnim, earnings, rides, hours, averagePerRide]);
+  }, [
+    isVisible,
+    delay,
+    fadeAnim,
+    slideAnim,
+    scaleAnim,
+    earningsAnim,
+    ridesAnim,
+    hoursAnim,
+    avgAnim,
+    earnings,
+    rides,
+    hours,
+    averagePerRide,
+  ]);
 
   const formatCurrency = (amount: number) => {
     return `$${amount.toFixed(2)}`;
@@ -130,23 +144,20 @@ const AnimatedEarningsCard = ({
       className="bg-white dark:bg-gray-800 rounded-2xl p-6 mx-4 mb-4 shadow-lg"
       style={{
         opacity: fadeAnim,
-        transform: [
-          { translateY: slideAnim },
-          { scale: scaleAnim }
-        ]
+        transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
       }}
     >
       <View className="flex-row items-center justify-between mb-4">
-        <Animated.Text 
+        <Animated.Text
           className="text-2xl font-JakartaBold text-black dark:text-white"
           style={{
             opacity: earningsAnim.interpolate({
               inputRange: [0, earnings],
               outputRange: [0, 1],
-            })
+            }),
           }}
         >
-          {earningsValue > 0 ? formatCurrency(earningsValue) : '$0.00'}
+          {earningsValue > 0 ? formatCurrency(earningsValue) : "$0.00"}
         </Animated.Text>
         <View className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full">
           <Text className="text-green-800 dark:text-green-200 font-JakartaBold text-sm">
@@ -154,51 +165,57 @@ const AnimatedEarningsCard = ({
           </Text>
         </View>
       </View>
-      
+
       <View className="flex-row justify-between">
         <View className="items-center">
-          <Animated.Text 
+          <Animated.Text
             className="text-3xl font-JakartaBold text-black dark:text-white"
             style={{
               opacity: ridesAnim.interpolate({
                 inputRange: [0, rides],
                 outputRange: [0, 1],
-              })
+              }),
             }}
           >
             {ridesValue > 0 ? Math.round(ridesValue) : 0}
           </Animated.Text>
-          <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">Rides</Text>
+          <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">
+            Rides
+          </Text>
         </View>
-        
+
         <View className="items-center">
-          <Animated.Text 
+          <Animated.Text
             className="text-3xl font-JakartaBold text-black dark:text-white"
             style={{
               opacity: hoursAnim.interpolate({
                 inputRange: [0, hours],
                 outputRange: [0, 1],
-              })
+              }),
             }}
           >
-            {hoursValue > 0 ? formatTime(hoursValue) : '0h 0m'}
+            {hoursValue > 0 ? formatTime(hoursValue) : "0h 0m"}
           </Animated.Text>
-          <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">Hours</Text>
+          <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">
+            Hours
+          </Text>
         </View>
-        
+
         <View className="items-center">
-          <Animated.Text 
+          <Animated.Text
             className="text-3xl font-JakartaBold text-black dark:text-white"
             style={{
               opacity: avgAnim.interpolate({
                 inputRange: [0, averagePerRide],
                 outputRange: [0, 1],
-              })
+              }),
             }}
           >
-            {avgValue > 0 ? formatCurrency(avgValue) : '$0.00'}
+            {avgValue > 0 ? formatCurrency(avgValue) : "$0.00"}
           </Animated.Text>
-          <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">Avg/Ride</Text>
+          <Text className="text-gray-600 dark:text-gray-400 font-JakartaMedium">
+            Avg/Ride
+          </Text>
         </View>
       </View>
     </Animated.View>

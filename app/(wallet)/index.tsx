@@ -85,7 +85,9 @@ const Wallet = () => {
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       {/* Header */}
       <View className="bg-white dark:bg-brand-primary p-5">
-        <Text className="text-xl font-JakartaBold text-black dark:text-white">Wallet</Text>
+        <Text className="text-xl font-JakartaBold text-black dark:text-white">
+          Wallet
+        </Text>
         <Text className="text-secondary-600 dark:text-gray-300 mt-1">
           Manage your funds and payment history
         </Text>
@@ -94,9 +96,7 @@ const Wallet = () => {
       <ScrollView className="flex-1 px-5">
         {/* Balance Card */}
         <View className="bg-brand-secondary rounded-lg p-6 mb-6">
-          <Text className="text-black mb-2">
-            Current Balance
-          </Text>
+          <Text className="text-black mb-2">Current Balance</Text>
           <Text className="text-black text-4xl font-JakartaExtraBold mb-4">
             ${wallet.balance.toFixed(2)}
           </Text>
@@ -115,14 +115,18 @@ const Wallet = () => {
               onPress={handleWithdraw}
               className="flex-1 bg-black/10 dark:bg-white/10 rounded-full py-3 items-center border border-black/10 dark:border-white/30"
             >
-              <Text className="text-black dark:text-white font-JakartaBold">Withdraw</Text>
+              <Text className="text-black dark:text-white font-JakartaBold">
+                Withdraw
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
 
         {/* Quick Actions */}
         <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">Quick Actions</Text>
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">
+            Quick Actions
+          </Text>
           <View className="flex-row space-x-3">
             <TouchableOpacity className="flex-1 bg-general-500 rounded-lg p-4 items-center">
               <Text className="text-2xl mb-2">💳</Text>
@@ -182,7 +186,9 @@ const Wallet = () => {
 
         {/* Wallet Stats */}
         <View className="bg-white dark:bg-brand-primary rounded-lg p-4 mb-8">
-          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">This Month</Text>
+          <Text className="text-lg font-JakartaBold mb-3 text-black dark:text-white">
+            This Month
+          </Text>
 
           <View className="grid grid-cols-2 gap-4">
             <View className="items-center p-4 bg-success-50 rounded-lg">

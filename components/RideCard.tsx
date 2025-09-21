@@ -28,14 +28,20 @@ const RideCard = ({ ride }: { ride: Ride }) => {
           <View className="flex flex-col mx-5 gap-y-5 flex-1">
             <View className="flex flex-row items-center gap-x-2">
               <Image source={icons.to} className="w-5 h-5" />
-              <Text className="text-md font-JakartaMedium text-black dark:text-white" numberOfLines={1}>
+              <Text
+                className="text-md font-JakartaMedium text-black dark:text-white"
+                numberOfLines={1}
+              >
                 {ride.origin_address}
               </Text>
             </View>
 
             <View className="flex flex-row items-center gap-x-2">
               <Image source={icons.point} className="w-5 h-5" />
-              <Text className="text-md font-JakartaMedium text-black dark:text-white" numberOfLines={1}>
+              <Text
+                className="text-md font-JakartaMedium text-black dark:text-white"
+                numberOfLines={1}
+              >
                 {ride.destination_address}
               </Text>
             </View>
@@ -47,7 +53,10 @@ const RideCard = ({ ride }: { ride: Ride }) => {
             <Text className="text-md font-JakartaMedium text-gray-500 dark:text-gray-300">
               Date & Time
             </Text>
-            <Text className="text-md font-JakartaBold text-black dark:text-white" numberOfLines={1}>
+            <Text
+              className="text-md font-JakartaBold text-black dark:text-white"
+              numberOfLines={1}
+            >
               {formatDate(ride.created_at)}, {formatTime(ride.ride_time)}
             </Text>
           </View>

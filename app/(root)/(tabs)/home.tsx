@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 import * as Location from "expo-location";
 import { router } from "expo-router";
 import { useState, useEffect } from "react";
@@ -12,7 +13,6 @@ import {
   Dimensions,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
 import { HamburgerMenu } from "@/app/components/DrawerContent";
 import DrawerContent from "@/app/components/DrawerContent";
@@ -22,13 +22,19 @@ import GoogleTextInput from "../../../components/GoogleTextInput";
 import Map from "../../../components/Map";
 import RideCard from "../../../components/RideCard";
 import { icons, images } from "../../../constants";
+import {
+  DUMMY_RESTAURANTS,
+  loadNearbyRestaurants,
+  DELIVERY_CATEGORIES,
+  TRANSPORT_QUICK_ACCESS,
+  Restaurant,
+} from "../../../constants/dummyData";
 import { logoutUser } from "../../../lib/auth";
 import { useFetch } from "../../../lib/fetch";
 import { transformRideData } from "../../../lib/utils";
 import { useLocationStore } from "../../../store";
 import { useUserStore } from "../../../store";
 import { Ride } from "../../../types/type";
-import { DUMMY_RESTAURANTS, loadNearbyRestaurants, DELIVERY_CATEGORIES, TRANSPORT_QUICK_ACCESS, Restaurant } from "../../../constants/dummyData";
 // Hamburger menu and drawer are now in the layout
 
 const Home = () => {
@@ -57,7 +63,9 @@ const Home = () => {
   const [currentMode, setCurrentMode] = useState<
     "customer" | "driver" | "business"
   >("customer");
-  const [serviceType, setServiceType] = useState<"transport" | "delivery">("transport");
+  const [serviceType, setServiceType] = useState<"transport" | "delivery">(
+    "transport",
+  );
   const [showTrafficOverlay, setShowTrafficOverlay] = useState(true);
 
   // Delivery mode state
@@ -156,18 +164,19 @@ const Home = () => {
 
   // Hook personalizado para calcular el centro del mapa
   const useMapCenter = () => {
-    const [screenDimensions] = useState(Dimensions.get('window'));
+    const [screenDimensions] = useState(Dimensions.get("window"));
 
     const calculateMapCenter = () => {
       const bottomNavHeight = 80; // ~10%
-      const inputAreaHeight = screenDimensions.height * 0.20; // 20%
-      const visibleMapHeight = screenDimensions.height - bottomNavHeight - inputAreaHeight;
+      const inputAreaHeight = screenDimensions.height * 0.2; // 20%
+      const visibleMapHeight =
+        screenDimensions.height - bottomNavHeight - inputAreaHeight;
       const mapCenterY = visibleMapHeight / 2;
 
       return {
         centerY: mapCenterY,
         visibleMapHeight,
-        totalOverlayHeight: bottomNavHeight + inputAreaHeight
+        totalOverlayHeight: bottomNavHeight + inputAreaHeight,
       };
     };
 
@@ -193,15 +202,21 @@ const Home = () => {
             <View className="bg-black/70 rounded-lg p-3">
               <View className="flex-row items-center mb-2">
                 <View className="w-2 h-2 bg-green-400 rounded-full mr-2" />
-                <Text className="text-white text-xs font-JakartaMedium">Light Traffic</Text>
+                <Text className="text-white text-xs font-JakartaMedium">
+                  Light Traffic
+                </Text>
               </View>
               <View className="flex-row items-center mb-2">
                 <View className="w-2 h-2 bg-yellow-400 rounded-full mr-2" />
-                <Text className="text-white text-xs font-JakartaMedium">Moderate</Text>
+                <Text className="text-white text-xs font-JakartaMedium">
+                  Moderate
+                </Text>
               </View>
               <View className="flex-row items-center">
                 <View className="w-2 h-2 bg-red-400 rounded-full mr-2" />
-                <Text className="text-white text-xs font-JakartaMedium">Heavy Traffic</Text>
+                <Text className="text-white text-xs font-JakartaMedium">
+                  Heavy Traffic
+                </Text>
               </View>
             </View>
 
@@ -221,19 +236,22 @@ const Home = () => {
             {/* Highway Congestion */}
             <View className="absolute top-1/3 left-1/4 z-5">
               <View className="bg-red-500/80 rounded-full px-2 py-1">
-                <Text className="text-white text-xs font-JakartaBold">5 min delay</Text>
+                <Text className="text-white text-xs font-JakartaBold">
+                  5 min delay
+                </Text>
               </View>
             </View>
 
             {/* City Center Congestion */}
             <View className="absolute top-1/2 right-1/3 z-5">
               <View className="bg-yellow-500/80 rounded-full px-2 py-1">
-                <Text className="text-white text-xs font-JakartaBold">2 min delay</Text>
+                <Text className="text-white text-xs font-JakartaBold">
+                  2 min delay
+                </Text>
               </View>
             </View>
           </>
         )}
-
 
         {/* Header con menú hamburguesa y logout */}
         <View className="absolute top-12 right-4 z-10">
@@ -295,15 +313,19 @@ const Home = () => {
           <View className="bg-neutral-100 rounded-full border-0">
             <TouchableOpacity
               className="flex-row items-center p-4"
-              onPress={() => handleDestinationPress({
-                latitude: 0,
-                longitude: 0,
-                address: "Search location"
-              })}
+              onPress={() =>
+                handleDestinationPress({
+                  latitude: 0,
+                  longitude: 0,
+                  address: "Search location",
+                })
+              }
             >
               <Image source={icons.search} className="w-5 h-5 mr-3" />
               <Text className="flex-1 text-gray-600">
-                {serviceType === "transport" ? "Where to go?" : "Search restaurants, cuisines..."}
+                {serviceType === "transport"
+                  ? "Where to go?"
+                  : "Search restaurants, cuisines..."}
               </Text>
               <Text className="text-gray-400 text-sm">📍</Text>
             </TouchableOpacity>

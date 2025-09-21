@@ -9,7 +9,6 @@ import ServiceLevelSelector from "@/components/ServiceLevelSelector";
 import { fetchAPI } from "@/lib/fetch";
 import { useDriverStore, useLocationStore, useUserStore } from "@/store";
 import { useRealtimeStore } from "@/store";
- 
 
 const ConfirmRide = () => {
   const { drivers, selectedDriver, setSelectedDriver } = useDriverStore();
@@ -31,37 +30,40 @@ const ConfirmRide = () => {
     {
       id: 1,
       name: "Economy",
-      baseFare: 2.50,
+      baseFare: 2.5,
       perMinuteRate: 0.15,
       perMileRate: 1.25,
-      imageUrl: "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=100",
-      description: "Affordable rides"
+      imageUrl:
+        "https://images.unsplash.com/photo-1544620347-c4fd4a3d5957?w=100",
+      description: "Affordable rides",
     },
     {
       id: 2,
       name: "Comfort",
-      baseFare: 4.00,
+      baseFare: 4.0,
       perMinuteRate: 0.25,
-      perMileRate: 2.00,
-      imageUrl: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=100",
-      description: "More space, premium cars"
+      perMileRate: 2.0,
+      imageUrl:
+        "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=100",
+      description: "More space, premium cars",
     },
     {
       id: 3,
       name: "Premium",
-      baseFare: 6.00,
+      baseFare: 6.0,
       perMinuteRate: 0.35,
-      perMileRate: 3.00,
-      imageUrl: "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=100",
-      description: "Luxury experience"
-    }
+      perMileRate: 3.0,
+      imageUrl:
+        "https://images.unsplash.com/photo-1555215695-3004980ad54e?w=100",
+      description: "Luxury experience",
+    },
   ];
 
   const selectedDriverData = drivers?.find(
     (driver) => driver.id === selectedDriver,
   );
 
-  const selectedTier = rideTiers.find(tier => tier.id === selectedTierId!);
+  const selectedTier = rideTiers.find((tier) => tier.id === selectedTierId!);
 
   // Auto-select timer (15s). If user no elige, selecciona el primero.
   const [secondsLeft, setSecondsLeft] = useState<number>(15);
@@ -85,7 +87,7 @@ const ConfirmRide = () => {
     const baseFare = selectedTier.baseFare;
     const perMinuteRate = selectedTier.perMinuteRate;
 
-    const totalFare = baseFare + (time * perMinuteRate);
+    const totalFare = baseFare + time * perMinuteRate;
     return Math.round(totalFare * 100) / 100; // Round to 2 decimal places
   };
 
@@ -149,7 +151,7 @@ const ConfirmRide = () => {
       console.log("[ConfirmRide] Ride data to send:", {
         ...rideData,
         selectedTier: selectedTier?.name,
-        calculatedFare
+        calculatedFare,
       });
 
       const response = await fetchAPI("ride/create", {
@@ -168,7 +170,8 @@ const ConfirmRide = () => {
       console.log("[ConfirmRide] Ride created successfully without payment");
 
       // Simular transición de estado del viaje para UI activa
-      const rideId = response?.ride?.id || response?.ride_id || response?.id || Date.now();
+      const rideId =
+        response?.ride?.id || response?.ride_id || response?.id || Date.now();
       const realtime = useRealtimeStore.getState();
       try {
         realtime.setActiveRide({ ride_id: rideId, status: "accepted" } as any);
@@ -187,18 +190,20 @@ const ConfirmRide = () => {
 
   console.log("[ConfirmRide] All drivers in store:", {
     driversCount: drivers?.length,
-    drivers: drivers?.map(d => ({
+    drivers: drivers?.map((d) => ({
       id: d.id,
       title: d.title,
       firstName: d.first_name,
       lastName: d.last_name,
-      keys: Object.keys(d)
-    }))
+      keys: Object.keys(d),
+    })),
   });
 
   // To control sheet and list from CTA
   const listRef = useRef<FlatList<any>>(null);
-  const sheetApiRef = useRef<{ snapToIndex: (index: number) => void } | null>(null);
+  const sheetApiRef = useRef<{ snapToIndex: (index: number) => void } | null>(
+    null,
+  );
 
   return (
     <RideLayout
@@ -208,7 +213,10 @@ const ConfirmRide = () => {
         sheetApiRef.current = api;
       }}
     >
-      <Text className="text-sm text-gray-600 dark:text-gray-300 mb-3">Available drivers ({drivers?.length || 0}) • Auto-select in {secondsLeft}s ⏱️</Text>
+      <Text className="text-sm text-gray-600 dark:text-gray-300 mb-3">
+        Available drivers ({drivers?.length || 0}) • Auto-select in{" "}
+        {secondsLeft}s ⏱️
+      </Text>
 
       <ServiceLevelSelector
         selectedServiceLevel={selectedTierId}
@@ -217,7 +225,11 @@ const ConfirmRide = () => {
         estimatedTime={18}
         onContinue={() => {
           sheetApiRef.current?.snapToIndex(1);
-          setTimeout(() => listRef.current?.scrollToOffset({ offset: 0, animated: true }), 50);
+          setTimeout(
+            () =>
+              listRef.current?.scrollToOffset({ offset: 0, animated: true }),
+            50,
+          );
         }}
         continueLabel="Continue to Drivers"
       />
@@ -225,7 +237,9 @@ const ConfirmRide = () => {
       {/* CTA inline provisto por el selector */}
 
       <View className="mt-4 flex-1">
-        <Text className="text-lg font-JakartaSemiBold mb-3 text-black dark:text-white">Available Drivers</Text>
+        <Text className="text-lg font-JakartaSemiBold mb-3 text-black dark:text-white">
+          Available Drivers
+        </Text>
         <FlatList
           ref={listRef}
           data={drivers}
@@ -255,7 +269,11 @@ const ConfirmRide = () => {
                   // Expand sheet and focus summary when a driver is picked
                   sheetApiRef.current?.snapToIndex(1);
                   setTimeout(
-                    () => listRef.current?.scrollToOffset({ offset: 0, animated: true }),
+                    () =>
+                      listRef.current?.scrollToOffset({
+                        offset: 0,
+                        animated: true,
+                      }),
                     50,
                   );
                 }}
@@ -269,20 +287,35 @@ const ConfirmRide = () => {
 
       {selectedDriverData && selectedTier && (
         <View className="mt-4 p-4 bg-gray-50 dark:bg-brand-primary rounded-lg">
-          <Text className="font-JakartaSemiBold mb-2 text-black dark:text-white">Ride Summary</Text>
+          <Text className="font-JakartaSemiBold mb-2 text-black dark:text-white">
+            Ride Summary
+          </Text>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-sm text-black dark:text-white">Base fare ({selectedTier.name})</Text>
-            <Text className="text-sm font-JakartaMedium text-black dark:text-white">${selectedTier.baseFare.toFixed(2)}</Text>
+            <Text className="text-sm text-black dark:text-white">
+              Base fare ({selectedTier.name})
+            </Text>
+            <Text className="text-sm font-JakartaMedium text-black dark:text-white">
+              ${selectedTier.baseFare.toFixed(2)}
+            </Text>
           </View>
           <View className="flex-row justify-between mb-1">
-            <Text className="text-sm text-black dark:text-white">Time ({selectedDriverData.time?.toFixed(1)} min)</Text>
+            <Text className="text-sm text-black dark:text-white">
+              Time ({selectedDriverData.time?.toFixed(1)} min)
+            </Text>
             <Text className="text-sm font-JakartaMedium text-black dark:text-white">
-              ${(selectedDriverData.time || 0 * selectedTier.perMinuteRate).toFixed(2)}
+              $
+              {(
+                selectedDriverData.time || 0 * selectedTier.perMinuteRate
+              ).toFixed(2)}
             </Text>
           </View>
           <View className="flex-row justify-between border-t border-gray-300 dark:border-brand-primaryDark pt-2 mt-2">
-            <Text className="font-JakartaBold text-black dark:text-white">Total</Text>
-            <Text className="font-JakartaBold text-black dark:text-white">${calculateFare().toFixed(2)}</Text>
+            <Text className="font-JakartaBold text-black dark:text-white">
+              Total
+            </Text>
+            <Text className="font-JakartaBold text-black dark:text-white">
+              ${calculateFare().toFixed(2)}
+            </Text>
           </View>
         </View>
       )}

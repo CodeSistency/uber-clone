@@ -1,9 +1,29 @@
+import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert, Platform } from "react-native";
-import * as Haptics from "expo-haptics";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Platform,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import CustomButton from "@/components/CustomButton";
+import InputField from "@/components/InputField";
+import ProgressBar from "@/components/onboarding/ProgressBar";
+import { fetchAPI } from "@/lib/fetch";
+import { useOnboardingStore } from "@/store";
 // Simple date picker fallback
-const SimpleDatePicker = ({ onChange, value }: { onChange: (date: string) => void; value?: string }) => {
+const SimpleDatePicker = ({
+  onChange,
+  value,
+}: {
+  onChange: (date: string) => void;
+  value?: string;
+}) => {
   const [inputValue, setInputValue] = useState(value || "");
 
   const handleInputChange = (text: string) => {
@@ -29,13 +49,6 @@ const SimpleDatePicker = ({ onChange, value }: { onChange: (date: string) => voi
 
 // Use simple date picker instead of native DateTimePicker to avoid compatibility issues
 const DateTimePickerComponent = null;
-import { SafeAreaView } from "react-native-safe-area-context";
-
-import CustomButton from "@/components/CustomButton";
-import InputField from "@/components/InputField";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { fetchAPI } from "@/lib/fetch";
-import { useOnboardingStore } from "@/store";
 
 export default function PersonalInfo() {
   console.log("[PersonalInfo] Rendering personal info");
@@ -59,7 +72,7 @@ export default function PersonalInfo() {
   });
 
   const [dobDate, setDobDate] = useState<Date | undefined>(
-    form.dateOfBirth ? new Date(form.dateOfBirth) : undefined
+    form.dateOfBirth ? new Date(form.dateOfBirth) : undefined,
   );
   const [showDatePicker, setShowDatePicker] = useState(false);
 
@@ -89,7 +102,7 @@ export default function PersonalInfo() {
   };
 
   const onChangeDate = (_: any, selected?: Date) => {
-    if (Platform.OS !== 'ios') setShowDatePicker(false);
+    if (Platform.OS !== "ios") setShowDatePicker(false);
     if (selected) {
       setDobDate(selected);
       const iso = selected.toISOString().slice(0, 10);
@@ -151,13 +164,19 @@ export default function PersonalInfo() {
 
       console.log("[PersonalInfo] API response:", response);
 
-      const isSuccess = (response && (response.success === true || response.statusCode === 200 || response.statusCode === 201)) || (!('success' in (response || {})) && !('statusCode' in (response || {})));
+      const isSuccess =
+        (response &&
+          (response.success === true ||
+            response.statusCode === 200 ||
+            response.statusCode === 201)) ||
+        (!("success" in (response || {})) &&
+          !("statusCode" in (response || {})));
 
       if (isSuccess) {
         console.log("[PersonalInfo] Personal info saved successfully");
         nextStep();
         // Navigate to onboarding index to redirect based on updated step
-        router.replace('/(onboarding)');
+        router.replace("/(onboarding)");
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
         throw new Error(
@@ -168,9 +187,11 @@ export default function PersonalInfo() {
       console.error("[PersonalInfo] Error saving personal info:", error);
 
       // Handle authentication errors specially
-      if (error.message?.includes("Authentication expired") ||
-          error.message?.includes("Token inválido") ||
-          error.statusCode === 401) {
+      if (
+        error.message?.includes("Authentication expired") ||
+        error.message?.includes("Token inválido") ||
+        error.statusCode === 401
+      ) {
         setError("Your session has expired. Please log in again.");
         Alert.alert(
           "Session Expired",
@@ -178,9 +199,9 @@ export default function PersonalInfo() {
           [
             {
               text: "OK",
-              onPress: () => router.replace("/(auth)/sign-in")
-            }
-          ]
+              onPress: () => router.replace("/(auth)/sign-in"),
+            },
+          ],
         );
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
         return;
@@ -237,12 +258,18 @@ export default function PersonalInfo() {
             label="Phone Number"
             placeholder="+58 414-123-4567"
             value={form.phone}
-            onChangeText={(value) => handleInputChange("phone", formatPhone(value))}
+            onChangeText={(value) =>
+              handleInputChange("phone", formatPhone(value))
+            }
             keyboardType="phone-pad"
             textContentType="telephoneNumber"
           />
-          <Text className={`text-xs mt-1 ${/^\+?\d[\d\s-]{7,}$/.test(form.phone) ? 'text-green-600' : 'text-red-500'}`}>
-            {/^\+?\d[\d\s-]{7,}$/.test(form.phone) ? 'Phone looks good' : 'Enter a valid phone number'}
+          <Text
+            className={`text-xs mt-1 ${/^\+?\d[\d\s-]{7,}$/.test(form.phone) ? "text-green-600" : "text-red-500"}`}
+          >
+            {/^\+?\d[\d\s-]{7,}$/.test(form.phone)
+              ? "Phone looks good"
+              : "Enter a valid phone number"}
           </Text>
         </View>
 
@@ -322,7 +349,12 @@ export default function PersonalInfo() {
           <CustomButton
             title="Continue"
             onPress={handleContinue}
-            disabled={!/^\+?\d[\d\s-]{7,}$/.test(form.phone) || !form.phone || !form.dateOfBirth || !form.gender}
+            disabled={
+              !/^\+?\d[\d\s-]{7,}$/.test(form.phone) ||
+              !form.phone ||
+              !form.dateOfBirth ||
+              !form.gender
+            }
             loading={isLoading}
             className="w-full"
           />

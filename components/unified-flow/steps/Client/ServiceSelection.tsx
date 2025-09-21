@@ -1,11 +1,13 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useMapFlow } from '@/hooks/useMapFlow';
-import { AVAILABLE_SERVICES } from '@/lib/unified-flow/constants';
-import FlowHeader from '../FlowHeader';
+import React from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+
+import { useMapFlow } from "@/hooks/useMapFlow";
+import { AVAILABLE_SERVICES } from "@/lib/unified-flow/constants";
+
+import FlowHeader from "../../FlowHeader";
 
 const ServiceSelection: React.FC = () => {
-  console.log('[ServiceSelection] Component rendered');
+  console.log("[ServiceSelection] Component rendered");
   const { startService, role } = useMapFlow();
 
   return (
@@ -21,7 +23,12 @@ const ServiceSelection: React.FC = () => {
             <TouchableOpacity
               key={service.id}
               onPress={() => {
-                console.log('[ServiceSelection] Service selected:', service.id, 'role:', role);
+                console.log(
+                  "[ServiceSelection] Service selected:",
+                  service.id,
+                  "role:",
+                  role,
+                );
                 startService(service.id, role);
               }}
               className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"

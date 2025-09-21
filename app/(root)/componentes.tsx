@@ -2,7 +2,6 @@ import { useState } from "react";
 import { View, Text, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useUI } from "@/components/UIWrapper";
 import {
   Button,
   Card,
@@ -18,10 +17,19 @@ import {
   Stepper,
   Glass,
 } from "@/components/ui";
+import { useUI } from "@/components/UIWrapper";
 
-const Section = ({ title, children }: { title: string; children: React.ReactNode }) => (
+const Section = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
   <View className="mb-6">
-    <Text className="mb-2 text-lg font-JakartaBold text-black dark:text-white">{title}</Text>
+    <Text className="mb-2 text-lg font-JakartaBold text-black dark:text-white">
+      {title}
+    </Text>
     <Card variant="elevated">{children}</Card>
   </View>
 );
@@ -40,8 +48,13 @@ export default function ComponentesScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
-      <ScrollView className="flex-1 px-4 py-4" contentContainerStyle={{ paddingBottom: 24 }}>
-        <Text className="text-2xl font-JakartaExtraBold text-black dark:text-white mb-4">Componentes UI</Text>
+      <ScrollView
+        className="flex-1 px-4 py-4"
+        contentContainerStyle={{ paddingBottom: 24 }}
+      >
+        <Text className="text-2xl font-JakartaExtraBold text-black dark:text-white mb-4">
+          Componentes UI
+        </Text>
 
         <Section title="Buttons">
           <View className="flex-row flex-wrap gap-3">
@@ -68,20 +81,29 @@ export default function ComponentesScreen() {
         <Section title="Cards & Glass">
           <View className="gap-3">
             <Card title="Card Elevated" subtitle="Tarjeta con sombra">
-              <Text className="text-black dark:text-white">Contenido de ejemplo</Text>
+              <Text className="text-black dark:text-white">
+                Contenido de ejemplo
+              </Text>
             </Card>
             <Card title="Card Outline" variant="outline">
               <Text className="text-black dark:text-white">Borde tenue</Text>
             </Card>
             <Glass className="p-4">
-              <Text className="text-black dark:text-white">Glass container</Text>
+              <Text className="text-black dark:text-white">
+                Glass container
+              </Text>
             </Glass>
           </View>
         </Section>
 
         <Section title="Inputs">
           <View className="gap-3">
-            <TextField label="Nombre" placeholder="Tu nombre" value={text} onChangeText={setText} />
+            <TextField
+              label="Nombre"
+              placeholder="Tu nombre"
+              value={text}
+              onChangeText={setText}
+            />
             <TextArea label="Descripción" placeholder="Escribe algo..." />
           </View>
         </Section>
@@ -89,7 +111,11 @@ export default function ComponentesScreen() {
         <Section title="Switch, Checkbox, Radio">
           <View className="gap-3">
             <UISwitch checked={switchOn} onChange={setSwitchOn} />
-            <Checkbox label="Acepto términos" checked={checked} onChange={setChecked} />
+            <Checkbox
+              label="Acepto términos"
+              checked={checked}
+              onChange={setChecked}
+            />
             <RadioGroup
               value={radio}
               onChange={setRadio}
@@ -132,15 +158,24 @@ export default function ComponentesScreen() {
 
         <Section title="BottomSheet">
           <View className="flex-row items-center gap-3">
-            <Button title={sheetOpen ? "Cerrar" : "Abrir"} onPress={() => setSheetOpen((s) => !s)} />
-            <Text className="text-black dark:text-white">Hoja inferior simple</Text>
+            <Button
+              title={sheetOpen ? "Cerrar" : "Abrir"}
+              onPress={() => setSheetOpen((s) => !s)}
+            />
+            <Text className="text-black dark:text-white">
+              Hoja inferior simple
+            </Text>
           </View>
         </Section>
       </ScrollView>
 
       <BottomSheet visible={sheetOpen} onClose={() => setSheetOpen(false)}>
-        <Text className="text-black dark:text-white font-JakartaBold mb-2">Hola!</Text>
-        <Text className="text-black dark:text-white">Este es un BottomSheet básico.</Text>
+        <Text className="text-black dark:text-white font-JakartaBold mb-2">
+          Hola!
+        </Text>
+        <Text className="text-black dark:text-white">
+          Este es un BottomSheet básico.
+        </Text>
         <View className="mt-3">
           <Button title="Cerrar" onPress={() => setSheetOpen(false)} />
         </View>
@@ -148,6 +183,3 @@ export default function ComponentesScreen() {
     </SafeAreaView>
   );
 }
-
-
-

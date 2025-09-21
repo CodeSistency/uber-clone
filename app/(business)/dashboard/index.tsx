@@ -1,12 +1,24 @@
+import {
+  BottomSheetModal,
+  BottomSheetModalProvider,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { useState, useEffect, useRef } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert, Dimensions } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Alert,
+  Dimensions,
+} from "react-native";
+import MapView, { Marker, PROVIDER_DEFAULT } from "react-native-maps";
 import { SafeAreaView } from "react-native-safe-area-context";
-import MapView, { Marker, PROVIDER_DEFAULT } from 'react-native-maps';
-import { BottomSheetModal, BottomSheetModalProvider, BottomSheetView } from '@gorhom/bottom-sheet';
 
-import DrawerContent from "../../components/DrawerContent";
+import { useDrawer, Drawer } from "@/components/drawer";
+
 import { icons } from "../../../constants";
 import { calculateRegion } from "../../../lib/map";
 import { useLocationStore } from "../../../store";
@@ -18,7 +30,7 @@ const DUMMY_BUSINESS = {
   totalReviews: 284,
   isOpen: true,
   latitude: 40.7128,
-  longitude: -74.0060,
+  longitude: -74.006,
   address: "123 Main St, New York, NY",
   operatingHours: "9AM - 10PM",
 };
@@ -68,7 +80,7 @@ const DUMMY_MARKERS = [
   {
     id: "restaurant",
     latitude: 40.7128,
-    longitude: -74.0060,
+    longitude: -74.006,
     title: "Mario's Pizza",
     description: "Your Restaurant",
     image: require("@/assets/icons/home.png"),
@@ -91,36 +103,17 @@ const DUMMY_MARKERS = [
   },
 ];
 
-const BusinessDashboard = () => {
+interface BusinessDashboardProps {
+  drawer: ReturnType<typeof useDrawer>;
+}
+
+const BusinessDashboard: React.FC<BusinessDashboardProps> = ({ drawer }) => {
   console.log("[BusinessDashboard] Component mounted");
 
   const [isOpen, setIsOpen] = useState(DUMMY_BUSINESS.isOpen);
-  const [drawerVisible, setDrawerVisible] = useState(false);
-  const [currentMode, setCurrentMode] = useState<
-    "customer" | "driver" | "business"
-  >("business");
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
   const { userLatitude, userLongitude } = useLocationStore();
-
-  // Load current mode from AsyncStorage
-  useEffect(() => {
-    const loadCurrentMode = async () => {
-      try {
-        const savedMode = (await AsyncStorage.getItem("user_mode")) as
-          | "customer"
-          | "driver"
-          | "business"
-          | null;
-        if (savedMode) {
-          setCurrentMode(savedMode);
-        }
-      } catch (error) {
-        console.error("Error loading current mode:", error);
-      }
-    };
-    loadCurrentMode();
-  }, []);
 
   // Present bottom sheet on mount
   useEffect(() => {
@@ -132,13 +125,6 @@ const BusinessDashboard = () => {
       console.log("[BusinessDashboard] Bottom sheet ref is null");
     }
   }, []);
-
-  // Function to handle mode changes from drawer
-  const handleModeChange = (newMode: "customer" | "driver" | "business") => {
-    console.log("Mode changed from business dashboard to:", newMode);
-    setCurrentMode(newMode);
-    setDrawerVisible(false);
-  };
 
   const handleToggleStore = () => {
     setIsOpen(!isOpen);
@@ -177,7 +163,7 @@ const BusinessDashboard = () => {
   // Calculate map region
   const region = calculateRegion({
     userLatitude: userLatitude || 40.7128,
-    userLongitude: userLongitude || -74.0060,
+    userLongitude: userLongitude || -74.006,
     destinationLatitude: null,
     destinationLongitude: null,
   });
@@ -190,7 +176,7 @@ const BusinessDashboard = () => {
         <View className="flex-row items-center justify-between p-5">
           <View className="flex-row items-center flex-1">
             <TouchableOpacity
-              onPress={() => setDrawerVisible(true)}
+              onPress={drawer.toggle}
               className="mr-3"
             >
               <View className="w-8 h-8 items-center justify-center">
@@ -206,7 +192,8 @@ const BusinessDashboard = () => {
                 {DUMMY_BUSINESS.name}
               </Text>
               <Text className="text-secondary-600 dark:text-gray-300 mt-1">
-                ⭐ {DUMMY_BUSINESS.rating} ({DUMMY_BUSINESS.totalReviews} reviews)
+                ⭐ {DUMMY_BUSINESS.rating} ({DUMMY_BUSINESS.totalReviews}{" "}
+                reviews)
               </Text>
             </View>
           </View>
@@ -223,8 +210,12 @@ const BusinessDashboard = () => {
         {/* Store Status */}
         <View className="px-5 pb-4">
           <View className="bg-general-500 dark:bg-brand-primary rounded-lg p-3">
-            <Text className="text-sm text-secondary-600 dark:text-gray-300 mb-1">Operating Hours</Text>
-            <Text className="font-JakartaBold text-black dark:text-white">{DUMMY_BUSINESS.operatingHours}</Text>
+            <Text className="text-sm text-secondary-600 dark:text-gray-300 mb-1">
+              Operating Hours
+            </Text>
+            <Text className="font-JakartaBold text-black dark:text-white">
+              {DUMMY_BUSINESS.operatingHours}
+            </Text>
           </View>
         </View>
       </View>
@@ -285,13 +276,11 @@ const BusinessDashboard = () => {
       {/* Active Orders */}
       <View className="bg-white dark:bg-brand-primary px-5 py-4">
         <View className="flex-row justify-between items-center mb-4">
-          <Text className="text-lg font-JakartaBold text-black dark:text-white">Active Orders</Text>
-                      <TouchableOpacity
-              onPress={() => router.push("/orders" as any)}
-            >
-            <Text className="text-primary-500 font-JakartaBold">
-              View All
-            </Text>
+          <Text className="text-lg font-JakartaBold text-black dark:text-white">
+            Active Orders
+          </Text>
+          <TouchableOpacity onPress={() => router.push("/orders" as any)}>
+            <Text className="text-primary-500 font-JakartaBold">View All</Text>
           </TouchableOpacity>
         </View>
 
@@ -327,7 +316,9 @@ const BusinessDashboard = () => {
                 >
                   {order.items.join(", ")}
                 </Text>
-                <View className={`px-2 py-1 rounded-full ${getStatusColor(order.status)}`}>
+                <View
+                  className={`px-2 py-1 rounded-full ${getStatusColor(order.status)}`}
+                >
                   <Text className="text-xs font-JakartaBold">
                     {order.status.replace("_", " ").toUpperCase()}
                   </Text>
@@ -350,7 +341,9 @@ const BusinessDashboard = () => {
 
       {/* Quick Actions */}
       <View className="bg-brand-primary dark:bg-brand-primaryDark px-5 py-4">
-        <Text className="text-lg font-JakartaBold mb-4 text-black dark:text-white">Quick Actions</Text>
+        <Text className="text-lg font-JakartaBold mb-4 text-black dark:text-white">
+          Quick Actions
+        </Text>
         <View className="grid grid-cols-2 gap-3">
           <TouchableOpacity
             onPress={() => router.push("/menu" as any)}
@@ -388,19 +381,19 @@ const BusinessDashboard = () => {
   return (
     <BottomSheetModalProvider>
       <SafeAreaView className="flex-1 bg-general-500">
-        {/* Drawer Modal */}
-        <DrawerContent
-          visible={drawerVisible}
-          currentMode={currentMode}
-          onModeChange={handleModeChange}
-          onClose={() => {
-            console.log("Business drawer closed");
-            setDrawerVisible(false);
-          }}
-        />
+        {/* Header con drawer */}
+        <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
+          <TouchableOpacity onPress={drawer.toggle} className="p-2">
+            <Text className="text-2xl text-secondary-700 dark:text-secondary-300">☰</Text>
+          </TouchableOpacity>
+          <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">Business Dashboard</Text>
+          <TouchableOpacity className="p-2">
+            <Text className="text-xl text-secondary-700 dark:text-secondary-300">🔔</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* Map Container - 40% height */}
-        <View style={{ height: '40%' }} className="relative">
+        <View style={{ height: "40%" }} className="relative">
           <MapView
             provider={PROVIDER_DEFAULT}
             className="w-full h-full"
@@ -428,15 +421,15 @@ const BusinessDashboard = () => {
         <BottomSheetModal
           ref={bottomSheetModalRef}
           index={1}
-          snapPoints={['60%']}
+          snapPoints={["60%"]}
           enablePanDownToClose={false}
           backgroundStyle={{
-            backgroundColor: 'white',
+            backgroundColor: "white",
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
           }}
           handleIndicatorStyle={{
-            backgroundColor: '#E5E5E5',
+            backgroundColor: "#E5E5E5",
             width: 40,
             height: 4,
           }}
@@ -447,9 +440,47 @@ const BusinessDashboard = () => {
             </ScrollView>
           </BottomSheetView>
         </BottomSheetModal>
+
       </SafeAreaView>
     </BottomSheetModalProvider>
   );
 };
 
-export default BusinessDashboard;
+// Componente del drawer business separado para estar encima de todo
+const DrawerBusiness: React.FC<{ drawerState?: ReturnType<typeof useDrawer> }> = ({ drawerState }) => {
+  // Si se proporciona drawerState, úsalo. Si no, crea uno nuevo.
+  const drawer = drawerState || useDrawer({ module: "business" });
+
+  return (
+    <Drawer
+      config={drawer.config}
+      isOpen={drawer.isOpen}
+      activeRoute={drawer.activeRoute}
+      expandedRoutes={drawer.expandedRoutes}
+      currentModule={drawer.currentModule}
+      isTransitioning={drawer.isTransitioning}
+      onRoutePress={drawer.handleRoutePress}
+      onToggleExpanded={drawer.toggleExpanded}
+      onClose={drawer.close}
+      onModuleChange={drawer.switchModule}
+    />
+  );
+};
+
+// Hook para compartir el estado del drawer entre componentes
+const useBusinessDrawer = () => {
+  return useDrawer({ module: "business" });
+};
+
+const BusinessDashboardWithDrawer: React.FC = () => {
+  const drawer = useBusinessDrawer();
+
+  return (
+    <>
+      <BusinessDashboard drawer={drawer} />
+      <DrawerBusiness drawerState={drawer} />
+    </>
+  );
+};
+
+export default BusinessDashboardWithDrawer;

@@ -1,56 +1,69 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
-import { useMapFlow } from '@/hooks/useMapFlow';
-import FlowHeader from '../FlowHeader';
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from "react-native";
+
+import { useMapFlow } from "@/hooks/useMapFlow";
+
+import FlowHeader from "../../../FlowHeader";
 
 const BUSINESSES = [
   {
-    id: '1',
-    name: 'Pizza Palace',
-    category: 'Italiana',
+    id: "1",
+    name: "Pizza Palace",
+    category: "Italiana",
     rating: 4.5,
-    deliveryTime: '25-35 min',
-    image: '🍕',
-    distance: '1.2 km'
+    deliveryTime: "25-35 min",
+    image: "🍕",
+    distance: "1.2 km",
   },
   {
-    id: '2',
-    name: 'Burger King',
-    category: 'Americana',
+    id: "2",
+    name: "Burger King",
+    category: "Americana",
     rating: 4.2,
-    deliveryTime: '20-30 min',
-    image: '🍔',
-    distance: '0.8 km'
+    deliveryTime: "20-30 min",
+    image: "🍔",
+    distance: "0.8 km",
   },
   {
-    id: '3',
-    name: 'Sushi Express',
-    category: 'Japonesa',
+    id: "3",
+    name: "Sushi Express",
+    category: "Japonesa",
     rating: 4.7,
-    deliveryTime: '30-40 min',
-    image: '🍱',
-    distance: '2.1 km'
-  }
+    deliveryTime: "30-40 min",
+    image: "🍱",
+    distance: "2.1 km",
+  },
 ];
 
-const CATEGORIES = ['Todo', 'Italiana', 'Americana', 'Japonesa', 'Mexicana', 'China'];
+const CATEGORIES = [
+  "Todo",
+  "Italiana",
+  "Americana",
+  "Japonesa",
+  "Mexicana",
+  "China",
+];
 
 const DeliveryBusinessSearch: React.FC = () => {
   const { next, back } = useMapFlow();
-  const [searchText, setSearchText] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('Todo');
+  const [searchText, setSearchText] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("Todo");
 
-  const filteredBusinesses = BUSINESSES.filter(business =>
-    business.name.toLowerCase().includes(searchText.toLowerCase()) &&
-    (selectedCategory === 'Todo' || business.category === selectedCategory)
+  const filteredBusinesses = BUSINESSES.filter(
+    (business) =>
+      business.name.toLowerCase().includes(searchText.toLowerCase()) &&
+      (selectedCategory === "Todo" || business.category === selectedCategory),
   );
 
   return (
     <View className="flex-1">
-      <FlowHeader
-        title="Buscar Restaurante"
-        onBack={back}
-      />
+      <FlowHeader title="Buscar Restaurante" onBack={back} />
 
       {/* Barra de búsqueda */}
       <View className="mb-4">
@@ -64,21 +77,25 @@ const DeliveryBusinessSearch: React.FC = () => {
       </View>
 
       {/* Categorías */}
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} className="mb-4">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        className="mb-4"
+      >
         <View className="flex-row space-x-2">
           {CATEGORIES.map((category) => (
             <TouchableOpacity
               key={category}
               onPress={() => setSelectedCategory(category)}
               className={`px-4 py-2 rounded-full ${
-                selectedCategory === category
-                  ? 'bg-primary-500'
-                  : 'bg-gray-100'
+                selectedCategory === category ? "bg-primary-500" : "bg-gray-100"
               }`}
             >
-              <Text className={`font-JakartaMedium ${
-                selectedCategory === category ? 'text-white' : 'text-gray-700'
-              }`}>
+              <Text
+                className={`font-JakartaMedium ${
+                  selectedCategory === category ? "text-white" : "text-gray-700"
+                }`}
+              >
                 {category}
               </Text>
             </TouchableOpacity>

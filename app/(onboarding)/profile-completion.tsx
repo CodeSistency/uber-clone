@@ -4,8 +4,8 @@ import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import CustomButton from "@/components/CustomButton";
-import { TextField, Button, Glass } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
+import { TextField, Button, Glass } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
@@ -44,9 +44,20 @@ export default function ProfileCompletion() {
       console.log("[ProfileCompletion] Completing profile setup");
 
       // Validate emergency contact data if partially filled
-      if (form.emergencyContactName || form.emergencyContactPhone || form.emergencyContactRelationship) {
-        if (!form.emergencyContactName || !form.emergencyContactPhone || !form.emergencyContactRelationship) {
-          Alert.alert("Error", "Please complete all emergency contact fields or leave them all empty");
+      if (
+        form.emergencyContactName ||
+        form.emergencyContactPhone ||
+        form.emergencyContactRelationship
+      ) {
+        if (
+          !form.emergencyContactName ||
+          !form.emergencyContactPhone ||
+          !form.emergencyContactRelationship
+        ) {
+          Alert.alert(
+            "Error",
+            "Please complete all emergency contact fields or leave them all empty",
+          );
           return;
         }
       }
@@ -88,7 +99,13 @@ export default function ProfileCompletion() {
 
       console.log("[ProfileCompletion] Complete response:", response);
 
-      const isSuccess = (response && (response.success === true || response.statusCode === 200 || response.statusCode === 201)) || (!('success' in (response || {})) && !('statusCode' in (response || {})));
+      const isSuccess =
+        (response &&
+          (response.success === true ||
+            response.statusCode === 200 ||
+            response.statusCode === 201)) ||
+        (!("success" in (response || {})) &&
+          !("statusCode" in (response || {})));
 
       if (isSuccess) {
         console.log("[ProfileCompletion] Onboarding completed successfully");
@@ -101,9 +118,11 @@ export default function ProfileCompletion() {
       console.error("[ProfileCompletion] Error completing setup:", error);
 
       // Handle authentication errors specially
-      if (error.message?.includes("Authentication expired") ||
-          error.message?.includes("Token inválido") ||
-          error.statusCode === 401) {
+      if (
+        error.message?.includes("Authentication expired") ||
+        error.message?.includes("Token inválido") ||
+        error.statusCode === 401
+      ) {
         setError("Your session has expired. Please log in again.");
         Alert.alert(
           "Session Expired",
@@ -111,9 +130,9 @@ export default function ProfileCompletion() {
           [
             {
               text: "OK",
-              onPress: () => router.replace("/(auth)/sign-in")
-            }
-          ]
+              onPress: () => router.replace("/(auth)/sign-in"),
+            },
+          ],
         );
         return;
       }
@@ -181,10 +200,14 @@ export default function ProfileCompletion() {
 
           <View className="flex-row justify-center space-x-4">
             <Glass className="p-4 mr-2">
-              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">📷 Take Photo</Text>
+              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">
+                📷 Take Photo
+              </Text>
             </Glass>
             <Glass className="p-4">
-              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">🖼️ Choose from Gallery</Text>
+              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">
+                🖼️ Choose from Gallery
+              </Text>
             </Glass>
           </View>
         </View>
@@ -202,7 +225,9 @@ export default function ProfileCompletion() {
             label="Contact Name"
             placeholder="Maria Perez"
             value={form.emergencyContactName}
-            onChangeText={(value) => handleInputChange("emergencyContactName", value)}
+            onChangeText={(value) =>
+              handleInputChange("emergencyContactName", value)
+            }
             className="mb-4"
           />
 
@@ -210,7 +235,9 @@ export default function ProfileCompletion() {
             label="Contact Phone"
             placeholder="+58 414-123-4568"
             value={form.emergencyContactPhone}
-            onChangeText={(value) => handleInputChange("emergencyContactPhone", value)}
+            onChangeText={(value) =>
+              handleInputChange("emergencyContactPhone", value)
+            }
             keyboardType="phone-pad"
             className="mb-4"
           />
@@ -219,7 +246,9 @@ export default function ProfileCompletion() {
             label="Relationship"
             placeholder="Sister, Brother, Friend..."
             value={form.emergencyContactRelationship}
-            onChangeText={(value) => handleInputChange("emergencyContactRelationship", value)}
+            onChangeText={(value) =>
+              handleInputChange("emergencyContactRelationship", value)
+            }
           />
         </View>
 

@@ -1,11 +1,18 @@
-import { useState, useEffect } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Switch, RefreshControl } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
+import { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  RefreshControl,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import { useDriverConfigStore } from "@/store";
 import { driverService, DriverProfile } from "@/app/services/driverService";
 import { useUI } from "@/components/UIWrapper";
+import { useDriverConfigStore } from "@/store";
 
 // Dummy data for development
 const dummyDriverProfile: DriverProfile = {
@@ -26,23 +33,18 @@ const dummyDriverProfile: DriverProfile = {
   verificationStatus: "approved",
   joinedDate: new Date("2023-01-15"),
   totalRides: 1234,
-  totalEarnings: 18765.40,
-  averageRating: 4.8
+  totalEarnings: 18765.4,
+  averageRating: 4.8,
 };
 
 const SettingsScreen = () => {
   const { theme } = useUI();
-  const {
-    profile,
-    documents,
-    vehicles,
-    serviceTypes,
-    isLoading,
-    error
-  } = useDriverConfigStore();
-  
+  const { profile, documents, vehicles, serviceTypes, isLoading, error } =
+    useDriverConfigStore();
+
   const [refreshing, setRefreshing] = useState(false);
-  const [driverProfile, setDriverProfile] = useState<DriverProfile>(dummyDriverProfile);
+  const [driverProfile, setDriverProfile] =
+    useState<DriverProfile>(dummyDriverProfile);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
   const [autoAcceptRides, setAutoAcceptRides] = useState(false);
   const [destinationFilter, setDestinationFilter] = useState(false);
@@ -51,10 +53,10 @@ const SettingsScreen = () => {
     setRefreshing(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       // In real implementation, fetch from API
     } catch (error) {
-      console.error('Error refreshing settings:', error);
+      console.error("Error refreshing settings:", error);
     } finally {
       setRefreshing(false);
     }
@@ -62,17 +64,20 @@ const SettingsScreen = () => {
 
   const renderProfileSection = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Profile</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        Profile
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/profile' as any)}
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/profile" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <View className="w-12 h-12 bg-brand-primary rounded-full items-center justify-center mr-3">
               <Text className="text-white font-JakartaBold text-lg">
-                {driverProfile.firstName[0]}{driverProfile.lastName[0]}
+                {driverProfile.firstName[0]}
+                {driverProfile.lastName[0]}
               </Text>
             </View>
             <View>
@@ -86,15 +91,17 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/vehicles' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/vehicles" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🚗</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">My Vehicles</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                My Vehicles
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Manage your vehicle information
               </Text>
@@ -102,24 +109,28 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/documents' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/documents" as any)}
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">📄</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Documents</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Documents
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 License, insurance, registration
               </Text>
             </View>
           </View>
           <View className="flex-row items-center">
-            <View className={`w-3 h-3 rounded-full mr-2 ${
-              driverProfile.isVerified ? 'bg-green-500' : 'bg-red-500'
-            }`} />
+            <View
+              className={`w-3 h-3 rounded-full mr-2 ${
+                driverProfile.isVerified ? "bg-green-500" : "bg-red-500"
+              }`}
+            />
             <Text className="text-gray-400">›</Text>
           </View>
         </TouchableOpacity>
@@ -129,17 +140,21 @@ const SettingsScreen = () => {
 
   const renderServiceTypes = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Service Types</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        Service Types
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/service-types' as any)}
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/service-types" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🎯</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Available Services</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Available Services
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 UberX, UberXL, Uber Pet
               </Text>
@@ -147,15 +162,17 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/women-only' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/women-only" as any)}
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">👩</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Women-Only Rides</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Women-Only Rides
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Drive for women passengers only
               </Text>
@@ -164,8 +181,8 @@ const SettingsScreen = () => {
           <Switch
             value={false}
             onValueChange={() => {}}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={false ? '#f4f3f4' : '#f5dd4b'}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={false ? "#f4f3f4" : "#f5dd4b"}
           />
         </TouchableOpacity>
       </View>
@@ -174,14 +191,18 @@ const SettingsScreen = () => {
 
   const renderDrivingPreferences = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Driving Preferences</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        Driving Preferences
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
         <View className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700">
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🤖</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Auto-Accept Rides</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Auto-Accept Rides
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Automatically accept ride requests
               </Text>
@@ -190,16 +211,18 @@ const SettingsScreen = () => {
           <Switch
             value={autoAcceptRides}
             onValueChange={setAutoAcceptRides}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={autoAcceptRides ? '#f5dd4b' : '#f4f3f4'}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={autoAcceptRides ? "#f5dd4b" : "#f4f3f4"}
           />
         </View>
-        
+
         <View className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700">
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">📍</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Destination Filter</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Destination Filter
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Only receive rides toward your destination
               </Text>
@@ -208,19 +231,21 @@ const SettingsScreen = () => {
           <Switch
             value={destinationFilter}
             onValueChange={setDestinationFilter}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={destinationFilter ? '#f5dd4b' : '#f4f3f4'}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={destinationFilter ? "#f5dd4b" : "#f4f3f4"}
           />
         </View>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/working-hours' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/working-hours" as any)}
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">⏰</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Working Hours</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Working Hours
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Set your preferred driving schedule
               </Text>
@@ -234,14 +259,18 @@ const SettingsScreen = () => {
 
   const renderAppSettings = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">App Settings</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        App Settings
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
         <View className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700">
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🔔</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Notifications</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Notifications
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Ride requests, earnings, promotions
               </Text>
@@ -250,19 +279,21 @@ const SettingsScreen = () => {
           <Switch
             value={notificationsEnabled}
             onValueChange={setNotificationsEnabled}
-            trackColor={{ false: '#767577', true: '#81b0ff' }}
-            thumbColor={notificationsEnabled ? '#f5dd4b' : '#f4f3f4'}
+            trackColor={{ false: "#767577", true: "#81b0ff" }}
+            thumbColor={notificationsEnabled ? "#f5dd4b" : "#f4f3f4"}
           />
         </View>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/notifications' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/notifications" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">⚙️</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Notification Settings</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Notification Settings
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Customize notification preferences
               </Text>
@@ -270,41 +301,49 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/theme' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/theme" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🎨</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Theme</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Theme
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Light, Dark, or Auto
               </Text>
             </View>
           </View>
           <View className="flex-row items-center">
-            <Text className="text-gray-600 dark:text-gray-400 mr-2 capitalize">{theme}</Text>
+            <Text className="text-gray-600 dark:text-gray-400 mr-2 capitalize">
+              {theme}
+            </Text>
             <Text className="text-gray-400">›</Text>
           </View>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/language' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/language" as any)}
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🌐</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Language</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Language
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 English, Español, Français
               </Text>
             </View>
           </View>
           <View className="flex-row items-center">
-            <Text className="text-gray-600 dark:text-gray-400 mr-2">English</Text>
+            <Text className="text-gray-600 dark:text-gray-400 mr-2">
+              English
+            </Text>
             <Text className="text-gray-400">›</Text>
           </View>
         </TouchableOpacity>
@@ -314,17 +353,23 @@ const SettingsScreen = () => {
 
   const renderPaymentSettings = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Payment & Earnings</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        Payment & Earnings
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/payment-methods' as any)}
+        <TouchableOpacity
+          onPress={() =>
+            router.push("/(driver)/settings/payment-methods" as any)
+          }
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">💳</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Payment Methods</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Payment Methods
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Bank account, debit card
               </Text>
@@ -332,15 +377,17 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/tax-settings' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/tax-settings" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">📊</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Tax Settings</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Tax Settings
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Tax documents and settings
               </Text>
@@ -348,15 +395,17 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/instant-pay' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/instant-pay" as any)}
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">⚡</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Instant Pay</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Instant Pay
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Get paid instantly after each ride
               </Text>
@@ -370,17 +419,21 @@ const SettingsScreen = () => {
 
   const renderSupportSection = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Support & Help</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        Support & Help
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/help' as any)}
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/help" as any)}
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">❓</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Help Center</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Help Center
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 FAQs, guides, and tutorials
               </Text>
@@ -388,15 +441,19 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/contact-support' as any)}
+
+        <TouchableOpacity
+          onPress={() =>
+            router.push("/(driver)/settings/contact-support" as any)
+          }
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">💬</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Contact Support</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Contact Support
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Chat, email, or phone support
               </Text>
@@ -404,15 +461,17 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/legal' as any)}
+
+        <TouchableOpacity
+          onPress={() => router.push("/(driver)/settings/legal" as any)}
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">📋</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Legal & Privacy</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Legal & Privacy
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Terms, privacy policy, data usage
               </Text>
@@ -426,17 +485,23 @@ const SettingsScreen = () => {
 
   const renderAccountActions = () => (
     <View className="mx-4 mb-4">
-      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">Account</Text>
-      
+      <Text className="text-lg font-JakartaBold text-black dark:text-white mb-3">
+        Account
+      </Text>
+
       <View className="bg-white dark:bg-gray-800 rounded-xl shadow-sm">
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/change-password' as any)}
+        <TouchableOpacity
+          onPress={() =>
+            router.push("/(driver)/settings/change-password" as any)
+          }
           className="p-4 flex-row items-center justify-between border-b border-gray-200 dark:border-gray-700"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">🔒</Text>
             <View>
-              <Text className="font-JakartaBold text-black dark:text-white">Change Password</Text>
+              <Text className="font-JakartaBold text-black dark:text-white">
+                Change Password
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Update your account password
               </Text>
@@ -444,15 +509,19 @@ const SettingsScreen = () => {
           </View>
           <Text className="text-gray-400">›</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
-          onPress={() => router.push('/(driver)/settings/deactivate-account' as any)}
+
+        <TouchableOpacity
+          onPress={() =>
+            router.push("/(driver)/settings/deactivate-account" as any)
+          }
           className="p-4 flex-row items-center justify-between"
         >
           <View className="flex-row items-center">
             <Text className="text-2xl mr-3">⚠️</Text>
             <View>
-              <Text className="font-JakartaBold text-red-600">Deactivate Account</Text>
+              <Text className="font-JakartaBold text-red-600">
+                Deactivate Account
+              </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
                 Temporarily deactivate your driver account
               </Text>
@@ -471,7 +540,9 @@ const SettingsScreen = () => {
         <TouchableOpacity onPress={() => router.back()}>
           <Text className="text-2xl">←</Text>
         </TouchableOpacity>
-        <Text className="text-lg font-JakartaBold text-black dark:text-white">Settings</Text>
+        <Text className="text-lg font-JakartaBold text-black dark:text-white">
+          Settings
+        </Text>
         <View className="w-6" />
       </View>
 

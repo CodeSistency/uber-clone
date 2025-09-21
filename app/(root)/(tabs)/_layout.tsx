@@ -1,5 +1,12 @@
 import { Tabs } from "expo-router";
-import { Image, ImageSourcePropType, View, Text, TouchableOpacity } from "react-native";
+import {
+  Image,
+  ImageSourcePropType,
+  View,
+  Text,
+  TouchableOpacity,
+} from "react-native";
+
 import { useUI } from "@/components/UIWrapper";
 
 import { icons } from "../../../constants";
@@ -108,7 +115,9 @@ export default function Layout() {
           className="px-3 py-2 rounded-full bg-brand-secondary shadow-lg"
           activeOpacity={0.8}
         >
-          <Text className="font-JakartaBold text-black">{theme === 'dark' ? 'Dark' : 'Light'}</Text>
+          <Text className="font-JakartaBold text-black">
+            {theme === "dark" ? "Dark" : "Light"}
+          </Text>
         </TouchableOpacity>
       </View>
     </>

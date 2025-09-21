@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text } from 'react-native';
+import React from "react";
+import { View, Text } from "react-native";
 
 interface RideProgressBarProps {
   progress: number; // 0-100
@@ -12,19 +12,19 @@ const RideProgressBar: React.FC<RideProgressBarProps> = ({
   progress,
   status,
   estimatedTime,
-  className = ''
+  className = "",
 }) => {
   const getProgressColor = () => {
-    if (progress < 30) return 'bg-red-500';
-    if (progress < 70) return 'bg-yellow-500';
-    return 'bg-green-500';
+    if (progress < 30) return "bg-red-500";
+    if (progress < 70) return "bg-yellow-500";
+    return "bg-green-500";
   };
 
   const getStatusColor = () => {
-    if (status.toLowerCase().includes('arrived')) return 'text-green-600';
-    if (status.toLowerCase().includes('arriving')) return 'text-blue-600';
-    if (status.toLowerCase().includes('progress')) return 'text-purple-600';
-    return 'text-gray-600';
+    if (status.toLowerCase().includes("arrived")) return "text-green-600";
+    if (status.toLowerCase().includes("arriving")) return "text-blue-600";
+    if (status.toLowerCase().includes("progress")) return "text-purple-600";
+    return "text-gray-600";
   };
 
   return (
@@ -34,9 +34,7 @@ const RideProgressBar: React.FC<RideProgressBarProps> = ({
           {status}
         </Text>
         {estimatedTime && (
-          <Text className="text-sm text-gray-600">
-            {estimatedTime}
-          </Text>
+          <Text className="text-sm text-gray-600">{estimatedTime}</Text>
         )}
       </View>
 

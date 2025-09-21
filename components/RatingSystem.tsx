@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Image } from 'react-native';
-import { icons } from '@/constants';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, TextInput, Image } from "react-native";
+
+import { icons } from "@/constants";
 
 interface RatingSystemProps {
   driverName: string;
@@ -17,12 +18,12 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
   vehicleInfo,
   onSubmitRating,
   onSkip,
-  className = ''
+  className = "",
 }) => {
   const [rating, setRating] = useState<number>(0);
-  const [comment, setComment] = useState<string>('');
+  const [comment, setComment] = useState<string>("");
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
-  const [customTip, setCustomTip] = useState<string>('');
+  const [customTip, setCustomTip] = useState<string>("");
 
   const tipOptions = [2, 5, 10];
 
@@ -32,7 +33,7 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
 
   const handleTipSelect = (tip: number) => {
     setSelectedTip(tip);
-    setCustomTip('');
+    setCustomTip("");
   };
 
   const handleCustomTipChange = (text: string) => {
@@ -62,7 +63,7 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
             <Image
               source={icons.star}
               className={`w-8 h-8 ${
-                star <= rating ? 'tint-yellow-400' : 'tint-gray-300'
+                star <= rating ? "tint-yellow-400" : "tint-gray-300"
               }`}
               resizeMode="contain"
             />
@@ -134,13 +135,15 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
               onPress={() => handleTipSelect(tip)}
               className={`mx-2 px-4 py-2 rounded-full border-2 ${
                 selectedTip === tip
-                  ? 'border-primary bg-primary-50'
-                  : 'border-gray-300 bg-white'
+                  ? "border-primary bg-primary-50"
+                  : "border-gray-300 bg-white"
               }`}
             >
-              <Text className={`font-JakartaMedium ${
-                selectedTip === tip ? 'text-primary' : 'text-gray-700'
-              }`}>
+              <Text
+                className={`font-JakartaMedium ${
+                  selectedTip === tip ? "text-primary" : "text-gray-700"
+                }`}
+              >
                 ${tip}
               </Text>
             </TouchableOpacity>
@@ -178,14 +181,14 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
           onPress={handleSubmit}
           disabled={rating === 0}
           className={`flex-1 py-3 px-6 rounded-lg ${
-            rating > 0
-              ? 'bg-primary'
-              : 'bg-gray-300'
+            rating > 0 ? "bg-primary" : "bg-gray-300"
           }`}
         >
-          <Text className={`text-center font-JakartaBold ${
-            rating > 0 ? 'text-white' : 'text-gray-500'
-          }`}>
+          <Text
+            className={`text-center font-JakartaBold ${
+              rating > 0 ? "text-white" : "text-gray-500"
+            }`}
+          >
             Submit Rating
           </Text>
         </TouchableOpacity>
@@ -195,7 +198,8 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
       {rating > 0 && (
         <View className="mt-4 p-3 bg-blue-50 rounded-lg">
           <Text className="text-sm font-JakartaMedium text-blue-800 text-center">
-            Rating: {rating} ⭐ {getFinalTip() > 0 && `• Tip: $${getFinalTip()}`}
+            Rating: {rating} ⭐{" "}
+            {getFinalTip() > 0 && `• Tip: $${getFinalTip()}`}
           </Text>
           {comment && (
             <Text className="text-xs text-blue-600 text-center mt-1">

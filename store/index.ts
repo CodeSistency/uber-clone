@@ -11,6 +11,8 @@ export * from './onboarding';
 export * from './earnings';
 export * from './safety';
 export * from './ratings';
+export * from './payment';
+export * from './dev/dev';
 
 // Specific exports to avoid naming conflicts
 export {
