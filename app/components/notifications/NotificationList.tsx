@@ -389,3 +389,5 @@ export const NotificationList: React.FC<NotificationListProps> = ({
     </View>
   );
 };
+
+export default NotificationList;

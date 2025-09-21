@@ -11,7 +11,7 @@ const OAuth = () => {
     Alert.alert(
       "OAuth Unavailable",
       "OAuth authentication is not available in this version. Please use email and password to sign in.",
-      [{ text: "OK" }]
+      [{ text: "OK" }],
     );
   };
 

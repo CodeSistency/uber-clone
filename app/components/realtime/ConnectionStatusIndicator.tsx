@@ -301,3 +301,5 @@ export const ConnectionStatusIndicator: React.FC<
     </View>
   );
 };
+
+export default ConnectionStatusIndicator;

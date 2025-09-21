@@ -5,15 +5,16 @@ import { ButtonProps } from "@/types/type";
 const getBgVariantStyle = (variant: ButtonProps["bgVariant"]) => {
   switch (variant) {
     case "secondary":
-      return "bg-gray-500";
+      return "bg-black dark:bg-brand-primaryDark";
     case "danger":
       return "bg-red-500";
     case "success":
       return "bg-green-500";
     case "outline":
-      return "bg-transparent border-neutral-300 border-[0.5px]";
+      return "bg-transparent border-2 border-brand-secondary";
     default:
-      return "bg-[#0286FF]";
+      // Primary button matches brand yellow on both modes
+      return "bg-brand-secondary";
   }
 };
 
@@ -28,7 +29,8 @@ const getTextVariantStyle = (variant: ButtonProps["textVariant"]) => {
     case "success":
       return "text-green-100";
     default:
-      return "text-white";
+      // Default text is black on yellow, otherwise white
+      return "text-black dark:text-white";
   }
 };
 
@@ -40,17 +42,20 @@ const CustomButton = ({
   IconLeft,
   IconRight,
   className,
+  loading,
+  disabled,
   ...props
-}: ButtonProps) => {
+}: ButtonProps & { disabled?: boolean }) => {
   return (
     <TouchableOpacity
-      onPress={onPress}
-      className={`w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${getBgVariantStyle(bgVariant)} ${className}`}
+      onPress={loading || disabled ? undefined : onPress}
+      disabled={loading || disabled}
+      className={`w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${getBgVariantStyle(bgVariant)} ${loading || disabled ? 'opacity-60' : ''} ${className}`}
       {...props}
     >
       {IconLeft && <IconLeft />}
       <Text className={`text-lg font-bold ${getTextVariantStyle(textVariant)}`}>
-        {title}
+        {loading ? 'Please wait…' : title}
       </Text>
       {IconRight && <IconRight />}
     </TouchableOpacity>

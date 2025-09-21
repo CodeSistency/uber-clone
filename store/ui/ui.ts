@@ -1,5 +1,7 @@
 import { create } from "zustand";
 import React from "react";
+import { Appearance, ColorSchemeName } from "react-native";
+import { themeStorage } from "@/app/lib/storage";
 
 // Advanced UI Events Store
 interface UIEvent {
@@ -119,6 +121,13 @@ interface UIStore {
   loadingStates: LoadingState[];
   progressIndicators: ProgressConfig[];
 
+  // Theme state
+  theme: 'light' | 'dark';
+  systemTheme: 'light' | 'dark';
+  setTheme: (theme: 'light' | 'dark' | 'system') => Promise<void>;
+  toggleTheme: () => Promise<void>;
+  loadTheme: () => Promise<void>;
+
   // Event Actions
   showLoading: (message?: string, options?: Partial<Pick<UIEvent, 'position' | 'variant' | 'duration'>>) => string;
   hideLoading: (id?: string) => void;
@@ -173,6 +182,40 @@ export const useUIStore = create<UIStore>((set, get) => ({
   snackbars: [],
   loadingStates: [],
   progressIndicators: [],
+
+  // Theme state defaults to system preference
+  theme: Appearance.getColorScheme() === 'dark' ? 'dark' : 'light',
+  systemTheme: Appearance.getColorScheme() === 'dark' ? 'dark' : 'light',
+
+  setTheme: async (theme) => {
+    const resolved = theme === 'system' ? (Appearance.getColorScheme() === 'dark' ? 'dark' : 'light') : theme;
+    try {
+      await themeStorage.saveTheme(theme);
+    } catch {}
+    set(() => ({ theme: resolved }));
+  },
+
+  toggleTheme: async () => {
+    const current = get().theme;
+    const next = current === 'dark' ? 'light' : 'dark';
+    await get().setTheme(next);
+  },
+
+  loadTheme: async () => {
+    try {
+      const saved = await themeStorage.getTheme();
+      const system = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+      set(() => ({ systemTheme: system }));
+      if (saved) {
+        await get().setTheme(saved);
+      } else {
+        set(() => ({ theme: system }));
+      }
+    } catch {
+      const system = Appearance.getColorScheme() === 'dark' ? 'dark' : 'light';
+      set(() => ({ theme: system, systemTheme: system }));
+    }
+  },
 
   // Event Actions
   showLoading: (message = "Loading...", options = {}) => {

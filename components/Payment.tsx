@@ -8,6 +8,7 @@ import CustomButton from "@/components/CustomButton";
 import { images } from "@/constants";
 import { fetchAPI } from "@/lib/fetch";
 import { useLocationStore, useUserStore } from "@/store";
+import { useUI } from "@/components/UIWrapper";
 import { PaymentProps } from "@/types/type";
 
 const Payment = ({
@@ -28,6 +29,7 @@ const Payment = ({
   } = useLocationStore();
 
   const { user } = useUserStore();
+  const { theme } = useUI();
   const [success, setSuccess] = useState<boolean>(false);
 
   const openPaymentSheet = async () => {
@@ -56,7 +58,7 @@ const Payment = ({
           intentCreationCallback,
         ) => {
           const { paymentIntent, customer } = await fetchAPI(
-            "/(api)/(stripe)/create",
+            "(stripe)/create",
             {
               method: "POST",
               headers: {
@@ -72,7 +74,7 @@ const Payment = ({
           );
 
           if (paymentIntent.client_secret) {
-            const { result } = await fetchAPI("/(api)/(stripe)/pay", {
+            const { result } = await fetchAPI("(stripe)/pay", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -86,7 +88,7 @@ const Payment = ({
             });
 
             if (result.client_secret) {
-              await fetchAPI("/(api)/ride/create", {
+              await fetchAPI("ride/create", {
                 method: "POST",
                 headers: {
                   "Content-Type": "application/json",
@@ -133,14 +135,14 @@ const Payment = ({
         isVisible={success}
         onBackdropPress={() => setSuccess(false)}
       >
-        <View className="flex flex-col items-center justify-center bg-white p-7 rounded-2xl">
+        <View className="flex flex-col items-center justify-center bg-brand-primary dark:bg-brand-primaryDark p-7 rounded-2xl">
           <Image source={images.check} className="w-28 h-28 mt-5" />
 
-          <Text className="text-2xl text-center font-JakartaBold mt-5">
+          <Text className="text-2xl text-center font-JakartaBold mt-5 text-black dark:text-white">
             Booking placed successfully
           </Text>
 
-          <Text className="text-md text-general-200 font-JakartaRegular text-center mt-3">
+          <Text className="text-md text-general-200 font-JakartaRegular text-center mt-3 text-gray-600 dark:text-gray-300">
             Thank you for your booking. Your reservation has been successfully
             placed. Please proceed with your trip.
           </Text>

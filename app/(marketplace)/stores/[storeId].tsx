@@ -111,7 +111,7 @@ const StoreDetails = () => {
   };
 
   const handleViewCart = () => {
-    router.push("/marketplace/checkout" as any);
+    router.push("/checkout" as any);
   };
 
   return (

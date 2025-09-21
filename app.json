@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "uber",
-    "slug": "uber",
+    "slug": "yavoy",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -14,7 +14,10 @@
     },
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.codesistency-dev.uber"
+      "bundleIdentifier": "com.codesistency-dev.uber",
+      "config": {
+        "googleMapsApiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8"
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -26,7 +29,8 @@
           "apiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8"
         }
       },
-      "package": "com.codesistency_dev.uber"
+      "package": "com.codesistency_dev.uber",
+      "googleServicesFile": "./google-services.json"
     },
     "web": {
       "bundler": "metro",
@@ -39,15 +43,40 @@
         {
           "origin": "https://uber.dev/"
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#2F80ED",
+          "defaultChannel": "default"
+        }
       ]
     ],
     "extra": {
       "eas": {
-        "projectId": "your-project-id"
+        "projectId": "80da4700-4d63-4bfd-a86b-9f8e4bcbf620"
+      },
+      "serverUrl": "http://72.60.119.19:3001",
+      "wsUrl": "wss://gnuhealth-back.alcaravan.com.ve",
+      "stripePublishableKey": "pk_test_...",
+      "directionsApiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8",
+      "placesApiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8",
+      "geoapifyApiKey": "your-geoapify-api-key",
+      "firebase": {
+        "apiKey": "AIzaSyCfHV3FXfztXCWvhKN7tmIJn8v-fS6i4Qg",
+        "authDomain": "uber-clone-4bf3b.firebaseapp.com",
+        "projectId": "uber-clone-4bf3b",
+        "storageBucket": "uber-clone-4bf3b.firebasestorage.app",
+        "messagingSenderId": "517531309840",
+        "appId": "1:517531309840:android:4faa2ab71c6eaadfb83795"
+      },
+      "router": {
+        "origin": "https://uber.dev/"
       }
     },
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "owner": "codesistency_dev"
   }
 }

@@ -3,14 +3,17 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { userModeStorage } from "@/app/lib/storage";
+import { isAuthenticated } from "@/lib/auth";
+
 import CustomButton from "../../../components/CustomButton";
 import InputField from "../../../components/InputField";
-import { isAuthenticated } from "@/lib/auth";
-import { userModeStorage } from "@/app/lib/storage";
 
 const BusinessRegister = () => {
   const [loading, setLoading] = useState(false);
-  const [isAuthenticatedState, setIsAuthenticatedState] = useState<boolean | null>(null);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState<
+    boolean | null
+  >(null);
   const [businessType, setBusinessType] = useState<
     "restaurant" | "grocery" | "pharmacy" | "other" | null
   >(null);

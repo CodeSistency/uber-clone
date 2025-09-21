@@ -4,9 +4,12 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
+import { useUI } from "../../components/UIWrapper";
 import { icons, images } from "../../constants";
 import { loginUser, isAuthenticated } from "../../lib/auth";
-import { useUI } from "../../components/UIWrapper";
+import { checkOnboardingStatus } from "../../lib/onboarding";
+import { userModeStorage } from "../lib/storage";
+import { firebaseService } from "../services/firebaseService";
 
 const SignIn = () => {
   console.log("[SignIn] Rendering sign-in screen");
@@ -32,8 +35,19 @@ const SignIn = () => {
       }
     };
     checkAuth();
-  }, []);
 
+    // Initialize Firebase service for push notifications
+    const initializeFirebase = async () => {
+      try {
+        console.log("[SignIn] Initializing Firebase service");
+        await firebaseService.requestPermissions();
+        firebaseService.setupNotificationListeners();
+      } catch (error) {
+        console.error("[SignIn] Error initializing Firebase:", error);
+      }
+    };
+    initializeFirebase();
+  }, []);
 
   console.log("[SignIn] Rendering sign-in content");
 
@@ -69,25 +83,56 @@ const SignIn = () => {
         loadingMessage: "Signing you in...",
         successMessage: "Welcome back to UberClone!",
         errorTitle: "Login Failed",
-        onSuccess: () => {
-          console.log("[SignIn] Login successful, redirecting to home");
-          setTimeout(() => {
-            router.replace("/(root)/(tabs)/home");
-          }, 1000); // Give time for success message to show
+        onSuccess: async () => {
+          console.log("[SignIn] Login successful, checking onboarding status before navigation");
+          try {
+            const status = await checkOnboardingStatus();
+            const { setUserData, setCurrentStep, setCompleted } = require("../../store").useOnboardingStore.getState();
+            if (status.userData) {
+              setUserData(status.userData);
+            }
+            const ns = typeof status.nextStep === 'number' && Number.isFinite(status.nextStep) ? Math.max(0, Math.min(3, status.nextStep)) : 0;
+            setCurrentStep(ns);
+            setCompleted(!!status.isCompleted);
+
+            if (!status.isCompleted) {
+              console.log("[SignIn] Onboarding incomplete → navigating to onboarding");
+              router.replace("/(onboarding)" as any);
+              return;
+            }
+
+            // Onboarding complete → decide based on mode selection
+            try {
+              const hasSelectedMode = await userModeStorage.hasSelectedMode();
+              if (!hasSelectedMode) {
+                console.log("[SignIn] No mode selected → go to root to show welcome modal");
+                router.replace("/" as any);
+              } else {
+                console.log("[SignIn] Mode selected → go to home");
+                router.replace("/(root)/(tabs)/home" as any);
+              }
+            } catch (modeErr) {
+              console.warn("[SignIn] Mode selection check failed → fallback to root:", modeErr);
+              router.replace("/" as any);
+            }
+          } catch (statusErr) {
+            console.warn("[SignIn] Onboarding status check failed → fallback to root:", statusErr);
+            router.replace("/" as any);
+          }
         },
         onError: (error) => {
           console.error("[SignIn] Login error:", error);
-        }
-      }
+        },
+      },
     );
   };
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="flex-1 bg-white">
+    <ScrollView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
+      <View className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
         <View className="relative w-full h-[250px]">
           <Image source={images.signUpCar} className="z-0 w-full h-[250px]" />
-          <Text className="text-2xl text-black font-JakartaSemiBold absolute bottom-5 left-5">
+          <Text className="text-2xl text-black dark:text-white font-JakartaSemiBold absolute bottom-5 left-5">
             Welcome 👋
           </Text>
         </View>
@@ -120,10 +165,10 @@ const SignIn = () => {
 
           <Link
             href="/sign-up"
-            className="text-lg text-center text-general-200 mt-10"
+            className="text-lg text-center text-general-200 dark:text-gray-300 mt-10"
           >
             Don't have an account?{" "}
-            <Text className="text-primary-500">Sign Up</Text>
+            <Text className="text-black dark:text-brand-secondary">Sign Up</Text>
           </Link>
         </View>
       </View>

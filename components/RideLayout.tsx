@@ -3,23 +3,68 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { router } from "expo-router";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import Map from "@/components/Map";
 import { icons } from "@/constants";
+import { useRealtimeStore } from "@/store";
 
 const RideLayout = ({
   title,
   snapPoints,
   children,
+  onReady,
 }: {
   title: string;
   snapPoints?: string[];
   children: React.ReactNode;
+  onReady?: (api: { snapToIndex: (index: number) => void }) => void;
 }) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const rideStatus = useRealtimeStore((s) => s.rideStatus);
+
+  // Sync sheet position with ride status for active rides
+  useEffect(() => {
+    const ref = bottomSheetRef.current;
+    if (!ref) return;
+
+    // Map statuses to sheet index (0 = smaller sheet, more map)
+    const statusToIndex: Record<string, number> = {
+      requested: 1,
+      accepted: 0,
+      arriving: 0,
+      arrived: 0,
+      in_progress: 0,
+      completed: 1,
+      cancelled: 1,
+      emergency: 1,
+    };
+
+    const nextIndex = statusToIndex[rideStatus as string] ?? 0;
+    try {
+      ref.snapToIndex(nextIndex);
+    } catch (e) {
+      // ignore
+    }
+  }, [rideStatus]);
+
+  // Expose imperative snap method to parent
+  useEffect(() => {
+    if (!onReady) return;
+    const ref = bottomSheetRef.current;
+    if (!ref) return;
+    onReady({
+      snapToIndex: (index: number) => {
+        try {
+          ref.snapToIndex(index);
+        } catch (e) {
+          // ignore
+        }
+      },
+    });
+  }, [onReady]);
 
   return (
     <GestureHandlerRootView className="flex-1">

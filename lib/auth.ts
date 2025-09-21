@@ -1,6 +1,6 @@
 import * as SecureStore from "expo-secure-store";
 import { fetchAPI } from "@/lib/fetch";
-import { useUserStore } from "@/store";
+import { resetOnboardingStatus } from "@/lib/onboarding";
 
 // Types for authentication
 export interface User {
@@ -12,6 +12,22 @@ export interface User {
   updatedAt?: string;
 }
 
+// Helper function to get user store dynamically (avoids circular dependency)
+let userStoreInstance: any = null;
+const getUserStore = (): any => {
+  // Lazy import to avoid circular dependency
+  if (!userStoreInstance) {
+    try {
+      const { useUserStore } = require("@/store");
+      userStoreInstance = useUserStore.getState();
+    } catch (error) {
+      console.warn("[Auth] Could not load user store:", error);
+      return null;
+    }
+  }
+  return userStoreInstance;
+};
+
 export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
@@ -21,12 +37,26 @@ export interface AuthResponse {
 export interface LoginCredentials {
   email: string;
   password: string;
+  firebaseToken?: string;
+  deviceType?: 'ios' | 'android' | 'web';
+  deviceId?: string;
 }
 
 export interface RegisterData {
   name: string;
   email: string;
   password: string;
+  phone?: string;
+  country?: string;
+  state?: string;
+  city?: string;
+  dateOfBirth?: string;
+  gender?: 'male' | 'female' | 'other' | 'prefer_not_to_say';
+  preferredLanguage?: 'es' | 'en';
+  timezone?: string;
+  firebaseToken?: string;
+  deviceType?: 'ios' | 'android' | 'web';
+  deviceId?: string;
 }
 
 // Internal JWT Token management
@@ -146,12 +176,59 @@ export const registerUser = async (userData: RegisterData): Promise<{ success: b
   try {
     console.log("[Auth] Registering user:", userData.email);
 
+    // Prepare base user data without Firebase fields
+    const baseUserData = {
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+      phone: userData.phone,
+      country: userData.country,
+      state: userData.state,
+      city: userData.city,
+      dateOfBirth: userData.dateOfBirth,
+      gender: userData.gender,
+      preferredLanguage: userData.preferredLanguage,
+      timezone: userData.timezone
+    };
+
+    // Get Firebase token data if not provided
+    let firebaseData = null;
+    if (!userData.firebaseToken) {
+      console.log("[Auth] No Firebase token provided, attempting to get one");
+      try {
+        // Lazy import to avoid circular dependency
+        const { firebaseService } = require("../app/services/firebaseService");
+        firebaseData = await firebaseService.getFirebaseTokenData();
+      } catch (error) {
+        console.warn("[Auth] Firebase service not available:", error);
+      }
+
+      if (firebaseData) {
+        userData.firebaseToken = firebaseData.token;
+        userData.deviceType = firebaseData.deviceType;
+        userData.deviceId = firebaseData.deviceId;
+        console.log("[Auth] Firebase token obtained and added to registration data");
+      } else {
+        console.log("[Auth] Could not obtain Firebase token, proceeding without it");
+      }
+    }
+
+    // For compatibility with current backend, do NOT send Firebase fields on register either
+    const requestBody: any = { ...baseUserData };
+    if (userData.firebaseToken || userData.deviceType || userData.deviceId) {
+      console.log("[Auth] Firebase fields obtained but will NOT be sent in registration request (backend rejects them)");
+    } else {
+      console.log("[Auth] Sending basic registration without Firebase fields");
+    }
+
+    console.log("[Auth] Final request body:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetchAPI("auth/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(userData),
+      body: JSON.stringify(requestBody),
     });
 
     console.log("[Auth] Register response:", response);
@@ -210,7 +287,7 @@ export const registerUser = async (userData: RegisterData): Promise<{ success: b
       // Store user data in global store
       if (finalUser) {
         console.log("[Auth] Storing user data in global store:", finalUser);
-        useUserStore.getState().setUser(finalUser);
+        getUserStore().setUser(finalUser);
       }
 
       console.log("[Auth] User registered successfully:", finalUser?.email);
@@ -249,12 +326,58 @@ export const loginUser = async (credentials: LoginCredentials): Promise<{ succes
   try {
     console.log("[Auth] Logging in user:", credentials.email);
 
+    // Prepare base credentials without Firebase fields
+    const baseCredentials = {
+      email: credentials.email,
+      password: credentials.password
+    };
+
+    // Get Firebase token data if not provided
+    let firebaseData = null;
+    if (!credentials.firebaseToken) {
+      console.log("[Auth] No Firebase token provided, attempting to get one");
+      try {
+        // Lazy import to avoid circular dependency
+        const { firebaseService } = require("../app/services/firebaseService");
+        firebaseData = await firebaseService.getFirebaseTokenData();
+      } catch (error) {
+        console.warn("[Auth] Firebase service not available:", error);
+      }
+
+      if (firebaseData) {
+        credentials.firebaseToken = firebaseData.token;
+        credentials.deviceType = firebaseData.deviceType;
+        credentials.deviceId = firebaseData.deviceId;
+        console.log("[Auth] Firebase token obtained and added to login credentials");
+      } else {
+        console.log("[Auth] Could not obtain Firebase token, proceeding without it");
+      }
+    }
+
+    // Build request body and include Firebase fields only when all are present
+    const requestBody: any = { ...baseCredentials };
+
+    const hasValidFirebaseToken = typeof credentials.firebaseToken === 'string' && credentials.firebaseToken.trim().length > 0;
+    const hasValidDeviceType = typeof credentials.deviceType === 'string' && credentials.deviceType.trim().length > 0;
+    const hasValidDeviceId = typeof credentials.deviceId === 'string' && credentials.deviceId.trim().length > 0;
+
+    if (hasValidFirebaseToken && hasValidDeviceType && hasValidDeviceId) {
+      requestBody.firebaseToken = credentials.firebaseToken;
+      requestBody.deviceType = credentials.deviceType;
+      requestBody.deviceId = credentials.deviceId;
+      console.log("[Auth] Including Firebase fields in login request");
+    } else {
+      console.log("[Auth] Firebase fields missing or invalid, sending basic login");
+    }
+
+    console.log("[Auth] Final request body:", JSON.stringify(requestBody, null, 2));
+
     const response = await fetchAPI("auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(credentials),
+      body: JSON.stringify(requestBody),
     });
 
     console.log("[Auth] Login response:", response);
@@ -294,7 +417,7 @@ export const loginUser = async (credentials: LoginCredentials): Promise<{ succes
       // Store user data in global store
       if (finalUser) {
         console.log("[Auth] Storing user data in global store:", finalUser);
-        useUserStore.getState().setUser(finalUser);
+        getUserStore().setUser(finalUser);
       }
 
       console.log("[Auth] User logged in successfully:", finalUser?.email);
@@ -338,7 +461,15 @@ export const logoutUser = async (): Promise<{ success: boolean; message: string 
 
     // Clear user data from global store
     console.log("[Auth] Clearing user data from global store");
-    useUserStore.getState().clearUser();
+    getUserStore().clearUser();
+
+    // Reset onboarding local status to avoid skipping flow on next login
+    try {
+      await resetOnboardingStatus();
+      console.log("[Auth] Onboarding status reset locally (and API if available)");
+    } catch (e) {
+      console.warn("[Auth] Failed to reset onboarding status:", e);
+    }
 
     console.log("[Auth] User logged out successfully");
     return {
@@ -352,7 +483,11 @@ export const logoutUser = async (): Promise<{ success: boolean; message: string 
 
     // Clear user data from global store even on error
     console.log("[Auth] Clearing user data from global store (error case)");
-    useUserStore.getState().clearUser();
+    getUserStore().clearUser();
+
+    try {
+      await resetOnboardingStatus();
+    } catch {}
 
     return {
       success: true,
@@ -497,7 +632,7 @@ export const refreshAccessToken = async (): Promise<{ success: boolean; message:
 export const isAuthenticated = async (): Promise<boolean> => {
   try {
     // First check if user exists in store (fast check)
-    const userStore = useUserStore.getState();
+    const userStore = getUserStore();
     if (userStore.user && userStore.isAuthenticated) {
       console.log("[Auth] User authenticated via store:", userStore.user.email);
       return true;
@@ -545,12 +680,12 @@ export const initializeUserStore = async (): Promise<void> => {
 
     if (!token) {
       console.log("[Auth] No token found, clearing user store");
-      useUserStore.getState().clearUser();
+      getUserStore().clearUser();
       return;
     }
 
     // Check if user is already in store
-    const userStore = useUserStore.getState();
+    const userStore = getUserStore();
     console.log("[Auth] Current user in store:", userStore.user);
 
     if (userStore.user) {
@@ -569,7 +704,7 @@ export const initializeUserStore = async (): Promise<void> => {
       userStore.setUser(result.data);
 
       // Verify the user was stored
-      const updatedStore = useUserStore.getState();
+      const updatedStore = getUserStore();
       console.log("[Auth] ✅ User stored in store:", updatedStore.user);
     } else {
       console.log("[Auth] ❌ Failed to fetch user profile:", result.message);
@@ -579,13 +714,15 @@ export const initializeUserStore = async (): Promise<void> => {
   } catch (error) {
     console.error("[Auth] ❌ Error initializing user store:", error);
     console.error("[Auth] Error details:", error instanceof Error ? error.message : String(error));
-    useUserStore.getState().clearUser();
+    getUserStore().clearUser();
   }
 };
 
 // Hook to ensure user data is available (optional usage)
 export const useEnsureUserData = () => {
-  const userStore = useUserStore();
+  // Lazy import to avoid circular dependency
+  const { useUserStore } = require("@/store");
+  const userStore = useUserStore?.();
 
   const ensureUserData = async () => {
     // If user is already in store, no need to do anything

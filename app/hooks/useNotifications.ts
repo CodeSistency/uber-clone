@@ -250,3 +250,5 @@ export const useNotifications = () => {
     getNotificationsByPriority,
   };
 };
+
+export default useNotifications;

@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, forwardRef, useImperativeHandle, useRef } from "react";
 import { ActivityIndicator, Text, View, Platform } from "react-native";
-import MapView, { Marker, Polyline, PROVIDER_DEFAULT } from "react-native-maps";
+import MapView, { Marker, Polyline, PROVIDER_DEFAULT, Region, LatLng } from "react-native-maps";
 
 import { icons } from "@/constants";
 import { useFetch } from "@/lib/fetch";
@@ -11,10 +11,27 @@ import {
 } from "@/lib/map";
 import { useDriverStore, useLocationStore } from "@/store";
 import { Driver, MarkerData } from "@/types/type";
+import { Restaurant } from "@/constants/dummyData";
 
-const directionsAPI = process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY;
+const directionsAPI =
+  process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ||
+  "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
 
-const Map = () => {
+export interface MapHandle {
+  animateToRegion: (region: Region, duration?: number) => void;
+  animateToCoordinate: (coord: LatLng, duration?: number) => void;
+  fitToCoordinates: (coords: LatLng[], options?: { edgePadding?: { top: number; right: number; bottom: number; left: number }; animated?: boolean }) => void;
+  setCamera: (config: any) => void;
+}
+
+interface MapProps {
+  serviceType?: "transport" | "delivery";
+  restaurants?: Restaurant[];
+  isLoadingRestaurants?: boolean;
+}
+
+const Map = forwardRef<MapHandle, MapProps>(({ serviceType = "transport", restaurants = [], isLoadingRestaurants = false }: MapProps, ref) => {
+  const mapRef = useRef<MapView | null>(null);
   const {
     userLongitude,
     userLatitude,
@@ -23,7 +40,7 @@ const Map = () => {
   } = useLocationStore();
   const { selectedDriver, setDrivers } = useDriverStore();
 
-  const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
+  const { data: drivers, loading, error } = useFetch<any>("driver");
   const [markers, setMarkers] = useState<MarkerData[]>([]);
   const [routeCoordinates, setRouteCoordinates] = useState<
     { latitude: number; longitude: number }[]
@@ -139,22 +156,32 @@ const Map = () => {
   }, [userLatitude, userLongitude, destinationLatitude, destinationLongitude]);
 
   useEffect(() => {
-    if (Array.isArray(drivers)) {
+    // Handle both array format and object format from backend
+    const driversArray = Array.isArray(drivers) ? drivers : drivers?.data || [];
+
+    if (Array.isArray(driversArray) && driversArray.length > 0) {
       if (!userLatitude || !userLongitude) return;
 
       console.log("[Map] drivers loaded", {
-        count: drivers.length,
+        count: driversArray.length,
         userLatitude,
         userLongitude,
+        originalFormat: Array.isArray(drivers) ? "array" : "object",
+        firstDriver: driversArray[0],
+        firstDriverKeys: driversArray[0] ? Object.keys(driversArray[0]) : [],
       });
       const newMarkers = generateMarkersFromData({
-        data: drivers,
+        data: driversArray,
         userLatitude,
         userLongitude,
       });
 
       console.log("[Map] markers generated", { count: newMarkers.length });
       setMarkers(newMarkers);
+
+      // Set basic drivers to store immediately for UI display
+      console.log("[Map] Setting basic drivers to store for UI");
+      setDrivers(newMarkers as MarkerData[]);
     }
   }, [drivers, userLatitude, userLongitude]);
 
@@ -175,11 +202,15 @@ const Map = () => {
         userLongitude,
         destinationLatitude,
         destinationLongitude,
-      }).then((drivers) => {
+      }).then((driversWithTimes) => {
         console.log("[Map] driver times calculated", {
-          driversCount: drivers?.length,
+          driversCount: driversWithTimes?.length,
         });
-        setDrivers(drivers as MarkerData[]);
+        if (driversWithTimes && driversWithTimes.length > 0) {
+          // Update existing drivers with time and price information
+          console.log("[Map] Updating drivers with calculated times");
+          setDrivers(driversWithTimes as MarkerData[]);
+        }
       });
     }
   }, [markers, destinationLatitude, destinationLongitude]);
@@ -192,6 +223,22 @@ const Map = () => {
   });
 
   console.log("[Map] region", region);
+
+  // Expose imperative map controls - must be declared unconditionally before any return
+  useImperativeHandle(ref, () => ({
+    animateToRegion: (region: Region, duration = 500) => {
+      mapRef.current?.animateToRegion(region, duration);
+    },
+    animateToCoordinate: (coord: LatLng, duration = 500) => {
+      mapRef.current?.animateCamera({ center: coord }, { duration });
+    },
+    fitToCoordinates: (coords: LatLng[], options) => {
+      mapRef.current?.fitToCoordinates(coords, options);
+    },
+    setCamera: (config: any) => {
+      mapRef.current?.setCamera(config);
+    },
+  }), []);
 
   if (loading || (!userLatitude && !userLongitude))
     return (
@@ -209,6 +256,7 @@ const Map = () => {
 
   return (
     <MapView
+      ref={(r) => { mapRef.current = r; }}
       provider={PROVIDER_DEFAULT}
       className="w-full h-full rounded-2xl"
       tintColor="black"
@@ -218,7 +266,8 @@ const Map = () => {
       showsUserLocation={true}
       userInterfaceStyle="light"
     >
-      {markers.map((marker, index) => (
+      {/* Transport mode markers */}
+      {serviceType === "transport" && markers.map((marker, index) => (
         <Marker
           key={marker.id}
           coordinate={{
@@ -230,6 +279,23 @@ const Map = () => {
             selectedDriver === +marker.id ? icons.selectedMarker : icons.marker
           }
         />
+      ))}
+
+      {/* Delivery mode markers */}
+      {serviceType === "delivery" && restaurants.map((restaurant, index) => (
+        <Marker
+          key={restaurant.id}
+          coordinate={{
+            latitude: restaurant.location.latitude,
+            longitude: restaurant.location.longitude,
+          }}
+          title={restaurant.name}
+          description={`${restaurant.category} • ${restaurant.rating}★ • ${restaurant.deliveryTime}`}
+        >
+          <View className="bg-brand-primary dark:bg-brand-primaryDark rounded-full p-2 shadow-lg border-2 border-primary-500">
+            <Text className="text-lg">{restaurant.image}</Text>
+          </View>
+        </Marker>
       ))}
 
       {userLatitude && userLongitude && (
@@ -266,6 +332,6 @@ const Map = () => {
       )}
     </MapView>
   );
-};
+});
 
 export default Map;

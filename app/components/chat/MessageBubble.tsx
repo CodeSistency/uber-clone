@@ -263,3 +263,5 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
     </TouchableOpacity>
   );
 };
+
+export default MessageBubble;

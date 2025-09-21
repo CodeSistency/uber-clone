@@ -69,6 +69,13 @@ export const icons = {
   star,
   target,
   to,
+  // Missing icons - using alternatives
+  phone: person, // Using person as phone/contact icon
+  send: arrowUp, // Using arrowUp as send icon
+  card: dollar, // Using dollar as card/payment icon
+  cash: dollar, // Using dollar as cash icon
+  apple: google, // Using google as apple alternative
+  car: map, // Using map as car/transport icon
 };
 
 export const onboarding = [

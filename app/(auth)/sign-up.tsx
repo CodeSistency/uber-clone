@@ -4,9 +4,10 @@ import { Image, ScrollView, Text, View } from "react-native";
 
 import CustomButton from "../../components/CustomButton";
 import InputField from "../../components/InputField";
+import { useUI } from "../../components/UIWrapper";
 import { icons, images } from "../../constants";
 import { registerUser, isAuthenticated } from "../../lib/auth";
-import { useUI } from "../../components/UIWrapper";
+import { firebaseService } from "../services/firebaseService";
 
 const SignUp = () => {
   console.log("[SignUp] Rendering sign-up screen");
@@ -21,7 +22,7 @@ const SignUp = () => {
 
   const handleInputChange = (field: string, value: string) => {
     console.log(`[SignUp] Input change - ${field}:`, value);
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   useEffect(() => {
@@ -38,8 +39,19 @@ const SignUp = () => {
       }
     };
     checkAuth();
-  }, []);
 
+    // Initialize Firebase service for push notifications
+    const initializeFirebase = async () => {
+      try {
+        console.log("[SignUp] Initializing Firebase service");
+        await firebaseService.requestPermissions();
+        firebaseService.setupNotificationListeners();
+      } catch (error) {
+        console.error("[SignUp] Error initializing Firebase:", error);
+      }
+    };
+    initializeFirebase();
+  }, []);
 
   const onSignUpPress = async () => {
     console.log("[SignUp] Form data before submission:", form);
@@ -75,24 +87,26 @@ const SignUp = () => {
         successMessage: "Account created successfully! Welcome to UberClone!",
         errorTitle: "Registration Failed",
         onSuccess: () => {
-          console.log("[SignUp] Registration successful, redirecting to home");
+          console.log(
+            "[SignUp] Registration successful, redirecting to index for onboarding check",
+          );
           setTimeout(() => {
-            router.replace("/(root)/(tabs)/home");
+            router.replace("/");
           }, 1000); // Give time for success message to show
         },
         onError: (error) => {
           console.error("[SignUp] Registration error:", error);
-        }
-      }
+        },
+      },
     );
   };
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="flex-1 bg-white">
+    <ScrollView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
+      <View className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
         <View className="relative w-full h-[250px]">
           <Image source={images.signUpCar} className="z-0 w-full h-[250px]" />
-          <Text className="text-2xl text-black font-JakartaSemiBold absolute bottom-5 left-5">
+          <Text className="text-2xl text-black dark:text-white font-JakartaSemiBold absolute bottom-5 left-5">
             Create Your Account
           </Text>
         </View>
@@ -128,10 +142,10 @@ const SignUp = () => {
           />
           <Link
             href="/sign-in"
-            className="text-lg text-center text-general-200 mt-10"
+            className="text-lg text-center text-general-200 dark:text-gray-300 mt-10"
           >
             Already have an account?{" "}
-            <Text className="text-primary-500">Log In</Text>
+            <Text className="text-black dark:text-brand-secondary">Log In</Text>
           </Link>
         </View>
       </View>

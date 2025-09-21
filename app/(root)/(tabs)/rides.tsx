@@ -4,8 +4,9 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import RideCard from "@/components/RideCard";
 import { images } from "@/constants";
 import { useFetch } from "@/lib/fetch";
-import { Ride } from "@/types/type";
+import { transformRideData } from "@/lib/utils";
 import { useUserStore } from "@/store";
+import { Ride } from "@/types/type";
 
 const Rides = () => {
   const { user } = useUserStore();
@@ -14,21 +15,32 @@ const Rides = () => {
     data: recentRides,
     loading,
     error,
-  } = useFetch<Ride[]>(user?.id ? `/(api)/ride/${user.id}` : null);
+  } = useFetch<Ride[]>(user?.id ? `ride/${user.id}` : null);
 
   console.log("[Rides] Page data:", {
     userId: user?.id,
-    recentRides: Array.isArray(recentRides) ? recentRides.length : 0,
+    recentRides: recentRides,
+    recentRidesType: typeof recentRides,
+    recentRidesLength: Array.isArray(recentRides)
+      ? recentRides.length
+      : "not array",
     loading,
     error,
     firstRide: Array.isArray(recentRides) ? recentRides[0] : null,
   });
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       <FlatList
         data={Array.isArray(recentRides) ? recentRides : []}
-        renderItem={({ item }) => <RideCard ride={item} />}
+        renderItem={({ item }) => {
+          console.log("[Rides] Raw item from backend:", item);
+
+          const transformedRide = transformRideData(item);
+
+          console.log("[Rides] Transformed ride:", transformedRide);
+          return <RideCard ride={transformedRide as Ride} />;
+        }}
         keyExtractor={(item, index) => index.toString()}
         className="px-5"
         keyboardShouldPersistTaps="handled"
@@ -45,7 +57,7 @@ const Rides = () => {
                   alt="No recent rides found"
                   resizeMode="contain"
                 />
-                <Text className="text-sm">No recent rides found</Text>
+                <Text className="text-sm text-black dark:text-white">No recent rides found</Text>
               </>
             ) : (
               <ActivityIndicator size="small" color="#000" />
@@ -54,7 +66,7 @@ const Rides = () => {
         )}
         ListHeaderComponent={
           <>
-            <Text className="text-2xl font-JakartaBold my-5">All Rides</Text>
+            <Text className="text-2xl font-JakartaBold my-5 text-black dark:text-white">All Rides</Text>
           </>
         }
       />

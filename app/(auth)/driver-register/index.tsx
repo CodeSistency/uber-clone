@@ -3,14 +3,17 @@ import { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { isAuthenticated } from "@/lib/auth";
+
 import CustomButton from "../../../components/CustomButton";
 import InputField from "../../../components/InputField";
 import { userModeStorage } from "../../lib/storage";
-import { isAuthenticated } from "@/lib/auth";
 
 const DriverRegister = () => {
   const [loading, setLoading] = useState(false);
-  const [isAuthenticatedState, setIsAuthenticatedState] = useState<boolean | null>(null);
+  const [isAuthenticatedState, setIsAuthenticatedState] = useState<
+    boolean | null
+  >(null);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
