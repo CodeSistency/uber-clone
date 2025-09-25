@@ -61,7 +61,7 @@ export interface TransportRideData {
 
 // Transport Client - Cliente side
 export const transportClient = {
-  // Define ride (create)
+  // Define ride (create) - OLD METHOD
   async defineRide(data: TransportRideData) {
     console.log("[TransportClient] Creating ride:", data);
     return await fetchAPI(`${FLOW_BASE_URL}/client/transport/define-ride`, {
@@ -71,31 +71,176 @@ export const transportClient = {
     });
   },
 
-  // Select vehicle/tier
-  async selectVehicle(rideId: number, data: { tierId: number; vehicleTypeId: number }) {
-    console.log("[TransportClient] Selecting vehicle for ride:", rideId, data);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/select-vehicle`, {
+  // Define ride flow (new method with updated endpoint)
+  async defineRideFlow(data: {
+    originAddress: string;
+    originLat: number;
+    originLng: number;
+    destinationAddress: string;
+    destinationLat: number;
+    destinationLng: number;
+    minutes: number;
+    tierId: number;
+    phoneNumber?: string; // For FOR_OTHER rides
+    rideType?: string; // 'normal' | 'for_other'
+  }) {
+    console.log("[TransportClient] Creating ride flow:", data);
+    // Use full URL to avoid the /api prefix that fetchAPI adds
+    const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
+    const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/define-ride`;
+
+    return await fetchAPI(fullUrl, {
       method: "POST",
       body: JSON.stringify(data),
       requiresAuth: true,
     });
+  },
+
+  // Select vehicle/tier
+  async selectVehicle(
+    rideId: number,
+    data: { tierId: number; vehicleTypeId: number },
+  ) {
+    console.log("[TransportClient] Selecting vehicle for ride:", rideId, data);
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/transport/${rideId}/select-vehicle`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        requiresAuth: true,
+      },
+    );
   },
 
   // Request driver (matching)
   async requestDriver(rideId: number) {
     console.log("[TransportClient] Requesting driver for ride:", rideId);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/request-driver`, {
-      method: "POST",
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/transport/${rideId}/request-driver`,
+      {
+        method: "POST",
+        requiresAuth: true,
+      },
+    );
   },
 
   // Confirm payment
   async confirmPayment(rideId: number, data: PaymentData) {
     console.log("[TransportClient] Confirming payment for ride:", rideId, data);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/confirm-payment`, {
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/transport/${rideId}/confirm-payment`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        requiresAuth: true,
+      },
+    );
+  },
+
+  // 🆕 NEW: Pay with multiple methods
+  async payWithMultipleMethods(
+    rideId: number,
+    data: {
+      totalAmount: number;
+      payments: Array<{
+        method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
+        amount: number;
+        bankCode?: string;
+      }>;
+    },
+  ) {
+    console.log(
+      "[TransportClient] Paying with multiple methods for ride:",
+      rideId,
+      data,
+    );
+    // Use full URL to avoid the /api prefix that fetchAPI adds
+    const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
+    const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/pay-with-multiple-methods`;
+
+    return await fetchAPI(fullUrl, {
       method: "POST",
       body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
+  // 🆕 NEW: Generate payment reference for external payment
+  async generatePaymentReference(
+    rideId: number,
+    data: {
+      method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
+      bankCode?: string;
+    },
+  ) {
+    console.log(
+      "[TransportClient] Generating payment reference for ride:",
+      rideId,
+      data,
+    );
+    const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
+    const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/generate-payment-reference`;
+
+    return await fetchAPI(fullUrl, {
+      method: "POST",
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
+  // 🆕 NEW: Confirm payment with external reference
+  async confirmPaymentWithReference(
+    rideId: number,
+    data: {
+      referenceNumber: string;
+      bankCode?: string;
+    },
+  ) {
+    console.log(
+      "[TransportClient] Confirming payment with reference for ride:",
+      rideId,
+      data,
+    );
+    const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
+    const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/confirm-payment-with-reference`;
+
+    return await fetchAPI(fullUrl, {
+      method: "POST",
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
+  // 🆕 NEW: Confirm partial payment in group
+  async confirmPartialPayment(
+    rideId: number,
+    data: {
+      referenceNumber: string;
+      bankCode?: string;
+    },
+  ) {
+    console.log(
+      "[TransportClient] Confirming partial payment for ride:",
+      rideId,
+      data,
+    );
+    const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
+    const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/confirm-partial-payment`;
+
+    return await fetchAPI(fullUrl, {
+      method: "POST",
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
+  // 🆕 NEW: Get payment status
+  async getPaymentStatus(rideId: number) {
+    console.log("[TransportClient] Getting payment status for ride:", rideId);
+    const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
+    const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/payment-status`;
+
+    return await fetchAPI(fullUrl, {
       requiresAuth: true,
     });
   },
@@ -112,19 +257,25 @@ export const transportClient = {
   // Get status
   async getStatus(rideId: number) {
     console.log("[TransportClient] Getting ride status:", rideId);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/status`, {
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/transport/${rideId}/status`,
+      {
+        requiresAuth: true,
+      },
+    );
   },
 
   // Cancel ride
   async cancel(rideId: number, reason?: string) {
     console.log("[TransportClient] Cancelling ride:", rideId, reason);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/cancel`, {
-      method: "POST",
-      body: JSON.stringify({ reason }),
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/transport/${rideId}/cancel`,
+      {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+        requiresAuth: true,
+      },
+    );
   },
 
   // Rate ride
@@ -152,12 +303,19 @@ export const deliveryClient = {
 
   // Confirm payment
   async confirmPayment(orderId: number, data: PaymentData) {
-    console.log("[DeliveryClient] Confirming payment for order:", orderId, data);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/delivery/${orderId}/confirm-payment`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      requiresAuth: true,
-    });
+    console.log(
+      "[DeliveryClient] Confirming payment for order:",
+      orderId,
+      data,
+    );
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/delivery/${orderId}/confirm-payment`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        requiresAuth: true,
+      },
+    );
   },
 
   // Join tracking
@@ -172,19 +330,25 @@ export const deliveryClient = {
   // Get status
   async getStatus(orderId: number) {
     console.log("[DeliveryClient] Getting order status:", orderId);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/delivery/${orderId}/status`, {
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/delivery/${orderId}/status`,
+      {
+        requiresAuth: true,
+      },
+    );
   },
 
   // Cancel order
   async cancel(orderId: number, reason?: string) {
     console.log("[DeliveryClient] Cancelling order:", orderId, reason);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/delivery/${orderId}/cancel`, {
-      method: "POST",
-      body: JSON.stringify({ reason }),
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/delivery/${orderId}/cancel`,
+      {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+        requiresAuth: true,
+      },
+    );
   },
 };
 
@@ -220,11 +384,14 @@ export const errandClient = {
   // Confirm payment
   async confirmPayment(errandId: number, data: PaymentData) {
     console.log("[ErrandClient] Confirming payment:", errandId, data);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/errand/${errandId}/confirm-payment`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/errand/${errandId}/confirm-payment`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        requiresAuth: true,
+      },
+    );
   },
 
   // Cancel errand
@@ -270,11 +437,14 @@ export const parcelClient = {
   // Confirm payment
   async confirmPayment(parcelId: number, data: PaymentData) {
     console.log("[ParcelClient] Confirming payment:", parcelId, data);
-    return await fetchAPI(`${FLOW_BASE_URL}/client/parcel/${parcelId}/confirm-payment`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/client/parcel/${parcelId}/confirm-payment`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        requiresAuth: true,
+      },
+    );
   },
 
   // Cancel parcel
@@ -285,6 +455,51 @@ export const parcelClient = {
       body: JSON.stringify({ reason }),
       requiresAuth: true,
     });
+  },
+  // Get nearby drivers
+  async getNearbyDrivers(params: {
+    lat: number;
+    lng: number;
+    radius?: number;
+    tierId?: number;
+    vehicleTypeId?: number;
+  }) {
+    console.log("[TransportClient] Getting nearby drivers:", params);
+    const queryParams = new URLSearchParams({
+      lat: params.lat.toString(),
+      lng: params.lng.toString(),
+      ...(params.radius && { radius: params.radius.toString() }),
+      ...(params.tierId && { tierId: params.tierId.toString() }),
+      ...(params.vehicleTypeId && {
+        vehicleTypeId: params.vehicleTypeId.toString(),
+      }),
+    });
+
+    return await fetchAPI(
+      `rides/flow/client/transport/nearby-drivers?${queryParams}`,
+      {
+        requiresAuth: true,
+      },
+    );
+  },
+
+  // Simulate driver locations (for testing)
+  async simulateDriverLocations(params: {
+    centerLat: number;
+    centerLng: number;
+    radiusKm?: number;
+    driverCount?: number;
+    vehicleTypeIds?: number[];
+  }) {
+    console.log("[TransportClient] Simulating driver locations:", params);
+    return await fetchAPI(
+      `rides/flow/client/transport/test/simulate-driver-locations`,
+      {
+        method: "POST",
+        body: JSON.stringify(params),
+        requiresAuth: true,
+      },
+    );
   },
 };
 
@@ -306,11 +521,14 @@ export const transportDriverClient = {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/transport/${rideId}/accept`, {
-      method: "POST",
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/transport/${rideId}/accept`,
+      {
+        method: "POST",
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 
   // Arrived at pickup
@@ -321,11 +539,14 @@ export const transportDriverClient = {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/transport/${rideId}/arrived`, {
-      method: "POST",
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/transport/${rideId}/arrived`,
+      {
+        method: "POST",
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 
   // Start ride
@@ -344,19 +565,26 @@ export const transportDriverClient = {
   },
 
   // Complete ride
-  async complete(rideId: number, data?: { fare?: number }, idempotencyKey?: string) {
+  async complete(
+    rideId: number,
+    data?: { fare?: number },
+    idempotencyKey?: string,
+  ) {
     console.log("[TransportDriverClient] Completing ride:", rideId, data);
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/transport/${rideId}/complete`, {
-      method: "POST",
-      body: JSON.stringify(data || {}),
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/transport/${rideId}/complete`,
+      {
+        method: "POST",
+        body: JSON.stringify(data || {}),
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 };
 
@@ -378,11 +606,14 @@ export const deliveryDriverClient = {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/delivery/${orderId}/accept`, {
-      method: "POST",
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/delivery/${orderId}/accept`,
+      {
+        method: "POST",
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 
   // Pickup from store
@@ -393,11 +624,14 @@ export const deliveryDriverClient = {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/delivery/${orderId}/pickup`, {
-      method: "POST",
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/delivery/${orderId}/pickup`,
+      {
+        method: "POST",
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 
   // Deliver order
@@ -408,11 +642,14 @@ export const deliveryDriverClient = {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/delivery/${orderId}/deliver`, {
-      method: "POST",
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/delivery/${orderId}/deliver`,
+      {
+        method: "POST",
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 };
 
@@ -434,19 +671,30 @@ export const errandDriverClient = {
   },
 
   // Update shopping status
-  async updateShopping(errandId: number, data: { itemsCost: number; notes?: string }, idempotencyKey?: string) {
-    console.log("[ErrandDriverClient] Updating shopping for errand:", errandId, data);
+  async updateShopping(
+    errandId: number,
+    data: { itemsCost: number; notes?: string },
+    idempotencyKey?: string,
+  ) {
+    console.log(
+      "[ErrandDriverClient] Updating shopping for errand:",
+      errandId,
+      data,
+    );
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/errand/${errandId}/update-shopping`, {
-      method: "POST",
-      body: JSON.stringify(data),
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/errand/${errandId}/update-shopping`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 
   // Start delivery
@@ -472,11 +720,14 @@ export const errandDriverClient = {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/errand/${errandId}/complete`, {
-      method: "POST",
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/errand/${errandId}/complete`,
+      {
+        method: "POST",
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 };
 
@@ -513,19 +764,26 @@ export const parcelDriverClient = {
   },
 
   // Deliver parcel with proof
-  async deliver(parcelId: number, data?: { signatureImageUrl?: string; photoUrl?: string }, idempotencyKey?: string) {
+  async deliver(
+    parcelId: number,
+    data?: { signatureImageUrl?: string; photoUrl?: string },
+    idempotencyKey?: string,
+  ) {
     console.log("[ParcelDriverClient] Delivering parcel:", parcelId, data);
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
     }
 
-    return await fetchAPI(`${FLOW_BASE_URL}/driver/parcel/${parcelId}/deliver`, {
-      method: "POST",
-      body: JSON.stringify(data || {}),
-      headers,
-      requiresAuth: true,
-    });
+    return await fetchAPI(
+      `${FLOW_BASE_URL}/driver/parcel/${parcelId}/deliver`,
+      {
+        method: "POST",
+        body: JSON.stringify(data || {}),
+        headers,
+        requiresAuth: true,
+      },
+    );
   },
 };
 

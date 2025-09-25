@@ -16,7 +16,7 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
   serviceId,
   serviceType,
   onViewDetails,
-  className = ""
+  className = "",
 }) => {
   const paymentStore = usePaymentStore();
 
@@ -32,13 +32,25 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
       case "completed":
         return <Text className="text-green-500">✓</Text>;
       case "active":
-        return <Image source={icons.point} className="w-5 h-5" style={{ tintColor: "#F59E0B" }} />;
+        return (
+          <Image
+            source={icons.point}
+            className="w-5 h-5"
+            style={{ tintColor: "#F59E0B" }}
+          />
+        );
       case "cancelled":
         return <Text className="text-red-500">✗</Text>;
       case "expired":
         return <Text className="text-gray-500">⚠️</Text>;
       default:
-        return <Image source={icons.point} className="w-5 h-5" style={{ tintColor: "#6B7280" }} />;
+        return (
+          <Image
+            source={icons.point}
+            className="w-5 h-5"
+            style={{ tintColor: "#6B7280" }}
+          />
+        );
     }
   };
 
@@ -72,12 +84,14 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
     }
   };
 
-  const pendingPayments = paymentGroup.payments.filter(p =>
-    p.status === "pending" || p.status === "pending_reference"
+  const pendingPayments = paymentGroup.payments.filter(
+    (p) => p.status === "pending" || p.status === "pending_reference",
   ).length;
 
   return (
-    <View className={`bg-white dark:bg-brand-primaryDark rounded-xl p-4 border border-gray-200 dark:border-gray-700 ${className}`}>
+    <View
+      className={`bg-white dark:bg-brand-primaryDark rounded-xl p-4 border border-gray-200 dark:border-gray-700 ${className}`}
+    >
       {/* Header */}
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
@@ -95,7 +109,8 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
           Grupo: {paymentGroup.groupId.slice(-8)}
         </Text>
         <Text className="text-sm text-gray-600 dark:text-gray-400">
-          {paymentGroup.payments.length} método{paymentGroup.payments.length !== 1 ? 's' : ''} de pago
+          {paymentGroup.payments.length} método
+          {paymentGroup.payments.length !== 1 ? "s" : ""} de pago
         </Text>
       </View>
 
@@ -124,14 +139,15 @@ const PaymentStatusCard: React.FC<PaymentStatusCardProps> = ({
             {getStatusText()}
           </Text>
           <Text className="text-xs text-gray-500 dark:text-gray-400">
-            ${paymentGroup.confirmedAmount.toFixed(2)} de ${paymentGroup.totalAmount.toFixed(2)}
+            ${paymentGroup.confirmedAmount.toFixed(2)} de $
+            {paymentGroup.totalAmount.toFixed(2)}
           </Text>
         </View>
 
         {pendingPayments > 0 && (
           <View className="bg-orange-100 dark:bg-orange-900/20 rounded-lg px-3 py-1">
             <Text className="text-xs font-JakartaMedium text-orange-700 dark:text-orange-300">
-              {pendingPayments} pendiente{pendingPayments !== 1 ? 's' : ''}
+              {pendingPayments} pendiente{pendingPayments !== 1 ? "s" : ""}
             </Text>
           </View>
         )}

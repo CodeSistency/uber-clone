@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,20 +7,20 @@ import {
   Easing,
   Dimensions,
   ScrollView,
-} from 'react-native';
+} from "react-native";
 import {
   PanGestureHandler,
   State,
   PanGestureHandlerStateChangeEvent,
   PanGestureHandlerGestureEvent,
-} from 'react-native-gesture-handler';
-import { useColorScheme } from 'react-native';
-import { DrawerProps } from './types';
-import { DrawerHeader } from './DrawerHeader';
-import { DrawerRouteItem } from './DrawerRouteItem';
-import { DrawerFooter } from './DrawerFooter';
+} from "react-native-gesture-handler";
+import { useColorScheme } from "react-native";
+import { DrawerProps } from "./types";
+import { DrawerHeader } from "./DrawerHeader";
+import { DrawerRouteItem } from "./DrawerRouteItem";
+import { DrawerFooter } from "./DrawerFooter";
 
-const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // Componente principal del Drawer
 const Drawer: React.FC<DrawerProps> = ({
@@ -35,56 +35,62 @@ const Drawer: React.FC<DrawerProps> = ({
   onClose,
   onModuleChange,
   width = SCREEN_WIDTH * 0.7, // 70% del ancho de pantalla
-  position = 'left',
-  className = '',
-  animationType = 'slide',
+  position = "left",
+  className = "",
+  animationType = "slide",
   backdropOpacity = 0.5,
 }) => {
   // Refs y animaciones
-  const slideAnim = useRef(new Animated.Value(position === 'left' ? -width : SCREEN_WIDTH)).current;
+  const slideAnim = useRef(
+    new Animated.Value(position === "left" ? -width : SCREEN_WIDTH),
+  ).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.9)).current;
 
   // Tema del dispositivo
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
 
   // Efecto para animar apertura/cierre
   useEffect(() => {
     const animations = [];
 
-    if (animationType === 'slide') {
+    if (animationType === "slide") {
       const toValue = isOpen
-        ? (position === 'left' ? 0 : SCREEN_WIDTH - width)
-        : (position === 'left' ? -width : SCREEN_WIDTH);
+        ? position === "left"
+          ? 0
+          : SCREEN_WIDTH - width
+        : position === "left"
+          ? -width
+          : SCREEN_WIDTH;
       animations.push(
         Animated.timing(slideAnim, {
           toValue,
           duration: 300,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
-        })
+        }),
       );
     }
 
-    if (animationType === 'fade' || animationType === 'scale') {
+    if (animationType === "fade" || animationType === "scale") {
       animations.push(
         Animated.timing(fadeAnim, {
           toValue: isOpen ? 1 : 0,
           duration: 300,
           useNativeDriver: true,
-        })
+        }),
       );
     }
 
-    if (animationType === 'scale') {
+    if (animationType === "scale") {
       animations.push(
         Animated.timing(scaleAnim, {
           toValue: isOpen ? 1 : 0.9,
           duration: 300,
           easing: Easing.out(Easing.cubic),
           useNativeDriver: true,
-        })
+        }),
       );
     }
 
@@ -94,7 +100,7 @@ const Drawer: React.FC<DrawerProps> = ({
   // Handler para gestos de swipe
   const onGestureEvent = Animated.event(
     [{ nativeEvent: { translationX: slideAnim } }],
-    { useNativeDriver: false }
+    { useNativeDriver: false },
   );
 
   const onHandlerStateChange = (event: PanGestureHandlerStateChangeEvent) => {
@@ -104,14 +110,14 @@ const Drawer: React.FC<DrawerProps> = ({
       // Determinar si cerrar basado en la dirección, distancia y velocidad
       // Más sensible para movimientos consistentes
       const shouldClose =
-        (position === 'left' && (translationX < -30 || velocityX < -300)) ||
-        (position === 'right' && (translationX > 30 || velocityX > 300));
+        (position === "left" && (translationX < -30 || velocityX < -300)) ||
+        (position === "right" && (translationX > 30 || velocityX > 300));
 
       if (shouldClose && onClose) {
         onClose();
       } else {
         // Snap back to original position (siempre dentro de límites válidos)
-        const targetPosition = position === 'left' ? 0 : SCREEN_WIDTH - width;
+        const targetPosition = position === "left" ? 0 : SCREEN_WIDTH - width;
         Animated.spring(slideAnim, {
           toValue: targetPosition,
           useNativeDriver: true,
@@ -123,11 +129,11 @@ const Drawer: React.FC<DrawerProps> = ({
   // Estilos dinámicos usando colores del tema
   const drawerStyle = {
     width,
-    backgroundColor: isDark ? '#363531' : '#FFFFFF', // brand.primary / brand.primaryDark
+    backgroundColor: isDark ? "#363531" : "#FFFFFF", // brand.primary / brand.primaryDark
     borderRightWidth: isDark ? 0 : 1,
-    borderRightColor: isDark ? 'transparent' : '#e5e7eb',
-    shadowColor: '#000',
-    shadowOffset: { width: position === 'left' ? 4 : -4, height: 0 },
+    borderRightColor: isDark ? "transparent" : "#e5e7eb",
+    shadowColor: "#000",
+    shadowOffset: { width: position === "left" ? 4 : -4, height: 0 },
     shadowOpacity: 0.15,
     shadowRadius: 12,
     elevation: 10,
@@ -136,9 +142,9 @@ const Drawer: React.FC<DrawerProps> = ({
   const animatedStyle = {
     transform: [
       { translateX: slideAnim },
-      ...(animationType === 'scale' ? [{ scale: scaleAnim }] : []),
+      ...(animationType === "scale" ? [{ scale: scaleAnim }] : []),
     ],
-    opacity: animationType === 'fade' ? fadeAnim : 1,
+    opacity: animationType === "fade" ? fadeAnim : 1,
   };
 
   return (
@@ -148,7 +154,7 @@ const Drawer: React.FC<DrawerProps> = ({
         <TouchableOpacity
           className="absolute inset-0 z-40"
           style={{
-            backgroundColor: 'rgba(0, 0, 0, 0.3)',
+            backgroundColor: "rgba(0, 0, 0, 0.3)",
           }}
           activeOpacity={1}
           onPress={onClose}
@@ -158,8 +164,8 @@ const Drawer: React.FC<DrawerProps> = ({
             style={{
               opacity: fadeAnim.interpolate({
                 inputRange: [0, 1],
-                outputRange: [0, backdropOpacity]
-              })
+                outputRange: [0, backdropOpacity],
+              }),
             }}
           />
         </TouchableOpacity>
@@ -178,18 +184,10 @@ const Drawer: React.FC<DrawerProps> = ({
       >
         <Animated.View
           className={`absolute top-0 bottom-0 z-50 ${className}`}
-          style={[
-            drawerStyle,
-            animatedStyle,
-            { [position]: 0 }
-          ]}
+          style={[drawerStyle, animatedStyle, { [position]: 0 }]}
         >
           {/* Header */}
-          {config.header && (
-            <DrawerHeader
-              config={config.header}
-            />
-          )}
+          {config.header && <DrawerHeader config={config.header} />}
 
           {/* Routes - Scrollable */}
           <ScrollView
@@ -217,9 +215,7 @@ const Drawer: React.FC<DrawerProps> = ({
           </ScrollView>
 
           {/* Footer */}
-          {config.footer && (
-            <DrawerFooter config={config.footer} />
-          )}
+          {config.footer && <DrawerFooter config={config.footer} />}
         </Animated.View>
       </PanGestureHandler>
     </>

@@ -9,6 +9,7 @@ export const driverParcelService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -20,6 +21,7 @@ export const driverParcelService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -36,6 +38,7 @@ export const driverParcelService = {
       },
       body: JSON.stringify(proof || {}),
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 };

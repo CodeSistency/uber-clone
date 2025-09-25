@@ -56,11 +56,11 @@
       "eas": {
         "projectId": "80da4700-4d63-4bfd-a86b-9f8e4bcbf620"
       },
-      "serverUrl": "http://72.60.119.19:3001",
-      "wsUrl": "wss://gnuhealth-back.alcaravan.com.ve",
+      "serverUrl": "http://localhost:3000",
+      "wsUrl": "http://localhost:3000",
       "stripePublishableKey": "pk_test_...",
-      "directionsApiKey": "AIzaSyA87Me2bhmjHw0YqpsOnBu3cvIBvIP1gtM",
-      "placesApiKey": "AIzaSyA87Me2bhmjHw0YqpsOnBu3cvIBvIP1gtM",
+      "directionsApiKey": "AIzaSyAxgvs-tvPkf_8WnvOl2Ig44OaFg4FhTpg",
+      "placesApiKey": "AIzaSyAxgvs-tvPkf_8WnvOl2Ig44OaFg4FhTpg",
       "geoapifyApiKey": "your-geoapify-api-key",
       "firebase": {
         "apiKey": "AIzaSyCfHV3FXfztXCWvhKN7tmIJn8v-fS6i4Qg",

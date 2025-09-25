@@ -4,7 +4,9 @@ import { icons } from "@/constants";
 
 // Icono de reloj usando texto emoji
 const ClockIcon = ({ color }: { color?: string }) => (
-  <Text className="text-gray-500" style={{ color }}>🕐</Text>
+  <Text className="text-gray-500" style={{ color }}>
+    🕐
+  </Text>
 );
 
 import BankReferenceCard from "./BankReferenceCard";
@@ -23,10 +25,12 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
   references,
   onCopySuccess,
   onExpired,
-  className = ""
+  className = "",
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [selectedReference, setSelectedReference] = useState<number | null>(null);
+  const [selectedReference, setSelectedReference] = useState<number | null>(
+    null,
+  );
 
   // Combinar pagos con referencias
   const paymentsWithReferences = payments.map((payment, index) => ({
@@ -34,8 +38,8 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
     reference: references[index] || null,
   }));
 
-  const activeReferences = references.filter(ref => !ref.isExpired);
-  const expiredReferences = references.filter(ref => ref.isExpired);
+  const activeReferences = references.filter((ref) => !ref.isExpired);
+  const expiredReferences = references.filter((ref) => ref.isExpired);
 
   const handleCopySuccess = () => {
     onCopySuccess?.();
@@ -48,7 +52,9 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
 
   if (references.length === 0) {
     return (
-      <View className={`bg-gray-50 dark:bg-gray-800 rounded-xl p-4 ${className}`}>
+      <View
+        className={`bg-gray-50 dark:bg-gray-800 rounded-xl p-4 ${className}`}
+      >
         <Text className="text-sm text-gray-600 dark:text-gray-400 text-center">
           No hay referencias bancarias disponibles
         </Text>
@@ -57,7 +63,9 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
   }
 
   return (
-    <View className={`bg-white dark:bg-brand-primaryDark rounded-xl ${className}`}>
+    <View
+      className={`bg-white dark:bg-brand-primaryDark rounded-xl ${className}`}
+    >
       {/* Header */}
       <TouchableOpacity
         onPress={() => setIsExpanded(!isExpanded)}
@@ -126,23 +134,29 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
                     </Text>
                   </View>
                   <Text className="text-sm font-JakartaBold text-gray-800 dark:text-white">
-                    Bs. {payment.amount.toLocaleString('es-VE')}
+                    Bs. {payment.amount.toLocaleString("es-VE")}
                   </Text>
                 </View>
 
                 {/* Referencia bancaria */}
                 {payment.reference ? (
                   <TouchableOpacity
-                    onPress={() => setSelectedReference(
-                      selectedReference === index ? null : index
-                    )}
+                    onPress={() =>
+                      setSelectedReference(
+                        selectedReference === index ? null : index,
+                      )
+                    }
                     className="mb-3"
                   >
                     <BankReferenceCard
                       reference={payment.reference}
                       onCopySuccess={handleCopySuccess}
                       onExpired={() => handleExpired(payment.reference)}
-                      className={selectedReference === index ? "border-blue-300 dark:border-blue-600" : ""}
+                      className={
+                        selectedReference === index
+                          ? "border-blue-300 dark:border-blue-600"
+                          : ""
+                      }
                     />
                   </TouchableOpacity>
                 ) : (
@@ -150,8 +164,7 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
                     <Text className="text-sm text-gray-600 dark:text-gray-400 text-center">
                       {payment.method === "cash"
                         ? "💵 Pago en efectivo - No requiere referencia"
-                        : "Generando referencia bancaria..."
-                      }
+                        : "Generando referencia bancaria..."}
                     </Text>
                   </View>
                 )}
@@ -173,7 +186,8 @@ const MultipleBankReferences: React.FC<MultipleBankReferencesProps> = ({
                 • El conductor confirmará cada pago automáticamente
               </Text>
               <Text className="text-sm text-blue-700 dark:text-blue-300">
-                • El servicio se activará cuando todos los pagos estén confirmados
+                • El servicio se activará cuando todos los pagos estén
+                confirmados
               </Text>
             </View>
 

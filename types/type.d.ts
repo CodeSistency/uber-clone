@@ -140,14 +140,20 @@ declare interface RideStatusUpdate {
 
 // Chat Types
 declare interface ChatMessage {
-  id: string;
-  rideId: number;
-  senderId: string;
-  senderType: "passenger" | "driver";
-  message: string;
-  messageType: "text" | "location" | "system";
-  timestamp: Date;
-  isRead: boolean;
+  id: number;
+  rideId?: number;        // Para mensajes de viaje (opcional)
+  orderId?: number;       // Para mensajes de delivery (opcional)
+  senderId: string;       // Clerk ID del remitente
+  messageText: string;    // Contenido del mensaje (máx. 1000 chars)
+  createdAt: string;      // Timestamp ISO string
+  isRead?: boolean;       // Para compatibilidad con UI existente
+  messageType?: "text" | "location" | "system"; // Para compatibilidad
+  timestamp?: Date;       // Para compatibilidad con UI existente
+  sender?: {              // Información del remitente
+    id: number;
+    name: string;
+    profileImage?: string;
+  };
 }
 
 // Emergency Types
@@ -259,7 +265,7 @@ declare interface LocationStore {
 declare interface DriverStore {
   drivers: MarkerData[];
   selectedDriver: number | null;
-  setSelectedDriver: (driverId: number) => void;
+  setSelectedDriver: (driverId: number | null) => void;
   setDrivers: (drivers: MarkerData[]) => void;
   clearSelectedDriver: () => void;
 }
@@ -268,4 +274,5 @@ declare interface DriverCardProps {
   item: MarkerData;
   selected: number;
   setSelected: () => void;
+  onDetailPress?: (driver: MarkerData) => void;
 }

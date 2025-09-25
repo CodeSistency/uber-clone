@@ -5,7 +5,7 @@ import { LocationData } from "../../types/type";
 import { chatStorage } from "../lib/storage";
 import { chatService } from "../services/chatService";
 
-export const useChat = (rideId: number | null) => {
+export const useChat = (rideId: number | null, orderId?: number | null) => {
   const {
     messages,
     activeChat,
@@ -22,13 +22,30 @@ export const useChat = (rideId: number | null) => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load messages when rideId changes
+  // Load messages when rideId or orderId changes
   useEffect(() => {
-    if (rideId) {
-      loadChatHistory(rideId);
-      setActiveChat(rideId);
-    }
-  }, [rideId, setActiveChat]);
+    const loadChat = async () => {
+      try {
+        if (rideId) {
+          await loadChatHistory(rideId);
+          setActiveChat(rideId);
+        } else if (orderId) {
+          await loadOrderChatHistory(orderId);
+          setActiveChat(orderId); // Using orderId as chat ID for compatibility
+        }
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to load chat';
+        log.error('useChat', 'Failed to initialize chat', {
+          rideId,
+          orderId,
+          error: errorMessage
+        }, error);
+        setError(errorMessage);
+      }
+    };
+
+    loadChat();
+  }, [rideId, orderId, setActiveChat]);
 
   // Load chat history from storage and API
   const loadChatHistory = useCallback(
@@ -38,7 +55,7 @@ export const useChat = (rideId: number | null) => {
         setError(null);
 
         // Load from local storage first
-        const cachedMessages = await chatStorage.getChatHistory(chatRideId);
+        const cachedMessages = await chatStorage.getChatHistory(chatRideId, 'ride');
         if (cachedMessages.length > 0) {
           loadMessages(chatRideId, cachedMessages);
         }
@@ -48,7 +65,7 @@ export const useChat = (rideId: number | null) => {
         if (freshMessages.length !== cachedMessages.length) {
           loadMessages(chatRideId, freshMessages);
           // Update cache
-          await chatStorage.saveChatHistory(chatRideId, freshMessages);
+          await chatStorage.saveChatHistory(chatRideId, freshMessages, 'ride');
         }
       } catch (error) {
         console.error("[useChat] Failed to load chat history:", error);
@@ -62,29 +79,82 @@ export const useChat = (rideId: number | null) => {
     [loadMessages],
   );
 
-  // Send message
+  // Load order chat history
+  const loadOrderChatHistory = useCallback(
+    async (chatOrderId: number) => {
+      try {
+        setIsLoading(true);
+        setError(null);
+
+        // Load from local storage first
+        const cachedMessages = await chatStorage.getChatHistory(chatOrderId, 'order');
+        if (cachedMessages.length > 0) {
+          loadMessages(chatOrderId, cachedMessages);
+        }
+
+        // Load from API
+        const freshMessages = await chatService.loadOrderMessageHistory(chatOrderId);
+        if (freshMessages.length !== cachedMessages.length) {
+          loadMessages(chatOrderId, freshMessages);
+          // Update cache
+          await chatStorage.saveChatHistory(chatOrderId, freshMessages, 'order');
+        }
+      } catch (error) {
+        log.error('useChat', 'Failed to load order chat history', {
+          orderId: chatOrderId,
+          error: error.message
+        }, error);
+        setError(
+          error instanceof Error ? error.message : "Failed to load messages",
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [loadMessages],
+  );
+
+  // Send message (supports both rides and orders)
   const sendMessage = useCallback(
-    async (message: string) => {
-      if (!rideId) {
+    async (messageText: string) => {
+      const chatId = rideId || orderId;
+      if (!chatId) {
         setError("No active chat");
         return;
       }
 
       try {
         setError(null);
-        await chatService.sendMessage(rideId, message);
 
-        // Message will be added to store via WebSocket callback
-        // This is optimistic UI - message appears immediately
+        let sentMessage;
+        if (rideId) {
+          sentMessage = await chatService.sendMessage(rideId, messageText);
+        } else if (orderId) {
+          sentMessage = await chatService.sendMessageToOrder(orderId, messageText);
+        }
+
+        log.info('useChat', 'Message sent successfully', {
+          messageId: sentMessage.id,
+          rideId,
+          orderId,
+          messageLength: messageText.length
+        });
+
+        // Message is already added to store by chatService
+        // WebSocket will broadcast to other participants
       } catch (error) {
-        console.error("[useChat] Failed to send message:", error);
+        log.error('useChat', 'Failed to send message', {
+          rideId,
+          orderId,
+          error: error.message
+        }, error);
         setError(
           error instanceof Error ? error.message : "Failed to send message",
         );
         throw error;
       }
     },
-    [rideId],
+    [rideId, orderId],
   );
 
   // Share location
@@ -138,23 +208,31 @@ export const useChat = (rideId: number | null) => {
 
   // Clear chat
   const clearChatHistory = useCallback(async () => {
-    if (!rideId) return;
+    const chatId = rideId || orderId;
+    const chatType = rideId ? 'ride' : 'order';
+
+    if (!chatId) return;
 
     try {
-      await chatStorage.clearChatHistory(rideId);
-      clearChat(rideId);
+      await chatStorage.clearChatHistory(chatId, chatType);
+      clearChat(chatId);
     } catch (error) {
-      console.error("[useChat] Failed to clear chat:", error);
+      log.error('useChat', 'Failed to clear chat', {
+        chatId,
+        chatType,
+        error: error.message
+      }, error);
       setError(error instanceof Error ? error.message : "Failed to clear chat");
     }
-  }, [rideId, clearChat]);
+  }, [rideId, orderId, clearChat]);
 
-  // Get messages for current ride
-  const currentMessages = rideId ? chatService.getMessagesForRide(rideId) : [];
+  // Get messages for current chat (ride or order)
+  const chatId = rideId || orderId;
+  const currentMessages = chatId ? chatService.getMessagesForRide(chatId) : [];
 
-  // Get unread count for current ride
-  const currentUnreadCount = rideId
-    ? chatService.getUnreadCountForRide(rideId)
+  // Get unread count for current chat
+  const currentUnreadCount = chatId
+    ? chatService.getUnreadCountForRide(chatId)
     : 0;
 
   // Get total unread count across all chats
@@ -162,8 +240,8 @@ export const useChat = (rideId: number | null) => {
 
   // Format message preview
   const formatMessagePreview = useCallback(
-    (message: string, maxLength: number = 50) => {
-      return chatService.formatMessagePreview(message, maxLength);
+    (messageText: string, maxLength: number = 50) => {
+      return chatService.formatMessagePreview(messageText, maxLength);
     },
     [],
   );
@@ -174,8 +252,8 @@ export const useChat = (rideId: number | null) => {
   }, []);
 
   // Validate message
-  const validateMessage = useCallback((message: string) => {
-    return chatService.validateMessage(message);
+  const validateMessage = useCallback((messageText: string) => {
+    return chatService.validateMessage(messageText);
   }, []);
 
   return {
@@ -186,7 +264,10 @@ export const useChat = (rideId: number | null) => {
     error,
     unreadCount: currentUnreadCount,
     totalUnreadCount,
-    isActive: activeChat === rideId,
+    isActive: activeChat === chatId,
+    chatType: rideId ? 'ride' : orderId ? 'order' : null,
+    rideId,
+    orderId,
 
     // Actions
     sendMessage,
@@ -195,7 +276,10 @@ export const useChat = (rideId: number | null) => {
     startTyping,
     stopTyping,
     clearChatHistory,
-    loadChatHistory: () => loadChatHistory(rideId!),
+    loadChatHistory: () => {
+      if (rideId) loadChatHistory(rideId);
+      else if (orderId) loadOrderChatHistory(orderId);
+    },
 
     // Utilities
     formatMessagePreview,

@@ -5,7 +5,12 @@ import { icons } from "@/constants";
 // Icono de copiar usando texto emoji
 const CopyIcon = () => <Text className="text-blue-500">📋</Text>;
 
-import { BankReference, getBankInfo, calculateTimeRemaining, isReferenceExpired } from "@/lib/paymentValidation";
+import {
+  BankReference,
+  getBankInfo,
+  calculateTimeRemaining,
+  isReferenceExpired,
+} from "@/lib/paymentValidation";
 import { useUI } from "@/components/UIWrapper";
 
 interface BankReferenceCardProps {
@@ -19,7 +24,7 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
   reference,
   onCopySuccess,
   onExpired,
-  className = ""
+  className = "",
 }) => {
   const { showSuccess, showError } = useUI();
   const [timeRemaining, setTimeRemaining] = useState(reference.timeRemaining);
@@ -77,10 +82,13 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
   };
 
   return (
-    <View className={`bg-white dark:bg-brand-primaryDark rounded-xl p-4 border-2 ${
-      isExpired ? "border-red-200 dark:border-red-800" : "border-gray-200 dark:border-gray-700"
-    } ${className}`}>
-
+    <View
+      className={`bg-white dark:bg-brand-primaryDark rounded-xl p-4 border-2 ${
+        isExpired
+          ? "border-red-200 dark:border-red-800"
+          : "border-gray-200 dark:border-gray-700"
+      } ${className}`}
+    >
       {/* Header con banco y estado */}
       <View className="flex-row items-center justify-between mb-3">
         <View className="flex-row items-center">
@@ -90,12 +98,20 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
           </Text>
         </View>
 
-        <View className={`px-2 py-1 rounded-full ${
-          isExpired ? "bg-red-100 dark:bg-red-900/20" : "bg-green-100 dark:bg-green-900/20"
-        }`}>
-          <Text className={`text-xs font-JakartaBold ${
-            isExpired ? "text-red-700 dark:text-red-300" : "text-green-700 dark:text-green-300"
-          }`}>
+        <View
+          className={`px-2 py-1 rounded-full ${
+            isExpired
+              ? "bg-red-100 dark:bg-red-900/20"
+              : "bg-green-100 dark:bg-green-900/20"
+          }`}
+        >
+          <Text
+            className={`text-xs font-JakartaBold ${
+              isExpired
+                ? "text-red-700 dark:text-red-300"
+                : "text-green-700 dark:text-green-300"
+            }`}
+          >
             {getUrgencyText()}
           </Text>
         </View>
@@ -107,7 +123,7 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
           Monto a transferir
         </Text>
         <Text className="text-xl font-JakartaBold text-gray-800 dark:text-white">
-          Bs. {reference.amount.toLocaleString('es-VE')}
+          Bs. {reference.amount.toLocaleString("es-VE")}
         </Text>
       </View>
 
@@ -127,26 +143,32 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
             }`}
           >
             <CopyIcon />
-            <Text className={`text-sm font-JakartaMedium ml-1 ${
-              isExpired
-                ? "text-gray-500 dark:text-gray-400"
-                : "text-blue-700 dark:text-blue-300"
-            }`}>
+            <Text
+              className={`text-sm font-JakartaMedium ml-1 ${
+                isExpired
+                  ? "text-gray-500 dark:text-gray-400"
+                  : "text-blue-700 dark:text-blue-300"
+              }`}
+            >
               Copiar
             </Text>
           </TouchableOpacity>
         </View>
 
-        <View className={`p-3 rounded-lg border-2 ${
-          isExpired
-            ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10"
-            : "border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
-        }`}>
-          <Text className={`text-center font-mono text-lg tracking-wider ${
+        <View
+          className={`p-3 rounded-lg border-2 ${
             isExpired
-              ? "text-red-700 dark:text-red-300"
-              : "text-gray-800 dark:text-white"
-          }`}>
+              ? "border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-900/10"
+              : "border-gray-200 bg-gray-50 dark:border-gray-600 dark:bg-gray-800"
+          }`}
+        >
+          <Text
+            className={`text-center font-mono text-lg tracking-wider ${
+              isExpired
+                ? "text-red-700 dark:text-red-300"
+                : "text-gray-800 dark:text-white"
+            }`}
+          >
             {reference.formattedReference}
           </Text>
         </View>
@@ -155,8 +177,15 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
       {/* Tiempo restante y acciones */}
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
-          <Image source={icons.point} className="w-4 h-4" style={{ tintColor: getUrgencyColor() }} />
-          <Text className="text-sm font-JakartaMedium ml-1" style={{ color: getUrgencyColor() }}>
+          <Image
+            source={icons.point}
+            className="w-4 h-4"
+            style={{ tintColor: getUrgencyColor() }}
+          />
+          <Text
+            className="text-sm font-JakartaMedium ml-1"
+            style={{ color: getUrgencyColor() }}
+          >
             {formatTimeRemaining()}
           </Text>
         </View>
@@ -167,7 +196,7 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
               Alert.alert(
                 "Referencia Expirada",
                 "Esta referencia ha expirado. Solicite una nueva referencia al conductor.",
-                [{ text: "Entendido" }]
+                [{ text: "Entendido" }],
               );
             }}
             className="flex-row items-center bg-red-100 dark:bg-red-900/20 px-3 py-1 rounded-lg"
@@ -183,7 +212,7 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
               Alert.alert(
                 "Instrucciones de Pago",
                 `1. Abra la app de su banco\n2. Seleccione "Transferir"\n3. Use la referencia: ${reference.referenceNumber}\n4. Confirme el pago\n5. El conductor recibirá confirmación automática`,
-                [{ text: "Entendido", style: "default" }]
+                [{ text: "Entendido", style: "default" }],
               );
             }}
             className="flex-row items-center bg-blue-100 dark:bg-blue-900/20 px-3 py-1 rounded-lg"
@@ -204,7 +233,8 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
           </Text>
           {bankInfo.maxTransferAmount && (
             <Text className="text-xs text-gray-500 dark:text-gray-500 mt-1">
-              📊 Límite diario: Bs. {bankInfo.maxTransferAmount.toLocaleString('es-VE')}
+              📊 Límite diario: Bs.{" "}
+              {bankInfo.maxTransferAmount.toLocaleString("es-VE")}
             </Text>
           )}
         </View>
@@ -214,7 +244,8 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
       {!isExpired && timeRemaining.hours < 2 && (
         <View className="mt-3 p-2 bg-yellow-50 dark:bg-yellow-900/20 rounded-lg border border-yellow-200 dark:border-yellow-800">
           <Text className="text-xs text-yellow-700 dark:text-yellow-300 text-center">
-            ⚠️ Esta referencia expira pronto. Complete el pago antes de que expire.
+            ⚠️ Esta referencia expira pronto. Complete el pago antes de que
+            expire.
           </Text>
         </View>
       )}

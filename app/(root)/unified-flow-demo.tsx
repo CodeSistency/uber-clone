@@ -33,13 +33,24 @@ import MandadoSearching from "@/components/unified-flow/steps/Client/Mandado/Man
 import ServiceSelection from "@/components/unified-flow/steps/Client/ServiceSelection";
 import TransportDefinition from "@/components/unified-flow/steps/Client/Viaje/TransportDefinition";
 import TransportVehicleSelection from "@/components/unified-flow/steps/Client/Viaje/TransportVehicleSelection";
+import PaymentMethodology from "@/components/unified-flow/steps/Client/Viaje/PaymentMethodology";
+import DriverMatching from "@/components/unified-flow/steps/Client/Viaje/DriverMatching";
+import DriverConfirmationStep from "@/components/unified-flow/steps/Client/Viaje/DriverConfirmationStep";
+import WaitingForAcceptance from "@/components/unified-flow/steps/Client/Viaje/WaitingForAcceptance";
+import ConfirmOrigin from "@/components/unified-flow/steps/Client/Viaje/ConfirmOrigin";
+import ConfirmDestination from "@/components/unified-flow/steps/Client/Viaje/ConfirmDestination";
 import DriverConfirmation from "@/components/unified-flow/steps/Driver/DriverConfirmation";
 import OrderBuilder from "@/components/unified-flow/steps/OrderBuilder";
 import RideInProgressAndFinalize from "@/components/unified-flow/steps/RideInProgressAndFinalize";
+import DriverArrived from "@/components/unified-flow/steps/DriverArrived";
+import RideInProgress from "@/components/unified-flow/steps/RideInProgress";
+import RideCompleted from "@/components/unified-flow/steps/RideCompleted";
+import RideCancelled from "@/components/unified-flow/steps/RideCancelled";
 import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
 import { useMapFlowContext } from "@/context/MapFlowContext";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useDevStore } from "@/store";
+import { websocketService } from "@/app/services/websocketService";
 import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
 
 // Ejemplo de cómo usar métodos type-safe para diferentes escenarios
@@ -291,8 +302,38 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE]: () => (
     <TransportDefinition />
   ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_ORIGIN]: () => (
+    <ConfirmOrigin
+      onConfirm={(location) => {
+        console.log("[Demo] Origin confirmed:", location);
+      }}
+      onBack={(location) => {
+        console.log("[Demo] Origin back:", location);
+      }}
+    />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_DESTINATION]: () => (
+    <ConfirmDestination
+      onConfirm={(location) => {
+        console.log("[Demo] Destination confirmed:", location);
+      }}
+      onBack={(location) => {
+        console.log("[Demo] Destination back:", location);
+      }}
+    />
+  ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.SELECCION_VEHICULO]: () => (
     <TransportVehicleSelection />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.METODOLOGIA_PAGO]: () => (
+    <PaymentMethodology />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.BUSCANDO_CONDUCTOR]: () => <DriverMatching />,
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRMAR_CONDUCTOR]: () => (
+    <DriverConfirmationStep />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.ESPERANDO_ACEPTACION]: () => (
+    <WaitingForAcceptance />
   ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.ELECCION_CONDUCTOR]: () => <ChooseDriver />,
   [FLOW_STEPS.CUSTOMER_TRANSPORT.GESTION_CONFIRMACION]: () => (
@@ -300,6 +341,70 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.DURANTE_FINALIZACION]: () => (
     <RideInProgressAndFinalize />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONDUCTOR_LLEGO]: () => (
+    <DriverArrived
+      driverName="Carlos Rodriguez"
+      vehicleInfo="Toyota Camry Negro"
+      onReady={() => {
+        console.log("[Demo] Driver arrived - ready clicked");
+        // Simulate ride started
+        websocketService.simulateRideStarted(123, 456);
+      }}
+      onCallDriver={() => {
+        console.log("[Demo] Call driver clicked");
+        // TODO: Implement call functionality
+      }}
+    />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_EN_CURSO]: () => (
+    <RideInProgress
+      driverName="Carlos Rodriguez"
+      destination="Centro Histórico, Bogotá"
+      estimatedTime={15}
+      onCallDriver={() => {
+        console.log("[Demo] Call driver clicked");
+        // TODO: Implement call functionality
+      }}
+      onEmergency={() => {
+        console.log("[Demo] Emergency clicked");
+        // TODO: Implement emergency functionality
+      }}
+    />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_COMPLETADO]: () => (
+    <RideCompleted
+      driverName="Carlos Rodriguez"
+      fare={18.50}
+      distance={12.5}
+      duration={25}
+      onRateDriver={() => {
+        console.log("[Demo] Rate driver clicked");
+        // TODO: Navigate to rating screen
+      }}
+      onNewRide={() => {
+        console.log("[Demo] New ride clicked");
+        // Navigate back to service selection
+        const { startWithCustomerStep } = useMapFlow();
+        startWithCustomerStep(FLOW_STEPS.SELECCION_SERVICIO);
+      }}
+    />
+  ),
+  [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_CANCELADO]: () => (
+    <RideCancelled
+      reason="El conductor canceló el viaje por motivos personales"
+      canRebook={true}
+      onRebook={() => {
+        console.log("[Demo] Rebook clicked");
+        // Navigate back to service selection
+        const { startWithCustomerStep } = useMapFlow();
+        startWithCustomerStep(FLOW_STEPS.SELECCION_SERVICIO);
+      }}
+      onGoHome={() => {
+        console.log("[Demo] Go home clicked");
+        // TODO: Navigate to home
+      }}
+    />
   ),
 
   // Customer Delivery - Flujo de delivery del cliente
@@ -445,8 +550,16 @@ const TypeSafeUnifiedFlow: React.FC = () => {
 */
 
 // Componente wrapper que maneja la inicialización del flujo
-const UnifiedFlowDemoContentInner: React.FC<{ drawer: ReturnType<typeof useDrawer> }> = ({ drawer }) => {
-  const { startWithCustomerStep, step, isActive } = useMapFlow();
+const UnifiedFlowDemoContentInner: React.FC<{
+  drawer: ReturnType<typeof useDrawer>;
+}> = ({ drawer }) => {
+  const {
+    startWithCustomerStep,
+    step,
+    isActive,
+    confirmedOrigin,
+    confirmedDestination,
+  } = useMapFlow();
   const hasInitialized = React.useRef(false);
   const realtime = useRealtimeStore();
   const ui = useUI();
@@ -497,9 +610,13 @@ const UnifiedFlowDemoContentInner: React.FC<{ drawer: ReturnType<typeof useDrawe
       {/* Header con drawer */}
       <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
         <TouchableOpacity onPress={drawer.toggle} className="p-2">
-          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">☰</Text>
+          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">
+            ☰
+          </Text>
         </TouchableOpacity>
-        <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">Flujo Unificado Demo</Text>
+        <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">
+          Flujo Unificado Demo
+        </Text>
         <View className="w-10" />
       </View>
 
@@ -654,6 +771,9 @@ const SimulationControls: React.FC = () => {
           {/* Ride Status Controls */}
           <RideStatusControls />
 
+          {/* WebSocket Testing Controls */}
+          <WebSocketTestingControls />
+
           {/* Performance Metrics */}
           <PerformanceMetrics />
 
@@ -666,7 +786,9 @@ const SimulationControls: React.FC = () => {
 };
 
 // Componente del drawer customer separado para estar encima de todo
-const DrawerCustomer: React.FC<{ drawerState?: ReturnType<typeof useDrawer> }> = ({ drawerState }) => {
+const DrawerCustomer: React.FC<{
+  drawerState?: ReturnType<typeof useDrawer>;
+}> = ({ drawerState }) => {
   // Si se proporciona drawerState, úsalo. Si no, crea uno nuevo.
   const drawer = drawerState || useDrawer({ module: "customer" });
 
@@ -700,6 +822,185 @@ const UnifiedFlowDemoContent: React.FC = () => {
       <UnifiedFlowDemoContentInner drawer={drawer} />
       <DrawerCustomer drawerState={drawer} />
     </>
+  );
+};
+
+// Componente para testing de WebSocket events
+const WebSocketTestingControls: React.FC = () => {
+  const { rideId, matchedDriver } = useMapFlow() as any;
+  const { showSuccess, showError } = useUI();
+
+  const simulateRideAccepted = () => {
+    if (!rideId || !matchedDriver) {
+      showError("Error", "No hay rideId o conductor seleccionado");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating ride accepted");
+    websocketService.simulateRideAccepted(rideId, matchedDriver.id, 5);
+    showSuccess("Simulado", "Ride accepted enviado");
+  };
+
+  const simulateRideRejected = () => {
+    if (!rideId || !matchedDriver) {
+      showError("Error", "No hay rideId o conductor seleccionado");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating ride rejected");
+    websocketService.simulateRideRejected(
+      rideId,
+      matchedDriver.id,
+      "Conductor ocupado",
+    );
+    showSuccess("Simulado", "Ride rejected enviado");
+  };
+
+  const simulateDriverArrived = () => {
+    if (!rideId) {
+      showError("Error", "No hay rideId");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating driver arrived");
+    websocketService.simulateRideArrived(rideId, 456);
+    showSuccess("Simulado", "Driver arrived enviado");
+  };
+
+  const simulateRideStarted = () => {
+    if (!rideId) {
+      showError("Error", "No hay rideId");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating ride started");
+    websocketService.simulateRideStarted(rideId, 456);
+    showSuccess("Simulado", "Ride started enviado");
+  };
+
+  const simulateRideCompleted = () => {
+    if (!rideId) {
+      showError("Error", "No hay rideId");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating ride completed");
+    websocketService.simulateRideCompleted(rideId, 456);
+    showSuccess("Simulado", "Ride completed enviado");
+  };
+
+  const simulateRideCancelled = () => {
+    if (!rideId) {
+      showError("Error", "No hay rideId");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating ride cancelled");
+    websocketService.simulateRideCancelled(rideId, 456);
+    showSuccess("Simulado", "Ride cancelled enviado");
+  };
+
+  const simulateDriverRequest = () => {
+    if (!rideId) {
+      showError("Error", "No hay rideId");
+      return;
+    }
+
+    console.log("[WebSocketTesting] Simulating driver ride request");
+    websocketService.simulateDriverRideRequest(
+      rideId,
+      123,
+      "Dirección de prueba",
+    );
+    showSuccess("Simulado", "Driver ride request enviado");
+  };
+
+  return (
+    <View className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
+      <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 mb-2">
+        🔌 WebSocket Testing (New Events)
+      </Text>
+      <View className="space-y-1">
+        <TouchableOpacity
+          onPress={simulateRideAccepted}
+          className="bg-green-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            ✅ Ride Accepted
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={simulateDriverArrived}
+          className="bg-blue-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            📍 Driver Arrived
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={simulateRideStarted}
+          className="bg-purple-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            ▶️ Ride Started
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={simulateRideCompleted}
+          className="bg-indigo-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            ✅ Ride Completed
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={simulateRideCancelled}
+          className="bg-orange-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            ❌ Ride Cancelled
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={simulateRideRejected}
+          className="bg-red-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            🚫 Ride Rejected
+          </Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={simulateDriverRequest}
+          className="bg-gray-500 px-3 py-2 rounded-lg"
+          activeOpacity={0.7}
+        >
+          <Text className="text-white text-xs text-center font-JakartaMedium">
+            👨‍🚗 Driver Request
+          </Text>
+        </TouchableOpacity>
+
+        <View className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
+          <Text className="text-xs text-gray-600 dark:text-gray-400">
+            Ride ID: {rideId || "N/A"}
+          </Text>
+          <Text className="text-xs text-gray-600 dark:text-gray-400">
+            Driver ID: {matchedDriver?.id || "N/A"}
+          </Text>
+        </View>
+      </View>
+    </View>
   );
 };
 

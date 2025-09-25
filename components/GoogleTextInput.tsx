@@ -71,7 +71,11 @@ const GoogleTextInput = ({
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
-  const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+  const [dropdownPosition, setDropdownPosition] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+  });
   const inputRef = useRef<TextInput>(null);
   const containerRef = useRef<View>(null);
   const searchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -295,13 +299,15 @@ const GoogleTextInput = ({
 
   const updateDropdownPosition = () => {
     if (containerRef.current) {
-      containerRef.current.measureInWindow((x: number, y: number, width: number, height: number) => {
-        setDropdownPosition({
-          top: y + height + 5,
-          left: x,
-          width: width,
-        });
-      });
+      containerRef.current.measureInWindow(
+        (x: number, y: number, width: number, height: number) => {
+          setDropdownPosition({
+            top: y + height + 5,
+            left: x,
+            width: width,
+          });
+        },
+      );
     }
   };
 
@@ -335,7 +341,7 @@ const GoogleTextInput = ({
             placeholder={initialLocation ?? "Where do you want to go?"}
             placeholderTextColor="gray"
             className="flex-1 text-base font-JakartaSemiBold text-black dark:text-white"
-          onFocus={handleFocus}
+            onFocus={handleFocus}
             onBlur={() => {
               console.log("[GoogleTextInput] 👀 Input blurred");
               // Delay hiding results to allow selection
@@ -358,32 +364,32 @@ const GoogleTextInput = ({
       >
         <TouchableOpacity
           style={{
-            position: 'absolute',
+            position: "absolute",
             top: 0,
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: 'transparent',
+            backgroundColor: "transparent",
           }}
           activeOpacity={1}
           onPress={() => setShowResults(false)}
         >
           <View
             style={{
-              position: 'absolute',
+              position: "absolute",
               top: dropdownPosition.top,
               left: dropdownPosition.left,
               width: dropdownPosition.width,
               maxHeight: 200,
-              backgroundColor: 'white',
+              backgroundColor: "white",
               borderRadius: 12,
-              shadowColor: '#000',
+              shadowColor: "#000",
               shadowOffset: { width: 0, height: 4 },
               shadowOpacity: 0.3,
               shadowRadius: 8,
               elevation: 1000,
               borderWidth: 1,
-              borderColor: '#e5e7eb',
+              borderColor: "#e5e7eb",
             }}
           >
             <FlatList

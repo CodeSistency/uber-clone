@@ -106,7 +106,44 @@ export interface RatingGoal {
 }
 
 export class RatingsService {
-  // Driver rates customer
+  // Driver rates passenger (customer)
+  async ratePassenger(payload: {
+    rideId: string | number;
+    rating: number; // 1-5 stars (required)
+    comment?: string; // Optional comment (max 500 characters)
+  }): Promise<{ success: boolean; message?: string }> {
+    try {
+      const { rideId, rating, comment } = payload;
+
+      // Validate rating (1-5 stars)
+      if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+        throw new Error("Rating must be an integer between 1 and 5");
+      }
+
+      // Validate comment length (max 500 characters)
+      if (comment && comment.length > 500) {
+        throw new Error("Comment cannot exceed 500 characters");
+      }
+
+      console.log("[RatingsService] Rating passenger:", { rideId, rating, commentLength: comment?.length });
+
+      const response = await fetchAPI(`rides/flow/driver/${rideId}/rate-passenger`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comment }),
+        requiresAuth: true,
+        skipApiPrefix: true,
+      } as any);
+
+      console.log("[RatingsService] Passenger rating submitted successfully:", response);
+      return { success: true, message: "Passenger rated successfully" };
+    } catch (error) {
+      console.error("[RatingsService] Error rating passenger:", error);
+      throw error;
+    }
+  }
+
+  // Driver rates customer (legacy method - keep for backward compatibility)
   async rateCustomer(payload: {
     rideId: number;
     rating: number;
@@ -120,6 +157,7 @@ export class RatingsService {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rating, comment, tip }),
         requiresAuth: true,
+        skipApiPrefix: true,
       } as any);
       return res || { success: true };
     } catch (error) {

@@ -3,15 +3,15 @@ import { router } from "expo-router";
 import { maybeMockResponse, simulateLatency, maybeFail } from '@/lib/dev';
 
 // Base URL for the new backend API
-const API_BASE_URL = `${process.env.EXPO_PUBLIC_SERVER_URL || "https://gnuhealth-back.alcaravan.com.ve"}/api`;
+const API_BASE_URL = `${process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000"}/api`;
 
 // Track if we're currently refreshing token to avoid multiple refresh attempts
 let isRefreshingToken = false;
 let refreshPromise: Promise<any> | null = null;
 
-export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean }) => {
+export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean; skipApiPrefix?: boolean }) => {
   const startMs = Date.now();
-  const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}/${endpoint}`;
+  const fullUrl = endpoint.startsWith('http') ? endpoint : options?.skipApiPrefix ? `${process.env.EXPO_PUBLIC_SERVER_URL || "https://gnuhealth-back.alcaravan.com.ve"}/${endpoint}` : `${API_BASE_URL}/${endpoint}`;
 
   // Dev mock path (only for relative endpoints)
   if (!endpoint.startsWith('http')) {

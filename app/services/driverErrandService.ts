@@ -9,6 +9,7 @@ export const driverErrandService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -18,6 +19,7 @@ export const driverErrandService = {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ itemsCost, notes }),
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -29,6 +31,7 @@ export const driverErrandService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -40,6 +43,7 @@ export const driverErrandService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 };

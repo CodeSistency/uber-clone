@@ -16,6 +16,7 @@ import {
   CustomerEnvioStep,
   DriverEnvioStep
 } from '@/store/mapFlow/mapFlow';
+import { useVehicleTiersStore } from '@/store';
 
 /**
  * Hook para controlar el flujo de mapas con navegación type-safe
@@ -101,8 +102,26 @@ export const useMapFlow = () => {
     state.start(role);
   }, [state]);
 
-  const startService = useCallback((service: ServiceType, role?: FlowRole) => {
+  const startService = useCallback(async (service: ServiceType, role?: FlowRole) => {
     console.log('[useMapFlow] Starting service flow:', { service, role });
+
+    // Pre-load vehicle tiers when starting transport service
+    if (service === 'transport') {
+      console.log('[useMapFlow] Pre-loading vehicle tiers for transport service...');
+      const tiersStore = useVehicleTiersStore.getState();
+
+      // First try to load from AsyncStorage
+      const storedTiers = await tiersStore.loadTiersFromStorage();
+
+      if (!storedTiers) {
+        console.log('[useMapFlow] No tiers in storage, fetching from API...');
+        // If not in storage, fetch from API
+        await tiersStore.fetchTiers();
+      } else {
+        console.log('[useMapFlow] Tiers loaded from storage successfully');
+      }
+    }
+
     state.startService(service, role);
   }, [state]);
 
@@ -144,6 +163,11 @@ export const useMapFlow = () => {
     startWithDeliveryStep,
     startWithMandadoStep,
     startWithEnvioStep,
+    // State setters
+    setRideType: state.setRideType,
+    setConfirmedOrigin: state.setConfirmedOrigin,
+    setConfirmedDestination: state.setConfirmedDestination,
+    setPhoneNumber: state.setPhoneNumber,
   };
 };
 

@@ -175,10 +175,7 @@ const BusinessDashboard: React.FC<BusinessDashboardProps> = ({ drawer }) => {
       <View className="bg-white dark:bg-brand-primary rounded-t-2xl">
         <View className="flex-row items-center justify-between p-5">
           <View className="flex-row items-center flex-1">
-            <TouchableOpacity
-              onPress={drawer.toggle}
-              className="mr-3"
-            >
+            <TouchableOpacity onPress={drawer.toggle} className="mr-3">
               <View className="w-8 h-8 items-center justify-center">
                 <View className="flex-col space-y-1">
                   <View className="w-5 h-0.5 bg-primary-500 rounded-full" />
@@ -384,11 +381,17 @@ const BusinessDashboard: React.FC<BusinessDashboardProps> = ({ drawer }) => {
         {/* Header con drawer */}
         <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
           <TouchableOpacity onPress={drawer.toggle} className="p-2">
-            <Text className="text-2xl text-secondary-700 dark:text-secondary-300">☰</Text>
+            <Text className="text-2xl text-secondary-700 dark:text-secondary-300">
+              ☰
+            </Text>
           </TouchableOpacity>
-          <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">Business Dashboard</Text>
+          <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">
+            Business Dashboard
+          </Text>
           <TouchableOpacity className="p-2">
-            <Text className="text-xl text-secondary-700 dark:text-secondary-300">🔔</Text>
+            <Text className="text-xl text-secondary-700 dark:text-secondary-300">
+              🔔
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -440,14 +443,15 @@ const BusinessDashboard: React.FC<BusinessDashboardProps> = ({ drawer }) => {
             </ScrollView>
           </BottomSheetView>
         </BottomSheetModal>
-
       </SafeAreaView>
     </BottomSheetModalProvider>
   );
 };
 
 // Componente del drawer business separado para estar encima de todo
-const DrawerBusiness: React.FC<{ drawerState?: ReturnType<typeof useDrawer> }> = ({ drawerState }) => {
+const DrawerBusiness: React.FC<{
+  drawerState?: ReturnType<typeof useDrawer>;
+}> = ({ drawerState }) => {
   // Si se proporciona drawerState, úsalo. Si no, crea uno nuevo.
   const drawer = drawerState || useDrawer({ module: "business" });
 

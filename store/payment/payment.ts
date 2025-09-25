@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { paymentService, type GroupStatusResponse, type MultiplePaymentRequest, type MultiplePaymentResponse } from "@/app/services/paymentService";
+import { transportClient } from "@/app/services/flowClientService";
 
 // Types for Payment Store
 export interface PaymentGroup {
@@ -64,6 +65,33 @@ interface PaymentStore {
   getGroupById: (groupId: string) => PaymentGroup | null;
   clearCompletedGroups: () => void;
   calculateStats: () => void;
+
+  // 🆕 NEW: Real Transport Payment Methods
+  payRideWithMultipleMethods: (rideId: number, paymentData: {
+    totalAmount: number;
+    payments: Array<{
+      method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
+      amount: number;
+      bankCode?: string;
+    }>;
+  }) => Promise<any>;
+
+  generateRidePaymentReference: (rideId: number, referenceData: {
+    method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
+    bankCode?: string;
+  }) => Promise<any>;
+
+  confirmRidePaymentWithReference: (rideId: number, confirmationData: {
+    referenceNumber: string;
+    bankCode?: string;
+  }) => Promise<any>;
+
+  confirmRidePartialPayment: (rideId: number, confirmationData: {
+    referenceNumber: string;
+    bankCode?: string;
+  }) => Promise<any>;
+
+  getRidePaymentStatus: (rideId: number) => Promise<any>;
 
   // Error Handling
   setError: (error: string | null) => void;
@@ -472,6 +500,167 @@ export const usePaymentStore = create<PaymentStore>()(
 
         set({ stats });
         console.log("[PaymentStore] Stats calculated:", stats);
+      },
+
+      // 🆕 NEW: Pay ride with multiple methods using real endpoints
+      payRideWithMultipleMethods: async (rideId: number, paymentData: {
+        totalAmount: number;
+        payments: Array<{
+          method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
+          amount: number;
+          bankCode?: string;
+        }>;
+      }) => {
+        const store = get();
+        store.setLoading(true);
+        store.setError(null);
+
+        try {
+          console.log("[PaymentStore] Paying ride with multiple methods:", { rideId, paymentData });
+
+          const result = await transportClient.payWithMultipleMethods(rideId, paymentData);
+
+          // Handle response based on new API structure
+          if (result.data.groupId) {
+            // Multiple payments - update group status
+            const statusData = await transportClient.getPaymentStatus(rideId);
+            if (statusData.data.hasPaymentGroup && statusData.data.groupId) {
+              store.updateGroupStatus(statusData.data.groupId, statusData.data);
+            }
+          }
+          // For cash payments, result.data.status will be "complete"
+
+          console.log("[PaymentStore] Ride payment completed:", result);
+          return result;
+        } catch (error: any) {
+          const errorMessage = error?.message || "Error al procesar pago múltiple";
+          console.error("[PaymentStore] Error paying ride with multiple methods:", error);
+          store.setError(errorMessage);
+          throw error;
+        } finally {
+          store.setLoading(false);
+        }
+      },
+
+      // 🆕 NEW: Generate payment reference for ride
+      generateRidePaymentReference: async (rideId: number, referenceData: {
+        method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
+        bankCode?: string;
+      }) => {
+        const store = get();
+        store.setLoading(true);
+        store.setError(null);
+
+        try {
+          console.log("[PaymentStore] Generating ride payment reference:", { rideId, referenceData });
+
+          const result = await transportClient.generatePaymentReference(rideId, referenceData);
+
+          console.log("[PaymentStore] Payment reference generated:", result);
+          return result;
+        } catch (error: any) {
+          const errorMessage = error?.message || "Error al generar referencia de pago";
+          console.error("[PaymentStore] Error generating payment reference:", error);
+          store.setError(errorMessage);
+          throw error;
+        } finally {
+          store.setLoading(false);
+        }
+      },
+
+      // 🆕 NEW: Confirm ride payment with reference
+      confirmRidePaymentWithReference: async (rideId: number, confirmationData: {
+        referenceNumber: string;
+        bankCode?: string;
+      }) => {
+        const store = get();
+        store.setLoading(true);
+        store.setError(null);
+
+        try {
+          console.log("[PaymentStore] Confirming ride payment with reference:", { rideId, confirmationData });
+
+          const result = await transportClient.confirmPaymentWithReference(rideId, confirmationData);
+
+          // Update group status if payment was successful
+          if (result.data.success && result.data.groupId) {
+            const statusData = await transportClient.getPaymentStatus(rideId);
+            if (statusData.data.hasPaymentGroup) {
+              store.updateGroupStatus(result.data.groupId, statusData.data);
+            }
+          }
+
+          console.log("[PaymentStore] Payment confirmed with reference:", result);
+          return result;
+        } catch (error: any) {
+          const errorMessage = error?.message || "Error al confirmar pago con referencia";
+          console.error("[PaymentStore] Error confirming payment with reference:", error);
+          store.setError(errorMessage);
+          throw error;
+        } finally {
+          store.setLoading(false);
+        }
+      },
+
+      // 🆕 NEW: Confirm partial payment in ride
+      confirmRidePartialPayment: async (rideId: number, confirmationData: {
+        referenceNumber: string;
+        bankCode?: string;
+      }) => {
+        const store = get();
+        store.setLoading(true);
+        store.setError(null);
+
+        try {
+          console.log("[PaymentStore] Confirming ride partial payment:", { rideId, confirmationData });
+
+          const result = await transportClient.confirmPartialPayment(rideId, confirmationData);
+
+          // Update group status
+          if (result.data.groupId) {
+            const statusData = await transportClient.getPaymentStatus(rideId);
+            if (statusData.data.hasPaymentGroup) {
+              store.updateGroupStatus(result.data.groupId, statusData.data);
+            }
+          }
+
+          console.log("[PaymentStore] Partial payment confirmed:", result);
+          return result;
+        } catch (error: any) {
+          const errorMessage = error?.message || "Error al confirmar pago parcial";
+          console.error("[PaymentStore] Error confirming partial payment:", error);
+          store.setError(errorMessage);
+          throw error;
+        } finally {
+          store.setLoading(false);
+        }
+      },
+
+      // 🆕 NEW: Get ride payment status
+      getRidePaymentStatus: async (rideId: number) => {
+        const store = get();
+        store.setLoading(true);
+
+        try {
+          console.log("[PaymentStore] Getting ride payment status:", rideId);
+
+          const result = await transportClient.getPaymentStatus(rideId);
+
+          // Update group status if exists
+          if (result.data.hasPaymentGroup && result.data.groupId) {
+            store.updateGroupStatus(result.data.groupId, result.data);
+          }
+
+          console.log("[PaymentStore] Ride payment status retrieved:", result);
+          return result;
+        } catch (error: any) {
+          const errorMessage = error?.message || "Error al obtener estado de pagos";
+          console.error("[PaymentStore] Error getting ride payment status:", error);
+          store.setError(errorMessage);
+          throw error;
+        } finally {
+          store.setLoading(false);
+        }
       },
 
       // Error handling

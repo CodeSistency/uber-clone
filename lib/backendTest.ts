@@ -1,0 +1,289 @@
+/**
+ * Backend Connectivity Testing
+ * Utility functions to test backend API and WebSocket connections
+ */
+
+import { fetchAPI } from './fetch';
+import { log } from './logger';
+
+export interface BackendTestResult {
+  endpoint: string;
+  success: boolean;
+  responseTime: number;
+  error?: string;
+  statusCode?: number;
+}
+
+export interface WebSocketTestResult {
+  connected: boolean;
+  namespace: string;
+  responseTime: number;
+  error?: string;
+}
+
+/**
+ * Test basic API connectivity
+ */
+export async function testAPIConnectivity(): Promise<BackendTestResult[]> {
+  const tests: BackendTestResult[] = [];
+  const endpoints = [
+    { path: 'health', description: 'Health check' },
+    { path: 'chat', description: 'Chat base endpoint' },
+    { path: 'auth/status', description: 'Auth status' },
+  ];
+
+  for (const endpoint of endpoints) {
+    const startTime = Date.now();
+
+    try {
+      log.info('BackendTest', `Testing API endpoint: ${endpoint.path}`, {
+        description: endpoint.description
+      });
+
+      const response = await fetchAPI(endpoint.path, {
+        method: 'GET',
+        skipAuth: true, // Skip auth for basic connectivity tests
+      });
+
+      const responseTime = Date.now() - startTime;
+
+      tests.push({
+        endpoint: endpoint.path,
+        success: true,
+        responseTime,
+        statusCode: 200, // Assume success if no error thrown
+      });
+
+      log.info('BackendTest', `✅ API endpoint ${endpoint.path} is accessible`, {
+        responseTime: `${responseTime}ms`
+      });
+
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      tests.push({
+        endpoint: endpoint.path,
+        success: false,
+        responseTime,
+        error: errorMessage,
+      });
+
+      log.warn('BackendTest', `❌ API endpoint ${endpoint.path} failed`, {
+        error: errorMessage,
+        responseTime: `${responseTime}ms`
+      });
+    }
+  }
+
+  return tests;
+}
+
+/**
+ * Test chat-specific endpoints
+ */
+export async function testChatAPIConnectivity(): Promise<BackendTestResult[]> {
+  const tests: BackendTestResult[] = [];
+  const chatEndpoints = [
+    { path: 'chat', method: 'GET', description: 'Chat base endpoint' },
+    // Note: Specific ride/order endpoints would require valid IDs
+    // { path: 'chat/1/messages', method: 'GET', description: 'Ride messages' },
+  ];
+
+  for (const endpoint of chatEndpoints) {
+    const startTime = Date.now();
+
+    try {
+      log.info('BackendTest', `Testing chat API endpoint: ${endpoint.path}`, {
+        method: endpoint.method,
+        description: endpoint.description
+      });
+
+      const response = await fetchAPI(endpoint.path, {
+        method: endpoint.method,
+      });
+
+      const responseTime = Date.now() - startTime;
+
+      tests.push({
+        endpoint: endpoint.path,
+        success: true,
+        responseTime,
+        statusCode: 200,
+      });
+
+      log.info('BackendTest', `✅ Chat API endpoint ${endpoint.path} is accessible`, {
+        responseTime: `${responseTime}ms`
+      });
+
+    } catch (error) {
+      const responseTime = Date.now() - startTime;
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+      tests.push({
+        endpoint: endpoint.path,
+        success: false,
+        responseTime,
+        error: errorMessage,
+      });
+
+      log.warn('BackendTest', `❌ Chat API endpoint ${endpoint.path} failed`, {
+        error: errorMessage,
+        responseTime: `${responseTime}ms`
+      });
+    }
+  }
+
+  return tests;
+}
+
+/**
+ * Test WebSocket connectivity
+ */
+export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> {
+  const startTime = Date.now();
+
+  try {
+    log.info('BackendTest', 'Testing WebSocket connectivity', {
+      namespace: '/uber-realtime',
+      url: process.env.EXPO_PUBLIC_WS_URL || 'http://localhost:3000'
+    });
+
+    // Import websocketService dynamically to avoid circular imports
+    const { websocketService } = await import('../app/services/websocketService');
+
+    // Attempt to connect (this will timeout if server is not available)
+    const connectPromise = new Promise<WebSocketTestResult>((resolve, reject) => {
+      const timeout = setTimeout(() => {
+        reject(new Error('WebSocket connection timeout'));
+      }, 5000); // 5 second timeout
+
+      // Set up connection listeners
+      const originalOnConnect = websocketService.socket?.listeners('connect') || [];
+      const originalOnConnectError = websocketService.socket?.listeners('connect_error') || [];
+
+      // Override listeners temporarily for testing
+      if (websocketService.socket) {
+        websocketService.socket.once('connect', () => {
+          clearTimeout(timeout);
+          const responseTime = Date.now() - startTime;
+
+          // Restore original listeners
+          websocketService.socket?.removeAllListeners('connect');
+          websocketService.socket?.removeAllListeners('connect_error');
+
+          resolve({
+            connected: true,
+            namespace: '/uber-realtime',
+            responseTime,
+          });
+
+          log.info('BackendTest', '✅ WebSocket connection successful', {
+            namespace: '/uber-realtime',
+            responseTime: `${responseTime}ms`
+          });
+        });
+
+        websocketService.socket.once('connect_error', (error: any) => {
+          clearTimeout(timeout);
+          const responseTime = Date.now() - startTime;
+
+          // Restore original listeners
+          websocketService.socket?.removeAllListeners('connect');
+          websocketService.socket?.removeAllListeners('connect_error');
+
+          resolve({
+            connected: false,
+            namespace: '/uber-realtime',
+            responseTime,
+            error: error.message || 'Connection failed',
+          });
+
+          log.warn('BackendTest', '❌ WebSocket connection failed', {
+            error: error.message || 'Connection failed',
+            responseTime: `${responseTime}ms`
+          });
+        });
+
+        // Trigger connection if not already connected
+        if (!websocketService.socket.connected) {
+          websocketService.socket.connect();
+        } else {
+          // Already connected
+          resolve({
+            connected: true,
+            namespace: '/uber-realtime',
+            responseTime: Date.now() - startTime,
+          });
+        }
+      } else {
+        reject(new Error('WebSocket service not initialized'));
+      }
+    });
+
+    return await connectPromise;
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+
+    log.error('BackendTest', 'WebSocket test failed', {
+      error: errorMessage,
+      responseTime: `${responseTime}ms`
+    });
+
+    return {
+      connected: false,
+      namespace: '/uber-realtime',
+      responseTime,
+      error: errorMessage,
+    };
+  }
+}
+
+/**
+ * Run comprehensive backend connectivity test
+ */
+export async function runBackendConnectivityTest() {
+  log.info('BackendTest', '🚀 Starting comprehensive backend connectivity test');
+
+  const results = {
+    api: await testAPIConnectivity(),
+    chat: await testChatAPIConnectivity(),
+    websocket: await testWebSocketConnectivity(),
+    timestamp: new Date().toISOString(),
+  };
+
+  const apiSuccess = results.api.filter(test => test.success).length;
+  const chatSuccess = results.chat.filter(test => test.success).length;
+
+  log.info('BackendTest', '📊 Backend connectivity test completed', {
+    apiTests: `${apiSuccess}/${results.api.length}`,
+    chatTests: `${chatSuccess}/${results.chat.length}`,
+    websocketConnected: results.websocket.connected,
+    totalResponseTime: results.api.reduce((sum, test) => sum + test.responseTime, 0) +
+                      results.chat.reduce((sum, test) => sum + test.responseTime, 0) +
+                      results.websocket.responseTime,
+  });
+
+  return results;
+}
+
+/**
+ * Get backend status summary
+ */
+export function getBackendStatus(results: Awaited<ReturnType<typeof runBackendConnectivityTest>>) {
+  const apiHealthy = results.api.every(test => test.success);
+  const chatHealthy = results.chat.every(test => test.success);
+  const wsHealthy = results.websocket.connected;
+
+  const overallHealth = apiHealthy && chatHealthy && wsHealthy ? 'healthy' : 'degraded';
+
+  return {
+    overall: overallHealth,
+    api: apiHealthy ? 'healthy' : 'unhealthy',
+    chat: chatHealthy ? 'healthy' : 'unhealthy',
+    websocket: wsHealthy ? 'connected' : 'disconnected',
+    details: results,
+  };
+}

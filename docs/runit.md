@@ -116,3 +116,6 @@ echo $ANDROID_HOME
 adb version
 adb devices
 ```
+
+
+$env:JAVA_HOME = "C:\Program Files\Android\Android Studio\jbr"; $env:ANDROID_HOME = "$env:LOCALAPPDATA\Android\Sdk"; $env:PATH = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-tools;$env:PATH"; .\gradlew assembleRelease

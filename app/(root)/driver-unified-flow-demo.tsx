@@ -19,10 +19,13 @@ import DriverMandadoFinish from "@/components/unified-flow/steps/Driver/Mandado/
 import DriverMandadoManage from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoManage";
 import DriverMandadoNavigateToDestination from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoNavigateToDestination";
 import DriverMandadoNavigateToOriginChat from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoNavigateToOriginChat";
+import DriverTransportAcceptReject from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportAcceptReject";
 import DriverTransportArrivedAtOrigin from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportArrivedAtOrigin";
 import DriverTransportEndPayment from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportEndPayment";
 import DriverTransportInProgress from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportInProgress";
 import DriverTransportNavigateToOrigin from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportNavigateToOrigin";
+import DriverTransportRating from "@/components/unified-flow/steps/Driver/DriverTransportRating";
+import DriverTransportEarnings from "@/components/unified-flow/steps/Driver/DriverTransportEarnings";
 import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
@@ -67,9 +70,6 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD]: () => (
     <DriverIncomingRequest />
   ),
-  [FLOW_STEPS.DRIVER_TRANSPORT.ACEPTAR_RECHAZAR]: () => (
-    <DefaultStep step={FLOW_STEPS.DRIVER_TRANSPORT.ACEPTAR_RECHAZAR} />
-  ),
   [FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN]: () => (
     <DriverTransportNavigateToOrigin />
   ),
@@ -83,9 +83,13 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE]: () => (
     <DriverTransportEndPayment />
   ),
-  // Rating step (finalization)
+  // New rating step for transport rides
   [FLOW_STEPS.DRIVER_FINALIZACION_RATING as any]: () => (
-    <DriverFinalizationRating />
+    <DriverTransportRating />
+  ),
+  // New earnings summary step
+  [FLOW_STEPS.DRIVER_TRANSPORT_VIAJE_COMPLETADO]: () => (
+    <DriverTransportEarnings />
   ),
 
   // Delivery
@@ -138,7 +142,9 @@ interface DriverUnifiedFlowContentProps {
   drawer: ReturnType<typeof useDrawer>;
 }
 
-const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({ drawer }) => {
+const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({
+  drawer,
+}) => {
   const { startWithDriverStep } = useMapFlow();
   const hasInitialized = React.useRef(false);
 
@@ -154,7 +160,9 @@ const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({ dra
       {/* Header con drawer */}
       <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
         <TouchableOpacity onPress={drawer.toggle} className="p-2">
-          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">☰</Text>
+          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">
+            ☰
+          </Text>
         </TouchableOpacity>
         <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">
           Flujo Unificado Conductor
@@ -168,7 +176,9 @@ const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({ dra
 };
 
 // Componente del drawer driver separado para estar encima de todo
-const DrawerDriver: React.FC<{ drawerState?: ReturnType<typeof useDrawer> }> = ({ drawerState }) => {
+const DrawerDriver: React.FC<{
+  drawerState?: ReturnType<typeof useDrawer>;
+}> = ({ drawerState }) => {
   // Si se proporciona drawerState, úsalo. Si no, crea uno nuevo.
   const drawer = drawerState || useDrawer({ module: "driver" });
 

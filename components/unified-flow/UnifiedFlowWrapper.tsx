@@ -71,7 +71,8 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
     const pollable =
       (flow.service === "transport" &&
         (flow.step === "CUSTOMER_TRANSPORT_GESTION_CONFIRMACION" ||
-          flow.step === "CUSTOMER_TRANSPORT_DURANTE_FINALIZACION") &&
+          flow.step === "CUSTOMER_TRANSPORT_DURANTE_FINALIZACION" ||
+          flow.step === "CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION") &&
         (flow as any).rideId) ||
       (flow.service === "delivery" &&
         flow.step === "CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY" &&
@@ -87,20 +88,51 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
       try {
         if (flow.service === "transport" && (flow as any).rideId) {
           const rideId = (flow as any).rideId as number;
+
+          // 🆕 Usar nuevo endpoint de estado de pagos para transport
+          const paymentStatus = await transportClient.getPaymentStatus(rideId);
+
+          // Actualizar estado de pagos si existe grupo
+          if (paymentStatus.data.hasPaymentGroup && paymentStatus.data.groupId) {
+            const { usePaymentStore } = await import("@/store");
+            usePaymentStore.getState().updateGroupStatus(
+              paymentStatus.data.groupId,
+              paymentStatus.data
+            );
+          }
+
+          // Obtener estado del viaje
           const res = await transportClient.getStatus(rideId);
           const status = res?.data?.status || res?.status;
+
           if (status) {
-            const map: any = {
-              requested: "requested",
+            // Mapeo de estados del backend a estados del frontend
+            const statusMap: any = {
+              pending: "requested",
+              driver_confirmed: "accepted",
               accepted: "accepted",
               arriving: "arriving",
               arrived: "arrived",
               in_progress: "in_progress",
               completed: "completed",
               cancelled: "cancelled",
+              rejected: "cancelled"
             };
-            const rs = map[status] || "requested";
-            useRealtimeStore.getState().updateRideStatus(rideId, rs);
+            const mappedStatus = statusMap[status] || "requested";
+
+            console.log(`[UnifiedFlowWrapper] Polling status for ride ${rideId}: ${status} -> ${mappedStatus}`);
+            useRealtimeStore.getState().updateRideStatus(rideId, mappedStatus);
+
+            // Mostrar notificación solo para cambios importantes
+            if (status === "accepted") {
+              ui.showSuccess("¡Conductor aceptado!", "Tu viaje comenzará pronto");
+            } else if (status === "arriving") {
+              ui.showInfo("Conductor llegando", "Tu conductor está cerca");
+            } else if (status === "arrived") {
+              ui.showSuccess("¡Conductor llegó!", "Tu conductor te está esperando");
+            } else if (status === "rejected") {
+              ui.showError("Viaje rechazado", "El conductor no pudo aceptar tu solicitud");
+            }
           }
         } else if (flow.service === "delivery" && (flow as any).orderId) {
           const orderId = (flow as any).orderId as number;
@@ -120,12 +152,15 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
         }
       } catch (e) {
         // Silent poll errors
+        console.warn("[UnifiedFlowWrapper] Polling error:", e);
       }
     };
 
     if (pollable) {
       doPoll();
-      timer = setInterval(doPoll, 5000);
+      // Polling más frecuente durante matching (cada 3 segundos vs 5)
+      const intervalMs = flow.step === "CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION" ? 3000 : 5000;
+      timer = setInterval(doPoll, intervalMs);
     }
 
     return () => {
@@ -319,35 +354,39 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
             allowDrag={allowDrag}
             snapPoints={snapPoints}
             className={className}
+            // Gradient background like services-hub.tsx
+            useGradient
+            gradientColors={
+              ui.theme === "dark"
+                ? ([
+                    "rgba(0,0,0,0.92)",
+                    "rgba(0,0,0,0.78)",
+                    "rgba(18,18,18,0.66)",
+                    "rgba(30,30,30,0.64)",
+                  ] as const)
+                : ([
+                    "rgba(20,20,20,0.9)",
+                    "rgba(50,50,50,0.75)",
+                    "rgba(160,160,160,0.55)",
+                    "rgba(235,235,235,0.55)",
+                  ] as const)
+            }
           >
             {content}
           </InlineBottomSheet>
         ) : (
+          // When bottom sheet is hidden, render content directly over the full screen
           <View
             style={{
               position: "absolute",
-              bottom: 0,
+              top: 0,
               left: 0,
               right: 0,
-              height: 100,
-              backgroundColor: "red",
-              justifyContent: "center",
-              alignItems: "center",
+              bottom: 0,
+              zIndex: 10,
             }}
           >
-            <View
-              style={{
-                backgroundColor: "white",
-                width: "100%",
-                height: "100%",
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Text style={{ color: "black", fontWeight: "bold" }}>
-                BottomSheet Hidden - Step: {flow.step}
-              </Text>
-            </View>
+            {content}
           </View>
         )}
       </View>

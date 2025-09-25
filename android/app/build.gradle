@@ -92,7 +92,7 @@ android {
         applicationId 'com.codesistency_dev.uber'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 10000
         versionName "1.0.0"
     }
     signingConfigs {

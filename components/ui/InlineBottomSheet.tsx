@@ -12,7 +12,12 @@ import {
   View,
   Text,
   TouchableOpacity,
+  ScrollView,
+  Dimensions,
+  StyleSheet,
+  ColorValue,
 } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
 // Hook para controlar el BottomSheet
 export interface BottomSheetMethods {
@@ -179,6 +184,13 @@ interface InlineBottomSheetProps extends ViewProps {
   onClose?: () => void;
   snapPoints?: number[];
   className?: string;
+  // Gradient background props
+  useGradient?: boolean;
+  gradientColors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
+  // Bottom bar props
+  bottomBar?: React.ReactNode;
+  bottomBarHeight?: number;
+  showBottomBarAt?: number; // ratio 0..1
 }
 
 const InlineBottomSheet = forwardRef<
@@ -196,6 +208,18 @@ const InlineBottomSheet = forwardRef<
       onClose,
       snapPoints,
       className = "",
+      // Gradient props
+      useGradient = true,
+      gradientColors = [
+        "rgba(0,0,0,0.65)",
+        "rgba(0,0,0,0.25)",
+        "rgba(0,0,0,0.05)",
+        "rgba(0,0,0,0)",
+      ] as const,
+      // Bottom bar props
+      bottomBar,
+      bottomBarHeight = 64,
+      showBottomBarAt = 0.6,
       children,
       ...props
     },
@@ -323,6 +347,21 @@ const InlineBottomSheet = forwardRef<
       }),
     ).current;
 
+    // Animated bottom bar
+    const screenHeight = Dimensions.get("window").height;
+    const cappedMax = Math.min(maxHeight, Math.floor(screenHeight * 0.85));
+    const threshold = minHeight + (cappedMax - minHeight) * showBottomBarAt;
+    const barTranslate = heightAnim.interpolate({
+      inputRange: [threshold - 40, threshold + 40],
+      outputRange: [bottomBarHeight, 0],
+      extrapolate: "clamp",
+    });
+    const barOpacity = heightAnim.interpolate({
+      inputRange: [threshold - 20, threshold + 20],
+      outputRange: [0, 1],
+      extrapolate: "clamp",
+    });
+
     console.log("[InlineBottomSheet] ===== RENDERING =====");
     console.log("[InlineBottomSheet] visible:", visible);
     console.log(
@@ -339,8 +378,18 @@ const InlineBottomSheet = forwardRef<
       <View className={`absolute left-0 right-0 bottom-0 ${className}`}>
         <Animated.View
           style={{ height: heightAnim }}
-          className="rounded-t-3xl overflow-hidden shadow-2xl bg-white dark:bg-brand-primary"
+          className="rounded-t-3xl overflow-hidden shadow-2xl"
         >
+          {useGradient ? (
+            <LinearGradient
+              colors={gradientColors}
+              start={{ x: 0, y: 1 }}
+              end={{ x: 0, y: 0 }}
+              style={{ ...StyleSheet.absoluteFillObject }}
+            />
+          ) : (
+            <View className="absolute inset-0 bg-white dark:bg-brand-primary" />
+          )}
           {/* Drag handle */}
           {showHandle && (
             <View
@@ -352,7 +401,28 @@ const InlineBottomSheet = forwardRef<
           )}
 
           {/* Content */}
-          <View className="flex-1 overflow-hidden">{children}</View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{
+              paddingBottom: bottomBar ? bottomBarHeight + 24 : 16,
+            }}
+          >
+            {children}
+          </ScrollView>
+
+          {bottomBar && (
+            <Animated.View
+              style={{
+                transform: [{ translateY: barTranslate }],
+                opacity: barOpacity,
+              }}
+              className="absolute left-0 right-0 bottom-0"
+            >
+              <View className="mx-4 mb-4 rounded-2xl px-4 py-3 bg-white/95 dark:bg-black/70 border border-black/5 dark:border-white/10">
+                {bottomBar}
+              </View>
+            </Animated.View>
+          )}
         </Animated.View>
       </View>
     );
@@ -513,6 +583,41 @@ export const ExampleBottomSheetWithHook: React.FC = () => {
         showHandle={true}
         snapPoints={[200, 350]}
         className="bg-white"
+        // Gradient background
+        useGradient={true}
+        gradientColors={[
+          "rgba(0,0,0,0.8)",
+          "rgba(0,0,0,0.4)",
+          "rgba(0,0,0,0.1)",
+          "rgba(0,0,0,0)",
+        ]}
+        // Bottom bar
+        bottomBar={
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ fontWeight: "bold", color: "black" }}>
+              Hook Example Actions
+            </Text>
+            <TouchableOpacity
+              style={{
+                backgroundColor: "#0286FF",
+                paddingHorizontal: 12,
+                paddingVertical: 6,
+                borderRadius: 20,
+              }}
+              onPress={handleScrollUp}
+            >
+              <Text style={{ color: "white", fontWeight: "bold" }}>Expand</Text>
+            </TouchableOpacity>
+          </View>
+        }
+        bottomBarHeight={64}
+        showBottomBarAt={0.7}
       >
         <View style={{ padding: 20 }}>
           <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 10 }}>
@@ -520,10 +625,286 @@ export const ExampleBottomSheetWithHook: React.FC = () => {
           </Text>
           <Text style={{ fontSize: 14, color: "gray", marginBottom: 20 }}>
             Use the buttons above to control this bottom sheet with smooth
-            animations
+            animations. This example includes gradient background and animated
+            bottom bar.
           </Text>
           <Text style={{ fontSize: 12, color: "red" }}>
             Drag functionality: {sheetRef.current ? "Enabled" : "Disabled"}
+          </Text>
+          <Text style={{ fontSize: 12, color: "blue", marginTop: 10 }}>
+            Features: Gradient background + Animated bottom bar
+          </Text>
+        </View>
+      </InlineBottomSheet>
+    </View>
+  );
+};
+
+// Componente de ejemplo que demuestra las nuevas características: gradiente y bottom bar
+export const ExampleBottomSheetWithNewFeatures: React.FC = () => {
+  const [showGradient, setShowGradient] = React.useState(true);
+  const [showBottomBar, setShowBottomBar] = React.useState(true);
+
+  const gradientColorsLight = [
+    "rgba(255,255,255,0.9)",
+    "rgba(255,255,255,0.6)",
+    "rgba(255,255,255,0.3)",
+    "rgba(255,255,255,0)",
+  ] as const;
+
+  const gradientColorsDark = [
+    "rgba(0,0,0,0.8)",
+    "rgba(0,0,0,0.4)",
+    "rgba(0,0,0,0.1)",
+    "rgba(0,0,0,0)",
+  ] as const;
+
+  return (
+    <View style={{ flex: 1, backgroundColor: "#f0f0f0" }}>
+      {/* Control Panel */}
+      <View
+        style={{
+          padding: 20,
+          paddingTop: 60,
+          backgroundColor: "white",
+          elevation: 2,
+        }}
+      >
+        <Text style={{ fontSize: 18, fontWeight: "bold", marginBottom: 15 }}>
+          New Features Demo
+        </Text>
+
+        <View style={{ flexDirection: "row", marginBottom: 10 }}>
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: showGradient ? "#10B981" : "#E5E7EB",
+              padding: 10,
+              marginRight: 5,
+              borderRadius: 8,
+            }}
+            onPress={() => setShowGradient(!showGradient)}
+          >
+            <Text
+              style={{
+                color: showGradient ? "white" : "black",
+                textAlign: "center",
+              }}
+            >
+              {showGradient ? "✓" : "✗"} Gradient
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={{
+              flex: 1,
+              backgroundColor: showBottomBar ? "#10B981" : "#E5E7EB",
+              padding: 10,
+              marginLeft: 5,
+              borderRadius: 8,
+            }}
+            onPress={() => setShowBottomBar(!showBottomBar)}
+          >
+            <Text
+              style={{
+                color: showBottomBar ? "white" : "black",
+                textAlign: "center",
+              }}
+            >
+              {showBottomBar ? "✓" : "✗"} Bottom Bar
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Bottom Sheet with New Features */}
+      <InlineBottomSheet
+        visible={true}
+        minHeight={120}
+        maxHeight={500}
+        initialHeight={300}
+        allowDrag={true}
+        showHandle={true}
+        // Gradient background
+        useGradient={showGradient}
+        gradientColors={gradientColorsDark}
+        // Bottom bar (conditional)
+        bottomBar={
+          showBottomBar ? (
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <View>
+                <Text
+                  style={{ fontWeight: "bold", color: "black", fontSize: 16 }}
+                >
+                  Services Hub
+                </Text>
+                <Text style={{ color: "gray", fontSize: 12 }}>
+                  Find rides, delivery & more
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={{
+                  backgroundColor: "#0286FF",
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                  borderRadius: 20,
+                }}
+              >
+                <Text style={{ color: "white", fontWeight: "bold" }}>
+                  Explore
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : undefined
+        }
+        bottomBarHeight={70}
+        showBottomBarAt={0.6}
+      >
+        <View style={{ padding: 20 }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: "bold",
+              marginBottom: 10,
+              color: showGradient ? "white" : "black",
+            }}
+          >
+            🚗 Services Available
+          </Text>
+
+          <View style={{ marginBottom: 20 }}>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+                marginBottom: 15,
+                color: showGradient ? "white" : "black",
+              }}
+            >
+              Transportation
+            </Text>
+            <View style={{ flexDirection: "row", marginBottom: 10 }}>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: showGradient
+                    ? "rgba(255,255,255,0.2)"
+                    : "#F3F4F6",
+                  padding: 15,
+                  marginRight: 10,
+                  borderRadius: 12,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 24, marginBottom: 5 }}>🚕</Text>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: showGradient ? "white" : "black",
+                  }}
+                >
+                  Ride
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: showGradient
+                    ? "rgba(255,255,255,0.2)"
+                    : "#F3F4F6",
+                  padding: 15,
+                  borderRadius: 12,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 24, marginBottom: 5 }}>🚚</Text>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: showGradient ? "white" : "black",
+                  }}
+                >
+                  Delivery
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <View>
+            <Text
+              style={{
+                fontSize: 16,
+                fontWeight: "600",
+                marginBottom: 15,
+                color: showGradient ? "white" : "black",
+              }}
+            >
+              Popular Services
+            </Text>
+            <View style={{ flexDirection: "row" }}>
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: showGradient
+                    ? "rgba(255,255,255,0.2)"
+                    : "#F3F4F6",
+                  padding: 15,
+                  marginRight: 10,
+                  borderRadius: 12,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 24, marginBottom: 5 }}>🍕</Text>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: showGradient ? "white" : "black",
+                  }}
+                >
+                  Food
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={{
+                  flex: 1,
+                  backgroundColor: showGradient
+                    ? "rgba(255,255,255,0.2)"
+                    : "#F3F4F6",
+                  padding: 15,
+                  borderRadius: 12,
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 24, marginBottom: 5 }}>💊</Text>
+                <Text
+                  style={{
+                    fontWeight: "bold",
+                    color: showGradient ? "white" : "black",
+                  }}
+                >
+                  Pharmacy
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          <Text
+            style={{
+              fontSize: 12,
+              color: showGradient ? "rgba(255,255,255,0.7)" : "gray",
+              marginTop: 20,
+              textAlign: "center",
+            }}
+          >
+            Drag up to see more options • Toggle features above
           </Text>
         </View>
       </InlineBottomSheet>

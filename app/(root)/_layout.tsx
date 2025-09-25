@@ -22,11 +22,17 @@ const Layout = () => {
       <Stack.Screen name="services-hub" options={{ headerShown: false }} />
       <Stack.Screen name="componentes" options={{ headerShown: false }} />
       <Stack.Screen name="payment-method" options={{ headerShown: false }} />
-      <Stack.Screen name="payment-confirmation" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="payment-confirmation"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="active-ride" options={{ headerShown: false }} />
       <Stack.Screen name="conductor" options={{ headerShown: false }} />
       <Stack.Screen name="confirm-ride-new" options={{ headerShown: false }} />
-      <Stack.Screen name="driver-unified-flow-demo" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="driver-unified-flow-demo"
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="map-flows-demo" options={{ headerShown: false }} />
       <Stack.Screen name="rating-screen" options={{ headerShown: false }} />
       <Stack.Screen name="unified-flow-demo" options={{ headerShown: false }} />

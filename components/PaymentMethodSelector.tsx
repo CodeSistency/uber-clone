@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, TouchableOpacity, Image, FlatList, Modal } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  FlatList,
+  Modal,
+} from "react-native";
 
 import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
@@ -101,11 +108,17 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   onPaymentModeChange,
 }) => {
   const { theme } = useUI();
-  const [showMultiplePaymentModal, setShowMultiplePaymentModal] = React.useState(false);
-  const [internalPaymentMode, setInternalPaymentMode] = React.useState<"single" | "multiple">("single");
+  const [showMultiplePaymentModal, setShowMultiplePaymentModal] =
+    React.useState(false);
+  const [internalPaymentMode, setInternalPaymentMode] = React.useState<
+    "single" | "multiple"
+  >("single");
 
   // Usar modo externo si se proporciona, sino usar interno
-  const paymentMode = externalPaymentMode !== undefined ? externalPaymentMode : internalPaymentMode;
+  const paymentMode =
+    externalPaymentMode !== undefined
+      ? externalPaymentMode
+      : internalPaymentMode;
 
   const handlePaymentModeChange = (newMode: "single" | "multiple") => {
     if (onPaymentModeChange) {
@@ -193,11 +206,13 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                     : "transparent"
                 }`}
               >
-                <Text className={`text-sm font-JakartaMedium ${
-                  paymentMode === "single"
-                    ? "text-primary"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}>
+                <Text
+                  className={`text-sm font-JakartaMedium ${
+                    paymentMode === "single"
+                      ? "text-primary"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
+                >
                   Único
                 </Text>
               </TouchableOpacity>
@@ -209,11 +224,13 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                     : "transparent"
                 }`}
               >
-                <Text className={`text-sm font-JakartaMedium ${
-                  paymentMode === "multiple"
-                    ? "text-primary"
-                    : "text-gray-600 dark:text-gray-400"
-                }`}>
+                <Text
+                  className={`text-sm font-JakartaMedium ${
+                    paymentMode === "multiple"
+                      ? "text-primary"
+                      : "text-gray-600 dark:text-gray-400"
+                  }`}
+                >
                   Múltiple
                 </Text>
               </TouchableOpacity>
@@ -238,8 +255,12 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
                   Método de Pago Seleccionado
                 </Text>
                 <Text className="text-xs text-primary-600">
-                  {paymentMethods.find((m) => m.id === selectedMethodId)?.title} •{" "}
-                  {paymentMethods.find((m) => m.id === selectedMethodId)?.details}
+                  {paymentMethods.find((m) => m.id === selectedMethodId)?.title}{" "}
+                  •{" "}
+                  {
+                    paymentMethods.find((m) => m.id === selectedMethodId)
+                      ?.details
+                  }
                 </Text>
               </View>
             )}

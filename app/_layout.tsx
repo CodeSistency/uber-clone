@@ -11,6 +11,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { firebaseService } from "@/app/services/firebaseService";
 import { websocketService } from "@/app/services/websocketService";
 import UIWrapper from "@/components/UIWrapper";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import { initializeUserStore } from "@/lib/auth";
 import { tokenManager } from "@/lib/auth";
 import { useUserStore } from "@/store";
@@ -177,18 +178,24 @@ export default function RootLayout() {
   console.log("[RootLayout] Rendering stack");
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <UIWrapper>
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(root)" options={{ headerShown: false }} />
-          <Stack.Screen name="(business)" options={{ headerShown: false }} />
-          <Stack.Screen name="(driver)" options={{ headerShown: false }} />
-          <Stack.Screen name="(marketplace)" options={{ headerShown: false }} />
-          <Stack.Screen name="+not-found" />
-        </Stack>
-      </UIWrapper>
-    </GestureHandlerRootView>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        console.log("[RootLayout] Error boundary caught error:", error, errorInfo);
+      }}
+    >
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <UIWrapper>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(root)" options={{ headerShown: false }} />
+            <Stack.Screen name="(business)" options={{ headerShown: false }} />
+            <Stack.Screen name="(driver)" options={{ headerShown: false }} />
+            <Stack.Screen name="(marketplace)" options={{ headerShown: false }} />
+            <Stack.Screen name="+not-found" />
+          </Stack>
+        </UIWrapper>
+      </GestureHandlerRootView>
+    </ErrorBoundary>
   );
 }

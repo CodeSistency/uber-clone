@@ -4,6 +4,7 @@ export const driverDeliveryService = {
   available: async () => {
     return fetchAPI("rides/flow/driver/delivery/available", {
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -15,6 +16,7 @@ export const driverDeliveryService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -26,6 +28,7 @@ export const driverDeliveryService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 
@@ -37,6 +40,7 @@ export const driverDeliveryService = {
         ...(idempotencyKey ? { "Idempotency-Key": idempotencyKey } : {}),
       },
       requiresAuth: true,
+      skipApiPrefix: true,
     } as any);
   },
 };

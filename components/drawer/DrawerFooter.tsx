@@ -1,11 +1,9 @@
-import React from 'react';
-import { View, Text } from 'react-native';
-import { DrawerFooterProps } from './types';
+import React from "react";
+import { View, Text } from "react-native";
+import { DrawerFooterProps } from "./types";
 
 // Componente para el footer del drawer
-export const DrawerFooter: React.FC<DrawerFooterProps> = ({
-  config,
-}) => {
+export const DrawerFooter: React.FC<DrawerFooterProps> = ({ config }) => {
   const { copyright, version } = config || {};
 
   return (

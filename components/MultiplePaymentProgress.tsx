@@ -16,7 +16,7 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
   payments,
   onPaymentSelect,
   onCopyReference,
-  className = ""
+  className = "",
 }) => {
   const { showSuccess } = useUI();
 
@@ -25,11 +25,23 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
       case "confirmed":
         return <Text className="text-green-500">✓</Text>;
       case "pending":
-        return <Image source={icons.point} className="w-5 h-5" style={{ tintColor: "#F59E0B" }} />;
+        return (
+          <Image
+            source={icons.point}
+            className="w-5 h-5"
+            style={{ tintColor: "#F59E0B" }}
+          />
+        );
       case "cancelled":
         return <Text className="text-red-500">✗</Text>;
       default:
-        return <Image source={icons.point} className="w-5 h-5" style={{ tintColor: "#6B7280" }} />;
+        return (
+          <Image
+            source={icons.point}
+            className="w-5 h-5"
+            style={{ tintColor: "#6B7280" }}
+          />
+        );
     }
   };
 
@@ -81,12 +93,15 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
 
   const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
   const confirmedAmount = payments
-    .filter(p => p.status === "confirmed")
+    .filter((p) => p.status === "confirmed")
     .reduce((sum, p) => sum + p.amount, 0);
-  const progressPercentage = totalAmount > 0 ? (confirmedAmount / totalAmount) * 100 : 0;
+  const progressPercentage =
+    totalAmount > 0 ? (confirmedAmount / totalAmount) * 100 : 0;
 
   return (
-    <View className={`bg-white dark:bg-brand-primaryDark rounded-xl p-6 ${className}`}>
+    <View
+      className={`bg-white dark:bg-brand-primaryDark rounded-xl p-6 ${className}`}
+    >
       {/* Header con progreso general */}
       <View className="mb-6">
         <View className="flex-row items-center justify-between mb-3">
@@ -94,7 +109,8 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
             Estado de Pagos
           </Text>
           <Text className="text-sm font-JakartaMedium text-gray-600 dark:text-gray-400">
-            {payments.filter(p => p.status === "confirmed").length} de {payments.length} completados
+            {payments.filter((p) => p.status === "confirmed").length} de{" "}
+            {payments.length} completados
           </Text>
         </View>
 
@@ -126,13 +142,15 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
               payment.status === "confirmed"
                 ? "border-green-200 bg-green-50 dark:bg-green-900/20"
                 : payment.status === "pending"
-                ? "border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20"
-                : "border-red-200 bg-red-50 dark:bg-red-900/20"
+                  ? "border-yellow-200 bg-yellow-50 dark:bg-yellow-900/20"
+                  : "border-red-200 bg-red-50 dark:bg-red-900/20"
             }`}
           >
             <View className="flex-row items-center justify-between mb-3">
               <View className="flex-row items-center">
-                <Text className="text-2xl mr-3">{getPaymentIcon(payment.method)}</Text>
+                <Text className="text-2xl mr-3">
+                  {getPaymentIcon(payment.method)}
+                </Text>
                 <View>
                   <Text className="font-JakartaMedium text-gray-800 dark:text-white">
                     ${payment.amount.toFixed(2)}
@@ -145,7 +163,9 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
 
               <View className="flex-row items-center">
                 {getStatusIcon(payment.status)}
-                <Text className={`text-sm font-JakartaMedium ml-2 ${getStatusColor(payment.status)}`}>
+                <Text
+                  className={`text-sm font-JakartaMedium ml-2 ${getStatusColor(payment.status)}`}
+                >
                   {getStatusText(payment.status)}
                 </Text>
               </View>
@@ -156,8 +176,12 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
                 {payment.description}
               </Text>
               <Text className="text-xs text-gray-500 dark:text-gray-400">
-                Método: {payment.method === "cash" ? "Efectivo" :
-                        payment.method === "card" ? "Tarjeta/Transferencia" : "Digital"}
+                Método:{" "}
+                {payment.method === "cash"
+                  ? "Efectivo"
+                  : payment.method === "card"
+                    ? "Tarjeta/Transferencia"
+                    : "Digital"}
               </Text>
             </View>
 
@@ -247,7 +271,8 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
           </Text>
           <View className="flex-row justify-between items-center">
             <Text className="text-sm text-gray-600 dark:text-gray-400">
-              Total dividido: {payments.length} método{payments.length !== 1 ? 's' : ''}
+              Total dividido: {payments.length} método
+              {payments.length !== 1 ? "s" : ""}
             </Text>
             <Text className="text-sm font-JakartaBold text-gray-800 dark:text-white">
               ${totalAmount.toFixed(2)}

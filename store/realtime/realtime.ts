@@ -1,6 +1,17 @@
 import { create } from "zustand";
 import { ConnectionStatus, Ride, RideStatus, LocationData } from "@/types/type";
 
+// Ride Summary Interface
+interface RideSummary {
+  rideId: number;
+  driverId: number;
+  driverName: string;
+  fare: number;
+  distance: number;
+  duration: number;
+  completedAt: Date;
+}
+
 // Real-time Store Interface
 interface RealtimeStore {
   connectionStatus: ConnectionStatus;
@@ -9,6 +20,7 @@ interface RealtimeStore {
   rideStatus: RideStatus;
   isTracking: boolean;
   simulationEnabled: boolean;
+  rideSummary: RideSummary | null;
 
   // Actions
   setConnectionStatus: (status: ConnectionStatus) => void;
@@ -18,6 +30,7 @@ interface RealtimeStore {
   stopTracking: () => void;
   setActiveRide: (ride: Ride | null) => void;
   setSimulationEnabled: (enabled: boolean) => void;
+  setRideSummary: (summary: RideSummary) => void;
 }
 
 export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
@@ -32,6 +45,7 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
   rideStatus: "requested",
   isTracking: false,
   simulationEnabled: true,
+  rideSummary: null,
 
   setConnectionStatus: (status: ConnectionStatus) => {
     set(() => ({ connectionStatus: status }));
@@ -69,5 +83,9 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
 
   setSimulationEnabled: (enabled: boolean) => {
     set(() => ({ simulationEnabled: enabled }));
+  },
+
+  setRideSummary: (summary: RideSummary) => {
+    set(() => ({ rideSummary: summary }));
   },
 }));

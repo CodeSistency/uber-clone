@@ -4,7 +4,7 @@ import { MarkerData, DriverStore } from "@/types/type";
 export const useDriverStore = create<DriverStore>((set) => ({
   drivers: [] as MarkerData[],
   selectedDriver: null,
-  setSelectedDriver: (driverId: number) => {
+  setSelectedDriver: (driverId: number | null) => {
     console.log("[DriverStore] setSelectedDriver called with:", driverId);
     const newState = { selectedDriver: driverId };
     console.log("[DriverStore] Setting new state:", newState);

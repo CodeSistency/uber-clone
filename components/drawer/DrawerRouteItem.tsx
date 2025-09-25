@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, Image } from 'react-native';
-import { DrawerRouteItemProps } from './types';
-import { icons } from '@/constants';
+import React from "react";
+import { View, Text, TouchableOpacity, Image } from "react-native";
+import { DrawerRouteItemProps } from "./types";
+import { icons } from "@/constants";
 
 // Componente para cada item de ruta en el drawer
 export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
@@ -28,23 +28,23 @@ export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
   // Mapear nombres de iconos de configuración a assets reales
   const getIconFromConfig = (iconName: string | any) => {
     const iconMap: Record<string, any> = {
-      'home': icons.home,
-      'car': icons.map,
-      'message-circle': icons.chat,
-      'shopping-bag': icons.search,
-      'search': icons.search,
-      'utensils-crossed': icons.home,
-      'shopping-cart': icons.search,
-      'heart': icons.star,
-      'wallet': icons.dollar,
-      'alert-triangle': icons.marker,
-      'building': icons.home,
-      'user': icons.profile,
-      'settings': icons.list,
-      'help-circle': icons.person,
+      home: icons.home,
+      car: icons.map,
+      "message-circle": icons.chat,
+      "shopping-bag": icons.search,
+      search: icons.search,
+      "utensils-crossed": icons.home,
+      "shopping-cart": icons.search,
+      heart: icons.star,
+      wallet: icons.dollar,
+      "alert-triangle": icons.marker,
+      building: icons.home,
+      user: icons.profile,
+      settings: icons.list,
+      "help-circle": icons.person,
     };
 
-    if (typeof iconName === 'string') {
+    if (typeof iconName === "string") {
       return iconMap[iconName] || icons.marker;
     }
 
@@ -72,9 +72,9 @@ export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
       vehicle: icons.map,
       documents: icons.list,
       // Opciones de cambio de módulo
-      'switch-to-business': icons.person,
-      'switch-to-driver': icons.map,
-      'switch-to-customer': icons.person,
+      "switch-to-business": icons.person,
+      "switch-to-driver": icons.map,
+      "switch-to-customer": icons.person,
     };
 
     return defaultIcons[route.id] || icons.marker;
@@ -83,20 +83,22 @@ export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
   // Estilos dinámicos usando colores del tema
   const containerClass = `
     flex-row items-center py-3 px-4 rounded-lg mx-2 my-1
-    ${isActive
-      ? 'bg-primary-100 dark:bg-primary-900 border-l-4 border-primary-500'
-      : 'bg-white dark:bg-brand-primaryDark active:bg-primary-50 dark:active:bg-brand-primary'
+    ${
+      isActive
+        ? "bg-primary-100 dark:bg-primary-900 border-l-4 border-primary-500"
+        : "bg-white dark:bg-brand-primaryDark active:bg-primary-50 dark:active:bg-brand-primary"
     }
-    ${route.disabled ? 'opacity-50' : ''}
+    ${route.disabled ? "opacity-50" : ""}
   `.trim();
 
   const textClass = `
     flex-1 ml-3 font-JakartaMedium text-sm
-    ${isActive
-      ? 'text-primary-600 dark:text-primary-400 font-JakartaSemiBold'
-      : 'text-secondary-700 dark:text-secondary-300'
+    ${
+      isActive
+        ? "text-primary-600 dark:text-primary-400 font-JakartaSemiBold"
+        : "text-secondary-700 dark:text-secondary-300"
     }
-    ${route.disabled ? 'text-secondary-400 dark:text-secondary-500' : ''}
+    ${route.disabled ? "text-secondary-400 dark:text-secondary-500" : ""}
   `.trim();
 
   const handlePress = () => {
@@ -115,7 +117,7 @@ export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
       >
         {/* Icono */}
         {route.icon ? (
-          typeof route.icon === 'string' ? (
+          typeof route.icon === "string" ? (
             <Image source={getIconFromConfig(route.icon)} className="w-5 h-5" />
           ) : React.isValidElement(route.icon) ? (
             route.icon
@@ -127,9 +129,7 @@ export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
         )}
 
         {/* Título */}
-        <Text className={textClass}>
-          {route.title}
-        </Text>
+        <Text className={textClass}>{route.title}</Text>
 
         {/* Badge */}
         {route.badge && (
@@ -143,7 +143,7 @@ export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({
         {/* Indicador de expansión para rutas con subrutas */}
         {route.subroutes && route.subroutes.length > 0 && (
           <Text className="ml-2 text-gray-400 dark:text-gray-500">
-            {isExpanded ? '▼' : '▶'}
+            {isExpanded ? "▼" : "▶"}
           </Text>
         )}
       </TouchableOpacity>

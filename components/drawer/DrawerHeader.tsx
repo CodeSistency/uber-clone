@@ -1,11 +1,9 @@
-import React from 'react';
-import { View, Text, Image } from 'react-native';
-import { DrawerHeaderProps } from './types';
+import React from "react";
+import { View, Text, Image } from "react-native";
+import { DrawerHeaderProps } from "./types";
 
 // Componente para el header del drawer
-export const DrawerHeader: React.FC<DrawerHeaderProps> = ({
-  config,
-}) => {
+export const DrawerHeader: React.FC<DrawerHeaderProps> = ({ config }) => {
   const { title, subtitle, avatar } = config || {};
 
   return (

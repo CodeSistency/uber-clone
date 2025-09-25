@@ -97,7 +97,7 @@ export class PaymentService {
    * POST /payments/initiate-multiple
    */
   async initiateMultiple(
-    request: MultiplePaymentRequest
+    request: MultiplePaymentRequest,
   ): Promise<MultiplePaymentResponse> {
     try {
       console.log("[PaymentService] Initiating multiple payments:", request);
@@ -106,14 +106,15 @@ export class PaymentService {
         serviceType: request.serviceType,
         serviceId: request.serviceId,
         totalAmount: request.totalAmount,
-        payments: request.payments.map(payment => ({
+        payments: request.payments.map((payment) => ({
           method: payment.method,
           amount: payment.amount,
           bankCode: payment.bankCode,
-          description: payment.description
+          description: payment.description,
         })),
         groupId: request.groupId,
-        idempotencyKey: request.idempotencyKey || generatePaymentIdempotencyKey()
+        idempotencyKey:
+          request.idempotencyKey || generatePaymentIdempotencyKey(),
       };
 
       const response = await fetchAPI(`${PAYMENT_BASE_URL}/initiate-multiple`, {
@@ -125,7 +126,10 @@ export class PaymentService {
       console.log("[PaymentService] Multiple payments initiated:", response);
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error initiating multiple payments:", error);
+      console.error(
+        "[PaymentService] Error initiating multiple payments:",
+        error,
+      );
       throw error;
     }
   }
@@ -135,7 +139,7 @@ export class PaymentService {
    * POST /payments/confirm-partial
    */
   async confirmPartial(
-    request: PaymentConfirmationRequest
+    request: PaymentConfirmationRequest,
   ): Promise<PaymentConfirmationResponse> {
     try {
       console.log("[PaymentService] Confirming partial payment:", request);
@@ -143,7 +147,8 @@ export class PaymentService {
       const payload = {
         referenceNumber: request.referenceNumber,
         bankCode: request.bankCode,
-        idempotencyKey: request.idempotencyKey || generatePaymentIdempotencyKey()
+        idempotencyKey:
+          request.idempotencyKey || generatePaymentIdempotencyKey(),
       };
 
       const response = await fetchAPI(`${PAYMENT_BASE_URL}/confirm-partial`, {
@@ -155,7 +160,10 @@ export class PaymentService {
       console.log("[PaymentService] Partial payment confirmed:", response);
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error confirming partial payment:", error);
+      console.error(
+        "[PaymentService] Error confirming partial payment:",
+        error,
+      );
       throw error;
     }
   }
@@ -168,9 +176,12 @@ export class PaymentService {
     try {
       console.log("[PaymentService] Getting group status:", groupId);
 
-      const response = await fetchAPI(`${PAYMENT_BASE_URL}/group-status/${groupId}`, {
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `${PAYMENT_BASE_URL}/group-status/${groupId}`,
+        {
+          requiresAuth: true,
+        },
+      );
 
       console.log("[PaymentService] Group status retrieved:", response);
       return response;
@@ -187,21 +198,24 @@ export class PaymentService {
   async cancelGroup(
     groupId: string,
     reason?: string,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<CancelGroupResponse> {
     try {
       console.log("[PaymentService] Cancelling payment group:", groupId);
 
       const payload = {
         reason: reason || "Cancelled by user",
-        idempotencyKey: idempotencyKey || generatePaymentIdempotencyKey()
+        idempotencyKey: idempotencyKey || generatePaymentIdempotencyKey(),
       };
 
-      const response = await fetchAPI(`${PAYMENT_BASE_URL}/cancel-group/${groupId}`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `${PAYMENT_BASE_URL}/cancel-group/${groupId}`,
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+          requiresAuth: true,
+        },
+      );
 
       console.log("[PaymentService] Payment group cancelled:", response);
       return response;
@@ -239,11 +253,17 @@ export class PaymentService {
     paymentId: string;
   }> {
     try {
-      console.log("[PaymentService] Getting payment reference:", referenceNumber);
+      console.log(
+        "[PaymentService] Getting payment reference:",
+        referenceNumber,
+      );
 
-      const response = await fetchAPI(`${PAYMENT_BASE_URL}/reference/${referenceNumber}`, {
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `${PAYMENT_BASE_URL}/reference/${referenceNumber}`,
+        {
+          requiresAuth: true,
+        },
+      );
 
       console.log("[PaymentService] Payment reference retrieved:", response);
       return response;
@@ -259,20 +279,23 @@ export class PaymentService {
    */
   async retryPayment(
     paymentId: string,
-    idempotencyKey?: string
+    idempotencyKey?: string,
   ): Promise<PaymentConfirmationResponse> {
     try {
       console.log("[PaymentService] Retrying payment:", paymentId);
 
       const payload = {
-        idempotencyKey: idempotencyKey || generatePaymentIdempotencyKey()
+        idempotencyKey: idempotencyKey || generatePaymentIdempotencyKey(),
       };
 
-      const response = await fetchAPI(`${PAYMENT_BASE_URL}/retry/${paymentId}`, {
-        method: "POST",
-        body: JSON.stringify(payload),
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `${PAYMENT_BASE_URL}/retry/${paymentId}`,
+        {
+          method: "POST",
+          body: JSON.stringify(payload),
+          requiresAuth: true,
+        },
+      );
 
       console.log("[PaymentService] Payment retry result:", response);
       return response;
@@ -292,7 +315,7 @@ export class PaymentService {
       status?: "active" | "completed" | "cancelled" | "expired";
       limit?: number;
       offset?: number;
-    } = {}
+    } = {},
   ): Promise<{
     groups: GroupStatusResponse[];
     total: number;
@@ -302,10 +325,12 @@ export class PaymentService {
       console.log("[PaymentService] Getting user payment groups:", filters);
 
       const queryParams = new URLSearchParams();
-      if (filters.serviceType) queryParams.append("serviceType", filters.serviceType);
+      if (filters.serviceType)
+        queryParams.append("serviceType", filters.serviceType);
       if (filters.status) queryParams.append("status", filters.status);
       if (filters.limit) queryParams.append("limit", filters.limit.toString());
-      if (filters.offset) queryParams.append("offset", filters.offset.toString());
+      if (filters.offset)
+        queryParams.append("offset", filters.offset.toString());
 
       const queryString = queryParams.toString();
       const endpoint = queryString
@@ -319,7 +344,10 @@ export class PaymentService {
       console.log("[PaymentService] User payment groups retrieved:", response);
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error getting user payment groups:", error);
+      console.error(
+        "[PaymentService] Error getting user payment groups:",
+        error,
+      );
       throw error;
     }
   }
@@ -329,7 +357,7 @@ export class PaymentService {
    * GET /payments/stats?period={period}
    */
   async getPaymentStats(
-    period: "today" | "week" | "month" | "year" = "month"
+    period: "today" | "week" | "month" | "year" = "month",
   ): Promise<{
     period: string;
     totalPayments: number;
@@ -343,9 +371,12 @@ export class PaymentService {
     try {
       console.log("[PaymentService] Getting payment stats for period:", period);
 
-      const response = await fetchAPI(`${PAYMENT_BASE_URL}/stats?period=${period}`, {
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `${PAYMENT_BASE_URL}/stats?period=${period}`,
+        {
+          requiresAuth: true,
+        },
+      );
 
       console.log("[PaymentService] Payment stats retrieved:", response);
       return response;
@@ -365,9 +396,9 @@ export const paymentUtils = {
    * Format amount for display
    */
   formatAmount: (amount: number): string => {
-    return new Intl.NumberFormat('es-VE', {
-      style: 'currency',
-      currency: 'VES',
+    return new Intl.NumberFormat("es-VE", {
+      style: "currency",
+      currency: "VES",
       minimumFractionDigits: 2,
     }).format(amount);
   },
@@ -398,7 +429,9 @@ export const paymentUtils = {
   /**
    * Get time remaining for reference
    */
-  getTimeRemaining: (expiresAt: string): {
+  getTimeRemaining: (
+    expiresAt: string,
+  ): {
     hours: number;
     minutes: number;
     expired: boolean;
@@ -415,6 +448,5 @@ export const paymentUtils = {
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
 
     return { hours, minutes, expired: false };
-  }
+  },
 };
-

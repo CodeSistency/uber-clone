@@ -20,29 +20,35 @@ export const generateMarkersFromData = ({
     const latOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
     const lngOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
 
+    // Handle both camelCase and snake_case naming conventions
+    const firstName = driver.first_name || 'Unknown';
+    const lastName = driver.last_name || 'Driver';
+
     console.log("[generateMarkersFromData] Driver data structure:", {
       driver,
-      firstName: driver.first_name,
-      lastName: driver.last_name,
-      name: `${driver.first_name} ${driver.last_name}`,
-      fullName: `${driver.first_name} ${driver.last_name}`,
+      firstName,
+      lastName,
+      name: `${firstName} ${lastName}`,
+      fullName: `${firstName} ${lastName}`,
       index,
     });
 
     const markerData = {
       latitude: userLatitude + latOffset,
       longitude: userLongitude + lngOffset,
-      title: `${driver.first_name || 'Unknown'} ${driver.last_name || 'Driver'}`,
+      title: `${firstName} ${lastName}`,
       ...driver,
       id: driver.id || index + 1, // Ensure we have an ID (placed after spread to avoid override)
+      first_name: firstName, // Ensure consistent naming for compatibility
+      last_name: lastName,   // Ensure consistent naming for compatibility
     };
 
     console.log("[generateMarkersFromData] Creating marker:", {
       originalDriverId: driver.id,
       assignedId: markerData.id,
       title: markerData.title,
-      firstName: driver.first_name,
-      lastName: driver.last_name,
+      firstName,
+      lastName,
       index,
     });
 

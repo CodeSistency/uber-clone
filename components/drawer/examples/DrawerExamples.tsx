@@ -1,6 +1,6 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
-import { useDrawer, Drawer, useModuleStore } from '../index';
+import React from "react";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { useDrawer, Drawer, useModuleStore } from "../index";
 
 /**
  * EJEMPLO 1: Uso básico con módulo automático
@@ -22,7 +22,7 @@ export const BasicDrawerExample: React.FC = () => {
           className="bg-blue-500 px-6 py-3 rounded-lg"
         >
           <Text className="text-white font-JakartaMedium">
-            {drawer.isOpen ? 'Close' : 'Open'} Drawer
+            {drawer.isOpen ? "Close" : "Open"} Drawer
           </Text>
         </TouchableOpacity>
       </View>
@@ -49,8 +49,8 @@ export const BasicDrawerExample: React.FC = () => {
  * Útil cuando necesitas forzar un módulo específico independientemente del global
  */
 export const ForcedModuleExample: React.FC = () => {
-  const customerDrawer = useDrawer({ module: 'customer' });
-  const businessDrawer = useDrawer({ module: 'business' });
+  const customerDrawer = useDrawer({ module: "customer" });
+  const businessDrawer = useDrawer({ module: "business" });
 
   return (
     <ScrollView className="flex-1 bg-gray-50">
@@ -59,26 +59,30 @@ export const ForcedModuleExample: React.FC = () => {
 
         {/* Customer Drawer */}
         <View className="mb-6">
-          <Text className="text-lg font-JakartaSemiBold mb-2">Customer Drawer</Text>
+          <Text className="text-lg font-JakartaSemiBold mb-2">
+            Customer Drawer
+          </Text>
           <TouchableOpacity
             onPress={customerDrawer.toggle}
             className="bg-green-500 px-4 py-2 rounded-lg mb-2"
           >
             <Text className="text-white">
-              {customerDrawer.isOpen ? 'Close' : 'Open'} Customer Drawer
+              {customerDrawer.isOpen ? "Close" : "Open"} Customer Drawer
             </Text>
           </TouchableOpacity>
         </View>
 
         {/* Business Drawer */}
         <View className="mb-6">
-          <Text className="text-lg font-JakartaSemiBold mb-2">Business Drawer</Text>
+          <Text className="text-lg font-JakartaSemiBold mb-2">
+            Business Drawer
+          </Text>
           <TouchableOpacity
             onPress={businessDrawer.toggle}
             className="bg-purple-500 px-4 py-2 rounded-lg mb-2"
           >
             <Text className="text-white">
-              {businessDrawer.isOpen ? 'Close' : 'Open'} Business Drawer
+              {businessDrawer.isOpen ? "Close" : "Open"} Business Drawer
             </Text>
           </TouchableOpacity>
         </View>
@@ -87,7 +91,10 @@ export const ForcedModuleExample: React.FC = () => {
         <View className="bg-white p-4 rounded-lg">
           <Text className="font-JakartaBold mb-2">Global Module State</Text>
           <Text>Current Module: {useModuleStore.getState().currentModule}</Text>
-          <Text>Is Transitioning: {useModuleStore.getState().isTransitioning ? 'Yes' : 'No'}</Text>
+          <Text>
+            Is Transitioning:{" "}
+            {useModuleStore.getState().isTransitioning ? "Yes" : "No"}
+          </Text>
         </View>
       </View>
 
@@ -128,26 +135,26 @@ export const CustomConfigExample: React.FC = () => {
   const drawer = useDrawer({
     config: {
       header: {
-        title: 'Custom Screen',
-        subtitle: 'Special configuration',
+        title: "Custom Screen",
+        subtitle: "Special configuration",
       },
       routes: [
         {
-          id: 'custom-action',
-          title: 'Custom Action',
-          icon: '⭐',
-          onPress: () => console.log('Custom action pressed!'),
+          id: "custom-action",
+          title: "Custom Action",
+          icon: "⭐",
+          onPress: () => console.log("Custom action pressed!"),
         },
         {
-          id: 'back-to-normal',
-          title: 'Back to Normal',
-          icon: '↩️',
-          switchToModule: 'customer',
+          id: "back-to-normal",
+          title: "Back to Normal",
+          icon: "↩️",
+          switchToModule: "customer",
         },
       ],
       footer: {
-        copyright: '© 2024 Custom App',
-        version: 'Custom v1.0',
+        copyright: "© 2024 Custom App",
+        version: "Custom v1.0",
       },
     },
   });
@@ -155,7 +162,9 @@ export const CustomConfigExample: React.FC = () => {
   return (
     <View className="flex-1">
       <View className="flex-1 items-center justify-center">
-        <Text className="text-xl font-JakartaBold mb-4">Custom Drawer Config</Text>
+        <Text className="text-xl font-JakartaBold mb-4">
+          Custom Drawer Config
+        </Text>
 
         <TouchableOpacity
           onPress={drawer.toggle}
@@ -189,54 +198,62 @@ export const FullIntegrationExample: React.FC = () => {
     <View className="flex-1">
       {/* Header con botón de menú */}
       <View className="flex-row items-center justify-between p-4 bg-white shadow-sm">
-        <TouchableOpacity
-          onPress={drawer.toggle}
-          className="p-2"
-        >
-          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">☰</Text>
+        <TouchableOpacity onPress={drawer.toggle} className="p-2">
+          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">
+            ☰
+          </Text>
         </TouchableOpacity>
-
         <Text className="text-lg font-JakartaBold">
-          {drawer.currentModule.charAt(0).toUpperCase() + drawer.currentModule.slice(1)} App
+          {drawer.currentModule.charAt(0).toUpperCase() +
+            drawer.currentModule.slice(1)}{" "}
+          App
         </Text>
-
         <View className="w-10" /> {/* Spacer */}
       </View>
 
       {/* Contenido principal */}
       <ScrollView className="flex-1 p-4">
-        <Text className="text-2xl font-JakartaBold mb-4">Welcome to the App</Text>
+        <Text className="text-2xl font-JakartaBold mb-4">
+          Welcome to the App
+        </Text>
         <Text className="text-gray-600 mb-6">
-          You are currently in {drawer.currentModule} mode. Use the menu button to access the drawer.
+          You are currently in {drawer.currentModule} mode. Use the menu button
+          to access the drawer.
         </Text>
 
         <View className="bg-blue-50 p-4 rounded-lg mb-4">
           <Text className="font-JakartaSemiBold mb-2">Current State:</Text>
           <Text>• Module: {drawer.currentModule}</Text>
-          <Text>• Active Route: {drawer.activeRoute || 'None'}</Text>
-          <Text>• Drawer Open: {drawer.isOpen ? 'Yes' : 'No'}</Text>
-          <Text>• Transitioning: {drawer.isTransitioning ? 'Yes' : 'No'}</Text>
+          <Text>• Active Route: {drawer.activeRoute || "None"}</Text>
+          <Text>• Drawer Open: {drawer.isOpen ? "Yes" : "No"}</Text>
+          <Text>• Transitioning: {drawer.isTransitioning ? "Yes" : "No"}</Text>
         </View>
 
         <TouchableOpacity
-          onPress={() => drawer.switchModule('customer')}
+          onPress={() => drawer.switchModule("customer")}
           className="bg-green-500 px-4 py-3 rounded-lg mb-2"
         >
-          <Text className="text-white font-JakartaMedium text-center">Switch to Customer</Text>
+          <Text className="text-white font-JakartaMedium text-center">
+            Switch to Customer
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => drawer.switchModule('business')}
+          onPress={() => drawer.switchModule("business")}
           className="bg-purple-500 px-4 py-3 rounded-lg mb-2"
         >
-          <Text className="text-white font-JakartaMedium text-center">Switch to Business</Text>
+          <Text className="text-white font-JakartaMedium text-center">
+            Switch to Business
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => drawer.switchModule('driver')}
+          onPress={() => drawer.switchModule("driver")}
           className="bg-red-500 px-4 py-3 rounded-lg"
         >
-          <Text className="text-white font-JakartaMedium text-center">Switch to Driver</Text>
+          <Text className="text-white font-JakartaMedium text-center">
+            Switch to Driver
+          </Text>
         </TouchableOpacity>
       </ScrollView>
 
