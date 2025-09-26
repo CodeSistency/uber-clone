@@ -1,10 +1,11 @@
-import { Image, Text, View } from "react-native";
+import { Image, Text, View, TouchableOpacity } from "react-native";
 
 import { icons } from "@/constants";
+import { endpoints } from "@/lib/endpoints";
 import { formatDate, formatTime } from "@/lib/utils";
 import { Ride } from "@/types/type";
 
-const RideCard = ({ ride }: { ride: Ride }) => {
+const RideCard = ({ ride, onPress }: { ride: Ride; onPress?: () => void }) => {
   console.log("[RideCard] Rendering ride:", {
     rideId: ride.ride_id,
     origin: ride.origin_address,
@@ -14,13 +15,15 @@ const RideCard = ({ ride }: { ride: Ride }) => {
     paymentStatus: ride.payment_status,
   });
 
-  return (
+  const CardContent = () => (
     <View className="flex flex-row items-center justify-center bg-white dark:bg-brand-primaryDark rounded-lg shadow-sm shadow-neutral-300 mb-3">
       <View className="flex flex-col items-start justify-center p-3">
         <View className="flex flex-row items-center justify-between">
           <Image
             source={{
-              uri: `https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=400&center=lonlat:${ride.destination_longitude},${ride.destination_latitude}&zoom=14&apiKey=${process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY || "your-geoapify-api-key"}`,
+              uri: endpoints.geoapify.url(
+                `staticmap?style=osm-bright&width=600&height=400&center=lonlat:${ride.destination_longitude},${ride.destination_latitude}&zoom=14`,
+              ),
             }}
             className="w-[80px] h-[90px] rounded-lg"
           />
@@ -92,6 +95,14 @@ const RideCard = ({ ride }: { ride: Ride }) => {
         </View>
       </View>
     </View>
+  );
+
+  return onPress ? (
+    <TouchableOpacity onPress={onPress}>
+      <CardContent />
+    </TouchableOpacity>
+  ) : (
+    <CardContent />
   );
 };
 

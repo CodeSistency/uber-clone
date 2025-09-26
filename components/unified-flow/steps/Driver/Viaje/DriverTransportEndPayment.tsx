@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, ScrollView } from "react-native";
 
 import { driverTransportService } from "@/app/services/driverTransportService";
-import CustomButton from "@/components/CustomButton";
+import { Button, Card } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -21,7 +21,7 @@ interface PaymentInfo {
 }
 
 const DriverTransportEndPayment: React.FC = () => {
-  const { startWithDriverStep } = useMapFlow();
+  const { goTo } = useMapFlow();
   const { showSuccess, showError } = useUI();
   const [paymentInfo, setPaymentInfo] = useState<PaymentInfo | null>(null);
   const [cashConfirmed, setCashConfirmed] = useState<boolean>(false);
@@ -41,9 +41,10 @@ const DriverTransportEndPayment: React.FC = () => {
         // In a real implementation, this would come from the backend
         // For now, we'll simulate based on ride data
         const mockPaymentInfo: PaymentInfo = {
-          totalAmount: activeRide?.fare_price || 8.20,
+          totalAmount: activeRide?.fare_price || 8.2,
           paymentMethod: activeRide?.payment_method || "cash", // This should come from backend
-          cashRequired: activeRide?.cash_required || (activeRide?.fare_price || 8.20),
+          cashRequired:
+            activeRide?.cash_required || activeRide?.fare_price || 8.2,
           cardPaid: activeRide?.card_paid || 0,
           fullyPaid: activeRide?.fully_paid || false,
           currency: "USD", // Could be dynamic
@@ -52,7 +53,10 @@ const DriverTransportEndPayment: React.FC = () => {
 
         setPaymentInfo(mockPaymentInfo);
       } catch (error) {
-        console.error("[DriverTransportEndPayment] Error loading payment info:", error);
+        console.error(
+          "[DriverTransportEndPayment] Error loading payment info:",
+          error,
+        );
         showError("Error", "No se pudo cargar la información de pago");
       } finally {
         setLoadingPaymentInfo(false);
@@ -76,8 +80,15 @@ const DriverTransportEndPayment: React.FC = () => {
     if (finishing) return;
 
     // Check if cash payment is required and not confirmed
-    if (paymentInfo?.cashRequired && paymentInfo.cashRequired > 0 && !cashConfirmed) {
-      showError("Confirmar cobro", "Debes confirmar el cobro en efectivo antes de finalizar");
+    if (
+      paymentInfo?.cashRequired &&
+      paymentInfo.cashRequired > 0 &&
+      !cashConfirmed
+    ) {
+      showError(
+        "Confirmar cobro",
+        "Debes confirmar el cobro en efectivo antes de finalizar",
+      );
       return;
     }
 
@@ -94,7 +105,10 @@ const DriverTransportEndPayment: React.FC = () => {
       // Go to transport-specific rating step
       goTo(FLOW_STEPS.DRIVER_FINALIZACION_RATING as any);
     } catch (error) {
-      console.error("[DriverTransportEndPayment] Error completing ride:", error);
+      console.error(
+        "[DriverTransportEndPayment] Error completing ride:",
+        error,
+      );
       showError("Error", "No se pudo completar el viaje");
     } finally {
       setFinishing(false);
@@ -122,7 +136,8 @@ const DriverTransportEndPayment: React.FC = () => {
           <Text className="font-JakartaMedium text-lg text-gray-600 mb-4">
             No se pudo cargar la información de pago
           </Text>
-          <CustomButton
+          <Button
+            variant="primary"
             title="Reintentar"
             onPress={() => window.location.reload()}
             className="w-full"
@@ -139,7 +154,9 @@ const DriverTransportEndPayment: React.FC = () => {
 
         {/* Total amount */}
         <View className="flex-row justify-between items-center mb-3 p-3 bg-gray-50 rounded-lg">
-          <Text className="font-JakartaMedium text-gray-700">Total del viaje</Text>
+          <Text className="font-JakartaMedium text-gray-700">
+            Total del viaje
+          </Text>
           <View className="items-end">
             <Text className="font-JakartaBold text-xl text-green-600">
               ${paymentInfo.totalAmount.toFixed(2)}
@@ -157,13 +174,19 @@ const DriverTransportEndPayment: React.FC = () => {
           <View className="mb-3">
             {paymentInfo.cardPaid > 0 && (
               <View className="flex-row justify-between mb-1">
-                <Text className="font-Jakarta text-sm text-gray-600">💳 Pagado por tarjeta</Text>
-                <Text className="font-Jakarta text-sm">${paymentInfo.cardPaid.toFixed(2)}</Text>
+                <Text className="font-Jakarta text-sm text-gray-600">
+                  💳 Pagado por tarjeta
+                </Text>
+                <Text className="font-Jakarta text-sm">
+                  ${paymentInfo.cardPaid.toFixed(2)}
+                </Text>
               </View>
             )}
             {paymentInfo.cashRequired > 0 && (
               <View className="flex-row justify-between">
-                <Text className="font-Jakarta text-sm text-gray-600">💵 Pendiente en efectivo</Text>
+                <Text className="font-Jakarta text-sm text-gray-600">
+                  💵 Pendiente en efectivo
+                </Text>
                 <Text className="font-Jakarta text-sm text-orange-600">
                   ${paymentInfo.cashRequired.toFixed(2)}
                 </Text>
@@ -174,11 +197,14 @@ const DriverTransportEndPayment: React.FC = () => {
 
         {/* Payment method indicator */}
         <View className="flex-row items-center">
-          <Text className="font-Jakarta text-sm text-gray-500 mr-2">Método:</Text>
+          <Text className="font-Jakarta text-sm text-gray-500 mr-2">
+            Método:
+          </Text>
           <Text className="font-JakartaMedium">
             {paymentInfo.paymentMethod === "cash" && "💵 Solo efectivo"}
             {paymentInfo.paymentMethod === "card" && "💳 Solo tarjeta"}
-            {paymentInfo.paymentMethod === "mixed" && "🔄 Mixto (tarjeta + efectivo)"}
+            {paymentInfo.paymentMethod === "mixed" &&
+              "🔄 Mixto (tarjeta + efectivo)"}
             {!paymentInfo.paymentMethod && "❓ Por determinar"}
           </Text>
         </View>
@@ -200,10 +226,10 @@ const DriverTransportEndPayment: React.FC = () => {
             </Text>
           </View>
 
-          <CustomButton
+          <Button
+            variant="success"
             title={finishing ? "Finalizando..." : "🏁 Finalizar servicio"}
             loading={finishing}
-            bgVariant="success"
             onPress={handleFinish}
             className="w-full"
           />
@@ -220,30 +246,31 @@ const DriverTransportEndPayment: React.FC = () => {
               💵 Cobro pendiente en efectivo
             </Text>
             <Text className="font-Jakarta text-sm text-orange-700">
-              Debes confirmar que recibiste el pago de ${paymentInfo.cashRequired.toFixed(2)}
+              Debes confirmar que recibiste el pago de $
+              {paymentInfo.cashRequired.toFixed(2)}
               antes de finalizar el servicio.
             </Text>
           </View>
 
           {!cashConfirmed ? (
-            <CustomButton
+            <Button
+              variant="danger"
               title="✅ Confirmar cobro en efectivo"
-              bgVariant="warning"
               onPress={handleConfirmCash}
               className="w-full"
             />
           ) : (
-            <View className="bg-green-50 p-4 rounded-lg border border-green-200">
+            <Card className="bg-green-50 border-green-200">
               <Text className="font-JakartaMedium text-green-800 text-center">
                 ✅ Cobro confirmado
               </Text>
-            </View>
+            </Card>
           )}
 
-          <CustomButton
+          <Button
+            variant={cashConfirmed ? "success" : "secondary"}
             title={finishing ? "Finalizando..." : "🏁 Finalizar servicio"}
             loading={finishing}
-            bgVariant={cashConfirmed ? "success" : "outline"}
             onPress={handleFinish}
             disabled={!cashConfirmed}
             className="w-full"
@@ -254,10 +281,10 @@ const DriverTransportEndPayment: React.FC = () => {
 
     // Fallback for other cases
     return (
-      <CustomButton
+      <Button
+        variant="success"
         title={finishing ? "Finalizando..." : "🏁 Finalizar servicio"}
         loading={finishing}
-        bgVariant="success"
         onPress={handleFinish}
         className="w-full"
       />
@@ -271,14 +298,21 @@ const DriverTransportEndPayment: React.FC = () => {
       <ScrollView className="flex-1 p-6">
         {/* Trip summary */}
         <View className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-          <Text className="font-JakartaBold text-lg mb-2">Resumen del viaje</Text>
+          <Text className="font-JakartaBold text-lg mb-2">
+            Resumen del viaje
+          </Text>
           <View className="flex-row justify-between mb-1">
             <Text className="font-Jakarta text-gray-600">Cliente</Text>
-            <Text className="font-JakartaMedium">{activeRide?.passenger?.name || "Cliente"}</Text>
+            <Text className="font-JakartaMedium">
+              {activeRide?.passenger?.name || "Cliente"}
+            </Text>
           </View>
           <View className="flex-row justify-between">
             <Text className="font-Jakarta text-gray-600">Destino</Text>
-            <Text className="font-JakartaMedium text-right flex-1 ml-2" numberOfLines={2}>
+            <Text
+              className="font-JakartaMedium text-right flex-1 ml-2"
+              numberOfLines={2}
+            >
               {activeRide?.destination_address || "Destino"}
             </Text>
           </View>

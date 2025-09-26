@@ -5,23 +5,22 @@ import chatService from "@/app/services/chatService";
 import { driverLocationService } from "@/app/services/driverLocationService";
 import { driverTransportService } from "@/app/services/driverTransportService";
 import ChatModal from "@/components/ChatModal";
-import CustomButton from "@/components/CustomButton";
+import { Button, Card } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
 import { generateIdempotencyKey } from "@/lib/utils";
-import { useRealtimeStore } from "@/store";
+import { useRealtimeStore, useChatStore } from "@/store";
 import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
 
 const DriverTransportInProgress: React.FC = () => {
   const { goTo } = useMapFlow();
-  const { showSuccess, showError, showWarning } = useUI();
+  const { showSuccess, showError } = useUI();
+  const chatStore = useChatStore();
   const [chatOpen, setChatOpen] = useState(false);
   const [started, setStarted] = useState(false);
   const [isTracking, setIsTracking] = useState(false);
-  const [rideDetails, setRideDetails] = useState<any>(null);
-  const [loadingDetails, setLoadingDetails] = useState(false);
 
   const {
     startNavigation,
@@ -64,7 +63,10 @@ const DriverTransportInProgress: React.FC = () => {
         setStarted(true);
         showSuccess("Viaje iniciado", "GPS activado y navegación comenzada");
       } catch (error) {
-        console.error("[DriverTransportInProgress] Error auto-starting ride:", error);
+        console.error(
+          "[DriverTransportInProgress] Error auto-starting ride:",
+          error,
+        );
         showError("Error", "No se pudo iniciar el viaje automáticamente");
       }
     };
@@ -76,8 +78,16 @@ const DriverTransportInProgress: React.FC = () => {
     const issues = [
       { key: "traffic_jam", label: "Tráfico intenso", severity: "medium" },
       { key: "accident", label: "Accidente en la ruta", severity: "high" },
-      { key: "vehicle_issue", label: "Problema con el vehículo", severity: "critical" },
-      { key: "passenger_issue", label: "Problema con el pasajero", severity: "medium" },
+      {
+        key: "vehicle_issue",
+        label: "Problema con el vehículo",
+        severity: "critical",
+      },
+      {
+        key: "passenger_issue",
+        label: "Problema con el pasajero",
+        severity: "medium",
+      },
       { key: "other", label: "Otro problema", severity: "low" },
     ];
 
@@ -89,10 +99,12 @@ const DriverTransportInProgress: React.FC = () => {
           text: issue.label,
           onPress: () => reportIssue(issue.key as any, issue.severity as any),
         }))
-        .concat([{
-          text: "Cancelar",
-          onPress: () => {},
-        }]),
+        .concat([
+          {
+            text: "Cancelar",
+            onPress: () => Promise.resolve(),
+          },
+        ]),
     );
   };
 
@@ -109,15 +121,23 @@ const DriverTransportInProgress: React.FC = () => {
         severity,
         location: driverLocationService.getTrackingStatus().lastLocation?.coords
           ? {
-              lat: driverLocationService.getTrackingStatus().lastLocation!.coords.latitude,
-              lng: driverLocationService.getTrackingStatus().lastLocation!.coords.longitude,
+              lat: driverLocationService.getTrackingStatus().lastLocation!
+                .coords.latitude,
+              lng: driverLocationService.getTrackingStatus().lastLocation!
+                .coords.longitude,
             }
           : undefined,
       });
 
-      showSuccess("Problema reportado", "El equipo de soporte ha sido notificado");
+      showSuccess(
+        "Problema reportado",
+        "El equipo de soporte ha sido notificado",
+      );
     } catch (error) {
-      console.error("[DriverTransportInProgress] Error reporting issue:", error);
+      console.error(
+        "[DriverTransportInProgress] Error reporting issue:",
+        error,
+      );
       showError("Error", "No se pudo reportar el problema");
     }
   };
@@ -179,8 +199,8 @@ const DriverTransportInProgress: React.FC = () => {
             ✅ Viaje activo
           </Text>
           <Text className="font-Jakarta text-sm text-green-700">
-            GPS: {isTracking ? "Activo" : "Iniciando..."} •
-            Navegación: {isNavigating ? "Activa" : "Iniciando..."}
+            GPS: {isTracking ? "Activo" : "Iniciando..."} • Navegación:{" "}
+            {isNavigating ? "Activa" : "Iniciando..."}
           </Text>
         </View>
 
@@ -193,7 +213,9 @@ const DriverTransportInProgress: React.FC = () => {
 
           <View className="flex-row justify-between">
             <View>
-              <Text className="font-Jakarta text-sm text-gray-500">Pasajero</Text>
+              <Text className="font-Jakarta text-sm text-gray-500">
+                Pasajero
+              </Text>
               <Text className="font-JakartaMedium text-base">
                 {activeRide?.passenger?.name || "Pasajero"}
               </Text>
@@ -225,39 +247,39 @@ const DriverTransportInProgress: React.FC = () => {
         {/* Acciones principales */}
         <View className="space-y-3 mb-4">
           <View className="flex-row space-x-2">
-            <CustomButton
+            <Button
+              variant="outline"
               title="💬 Chat"
-              bgVariant="outline"
               onPress={() => setChatOpen(true)}
               className="flex-1"
             />
-            <CustomButton
+            <Button
+              variant="danger"
               title="🚨 Reportar"
-              bgVariant="warning"
               onPress={handleReportIssue}
               className="flex-1"
             />
           </View>
 
-          <CustomButton
+          <Button
+            variant="success"
             title="🏁 Finalizar viaje"
-            bgVariant="success"
             onPress={handleEndRide}
             className="w-full"
           />
         </View>
 
         {/* Información de seguridad */}
-        <View className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+        <Card className="bg-blue-50 border-blue-200">
           <Text className="font-JakartaMedium text-sm text-blue-800 mb-2">
             🚨 Recordatorios de seguridad
           </Text>
           <Text className="font-Jakarta text-xs text-blue-700">
-            • Mantén la distancia segura con otros vehículos{"\n"}
-            • No uses el teléfono mientras conduces{"\n"}
-            • El pasajero puede rastrear tu ubicación en tiempo real
+            • Mantén la distancia segura con otros vehículos{"\n"}• No uses el
+            teléfono mientras conduces{"\n"}• El pasajero puede rastrear tu
+            ubicación en tiempo real
           </Text>
-        </View>
+        </Card>
       </ScrollView>
 
       {/* Modal de chat */}

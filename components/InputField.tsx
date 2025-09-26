@@ -1,3 +1,4 @@
+import React, { memo, useCallback } from "react";
 import {
   TextInput,
   View,
@@ -11,7 +12,7 @@ import {
 
 import { InputFieldProps } from "@/types/type";
 
-const InputField = ({
+const InputFieldComponent = ({
   label,
   icon,
   secureTextEntry = false,
@@ -51,4 +52,8 @@ const InputField = ({
   );
 };
 
+// Memoize the component to prevent unnecessary re-renders
+export const InputField = memo(InputFieldComponent);
+
+// For backward compatibility
 export default InputField;

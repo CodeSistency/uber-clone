@@ -1,17 +1,17 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, Alert, Image } from "react-native";
+
+import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
-
-// Icono de copiar usando texto emoji
-const CopyIcon = () => <Text className="text-blue-500">📋</Text>;
-
 import {
   BankReference,
   getBankInfo,
   calculateTimeRemaining,
   isReferenceExpired,
 } from "@/lib/paymentValidation";
-import { useUI } from "@/components/UIWrapper";
+
+// Icono de copiar usando texto emoji
+const CopyIcon = () => <Text className="text-blue-500">📋</Text>;
 
 interface BankReferenceCardProps {
   reference: BankReference;

@@ -2,8 +2,10 @@ import React, { useState, useCallback } from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import MapView, { Marker, Region } from "react-native-maps";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useLocationStore } from "@/store";
+
 import TripSummaryHeader from "./TripSummaryHeader";
 
 interface LocationData {
@@ -17,30 +19,33 @@ interface ConfirmOriginProps {
   onBack: (confirmedLocation?: LocationData) => void;
 }
 
-const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({
-  onConfirm,
-  onBack
-}) => {
-  const { setConfirmedOrigin, next, back, confirmedOrigin, confirmedDestination } = useMapFlow() as any;
+const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({ onConfirm, onBack }) => {
+  const {
+    setConfirmedOrigin,
+    next,
+    back,
+    confirmedOrigin,
+    confirmedDestination,
+  } = useMapFlow() as any;
   const { userLatitude, userLongitude, userAddress } = useLocationStore();
 
   // Debug location store values
-  console.log('[ConfirmOrigin] Location store values:', {
+  console.log("[ConfirmOrigin] Location store values:", {
     userLatitude,
     userLongitude,
     userAddress,
-    hasGPS: !!(userLatitude && userLongitude)
+    hasGPS: !!(userLatitude && userLongitude),
   });
-  console.log('[ConfirmOrigin] Map flow store values:', {
+  console.log("[ConfirmOrigin] Map flow store values:", {
     confirmedOrigin,
-    confirmedDestination
+    confirmedDestination,
   });
 
   // Usar la ubicación guardada en el store, o una por defecto si no existe
   const initialLocation = confirmedOrigin || {
     latitude: 4.6097,
     longitude: -74.0817,
-    address: "Bogotá, Colombia"
+    address: "Bogotá, Colombia",
   };
   const [mapCenter, setMapCenter] = useState({
     latitude: initialLocation.latitude,
@@ -50,35 +55,44 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({
   const [isLoadingAddress, setIsLoadingAddress] = useState(false);
 
   // Reverse geocoding function
-  const reverseGeocode = useCallback(async (lat: number, lng: number): Promise<string> => {
-    try {
-      // For now, return a mock address. In production, use Google Maps reverse geocoding
-      return `Ubicación aproximada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    } catch (error) {
-      console.warn('Reverse geocoding failed:', error);
-      return `Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
-    }
-  }, []);
+  const reverseGeocode = useCallback(
+    async (lat: number, lng: number): Promise<string> => {
+      try {
+        // For now, return a mock address. In production, use Google Maps reverse geocoding
+        return `Ubicación aproximada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      } catch (error) {
+        console.warn("Reverse geocoding failed:", error);
+        return `Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+    },
+    [],
+  );
 
   // Handle map region change (when user drags the map)
-  const handleRegionChangeComplete = useCallback(async (region: Region) => {
-    const newCenter = {
-      latitude: region.latitude,
-      longitude: region.longitude,
-    };
+  const handleRegionChangeComplete = useCallback(
+    async (region: Region) => {
+      const newCenter = {
+        latitude: region.latitude,
+        longitude: region.longitude,
+      };
 
-    setMapCenter(newCenter);
-    setIsLoadingAddress(true);
+      setMapCenter(newCenter);
+      setIsLoadingAddress(true);
 
-    try {
-      const address = await reverseGeocode(newCenter.latitude, newCenter.longitude);
-      setCurrentAddress(address);
-    } catch (error) {
-      console.warn('Failed to get address for new location');
-    } finally {
-      setIsLoadingAddress(false);
-    }
-  }, [reverseGeocode]);
+      try {
+        const address = await reverseGeocode(
+          newCenter.latitude,
+          newCenter.longitude,
+        );
+        setCurrentAddress(address);
+      } catch (error) {
+        console.warn("Failed to get address for new location");
+      } finally {
+        setIsLoadingAddress(false);
+      }
+    },
+    [reverseGeocode],
+  );
 
   const handleConfirm = () => {
     const confirmedLocation: LocationData = {
@@ -90,7 +104,7 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({
     // Save confirmed origin to store
     setConfirmedOrigin(confirmedLocation);
 
-    console.log('[ConfirmOrigin] Origin confirmed:', confirmedLocation);
+    console.log("[ConfirmOrigin] Origin confirmed:", confirmedLocation);
     onConfirm(confirmedLocation);
 
     // Navigate to next step (ConfirmDestination)
@@ -154,10 +168,13 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({
         const originData = {
           latitude: userLatitude || 4.6097,
           longitude: userLongitude || -74.0817,
-          address: userAddress || "Tu ubicación actual"
+          address: userAddress || "Tu ubicación actual",
         };
-        console.log('[ConfirmOrigin] Sending to header - Origin:', originData);
-        console.log('[ConfirmOrigin] Sending to header - Destination:', confirmedDestination);
+        console.log("[ConfirmOrigin] Sending to header - Origin:", originData);
+        console.log(
+          "[ConfirmOrigin] Sending to header - Destination:",
+          confirmedDestination,
+        );
 
         return (
           <TripSummaryHeader
@@ -187,15 +204,12 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({
           </Text>
 
           {/* Confirm Button */}
-          <TouchableOpacity
+          <Button
+            variant="primary"
+            title="Confirmar Origen"
             onPress={handleConfirm}
-            className="bg-primary-500 rounded-lg p-4 shadow-lg"
-            activeOpacity={0.8}
-          >
-            <Text className="text-white font-JakartaBold text-center">
-              Confirmar Origen
-            </Text>
-          </TouchableOpacity>
+            className="rounded-lg p-4 shadow-lg"
+          />
         </View>
       </View>
 

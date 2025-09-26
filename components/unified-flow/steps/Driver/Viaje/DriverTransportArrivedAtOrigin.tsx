@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { View, Text } from "react-native";
 
 import { driverTransportService } from "@/app/services/driverTransportService";
-import CustomButton from "@/components/CustomButton";
+import { Button, Card, Badge } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -54,23 +54,23 @@ const DriverTransportArrivedAtOrigin: React.FC = () => {
     <View className="flex-1">
       <FlowHeader title="Llegada al Origen" />
       <View className="p-6">
-        <CustomButton
+        <Button
+          variant="primary"
           title={loadingArrived ? "Marcando..." : "He llegado"}
           loading={loadingArrived}
-          bgVariant="primary"
           onPress={handleArrivedNotify}
           className="w-full mb-3"
         />
-        <CustomButton
+        <Button
+          variant="outline"
           title="Llamar al cliente"
-          bgVariant="outline"
           onPress={handleCall}
           className="w-full mb-3"
         />
-        <CustomButton
+        <Button
+          variant="success"
           title={loadingStart ? "Iniciando..." : "Iniciar viaje"}
           loading={loadingStart}
-          bgVariant="success"
           onPress={handleStartRide}
           className="w-full"
         />

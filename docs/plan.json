@@ -1,0 +1,929 @@
+{
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Seguridad y Configuración Crítica",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Gestión de Variables de Entorno",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema centralizado para gestionar todas las configuraciones sensibles y específicas del entorno, reemplazando las APIs keys expuestas en app.json",
+          "dependencias": ["app.json", ".env.example", "package.json"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T12:40:00.000Z",
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear Sistema de Configuración Centralizada",
+              "descripcion": "Implementar un módulo de configuración que cargue variables de entorno de forma segura y proporcione valores por defecto",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Crear archivo de configuración base",
+                  "descripcion": "Crear lib/config.ts con validación de variables requeridas y valores por defecto seguros",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:00:00.000Z"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Implementar validación de entorno",
+                  "descripcion": "Añadir validaciones para verificar que todas las variables críticas estén presentes antes de inicializar la app",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:15:00.000Z"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Crear tipos TypeScript para configuración",
+                  "descripcion": "Definir interfaces TypeScript para todas las configuraciones de la aplicación",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:20:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Migrar APIs Keys a Variables de Entorno",
+              "descripcion": "Mover todas las claves API del app.json a variables de entorno seguras",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Extraer claves de Google Maps",
+                  "descripcion": "Mover EXPO_PUBLIC_PLACES_API_KEY y EXPO_PUBLIC_DIRECTIONS_API_KEY a variables de entorno",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:30:00.000Z"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Extraer claves de Stripe",
+                  "descripcion": "Mover EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY y STRIPE_SECRET_KEY a variables de entorno",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:30:00.000Z"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Extraer configuración de Firebase",
+                  "descripcion": "Mover toda la configuración de Firebase del app.json a variables de entorno estructuradas",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:30:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Actualizar Archivos de Configuración",
+              "descripcion": "Modificar app.json y otros archivos de configuración para usar el nuevo sistema de variables de entorno",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Limpiar app.json",
+                  "descripcion": "Remover todas las claves API del app.json dejando solo configuración de Expo",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:25:00.000Z"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Actualizar .env.example",
+                  "descripcion": "Documentar todas las variables de entorno requeridas con ejemplos y descripciones",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:35:00.000Z"
+                },
+                {
+                  "id": "ST1.1.3.3",
+                  "nombre": "Crear script de validación",
+                  "descripcion": "Implementar script que valide que todas las variables críticas estén configuradas antes del build",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:40:00.000Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "URLs y Endpoints Centralizados",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema unificado para gestionar URLs de API, WebSocket y otros endpoints, eliminando URLs hardcodeadas",
+          "dependencias": ["app/services/*.ts", "app/_layout.tsx", "app.json"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T13:30:00.000Z",
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear Módulo de Endpoints",
+              "descripcion": "Implementar un módulo centralizado que gestione todas las URLs y endpoints de la aplicación",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Definir estructura de endpoints",
+                  "descripcion": "Crear interfaces TypeScript para diferentes tipos de endpoints (API, WebSocket, CDN, etc.)",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:00:00.000Z"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar configuración por entorno",
+                  "descripcion": "Permitir diferentes URLs para desarrollo, staging y producción",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:05:00.000Z"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Añadir validación de conectividad",
+                  "descripcion": "Implementar funciones para verificar disponibilidad de endpoints antes de usarlos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:10:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Refactorizar Servicios para Usar Endpoints Centralizados",
+              "descripcion": "Actualizar todos los servicios que usan URLs hardcodeadas para usar el nuevo sistema de endpoints",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Actualizar fetchAPI",
+                  "descripcion": "Modificar lib/fetch.ts para usar configuración centralizada de base URL",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:15:00.000Z"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Actualizar WebSocket service",
+                  "descripcion": "Modificar app/services/websocketService.ts para usar configuración de WebSocket URL",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:20:00.000Z"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Actualizar servicios de mapas",
+                  "descripcion": "Asegurar que todos los servicios de mapas usen la configuración centralizada",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:25:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Implementar Sistema de Health Checks",
+              "descripcion": "Añadir capacidad para verificar el estado de los servicios externos antes de inicializar",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Crear health check para API",
+                  "descripcion": "Implementar función que verifique conectividad con el backend API",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:10:00.000Z"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Crear health check para WebSocket",
+                  "descripcion": "Implementar función que verifique conectividad con el servidor WebSocket",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:10:00.000Z"
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "Integrar health checks en inicialización",
+                  "descripcion": "Modificar app/_layout.tsx para ejecutar health checks durante el startup",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:30:00.000Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Gestión de Tokens Mejorada",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Sistema robusto para manejo de tokens de autenticación con rotación automática y validación",
+          "dependencias": ["lib/auth.ts", "app/services/*.ts", "store/user/"],
+          "progreso": 100,
+          "completado": true,
+          "fecha_completado": "2025-09-26T13:50:00.000Z",
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Implementar Token Manager Avanzado",
+              "descripcion": "Mejorar el sistema actual de manejo de tokens con funcionalidades avanzadas de seguridad",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Añadir rotación automática de tokens",
+                  "descripcion": "Implementar lógica para refrescar tokens automáticamente antes de expirar",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:35:00.000Z"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Implementar validación de tokens",
+                  "descripcion": "Añadir funciones para validar integridad y expiración de tokens",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:35:00.000Z"
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Mejorar almacenamiento seguro",
+                  "descripcion": "Optimizar el uso de Expo SecureStore con encriptación adicional si es necesario",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:40:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar Sistema de Reintentos Inteligente",
+              "descripcion": "Sistema que maneje automáticamente reintentos de requests cuando los tokens expiran",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Crear interceptor de requests",
+                  "descripcion": "Implementar middleware que detecte errores 401 y active el flujo de refresh",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:45:00.000Z"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Implementar cola de requests pendientes",
+                  "descripcion": "Almacenar requests fallidos temporalmente mientras se refresca el token",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:45:00.000Z"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Añadir límites de reintentos",
+                  "descripcion": "Evitar bucles infinitos con límites configurables de reintentos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:45:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Mejorar Manejo de Sesiones",
+              "descripcion": "Implementar funcionalidades avanzadas para gestión de sesiones de usuario",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Implementar auto-logout por inactividad",
+                  "descripcion": "Cerrar sesión automáticamente después de un período de inactividad configurable",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:50:00.000Z"
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Añadir múltiples dispositivos",
+                  "descripcion": "Permitir gestión de sesiones activas en diferentes dispositivos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:50:00.000Z"
+                },
+                {
+                  "id": "ST1.3.3.3",
+                  "nombre": "Implementar notificaciones de seguridad",
+                  "descripcion": "Alertar al usuario sobre actividades sospechosas en su cuenta",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:50:00.000Z"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Seguridad y Configuración Crítica",
+      "completada": true,
+      "fecha_completado": "2025-09-26T13:50:00.000Z",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Gestión de Variables de Entorno",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema centralizado para gestionar todas las configuraciones sensibles y específicas del entorno, reemplazando las APIs keys expuestas en app.json",
+          "dependencias": ["app.json", ".env.example", "package.json"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T12:40:00.000Z",
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear Sistema de Configuración Centralizada",
+              "descripcion": "Implementar un módulo de configuración que cargue variables de entorno de forma segura y proporcione valores por defecto",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Crear archivo de configuración base",
+                  "descripcion": "Crear lib/config.ts con validación de variables requeridas y valores por defecto seguros",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:00:00.000Z"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Implementar validación de entorno",
+                  "descripcion": "Añadir validaciones para verificar que todas las variables críticas estén presentes antes de inicializar la app",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:15:00.000Z"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Crear tipos TypeScript para configuración",
+                  "descripcion": "Definir interfaces TypeScript para todas las configuraciones de la aplicación",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:20:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Migrar APIs Keys a Variables de Entorno",
+              "descripcion": "Mover todas las claves API del app.json a variables de entorno seguras",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Extraer claves de Google Maps",
+                  "descripcion": "Mover EXPO_PUBLIC_PLACES_API_KEY y EXPO_PUBLIC_DIRECTIONS_API_KEY a variables de entorno",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:30:00.000Z"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Extraer claves de Stripe",
+                  "descripcion": "Mover EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY y STRIPE_SECRET_KEY a variables de entorno",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:30:00.000Z"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Extraer configuración de Firebase",
+                  "descripcion": "Mover toda la configuración de Firebase del app.json a variables de entorno estructuradas",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:30:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Actualizar Archivos de Configuración",
+              "descripcion": "Modificar app.json y otros archivos de configuración para usar el nuevo sistema de variables de entorno",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Limpiar app.json",
+                  "descripcion": "Remover todas las claves API del app.json dejando solo configuración de Expo",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:25:00.000Z"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Actualizar .env.example",
+                  "descripcion": "Documentar todas las variables de entorno requeridas con ejemplos y descripciones",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:35:00.000Z"
+                },
+                {
+                  "id": "ST1.1.3.3",
+                  "nombre": "Crear script de validación",
+                  "descripcion": "Implementar script que valide que todas las variables críticas estén configuradas antes del build",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T12:40:00.000Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "URLs y Endpoints Centralizados",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema unificado para gestionar URLs de API, WebSocket y otros endpoints, eliminando URLs hardcodeadas",
+          "dependencias": ["app/services/*.ts", "app/_layout.tsx", "app.json"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T13:30:00.000Z",
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear Módulo de Endpoints",
+              "descripcion": "Implementar un módulo centralizado que gestione todas las URLs y endpoints de la aplicación",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Definir estructura de endpoints",
+                  "descripcion": "Crear interfaces TypeScript para diferentes tipos de endpoints (API, WebSocket, CDN, etc.)",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:00:00.000Z"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar configuración por entorno",
+                  "descripcion": "Permitir diferentes URLs para desarrollo, staging y producción",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:05:00.000Z"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Añadir validación de conectividad",
+                  "descripcion": "Implementar funciones para verificar disponibilidad de endpoints antes de usarlos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:10:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Refactorizar Servicios para Usar Endpoints Centralizados",
+              "descripcion": "Actualizar todos los servicios que usan URLs hardcodeadas para usar el nuevo sistema de endpoints",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Actualizar fetchAPI",
+                  "descripcion": "Modificar lib/fetch.ts para usar configuración centralizada de base URL",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:15:00.000Z"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Actualizar WebSocket service",
+                  "descripcion": "Modificar app/services/websocketService.ts para usar configuración de WebSocket URL",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:20:00.000Z"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Actualizar servicios de mapas",
+                  "descripcion": "Asegurar que todos los servicios de mapas usen la configuración centralizada",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:25:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Implementar Sistema de Health Checks",
+              "descripcion": "Añadir capacidad para verificar el estado de los servicios externos antes de inicializar",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Crear health check para API",
+                  "descripcion": "Implementar función que verifique conectividad con el backend API",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:10:00.000Z"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Crear health check para WebSocket",
+                  "descripcion": "Implementar función que verifique conectividad con el servidor WebSocket",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:10:00.000Z"
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "Integrar health checks en inicialización",
+                  "descripcion": "Modificar app/_layout.tsx para ejecutar health checks durante el startup",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:30:00.000Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Gestión de Tokens Mejorada",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema robusto para manejo de tokens de autenticación con rotación automática y validación",
+          "dependencias": ["lib/auth.ts", "app/services/*.ts", "store/user/"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T13:50:00.000Z",
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Implementar Token Manager Avanzado",
+              "descripcion": "Mejorar el sistema actual de manejo de tokens con funcionalidades avanzadas de seguridad",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Añadir rotación automática de tokens",
+                  "descripcion": "Implementar lógica para refrescar tokens automáticamente antes de expirar",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:35:00.000Z"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Implementar validación de tokens",
+                  "descripcion": "Añadir funciones para validar integridad y expiración de tokens",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:35:00.000Z"
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Mejorar almacenamiento seguro",
+                  "descripcion": "Optimizar el uso de Expo SecureStore con encriptación adicional si es necesario",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:40:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar Sistema de Reintentos Inteligente",
+              "descripcion": "Sistema que maneje automáticamente reintentos de requests cuando los tokens expiran",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Crear interceptor de requests",
+                  "descripcion": "Implementar middleware que detecte errores 401 y active el flujo de refresh",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:45:00.000Z"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Implementar cola de requests pendientes",
+                  "descripcion": "Almacenar requests fallidos temporalmente mientras se refresca el token",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:45:00.000Z"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Añadir límites de reintentos",
+                  "descripcion": "Evitar bucles infinitos con límites configurables de reintentos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:45:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Mejorar Manejo de Sesiones",
+              "descripcion": "Implementar funcionalidades avanzadas para gestión de sesiones de usuario",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Implementar auto-logout por inactividad",
+                  "descripcion": "Cerrar sesión automáticamente después de un período de inactividad configurable",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:50:00.000Z"
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Añadir múltiples dispositivos",
+                  "descripcion": "Permitir gestión de sesiones activas en diferentes dispositivos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:50:00.000Z"
+                },
+                {
+                  "id": "ST1.3.3.3",
+                  "nombre": "Implementar notificaciones de seguridad",
+                  "descripcion": "Alertar al usuario sobre actividades sospechosas en su cuenta",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T13:50:00.000Z"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Refactorización y Optimización de Código",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Refactorización de WebSocket Service",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Dividir el archivo websocketService.ts (2200+ líneas) en módulos más pequeños y manejables",
+          "dependencias": ["app/services/websocketService.ts"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T14:50:00.000Z",
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Analizar y Documentar WebSocket Service",
+              "descripcion": "Revisar el código actual y documentar todas las funcionalidades para planificar la refactorización",
+              "completada": true,
+              "fecha_completado": "2025-09-26T14:10:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Crear mapa de funcionalidades",
+                  "descripcion": "Documentar todas las funciones, eventos y responsabilidades del servicio WebSocket",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:00:00.000Z"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Identificar responsabilidades separables",
+                  "descripcion": "Determinar qué partes pueden extraerse en módulos independientes",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:05:00.000Z"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Crear plan de refactorización",
+                  "descripcion": "Definir la nueva estructura modular con interfaces claras",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:10:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Extraer Módulos de WebSocket",
+              "descripcion": "Separar funcionalidades en archivos independientes manteniendo compatibilidad",
+              "completada": true,
+              "fecha_completado": "2025-09-26T14:35:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Crear módulo de conexión",
+                  "descripcion": "Extraer lógica de conexión, reconexión y manejo de estado de conexión",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:15:00.000Z"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Crear módulo de eventos",
+                  "descripcion": "Extraer manejo de eventos, listeners y emisores de mensajes",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:20:00.000Z"
+                },
+                {
+                  "id": "ST2.1.2.3",
+                  "nombre": "Crear módulo de métricas",
+                  "descripcion": "Extraer sistema de métricas de performance y monitoreo",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:25:00.000Z"
+                },
+                {
+                  "id": "ST2.1.2.4",
+                  "nombre": "Crear módulo de queue",
+                  "descripcion": "Extraer sistema de cola de mensajes y rate limiting",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:30:00.000Z"
+                },
+                {
+                  "id": "ST2.1.2.5",
+                  "nombre": "Crear módulo de rooms",
+                  "descripcion": "Extraer gestión de rooms y membership",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:35:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Refactorizar Servicio Principal",
+              "descripcion": "Reescribir el servicio principal para usar los nuevos módulos",
+              "completada": true,
+              "fecha_completado": "2025-09-26T14:50:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Implementar composición de módulos",
+                  "descripcion": "Crear servicio principal que coordine todos los módulos extraídos",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:45:00.000Z"
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Mantener interfaz pública",
+                  "descripcion": "Asegurar que la API pública del servicio siga siendo compatible",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:45:00.000Z"
+                },
+                {
+                  "id": "ST2.1.3.3",
+                  "nombre": "Añadir tests de integración",
+                  "descripcion": "Crear tests para verificar que la refactorización mantiene funcionalidad",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:50:00.000Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Optimización de Performance",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Implementar optimizaciones de performance incluyendo code splitting, lazy loading y mejoras de renderizado",
+          "dependencias": ["app/_layout.tsx", "components/*.tsx", "package.json"],
+          "completado": true,
+          "fecha_completado": "2025-09-26T15:30:00.000Z",
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Implementar Code Splitting",
+              "descripcion": "Dividir el bundle en chunks más pequeños para mejorar tiempos de carga inicial",
+              "completada": true,
+              "fecha_completado": "2025-09-26T15:00:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Configurar React.lazy para rutas",
+                  "descripcion": "Implementar lazy loading para páginas y componentes de rutas",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T14:55:00.000Z"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Crear chunks por dominio",
+                  "descripcion": "Separar código por funcionalidades (auth, driver, marketplace, etc.)",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:00:00.000Z"
+                },
+                {
+                  "id": "ST2.2.1.3",
+                  "nombre": "Optimizar vendor chunks",
+                  "descripcion": "Separar dependencias de terceros en chunks independientes",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:00:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Optimizar Renderizado",
+              "descripcion": "Implementar técnicas de optimización de renderizado y estado",
+              "completada": true,
+              "fecha_completado": "2025-09-26T15:15:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Memoizar componentes pesados",
+                  "descripcion": "Aplicar React.memo, useMemo y useCallback donde sea necesario",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:05:00.000Z"
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "Optimizar listas y virtualización",
+                  "descripcion": "Implementar virtualización para listas grandes con react-native-super-grid",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:10:00.000Z"
+                },
+                {
+                  "id": "ST2.2.2.3",
+                  "nombre": "Reducir re-renders innecesarios",
+                  "descripcion": "Optimizar selectores de Zustand y estado derivado",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:15:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.3",
+              "nombre": "Implementar Bundle Analysis",
+              "descripcion": "Analizar y optimizar el tamaño del bundle de la aplicación",
+              "completada": true,
+              "fecha_completado": "2025-09-26T15:30:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.2.3.1",
+                  "nombre": "Configurar bundle analyzer",
+                  "descripcion": "Instalar y configurar herramientas de análisis de bundle",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:20:00.000Z"
+                },
+                {
+                  "id": "ST2.2.3.2",
+                  "nombre": "Identificar dependencias grandes",
+                  "descripcion": "Analizar qué dependencias están inflando el bundle",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:25:00.000Z"
+                },
+                {
+                  "id": "ST2.2.3.3",
+                  "nombre": "Optimizar imports",
+                  "descripcion": "Reemplazar imports completos por imports específicos donde sea posible",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:30:00.000Z"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.3",
+          "nombre": "Sistema de Testing Completo",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Implementar cobertura completa de testing incluyendo unit tests, integration tests y E2E",
+          "dependencias": ["__tests__/*.test.*", "jest.config.js", "package.json"],
+          "completada": true,
+          "fecha_completado": "2025-09-26T16:05:00.000Z",
+          "tareas": [
+            {
+              "id": "T2.3.1",
+              "nombre": "Configurar Infraestructura de Testing",
+              "descripcion": "Establecer la configuración base para testing con Jest y Testing Library",
+              "completada": true,
+              "fecha_completado": "2025-09-26T15:35:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.3.1.1",
+                  "nombre": "Actualizar configuración de Jest",
+                  "descripcion": "Configurar Jest para React Native con coverage y mocking",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:35:00.000Z"
+                },
+                {
+                  "id": "ST2.3.1.2",
+                  "nombre": "Configurar Testing Library",
+                  "descripcion": "Instalar y configurar @testing-library/react-native",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:35:00.000Z"
+                },
+                {
+                  "id": "ST2.3.1.3",
+                  "nombre": "Crear utilidades de testing",
+                  "descripcion": "Crear helpers, mocks y utilities para testing consistente",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:35:00.000Z"
+                }
+              ]
+            },
+            {
+              "id": "T2.3.2",
+              "nombre": "Implementar Unit Tests",
+              "descripcion": "Crear tests unitarios para componentes, hooks y utilidades críticas",
+              "completada": true,
+              "fecha_completado": "2025-09-26T15:50:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.3.2.1",
+                  "nombre": "Testear componentes UI",
+                  "descripcion": "Crear tests para componentes críticos (CustomButton, InputField, etc.)",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:40:00.000Z"
+                },
+                {
+                  "id": "ST2.3.2.2",
+                  "nombre": "Testear hooks personalizados",
+                  "descripcion": "Crear tests para hooks personalizados (useAuth, useLocation, etc.)",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:45:00.000Z"
+                },
+                {
+                  "id": "ST2.3.2.3",
+                  "nombre": "Testear utilidades",
+                  "descripcion": "Crear tests para utilidades y funciones helper",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:50:00.000Z"
+                }
+                },
+                {
+                  "id": "ST2.3.2.3",
+                  "nombre": "Testear utilidades",
+                  "descripcion": "Crear tests para funciones de utilidad (formatTime, validation, etc.)"
+                }
+              ]
+            },
+            {
+              "id": "T2.3.3",
+              "nombre": "Implementar Integration Tests",
+              "descripcion": "Crear tests de integración para flujos completos de usuario",
+              "completada": true,
+              "fecha_completado": "2025-09-26T16:00:00.000Z",
+              "subtareas": [
+                {
+                  "id": "ST2.3.3.1",
+                  "nombre": "Testear flujo de autenticación",
+                  "descripcion": "Crear tests para login, registro y manejo de tokens",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:55:00.000Z"
+                },
+                {
+                  "id": "ST2.3.3.2",
+                  "nombre": "Testear flujo de viajes",
+                  "descripcion": "Crear tests para solicitud, aceptación y tracking de viajes",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T15:55:00.000Z"
+                },
+                {
+                  "id": "ST2.3.3.3",
+                  "nombre": "Testear integración con servicios externos",
+                  "descripcion": "Crear tests para Google Maps, Stripe y Firebase integration",
+                  "completada": true,
+                  "fecha_completado": "2025-09-26T16:00:00.000Z"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

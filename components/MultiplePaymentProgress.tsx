@@ -1,9 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
-import { icons } from "@/constants";
 
-import { SplitPayment } from "@/lib/paymentValidation";
 import { useUI } from "@/components/UIWrapper";
+import { icons } from "@/constants";
+import { SplitPayment } from "@/lib/paymentValidation";
 
 interface MultiplePaymentProgressProps {
   payments: SplitPayment[];

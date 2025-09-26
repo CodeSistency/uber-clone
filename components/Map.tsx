@@ -4,6 +4,9 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useRef,
+  useMemo,
+  useCallback,
+  memo,
 } from "react";
 import { ActivityIndicator, Text, View, Platform } from "react-native";
 import MapView, {
@@ -16,6 +19,7 @@ import MapView, {
 
 import { icons } from "@/constants";
 import { Restaurant } from "@/constants/dummyData";
+import { endpoints } from "@/lib/endpoints";
 import { useFetch } from "@/lib/fetch";
 import {
   calculateDriverTimes,
@@ -24,10 +28,6 @@ import {
 } from "@/lib/map";
 import { useDriverStore, useLocationStore, useRealtimeStore } from "@/store";
 import { Driver, MarkerData } from "@/types/type";
-
-const directionsAPI =
-  process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ||
-  "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
 
 export interface MapHandle {
   animateToRegion: (region: Region, duration?: number) => void;
@@ -103,7 +103,10 @@ const Map = forwardRef<MapHandle, MapProps>(
         });
 
         const response = await fetch(
-          `https://maps.googleapis.com/maps/api/directions/json?origin=${originLat},${originLng}&destination=${destLat},${destLng}&key=${directionsAPI}`,
+          endpoints.googleMaps.directions("json", {
+            origin: `${originLat},${originLng}`,
+            destination: `${destLat},${destLng}`,
+          }),
           {
             method: "GET",
             headers: {
@@ -446,4 +449,8 @@ const Map = forwardRef<MapHandle, MapProps>(
   },
 );
 
-export default Map;
+// Memoize the component to prevent unnecessary re-renders
+const MemoizedMap = memo(Map);
+
+// For backward compatibility
+export default MemoizedMap;

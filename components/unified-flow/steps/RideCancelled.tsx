@@ -16,7 +16,7 @@ const RideCancelled: React.FC<RideCancelledProps> = ({
   reason,
   canRebook = true,
   onRebook,
-  onGoHome
+  onGoHome,
 }) => {
   const { back } = useMapFlow();
 

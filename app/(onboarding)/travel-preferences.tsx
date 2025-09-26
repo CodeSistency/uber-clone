@@ -99,7 +99,7 @@ export default function TravelPreferences() {
 
       // Continue to next step (preferences saved locally)
       nextStep();
-      router.replace("/(onboarding)");
+      router.replace("/");
     } catch (error: any) {
       console.error("[TravelPreferences] Error saving preferences:", error);
 

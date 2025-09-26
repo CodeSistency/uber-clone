@@ -39,7 +39,3 @@ const MandadoSearching: React.FC = () => {
 };
 
 export default MandadoSearching;
-
-
-
-

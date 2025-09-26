@@ -86,3 +86,91 @@ export function transformRideData(item: any) {
     },
   };
 }
+
+// Additional utility functions for tests
+export function calculateDistance(coord1: { latitude: number; longitude: number }, coord2: { latitude: number; longitude: number }): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (coord2.latitude - coord1.latitude) * Math.PI / 180;
+  const dLon = (coord2.longitude - coord1.longitude) * Math.PI / 180;
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+    Math.cos(coord1.latitude * Math.PI / 180) * Math.cos(coord2.latitude * Math.PI / 180) *
+    Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+export function calculateFare(distance: number, time: number): number {
+  const baseFare = 2.50;
+  const perKmRate = 1.50;
+  const perMinuteRate = 0.25;
+  return baseFare + (distance * perKmRate) + (time * perMinuteRate);
+}
+
+export function generateId(): string {
+  return Math.random().toString(36).substr(2, 9);
+}
+
+export function validateEmail(email: string): boolean {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+export function validatePhone(phone: string): boolean {
+  const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
+  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+}
+
+export function formatCurrency(amount: number): string {
+  return `$${amount.toFixed(2)}`;
+}
+
+export function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: number;
+  return (...args: Parameters<T>) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
+export function throttle<T extends (...args: any[]) => any>(
+  func: T,
+  limit: number
+): (...args: Parameters<T>) => void {
+  let inThrottle: boolean;
+  return (...args: Parameters<T>) => {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => inThrottle = false, limit);
+    }
+  };
+}
+
+export function isValidLocation(location: any): boolean {
+  return location &&
+    typeof location.latitude === 'number' &&
+    typeof location.longitude === 'number' &&
+    location.latitude >= -90 && location.latitude <= 90 &&
+    location.longitude >= -180 && location.longitude <= 180;
+}
+
+export function parseLocationString(locationString: string): { latitude: number; longitude: number } | null {
+  const match = locationString.match(/^(-?\d+\.?\d*),(-?\d+\.?\d*)$/);
+  if (match) {
+    const [, lat, lng] = match;
+    return { latitude: parseFloat(lat), longitude: parseFloat(lng) };
+  }
+  return null;
+}
+
+export function formatLocationDisplay(location: any): string {
+  if (!location) return 'Unknown location';
+  if (location.address) return location.address;
+  if (location.latitude && location.longitude) {
+    return `${location.latitude.toFixed(6)}, ${location.longitude.toFixed(6)}`;
+  }
+  return 'Unknown location';
+}

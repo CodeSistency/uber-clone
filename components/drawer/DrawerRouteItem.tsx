@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import { DrawerRouteItemProps } from "./types";
+
 import { icons } from "@/constants";
+
+import { DrawerRouteItemProps } from "./types";
 
 // Componente para cada item de ruta en el drawer
 export const DrawerRouteItem: React.FC<DrawerRouteItemProps> = ({

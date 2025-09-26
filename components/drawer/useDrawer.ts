@@ -3,7 +3,7 @@ import { router, usePathname } from "expo-router";
 import { useState, useEffect, useCallback, useMemo } from "react";
 
 import { useUI } from "@/components/UIWrapper";
-import { useModuleStore } from "@/store/module";
+import { useModuleStore, useModuleTransition } from "@/store/module";
 
 import { drawerConfigs } from "./configs";
 import {
@@ -32,6 +32,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
   // Estado global de módulos
   const moduleStore = useModuleStore();
+  const moduleTransition = useModuleTransition();
   const { showModal, showSuccess, showError } = useUI();
 
   // Hook de Expo Router para obtener la ruta actual
@@ -218,8 +219,8 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
       }
 
       try {
-        // Ejecutar cambio de módulo
-        await moduleStore.setModule(targetModule);
+        // Ejecutar cambio de módulo con splash
+        await moduleTransition.switchModule(targetModule);
 
         // Cerrar drawer
         close();

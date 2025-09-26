@@ -7,6 +7,7 @@ import {
   TextInput,
 } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { useMapFlow } from "@/hooks/useMapFlow";
 
 import FlowHeader from "../../../FlowHeader";
@@ -67,12 +68,11 @@ const DeliveryBusinessSearch: React.FC = () => {
 
       {/* Barra de búsqueda */}
       <View className="mb-4">
-        <TextInput
+        <TextField
           placeholder="Buscar restaurante..."
           value={searchText}
           onChangeText={setSearchText}
-          className="bg-gray-50 rounded-lg px-4 py-3 font-Jakarta"
-          placeholderTextColor="#9CA3AF"
+          className="bg-gray-50"
         />
       </View>
 
@@ -84,21 +84,13 @@ const DeliveryBusinessSearch: React.FC = () => {
       >
         <View className="flex-row space-x-2">
           {CATEGORIES.map((category) => (
-            <TouchableOpacity
+            <Button
               key={category}
+              variant={selectedCategory === category ? "primary" : "secondary"}
+              title={category}
               onPress={() => setSelectedCategory(category)}
-              className={`px-4 py-2 rounded-full ${
-                selectedCategory === category ? "bg-primary-500" : "bg-gray-100"
-              }`}
-            >
-              <Text
-                className={`font-JakartaMedium ${
-                  selectedCategory === category ? "text-white" : "text-gray-700"
-                }`}
-              >
-                {category}
-              </Text>
-            </TouchableOpacity>
+              className="px-4 py-2 rounded-full"
+            />
           ))}
         </View>
       </ScrollView>
@@ -110,8 +102,7 @@ const DeliveryBusinessSearch: React.FC = () => {
             <TouchableOpacity
               key={business.id}
               onPress={() => next()}
-              className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
-              activeOpacity={0.7}
+              className="bg-white p-4 rounded-lg shadow-sm mb-3"
             >
               <View className="flex-row items-center">
                 <Text className="text-3xl mr-3">{business.image}</Text>

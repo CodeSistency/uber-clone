@@ -46,7 +46,3 @@ const MandadoFinalize: React.FC = () => {
 };
 
 export default MandadoFinalize;
-
-
-
-

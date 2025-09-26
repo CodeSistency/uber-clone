@@ -5,9 +5,14 @@ import { transportClient } from "@/app/services/flowClientService";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import {
+  mapPaymentMethodToAPI,
+  validatePaymentMethod,
+  SplitPayment,
+  createSplitPayment,
+} from "@/lib/paymentValidation";
 import { useRealtimeStore, useDriverStore, usePaymentStore } from "@/store";
 import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
-import { mapPaymentMethodToAPI, validatePaymentMethod, SplitPayment, createSplitPayment } from "@/lib/paymentValidation";
 
 import FlowHeader from "../../FlowHeader";
 
@@ -21,18 +26,24 @@ const DriverConfirmation: React.FC = () => {
   // Estados de pago
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [multiplePayments, setMultiplePayments] = useState<SplitPayment[]>([]);
-  const [paymentMode, setPaymentMode] = useState<"single" | "multiple">("single");
+  const [paymentMode, setPaymentMode] = useState<"single" | "multiple">(
+    "single",
+  );
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
   const [editingMethod, setEditingMethod] = useState<SplitPayment | null>(null);
 
   // Monto estimado del viaje
-  const estimatedFare = 25.50;
+  const estimatedFare = 25.5;
 
   // Validaciones
   const paymentValidation = validatePaymentMethod(paymentMethod || "");
-  const canContinue = selectedDriver !== null && !isProcessingPayment &&
-    (paymentMode === "single" ? paymentValidation.isValid : multiplePayments.length > 0);
+  const canContinue =
+    selectedDriver !== null &&
+    !isProcessingPayment &&
+    (paymentMode === "single"
+      ? paymentValidation.isValid
+      : multiplePayments.length > 0);
 
   const driver = React.useMemo(
     () => drivers.find((d) => d.id === selectedDriver) || null,
@@ -65,10 +76,9 @@ const DriverConfirmation: React.FC = () => {
       if (paymentMode === "single") {
         // Pago único tradicional
         const paymentData = mapPaymentMethodToAPI(paymentMethod!);
-        await withUI(
-          () => transportClient.confirmPayment(id, paymentData),
-          { loadingMessage: "Confirmando pago..." }
-        );
+        await withUI(() => transportClient.confirmPayment(id, paymentData), {
+          loadingMessage: "Confirmando pago...",
+        });
 
         showSuccess("¡Pago confirmado!", "Tu conductor está en camino");
       } else {
@@ -77,10 +87,13 @@ const DriverConfirmation: React.FC = () => {
           throw new Error("No se han configurado pagos múltiples");
         }
 
-        console.log("[DriverConfirmation] Processing multiple payments:", multiplePayments);
+        console.log(
+          "[DriverConfirmation] Processing multiple payments:",
+          multiplePayments,
+        );
 
         // Convertir SplitPayment a PaymentMethod para la API
-        const paymentMethods = multiplePayments.map(payment => ({
+        const paymentMethods = multiplePayments.map((payment) => ({
           method: payment.method,
           amount: payment.amount,
           bankCode: payment.bankCode,
@@ -98,10 +111,13 @@ const DriverConfirmation: React.FC = () => {
         if (paymentGroup.success) {
           showSuccess(
             "¡Pagos configurados!",
-            `Grupo ${paymentGroup.groupId} creado con ${multiplePayments.length} métodos`
+            `Grupo ${paymentGroup.groupId} creado con ${multiplePayments.length} métodos`,
           );
 
-          console.log("[DriverConfirmation] Payment group created:", paymentGroup.groupId);
+          console.log(
+            "[DriverConfirmation] Payment group created:",
+            paymentGroup.groupId,
+          );
         } else {
           throw new Error("Error al crear grupo de pagos");
         }
@@ -109,7 +125,6 @@ const DriverConfirmation: React.FC = () => {
 
       // Continuar con el flujo
       goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.DURANTE_FINALIZACION);
-
     } catch (error: any) {
       console.error("[DriverConfirmation] Payment confirmation error:", error);
       const errorMessage = error?.message || "Error al procesar el pago";
@@ -153,12 +168,12 @@ const DriverConfirmation: React.FC = () => {
 
       if (editingMethod) {
         // Edit existing payment
-        setMultiplePayments(prev =>
-          prev.map(p => p === editingMethod ? newPayment : p)
+        setMultiplePayments((prev) =>
+          prev.map((p) => (p === editingMethod ? newPayment : p)),
         );
       } else {
         // Add new payment
-        setMultiplePayments(prev => [...prev, newPayment]);
+        setMultiplePayments((prev) => [...prev, newPayment]);
       }
 
       setShowAddModal(false);
@@ -170,7 +185,7 @@ const DriverConfirmation: React.FC = () => {
 
     const handleDelete = () => {
       if (editingMethod) {
-        setMultiplePayments(prev => prev.filter(p => p !== editingMethod));
+        setMultiplePayments((prev) => prev.filter((p) => p !== editingMethod));
         setShowAddModal(false);
         setEditingMethod(null);
       }
@@ -181,20 +196,36 @@ const DriverConfirmation: React.FC = () => {
         <View className="flex-1 bg-black/50 justify-end">
           <View className="bg-white rounded-t-xl p-6">
             <Text className="font-JakartaBold text-lg mb-4">
-              {editingMethod ? "Editar método de pago" : "Agregar método de pago"}
+              {editingMethod
+                ? "Editar método de pago"
+                : "Agregar método de pago"}
             </Text>
 
             <Text className="font-JakartaMedium mb-2">Método:</Text>
             <View className="flex-row flex-wrap mb-4">
-              {["Credit Card", "Debit Card", "Cash", "Bank Transfer", "Digital Wallet"].map((method) => (
+              {[
+                "Credit Card",
+                "Debit Card",
+                "Cash",
+                "Bank Transfer",
+                "Digital Wallet",
+              ].map((method) => (
                 <TouchableOpacity
                   key={method}
                   onPress={() => setSelectedMethod(method)}
                   className={`mr-2 mb-2 px-3 py-2 rounded-lg border ${
-                    selectedMethod === method ? "border-primary-500 bg-primary-50" : "border-gray-300"
+                    selectedMethod === method
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-gray-300"
                   }`}
                 >
-                  <Text className={selectedMethod === method ? "text-primary-600" : "text-gray-600"}>
+                  <Text
+                    className={
+                      selectedMethod === method
+                        ? "text-primary-600"
+                        : "text-gray-600"
+                    }
+                  >
                     {method}
                   </Text>
                 </TouchableOpacity>
@@ -211,7 +242,9 @@ const DriverConfirmation: React.FC = () => {
               placeholderTextColor="#9CA3AF"
             />
 
-            <Text className="font-JakartaMedium mb-2">Descripción (opcional):</Text>
+            <Text className="font-JakartaMedium mb-2">
+              Descripción (opcional):
+            </Text>
             <TextInput
               value={description}
               onChangeText={setDescription}
@@ -238,7 +271,9 @@ const DriverConfirmation: React.FC = () => {
                   onPress={handleDelete}
                   className="flex-1 bg-red-500 rounded-lg py-3"
                 >
-                  <Text className="text-center font-JakartaMedium text-white">Eliminar</Text>
+                  <Text className="text-center font-JakartaMedium text-white">
+                    Eliminar
+                  </Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -286,7 +321,8 @@ const DriverConfirmation: React.FC = () => {
                 ⭐ 4.6 ({(driver as any).rides_count || 0} viajes)
               </Text>
               <Text className="font-Jakarta text-gray-600">
-                📞 +57 300 123 4567 • ⏱️ ETA: {driver.time ? `${driver.time} min` : "—"}
+                📞 +57 300 123 4567 • ⏱️ ETA:{" "}
+                {driver.time ? `${driver.time} min` : "—"}
               </Text>
             </>
           ) : (
@@ -327,11 +363,11 @@ const DriverConfirmation: React.FC = () => {
                 paymentMode === "single" ? "bg-white shadow-sm" : ""
               }`}
             >
-              <Text className={`text-center font-JakartaMedium ${
-                paymentMode === "single"
-                  ? "text-gray-800"
-                  : "text-gray-600"
-              }`}>
+              <Text
+                className={`text-center font-JakartaMedium ${
+                  paymentMode === "single" ? "text-gray-800" : "text-gray-600"
+                }`}
+              >
                 Pago
               </Text>
             </TouchableOpacity>
@@ -341,11 +377,11 @@ const DriverConfirmation: React.FC = () => {
                 paymentMode === "multiple" ? "bg-white shadow-sm" : ""
               }`}
             >
-              <Text className={`text-center font-JakartaMedium ${
-                paymentMode === "multiple"
-                  ? "text-gray-800"
-                  : "text-gray-600"
-              }`}>
+              <Text
+                className={`text-center font-JakartaMedium ${
+                  paymentMode === "multiple" ? "text-gray-800" : "text-gray-600"
+                }`}
+              >
                 Pago Múltiple
               </Text>
             </TouchableOpacity>
@@ -361,10 +397,15 @@ const DriverConfirmation: React.FC = () => {
           ) : (
             <View>
               {multiplePayments.map((payment, index) => (
-                <View key={index} className="flex-row items-center justify-between bg-gray-50 rounded-lg p-3 mb-2">
+                <View
+                  key={index}
+                  className="flex-row items-center justify-between bg-gray-50 rounded-lg p-3 mb-2"
+                >
                   <View className="flex-1">
                     <Text className="font-JakartaMedium">{payment.method}</Text>
-                    <Text className="font-Jakarta text-sm text-gray-600">${payment.amount.toFixed(2)}</Text>
+                    <Text className="font-Jakarta text-sm text-gray-600">
+                      ${payment.amount.toFixed(2)}
+                    </Text>
                   </View>
                   <View className="flex-row space-x-2">
                     <TouchableOpacity
@@ -377,7 +418,11 @@ const DriverConfirmation: React.FC = () => {
                       <Text className="text-blue-500 text-lg">✏️</Text>
                     </TouchableOpacity>
                     <TouchableOpacity
-                      onPress={() => setMultiplePayments(prev => prev.filter((_, i) => i !== index))}
+                      onPress={() =>
+                        setMultiplePayments((prev) =>
+                          prev.filter((_, i) => i !== index),
+                        )
+                      }
                       className="p-1"
                     >
                       <Text className="text-red-500 text-lg">🗑️</Text>
@@ -393,7 +438,9 @@ const DriverConfirmation: React.FC = () => {
                 className="flex-row items-center justify-center bg-gray-100 rounded-lg p-3 border-2 border-dashed border-gray-300"
               >
                 <Text className="text-gray-600 mr-2">+</Text>
-                <Text className="text-gray-600 font-JakartaMedium">Agregar método de pago</Text>
+                <Text className="text-gray-600 font-JakartaMedium">
+                  Agregar método de pago
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -415,9 +462,15 @@ const DriverConfirmation: React.FC = () => {
           <Text className="font-JakartaBold text-lg text-gray-800 mb-2">
             Ruta del viaje
           </Text>
-          <Text className="font-Jakarta text-gray-600">📍 Origen: Calle 123, Bogotá</Text>
-          <Text className="font-Jakarta text-gray-600">�� Destino: Carrera 45, Medellín</Text>
-          <Text className="font-Jakarta text-gray-600">�� Distancia: 15.2 km</Text>
+          <Text className="font-Jakarta text-gray-600">
+            📍 Origen: Calle 123, Bogotá
+          </Text>
+          <Text className="font-Jakarta text-gray-600">
+            �� Destino: Carrera 45, Medellín
+          </Text>
+          <Text className="font-Jakarta text-gray-600">
+            �� Distancia: 15.2 km
+          </Text>
         </View>
       </View>
 

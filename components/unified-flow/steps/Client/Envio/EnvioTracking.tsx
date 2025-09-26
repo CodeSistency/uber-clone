@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { parcelClient } from "@/app/services/flowClientService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -53,7 +54,7 @@ const EnvioTracking: React.FC = () => {
       />
 
       <View className="px-5 mt-4">
-        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <Card className="bg-white">
           <Text className="font-JakartaMedium text-gray-700 mb-2">Estado</Text>
           <View
             className={`self-start px-3 py-1 rounded-full ${statusColor()}`}
@@ -62,12 +63,13 @@ const EnvioTracking: React.FC = () => {
               {statusText[status]}
             </Text>
           </View>
-        </View>
+        </Card>
       </View>
 
       <View className="px-5 pb-4 mt-4">
-        <TouchableOpacity
-          className="rounded-xl p-4 bg-red-500"
+        <Button
+          variant="danger"
+          title="Cancelar envío"
           onPress={async () => {
             const id = parcelId || 401;
             await withUI(() => parcelClient.cancel(id), {
@@ -75,11 +77,8 @@ const EnvioTracking: React.FC = () => {
             });
             showSuccess("Envío cancelado", "Tu envío fue cancelado");
           }}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Cancelar envío
-          </Text>
-        </TouchableOpacity>
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );

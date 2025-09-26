@@ -55,23 +55,6 @@
     "extra": {
       "eas": {
         "projectId": "80da4700-4d63-4bfd-a86b-9f8e4bcbf620"
-      },
-      "serverUrl": "http://localhost:3000",
-      "wsUrl": "http://localhost:3000",
-      "stripePublishableKey": "pk_test_...",
-      "directionsApiKey": "AIzaSyAxgvs-tvPkf_8WnvOl2Ig44OaFg4FhTpg",
-      "placesApiKey": "AIzaSyAxgvs-tvPkf_8WnvOl2Ig44OaFg4FhTpg",
-      "geoapifyApiKey": "your-geoapify-api-key",
-      "firebase": {
-        "apiKey": "AIzaSyCfHV3FXfztXCWvhKN7tmIJn8v-fS6i4Qg",
-        "authDomain": "uber-clone-4bf3b.firebaseapp.com",
-        "projectId": "uber-clone-4bf3b",
-        "storageBucket": "uber-clone-4bf3b.firebasestorage.app",
-        "messagingSenderId": "517531309840",
-        "appId": "1:517531309840:android:4faa2ab71c6eaadfb83795"
-      },
-      "router": {
-        "origin": "https://uber.dev/"
       }
     },
     "experiments": {

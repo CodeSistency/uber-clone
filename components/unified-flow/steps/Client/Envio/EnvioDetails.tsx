@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TextInput, TouchableOpacity } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { parcelClient } from "@/app/services/flowClientService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -29,73 +30,60 @@ const EnvioDetails: React.FC = () => {
       />
 
       <View className="px-5">
-        <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-          Dirección de origen
-        </Text>
-        <TextInput
+        <TextField
+          label="Dirección de origen"
           value={origin}
           onChangeText={setOrigin}
           placeholder="Calle, número, referencia"
-          className="bg-white rounded-xl p-4 border border-gray-200 mb-4"
+          className="mb-4"
         />
 
-        <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-          Dirección de destino
-        </Text>
-        <TextInput
+        <TextField
+          label="Dirección de destino"
           value={destination}
           onChangeText={setDestination}
           placeholder="Calle, número, referencia"
-          className="bg-white rounded-xl p-4 border border-gray-200 mb-4"
+          className="mb-4"
         />
 
-        <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-          Tipo de paquete
-        </Text>
-        <TextInput
+        <TextField
+          label="Tipo de paquete"
           value={packageType}
           onChangeText={setPackageType}
-          className="bg-white rounded-xl p-4 border border-gray-200 mb-4"
+          className="mb-4"
         />
 
         <View className="flex-row">
           <View className="flex-1 mr-2">
-            <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-              Tamaño
-            </Text>
-            <TextInput
+            <TextField
+              label="Tamaño"
               value={size}
               onChangeText={setSize}
-              className="bg-white rounded-xl p-4 border border-gray-200"
             />
           </View>
           <View className="flex-1 ml-2">
-            <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-              Peso
-            </Text>
-            <TextInput
+            <TextField
+              label="Peso"
               value={weight}
               onChangeText={setWeight}
-              className="bg-white rounded-xl p-4 border border-gray-200"
             />
           </View>
         </View>
 
-        <Text className="font-JakartaMedium text-sm text-gray-600 mt-4 mb-2">
-          Descripción
-        </Text>
-        <TextInput
+        <TextField
+          label="Descripción"
           value={description}
           onChangeText={setDescription}
           placeholder="Detalles del paquete"
-          className="bg-white rounded-xl p-4 border border-gray-200"
+          className="mt-4"
           multiline
         />
       </View>
 
       <View className="px-5 pb-4 mt-4">
-        <TouchableOpacity
-          disabled={!canContinue}
+        <Button
+          variant={canContinue ? "primary" : "secondary"}
+          title="Calcular precio"
           onPress={async () => {
             const res = await withUI(
               () =>
@@ -115,12 +103,9 @@ const EnvioDetails: React.FC = () => {
             if (id) setParcelId(id);
             goTo(FLOW_STEPS.CUSTOMER_ENVIO.CALCULAR_PRECIO);
           }}
-          className={`rounded-xl p-4 ${canContinue ? "bg-primary-500" : "bg-gray-300"}`}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Calcular precio
-          </Text>
-        </TouchableOpacity>
+          disabled={!canContinue}
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );

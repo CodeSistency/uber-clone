@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { deliveryClient } from "@/app/services/flowClientService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -46,17 +47,18 @@ const DeliveryTracking: React.FC = () => {
       />
 
       <View className="px-5 mt-4">
-        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <Card className="bg-white">
           <Text className="font-JakartaMedium text-gray-700">Estado</Text>
           <Text className="font-JakartaBold text-lg text-gray-800 mt-1">
             {statusText[status]}
           </Text>
-        </View>
+        </Card>
       </View>
 
       <View className="px-5 pb-4 mt-4">
-        <TouchableOpacity
-          className="rounded-xl p-4 bg-red-500"
+        <Button
+          variant="danger"
+          title="Cancelar pedido"
           onPress={async () => {
             const id = orderId || 201;
             await withUI(() => deliveryClient.cancel(id), {
@@ -64,11 +66,8 @@ const DeliveryTracking: React.FC = () => {
             });
             showSuccess("Pedido cancelado", "Tu pedido fue cancelado");
           }}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Cancelar pedido
-          </Text>
-        </TouchableOpacity>
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );

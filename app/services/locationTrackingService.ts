@@ -24,7 +24,7 @@ class LocationTrackingService {
     console.log("[LocationTrackingService] 🚀 Starting location tracking:", {
       rideId,
       previousRideId: this.currentRideId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     this.currentRideId = rideId;
@@ -34,11 +34,15 @@ class LocationTrackingService {
       const ExpoLocation = require("expo-location");
       const { status } = await ExpoLocation.requestForegroundPermissionsAsync();
       if (status !== "granted") {
-        console.warn("[LocationTrackingService] ⚠️ Permission not granted, using fallback");
+        console.warn(
+          "[LocationTrackingService] ⚠️ Permission not granted, using fallback",
+        );
         this.startFallbackInterval();
         return;
       }
-      console.log("[LocationTrackingService] ✅ GPS permissions granted, using high-accuracy tracking");
+      console.log(
+        "[LocationTrackingService] ✅ GPS permissions granted, using high-accuracy tracking",
+      );
       // Start watching position
       this.watchId = await ExpoLocation.watchPositionAsync(
         {
@@ -57,7 +61,7 @@ class LocationTrackingService {
               accuracy: position.coords.accuracy,
               speed: position.coords.speed,
               rideId: this.currentRideId,
-              timestamp: new Date().toISOString()
+              timestamp: new Date().toISOString(),
             });
 
             // Update realtime store
@@ -69,17 +73,24 @@ class LocationTrackingService {
 
             // Use callback to update websocket if available
             if (this.websocketUpdateCallback && this.currentRideId) {
-              console.log("[LocationTrackingService] 🌐 Sending WebSocket location update");
+              console.log(
+                "[LocationTrackingService] 🌐 Sending WebSocket location update",
+              );
               this.websocketUpdateCallback(this.currentRideId, {
                 latitude: lat,
                 longitude: lng,
                 timestamp: new Date(),
               } as any);
             } else {
-              console.log("[LocationTrackingService] ⚠️ No WebSocket callback or rideId available");
+              console.log(
+                "[LocationTrackingService] ⚠️ No WebSocket callback or rideId available",
+              );
             }
           } catch (error) {
-            console.error("[LocationTrackingService] ❌ Error in GPS position callback:", error);
+            console.error(
+              "[LocationTrackingService] ❌ Error in GPS position callback:",
+              error,
+            );
           }
         },
       );
@@ -92,7 +103,9 @@ class LocationTrackingService {
   }
 
   private startFallbackInterval() {
-    console.log("[LocationTrackingService] 🔄 Starting fallback interval tracking");
+    console.log(
+      "[LocationTrackingService] 🔄 Starting fallback interval tracking",
+    );
     this.stop();
     this.intervalId = setInterval(() => {
       try {
@@ -107,7 +120,7 @@ class LocationTrackingService {
           userLatitude,
           userLongitude,
           hasValidLocation: !!(rideId && userLatitude && userLongitude),
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         });
 
         if (rideId && userLatitude && userLongitude) {
@@ -120,7 +133,9 @@ class LocationTrackingService {
 
           // Use callback to update websocket if available
           if (this.websocketUpdateCallback) {
-            console.log("[LocationTrackingService] 🌐 Sending WebSocket location update (fallback)");
+            console.log(
+              "[LocationTrackingService] 🌐 Sending WebSocket location update (fallback)",
+            );
             this.websocketUpdateCallback(rideId, {
               latitude: userLatitude,
               longitude: userLongitude,
@@ -128,10 +143,15 @@ class LocationTrackingService {
             } as any);
           }
         } else {
-          console.log("[LocationTrackingService] ⚠️ Skipping fallback update - invalid data");
+          console.log(
+            "[LocationTrackingService] ⚠️ Skipping fallback update - invalid data",
+          );
         }
       } catch (error) {
-        console.error("[LocationTrackingService] ❌ Error in fallback interval:", error);
+        console.error(
+          "[LocationTrackingService] ❌ Error in fallback interval:",
+          error,
+        );
       }
     }, 5000);
   }
@@ -141,7 +161,7 @@ class LocationTrackingService {
       hadWatchId: !!this.watchId,
       hadIntervalId: !!this.intervalId,
       currentRideId: this.currentRideId,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -150,7 +170,10 @@ class LocationTrackingService {
         this.watchId.remove();
       }
     } catch (error) {
-      console.error("[LocationTrackingService] ❌ Error removing GPS watch:", error);
+      console.error(
+        "[LocationTrackingService] ❌ Error removing GPS watch:",
+        error,
+      );
     }
 
     this.watchId = null;

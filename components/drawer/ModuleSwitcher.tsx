@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+
 import { ModuleSwitcherProps } from "./types";
 
 // Componente para cambiar entre módulos

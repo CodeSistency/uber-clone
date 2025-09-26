@@ -1,14 +1,18 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
+import { parcelClient } from "@/app/services/flowClientService";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import {
+  mapPaymentMethodToAPI,
+  validatePaymentMethod,
+} from "@/lib/paymentValidation";
 import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
-import { mapPaymentMethodToAPI, validatePaymentMethod } from "@/lib/paymentValidation";
 
 import FlowHeader from "../../../FlowHeader";
-import { parcelClient } from "@/app/services/flowClientService";
 
 const EnvioPricingAndPayment: React.FC = () => {
   const { back, goTo, parcelId } = useMapFlow() as any;
@@ -28,7 +32,7 @@ const EnvioPricingAndPayment: React.FC = () => {
       />
 
       <View className="px-5 mt-4">
-        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <Card className="bg-white">
           <Text className="font-JakartaMedium text-gray-700">
             Precio estimado
           </Text>
@@ -38,7 +42,7 @@ const EnvioPricingAndPayment: React.FC = () => {
           <Text className="font-Jakarta text-gray-500 mt-1">
             Basado en distancia, tamaño y peso
           </Text>
-        </View>
+        </Card>
       </View>
 
       <PaymentMethodSelector
@@ -48,27 +52,24 @@ const EnvioPricingAndPayment: React.FC = () => {
       />
 
       <View className="px-5 pb-4 mt-2">
-        <TouchableOpacity
-          disabled={!canPay}
+        <Button
+          variant={canPay ? "primary" : "secondary"}
+          title="Pagar e iniciar envío"
           onPress={async () => {
             const id = parcelId || 401;
             // Confirmar pago antes de unirse al tracking
             const paymentData = mapPaymentMethodToAPI(paymentMethod!);
-            await withUI(
-              () => parcelClient.confirmPayment(id, paymentData),
-              { loadingMessage: "Confirmando pago..." }
-            );
+            await withUI(() => parcelClient.confirmPayment(id, paymentData), {
+              loadingMessage: "Confirmando pago...",
+            });
             await withUI(() => parcelClient.join(id), {
               loadingMessage: "Uniéndote al tracking...",
             });
             goTo(FLOW_STEPS.CUSTOMER_ENVIO.SEGUIMIENTO_PAQUETE);
           }}
-          className={`rounded-xl p-4 ${canPay ? "bg-primary-500" : "bg-gray-300"}`}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Pagar e iniciar envío
-          </Text>
-        </TouchableOpacity>
+          disabled={!canPay}
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );

@@ -1,23 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from 'react-native';
-import { runBackendConnectivityTest, getBackendStatus } from '@/lib/backendTest';
-import { log } from '@/lib/logger';
+  runBackendConnectivityTest,
+  getBackendStatus,
+} from "@/lib/backendTest";
+import { log } from "@/lib/logger";
 
 interface BackendConnectivityTestProps {
   isVisible?: boolean;
   onClose?: () => void;
 }
 
-export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = ({
-  isVisible = false,
-  onClose,
-}) => {
+export const BackendConnectivityTest: React.FC<
+  BackendConnectivityTestProps
+> = ({ isVisible = false, onClose }) => {
   const [isTesting, setIsTesting] = useState(false);
   const [testResults, setTestResults] = useState<any>(null);
   const [status, setStatus] = useState<any>(null);
@@ -28,7 +25,10 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
     setStatus(null);
 
     try {
-      log.info('BackendConnectivityTest', 'Starting backend connectivity tests');
+      log.info(
+        "BackendConnectivityTest",
+        "Starting backend connectivity tests",
+      );
 
       const results = await runBackendConnectivityTest();
       const healthStatus = getBackendStatus(results);
@@ -36,7 +36,7 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
       setTestResults(results);
       setStatus(healthStatus);
 
-      log.info('BackendConnectivityTest', 'Backend tests completed', {
+      log.info("BackendConnectivityTest", "Backend tests completed", {
         overallStatus: healthStatus.overall,
         apiStatus: healthStatus.api,
         chatStatus: healthStatus.chat,
@@ -45,19 +45,24 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
 
       // Show summary alert
       Alert.alert(
-        'Backend Test Results',
+        "Backend Test Results",
         `Overall: ${healthStatus.overall.toUpperCase()}\n` +
-        `API: ${healthStatus.api.toUpperCase()}\n` +
-        `Chat: ${healthStatus.chat.toUpperCase()}\n` +
-        `WebSocket: ${healthStatus.websocket.toUpperCase()}`,
-        [{ text: 'OK' }]
+          `API: ${healthStatus.api.toUpperCase()}\n` +
+          `Chat: ${healthStatus.chat.toUpperCase()}\n` +
+          `WebSocket: ${healthStatus.websocket.toUpperCase()}`,
+        [{ text: "OK" }],
+      );
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      log.error(
+        "BackendConnectivityTest",
+        "Backend tests failed",
+        { error: errorMessage },
+        error instanceof Error ? error : undefined,
       );
 
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      log.error('BackendConnectivityTest', 'Backend tests failed', { error: errorMessage }, error);
-
-      Alert.alert('Test Failed', `Error: ${errorMessage}`);
+      Alert.alert("Test Failed", `Error: ${errorMessage}`);
     } finally {
       setIsTesting(false);
     }
@@ -65,31 +70,31 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy':
-      case 'connected':
-        return 'text-green-600';
-      case 'unhealthy':
-      case 'disconnected':
-        return 'text-red-600';
-      case 'degraded':
-        return 'text-yellow-600';
+      case "healthy":
+      case "connected":
+        return "text-green-600";
+      case "unhealthy":
+      case "disconnected":
+        return "text-red-600";
+      case "degraded":
+        return "text-yellow-600";
       default:
-        return 'text-gray-600';
+        return "text-gray-600";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'healthy':
-      case 'connected':
-        return '✅';
-      case 'unhealthy':
-      case 'disconnected':
-        return '❌';
-      case 'degraded':
-        return '⚠️';
+      case "healthy":
+      case "connected":
+        return "✅";
+      case "unhealthy":
+      case "disconnected":
+        return "❌";
+      case "degraded":
+        return "⚠️";
       default:
-        return '❓';
+        return "❓";
     }
   };
 
@@ -113,13 +118,15 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
           onPress={runTests}
           disabled={isTesting}
           className={`p-3 rounded-lg mb-4 ${
-            isTesting ? 'bg-gray-400' : 'bg-blue-500'
+            isTesting ? "bg-gray-400" : "bg-blue-500"
           }`}
         >
-          <Text className={`text-white text-center font-semibold ${
-            isTesting ? 'opacity-50' : ''
-          }`}>
-            {isTesting ? 'Testing...' : 'Run Backend Tests'}
+          <Text
+            className={`text-white text-center font-semibold ${
+              isTesting ? "opacity-50" : ""
+            }`}
+          >
+            {isTesting ? "Testing..." : "Run Backend Tests"}
           </Text>
         </TouchableOpacity>
 
@@ -127,8 +134,12 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
           <View className="mb-4">
             <Text className="text-lg font-semibold mb-2">Overall Status:</Text>
             <View className="flex-row items-center">
-              <Text className="text-2xl mr-2">{getStatusIcon(status.overall)}</Text>
-              <Text className={`text-lg font-semibold ${getStatusColor(status.overall)}`}>
+              <Text className="text-2xl mr-2">
+                {getStatusIcon(status.overall)}
+              </Text>
+              <Text
+                className={`text-lg font-semibold ${getStatusColor(status.overall)}`}
+              >
                 {status.overall.toUpperCase()}
               </Text>
             </View>
@@ -140,52 +151,64 @@ export const BackendConnectivityTest: React.FC<BackendConnectivityTestProps> = (
             <View className="mb-4">
               <Text className="text-lg font-semibold mb-2">API Tests:</Text>
               {testResults.api.map((test: any, index: number) => (
-                <View key={index} className="flex-row justify-between items-center py-1">
+                <View
+                  key={index}
+                  className="flex-row justify-between items-center py-1"
+                >
                   <Text className="flex-1 text-sm">{test.endpoint}</Text>
                   <View className="flex-row items-center">
                     <Text className="text-xs text-gray-500 mr-2">
                       {test.responseTime}ms
                     </Text>
-                    <Text>{test.success ? '✅' : '❌'}</Text>
+                    <Text>{test.success ? "✅" : "❌"}</Text>
                   </View>
                 </View>
               ))}
             </View>
 
             <View className="mb-4">
-              <Text className="text-lg font-semibold mb-2">Chat API Tests:</Text>
+              <Text className="text-lg font-semibold mb-2">
+                Chat API Tests:
+              </Text>
               {testResults.chat.map((test: any, index: number) => (
-                <View key={index} className="flex-row justify-between items-center py-1">
+                <View
+                  key={index}
+                  className="flex-row justify-between items-center py-1"
+                >
                   <Text className="flex-1 text-sm">{test.endpoint}</Text>
                   <View className="flex-row items-center">
                     <Text className="text-xs text-gray-500 mr-2">
                       {test.responseTime}ms
                     </Text>
-                    <Text>{test.success ? '✅' : '❌'}</Text>
+                    <Text>{test.success ? "✅" : "❌"}</Text>
                   </View>
                 </View>
               ))}
             </View>
 
             <View className="mb-4">
-              <Text className="text-lg font-semibold mb-2">WebSocket Test:</Text>
+              <Text className="text-lg font-semibold mb-2">
+                WebSocket Test:
+              </Text>
               <View className="flex-row justify-between items-center py-1">
                 <Text className="flex-1 text-sm">/uber-realtime</Text>
                 <View className="flex-row items-center">
                   <Text className="text-xs text-gray-500 mr-2">
                     {testResults.websocket.responseTime}ms
                   </Text>
-                  <Text>{testResults.websocket.connected ? '✅' : '❌'}</Text>
+                  <Text>{testResults.websocket.connected ? "✅" : "❌"}</Text>
                 </View>
               </View>
             </View>
 
             <View className="mt-4 p-3 bg-gray-100 dark:bg-gray-700 rounded">
               <Text className="text-xs text-gray-600 dark:text-gray-300">
-                Server URL: {process.env.EXPO_PUBLIC_SERVER_URL || 'http://localhost:3000'}
-                {'\n'}
-                WS URL: {process.env.EXPO_PUBLIC_WS_URL || 'http://localhost:3000'}
-                {'\n'}
+                Server URL:{" "}
+                {process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000"}
+                {"\n"}
+                WS URL:{" "}
+                {process.env.EXPO_PUBLIC_WS_URL || "http://localhost:3000"}
+                {"\n"}
                 Timestamp: {testResults.timestamp}
               </Text>
             </View>

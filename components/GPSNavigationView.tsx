@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, Alert } from "react-native";
 import MapView, { Marker, Polyline } from "react-native-maps";
 
 import { websocketService } from "@/app/services/websocketService";
+import { endpoints } from "@/lib/endpoints";
 import { useLocationStore, useRealtimeStore } from "@/store";
 
 interface GPSNavigationViewProps {
@@ -44,7 +45,7 @@ const GPSNavigationView: React.FC<GPSNavigationViewProps> = ({
       try {
         const originLat = userLatitude || 37.78825;
         const originLng = userLongitude || -122.4324;
-        const apiKey = process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY;
+        const apiKey = endpoints.googleMaps.apiKey.directions();
         if (!apiKey) {
           // Fallback to straight line if no key available
           setRouteCoordinates([

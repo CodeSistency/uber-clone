@@ -5,8 +5,9 @@ import { driverErrandService } from "@/app/services/driverErrandService";
 import { driverParcelService } from "@/app/services/driverParcelService";
 import { driverTransportService } from "@/app/services/driverTransportService";
 import { locationTrackingService } from "@/app/services/locationTrackingService";
-import { generateIdempotencyKey } from "@/lib/utils";
+import { endpoints } from "@/lib/endpoints";
 import { log, LogLevel } from "@/lib/logger";
+import { generateIdempotencyKey } from "@/lib/utils";
 import { useDevStore } from "@/store/dev/dev";
 import { useDriverConfigStore } from "@/store/driverConfig/driverConfig";
 import { useMapFlowStore, FLOW_STEPS } from "@/store/mapFlow/mapFlow";
@@ -29,8 +30,7 @@ export class WebSocketService {
   private heartbeatInterval: number | null = null;
 
   // Performance optimizations
-  private messageQueue: Array<{ event: string; data: any; timestamp: number }> =
-    [];
+  private messageQueue: { event: string; data: any; timestamp: number }[] = [];
   private isProcessingQueue = false;
   private lastMessageTime = 0;
   private messageRateLimit = 100; // ms between messages
@@ -54,61 +54,59 @@ export class WebSocketService {
     const startTime = Date.now();
     const connectionId = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.info('WebSocketService', 'Connection attempt initiated', {
+    log.info("WebSocketService", "Connection attempt initiated", {
       connectionId,
-      userId: userId.substring(0, 8) + '...', // Log partial userId for privacy
-      wsUrl: process.env.EXPO_PUBLIC_WS_URL || "wss://gnuhealth-back.alcaravan.com.ve",
+      userId: userId.substring(0, 8) + "...", // Log partial userId for privacy
+      wsUrl: endpoints.websocket.url(),
       devMode: useDevStore.getState().developerMode,
-      wsBypass: useDevStore.getState().wsBypass
+      wsBypass: useDevStore.getState().wsBypass,
     });
 
     // PRODUCTION-READY: No more development bypass
     // The WebSocket will always attempt real connection
-    log.info('WebSocketService', 'Production WebSocket connection initiated', {
+    log.info("WebSocketService", "Production WebSocket connection initiated", {
       connectionId,
-      environment: __DEV__ ? 'development' : 'production',
-      wsUrl: process.env.EXPO_PUBLIC_WS_URL
+      environment: __DEV__ ? "development" : "production",
+      wsUrl: endpoints.websocket.url(),
     });
 
     return new Promise((resolve, reject) => {
       try {
-        log.debug('WebSocketService', 'Initializing socket connection', {
+        log.debug("WebSocketService", "Initializing socket connection", {
           connectionId,
-          userId: userId.substring(0, 8) + '...',
-          timeout: 10000
+          userId: userId.substring(0, 8) + "...",
+          timeout: 10000,
         });
 
         // Initialize socket connection with enhanced configuration
         // Updated to use /uber-realtime namespace according to API documentation
-        const wsUrl = process.env.EXPO_PUBLIC_WS_URL || "http://localhost:3000";
-        this.socket = io(`${wsUrl}/uber-realtime`,
-          {
-            auth: {
-              token,
-              userId,
-            },
-            transports: ["websocket"],
-            upgrade: false,
-            timeout: 10000, // Increased timeout for better reliability
-            reconnection: false, // We'll handle reconnection manually for better control
-            forceNew: false, // Reuse connection if possible
-            multiplex: true, // Enable multiplexing for better performance
-            // Performance optimizations
-            perMessageDeflate: { threshold: 1024 }, // Enable compression for messages > 1KB
-            // Error handling
-            autoConnect: false, // We'll connect manually
+        const wsUrl = endpoints.websocket.url();
+        this.socket = io(`${wsUrl}/uber-realtime`, {
+          auth: {
+            token,
+            userId,
           },
-        );
+          transports: ["websocket"],
+          upgrade: false,
+          timeout: 10000, // Increased timeout for better reliability
+          reconnection: false, // We'll handle reconnection manually for better control
+          forceNew: false, // Reuse connection if possible
+          multiplex: true, // Enable multiplexing for better performance
+          // Performance optimizations
+          perMessageDeflate: { threshold: 1024 }, // Enable compression for messages > 1KB
+          // Error handling
+          autoConnect: false, // We'll connect manually
+        });
 
         // Enhanced connection events with detailed logging
         this.socket.on("connect", () => {
           const connectionTime = Date.now() - startTime;
 
-          log.info('WebSocketService', 'Successfully connected to server', {
+          log.info("WebSocketService", "Successfully connected to server", {
             connectionId,
             connectionTime,
             reconnectAttempts: this.reconnectAttempts,
-            queuedMessages: this.messageQueue.length
+            queuedMessages: this.messageQueue.length,
           });
 
           this.reconnectAttempts = 0;
@@ -118,9 +116,9 @@ export class WebSocketService {
 
           // Process any queued messages
           if (this.messageQueue.length > 0) {
-            log.info('WebSocketService', 'Processing queued messages', {
+            log.info("WebSocketService", "Processing queued messages", {
               connectionId,
-              messageCount: this.messageQueue.length
+              messageCount: this.messageQueue.length,
             });
             this.processMessageQueue();
           }
@@ -129,46 +127,78 @@ export class WebSocketService {
           try {
             locationTrackingService.setWebSocketUpdateCallback(
               (rideId: number, location: any) => {
-                log.debug('WebSocketService', 'Location tracking callback triggered', {
-                  connectionId,
-                  rideId,
-                  location: { lat: location?.latitude, lng: location?.longitude }
-                });
+                log.debug(
+                  "WebSocketService",
+                  "Location tracking callback triggered",
+                  {
+                    connectionId,
+                    rideId,
+                    location: {
+                      lat: location?.latitude,
+                      lng: location?.longitude,
+                    },
+                  },
+                );
                 this.updateDriverLocation(rideId, location);
               },
             );
-            log.debug('WebSocketService', 'Location tracking callback registered', { connectionId });
+            log.debug(
+              "WebSocketService",
+              "Location tracking callback registered",
+              { connectionId },
+            );
           } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-            log.error('WebSocketService', 'Failed to register location tracking callback', {
-              connectionId,
-              error: errorMessage
-            }, error instanceof Error ? error : undefined);
+            const errorMessage =
+              error instanceof Error ? error.message : "Unknown error";
+            log.error(
+              "WebSocketService",
+              "Failed to register location tracking callback",
+              {
+                connectionId,
+                error: errorMessage,
+              },
+              error instanceof Error ? error : undefined,
+            );
           }
 
-          log.performance('WebSocketService', 'WebSocket connection established', startTime, {
-            connectionId,
-            userId: userId.substring(0, 8) + '...'
-          });
+          log.performance(
+            "WebSocketService",
+            "WebSocket connection established",
+            startTime,
+            {
+              connectionId,
+              userId: userId.substring(0, 8) + "...",
+            },
+          );
 
           resolve();
         });
 
         this.socket.on("disconnect", (reason: any) => {
-          log.websocket('WebSocketService', 'disconnected', {
-            connectionId,
-            reason,
-            wasConnected: true
-          }, reason instanceof Error ? reason : undefined);
+          log.websocket(
+            "WebSocketService",
+            "disconnected",
+            {
+              connectionId,
+              reason,
+              wasConnected: true,
+            },
+            reason instanceof Error ? reason : undefined,
+          );
           this.handleDisconnect(reason);
         });
 
         this.socket.on("connect_error", (error: any) => {
-          log.websocket('WebSocketService', 'connection_error', {
-            connectionId,
-            error: error.message,
-            attemptNumber: this.reconnectAttempts + 1
-          }, error);
+          log.websocket(
+            "WebSocketService",
+            "connection_error",
+            {
+              connectionId,
+              error: error.message,
+              attemptNumber: this.reconnectAttempts + 1,
+            },
+            error,
+          );
 
           this.handleConnectionError(error);
           reject(error);
@@ -176,33 +206,49 @@ export class WebSocketService {
 
         // Additional error handling events
         this.socket.on("error", (error: any) => {
-          log.websocket('WebSocketService', 'socket_error', {
-            connectionId,
-            error: error.message
-          }, error);
+          log.websocket(
+            "WebSocketService",
+            "socket_error",
+            {
+              connectionId,
+              error: error.message,
+            },
+            error,
+          );
           this.handleSocketError(error);
         });
 
         this.socket.on("reconnect_error", (error: any) => {
-          log.websocket('WebSocketService', 'reconnect_error', {
-            connectionId,
-            error: error.message,
-            attemptNumber: this.reconnectAttempts
-          }, error);
+          log.websocket(
+            "WebSocketService",
+            "reconnect_error",
+            {
+              connectionId,
+              error: error.message,
+              attemptNumber: this.reconnectAttempts,
+            },
+            error,
+          );
           this.handleReconnectionError(error);
         });
 
         this.socket.on("reconnect_failed", () => {
-          log.critical('WebSocketService', 'Reconnection failed after all attempts', {
-            connectionId,
-            maxAttempts: this.maxReconnectAttempts,
-            totalAttempts: this.reconnectAttempts
-          });
+          log.critical(
+            "WebSocketService",
+            "Reconnection failed after all attempts",
+            {
+              connectionId,
+              maxAttempts: this.maxReconnectAttempts,
+              totalAttempts: this.reconnectAttempts,
+            },
+          );
           this.handleReconnectionFailed();
         });
 
         this.socket.on("ping", () => {
-          log.debug('WebSocketService', 'Ping received from server', { connectionId });
+          log.debug("WebSocketService", "Ping received from server", {
+            connectionId,
+          });
         });
 
         this.socket.on("pong", () => {
@@ -274,12 +320,12 @@ export class WebSocketService {
   sendMessage(rideId: number, message: string): void {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.debug('WebSocketService', 'Send message initiated', {
+    log.debug("WebSocketService", "Send message initiated", {
       messageId,
       rideId,
       messageLength: message.length,
       isConnected: this.socket?.connected,
-      environment: __DEV__ ? 'development' : 'production'
+      environment: __DEV__ ? "development" : "production",
     });
 
     // PRODUCTION-READY: Always attempt to send messages
@@ -289,7 +335,7 @@ export class WebSocketService {
       rideId,
       senderId: "current_user", // TODO: Get from auth context
       message,
-      timestamp: Date.now()
+      timestamp: Date.now(),
     };
 
     // Rate limiting
@@ -297,12 +343,12 @@ export class WebSocketService {
     const timeSinceLastMessage = now - this.lastMessageTime;
 
     if (timeSinceLastMessage < this.messageRateLimit) {
-      log.warn('WebSocketService', 'Message rate limited, queuing', {
+      log.warn("WebSocketService", "Message rate limited, queuing", {
         messageId,
         rideId,
         timeSinceLast: timeSinceLastMessage,
         rateLimit: this.messageRateLimit,
-        queueSize: this.messageQueue.length + 1
+        queueSize: this.messageQueue.length + 1,
       });
       this.queueMessage("chat:message", messageData);
       return;
@@ -314,26 +360,32 @@ export class WebSocketService {
         this.lastMessageTime = now;
         this.performanceMetrics.messagesSent++;
 
-        log.info('WebSocketService', 'Message sent successfully', {
+        log.info("WebSocketService", "Message sent successfully", {
           messageId,
           rideId,
           messageLength: message.length,
-          timeSinceLast: timeSinceLastMessage
+          timeSinceLast: timeSinceLastMessage,
         });
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        log.error('WebSocketService', 'Failed to send message', {
-          messageId,
-          rideId,
-          error: errorMessage
-        }, error instanceof Error ? error : undefined);
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        log.error(
+          "WebSocketService",
+          "Failed to send message",
+          {
+            messageId,
+            rideId,
+            error: errorMessage,
+          },
+          error instanceof Error ? error : undefined,
+        );
         this.queueMessage("chat:message", messageData);
       }
     } else {
-      log.warn('WebSocketService', 'Socket not connected, queuing message', {
+      log.warn("WebSocketService", "Socket not connected, queuing message", {
         messageId,
         rideId,
-        queueSize: this.messageQueue.length + 1
+        queueSize: this.messageQueue.length + 1,
       });
       this.queueMessage("chat:message", messageData);
     }
@@ -416,7 +468,7 @@ export class WebSocketService {
       isConnected: this.socket?.connected,
       developerMode: useDevStore.getState().developerMode,
       wsBypass: useDevStore.getState().wsBypass,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     if (
@@ -438,11 +490,18 @@ export class WebSocketService {
         timestamp: new Date(),
       };
 
-      console.log("[WebSocketService] 📤 Emitting updateDriverLocation:", locationData);
+      console.log(
+        "[WebSocketService] 📤 Emitting updateDriverLocation:",
+        locationData,
+      );
       this.socket.emit("updateDriverLocation", locationData);
-      console.log("[WebSocketService] ✅ updateDriverLocation emitted successfully");
+      console.log(
+        "[WebSocketService] ✅ updateDriverLocation emitted successfully",
+      );
     } else {
-      console.warn("[WebSocketService] ⚠️ Cannot update driver location - WebSocket not connected");
+      console.warn(
+        "[WebSocketService] ⚠️ Cannot update driver location - WebSocket not connected",
+      );
     }
   }
 
@@ -982,12 +1041,12 @@ export class WebSocketService {
   }
 
   private handleNewMessage(data: any): void {
-    log.debug('WebSocketService', 'Handling new message from WebSocket', {
+    log.debug("WebSocketService", "Handling new message from WebSocket", {
       messageId: data.id,
       rideId: data.rideId,
       orderId: data.orderId,
       senderId: data.senderId,
-      messageLength: data.message?.length || data.messageText?.length || 0
+      messageLength: data.message?.length || data.messageText?.length || 0,
     });
 
     // Convert WebSocket data to ChatMessage format
@@ -1001,7 +1060,7 @@ export class WebSocketService {
       createdAt: data.createdAt || data.timestamp,
       isRead: false, // New messages are unread by default
       timestamp: new Date(data.timestamp || data.createdAt),
-      sender: data.sender || undefined
+      sender: data.sender || undefined,
     };
 
     // Add to chat store
@@ -1017,23 +1076,24 @@ export class WebSocketService {
         id: `message_${data.id}`,
         type: "CHAT_MESSAGE",
         title: "New Message",
-        message: messageText.length > 50
-          ? `${messageText.substring(0, 50)}...`
-          : messageText,
+        message:
+          messageText.length > 50
+            ? `${messageText.substring(0, 50)}...`
+            : messageText,
         data: {
           rideId: data.rideId,
           orderId: data.orderId,
-          messageId: data.id
+          messageId: data.id,
         },
         timestamp: new Date(),
         isRead: false,
         priority: "normal",
       });
 
-      log.info('WebSocketService', 'Notification created for new message', {
+      log.info("WebSocketService", "Notification created for new message", {
         messageId: data.id,
         chatId,
-        currentChatId
+        currentChatId,
       });
     }
   }
@@ -1432,7 +1492,7 @@ export class WebSocketService {
   private handleDisconnect(reason?: string): void {
     const disconnectId = `disconnect_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.info('WebSocketService', 'Handling WebSocket disconnect', {
+    log.info("WebSocketService", "Handling WebSocket disconnect", {
       disconnectId,
       reason,
       reconnectAttempts: this.reconnectAttempts,
@@ -1441,8 +1501,8 @@ export class WebSocketService {
       queuedMessages: this.messageQueue.length,
       performanceMetrics: {
         disconnects: this.performanceMetrics.disconnects + 1,
-        connectionTime: this.performanceMetrics.connectionTime
-      }
+        connectionTime: this.performanceMetrics.connectionTime,
+      },
     });
 
     // Track disconnect in performance metrics
@@ -1450,9 +1510,9 @@ export class WebSocketService {
 
     // Stop heartbeat with logging
     if (this.heartbeatInterval) {
-      log.debug('WebSocketService', 'Stopping heartbeat interval', {
+      log.debug("WebSocketService", "Stopping heartbeat interval", {
         disconnectId,
-        hadHeartbeat: true
+        hadHeartbeat: true,
       });
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
@@ -1464,29 +1524,35 @@ export class WebSocketService {
     // Determine reconnection strategy
     const shouldReconnect = this.shouldAttemptReconnection(reason);
 
-    log.info('WebSocketService', 'Reconnection strategy determined', {
+    log.info("WebSocketService", "Reconnection strategy determined", {
       disconnectId,
       reason,
       shouldReconnect,
       reconnectCriteria: {
-        isValidReason: !reason || !['io server disconnect', 'io client disconnect', 'ping timeout'].includes(reason),
+        isValidReason:
+          !reason ||
+          ![
+            "io server disconnect",
+            "io client disconnect",
+            "ping timeout",
+          ].includes(reason),
         underMaxAttempts: this.reconnectAttempts < this.maxReconnectAttempts,
-        hasValidToken: true // Token validation handled in connect method
-      }
+        hasValidToken: true, // Token validation handled in connect method
+      },
     });
 
     // Only attempt reconnection for certain disconnect reasons
     if (shouldReconnect) {
-      log.info('WebSocketService', 'Initiating reconnection attempt', {
+      log.info("WebSocketService", "Initiating reconnection attempt", {
         disconnectId,
-        attemptNumber: this.reconnectAttempts + 1
+        attemptNumber: this.reconnectAttempts + 1,
       });
       this.attemptReconnection();
     } else {
-      log.warn('WebSocketService', 'Skipping reconnection', {
+      log.warn("WebSocketService", "Skipping reconnection", {
         disconnectId,
         reason,
-        finalReconnectAttempts: this.reconnectAttempts
+        finalReconnectAttempts: this.reconnectAttempts,
       });
 
       // Notify user about permanent disconnection
@@ -1495,7 +1561,8 @@ export class WebSocketService {
           id: `ws_permanent_disconnect_${Date.now()}`,
           type: "SYSTEM_UPDATE" as any,
           title: "Conexión Perdida",
-          message: "No se pudo reconectar al servidor. Verifica tu conexión a internet.",
+          message:
+            "No se pudo reconectar al servidor. Verifica tu conexión a internet.",
           data: { reason, finalAttempt: true },
           timestamp: new Date(),
           isRead: false,
@@ -1585,12 +1652,16 @@ export class WebSocketService {
 
     // Check if we've exceeded max attempts
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      log.critical('WebSocketService', 'Maximum reconnection attempts exceeded', {
-        reconnectAttemptId,
-        maxAttempts: this.maxReconnectAttempts,
-        totalAttempts: this.reconnectAttempts,
-        reason: 'Reconnection limit reached'
-      });
+      log.critical(
+        "WebSocketService",
+        "Maximum reconnection attempts exceeded",
+        {
+          reconnectAttemptId,
+          maxAttempts: this.maxReconnectAttempts,
+          totalAttempts: this.reconnectAttempts,
+          reason: "Reconnection limit reached",
+        },
+      );
       this.handleReconnectionFailed();
       return;
     }
@@ -1598,11 +1669,12 @@ export class WebSocketService {
     this.reconnectAttempts++;
 
     // Enhanced exponential backoff with jitter and max delay
-    const baseDelay = this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1);
+    const baseDelay =
+      this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts - 1);
     const jitter = Math.random() * 0.3 * baseDelay; // Add up to 30% jitter
     const delay = Math.min(baseDelay + jitter, 30000); // Max 30 seconds
 
-    log.info('WebSocketService', 'Scheduling reconnection attempt', {
+    log.info("WebSocketService", "Scheduling reconnection attempt", {
       reconnectAttemptId,
       attemptNumber: this.reconnectAttempts,
       maxAttempts: this.maxReconnectAttempts,
@@ -1610,18 +1682,26 @@ export class WebSocketService {
       baseDelayMs: Math.round(baseDelay),
       jitterMs: Math.round(jitter),
       exponentialFactor: 1.5 ** (this.reconnectAttempts - 1),
-      nextAttemptDelay: this.reconnectAttempts < this.maxReconnectAttempts
-        ? Math.min(this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts), 30000)
-        : null
+      nextAttemptDelay:
+        this.reconnectAttempts < this.maxReconnectAttempts
+          ? Math.min(
+              this.reconnectDelay * Math.pow(1.5, this.reconnectAttempts),
+              30000,
+            )
+          : null,
     });
 
     // Create reconnection notification for user awareness (after 2 attempts)
     if (this.reconnectAttempts > 2) {
-      log.info('WebSocketService', 'Creating user notification for reconnection attempt', {
-        reconnectAttemptId,
-        attemptNumber: this.reconnectAttempts,
-        notificationId: `ws_reconnecting_${this.reconnectAttempts}_${Date.now()}`
-      });
+      log.info(
+        "WebSocketService",
+        "Creating user notification for reconnection attempt",
+        {
+          reconnectAttemptId,
+          attemptNumber: this.reconnectAttempts,
+          notificationId: `ws_reconnecting_${this.reconnectAttempts}_${Date.now()}`,
+        },
+      );
 
       useNotificationStore.getState().addNotification({
         id: `ws_reconnecting_${this.reconnectAttempts}_${Date.now()}`,
@@ -1631,7 +1711,7 @@ export class WebSocketService {
         data: {
           attempt: this.reconnectAttempts,
           maxAttempts: this.maxReconnectAttempts,
-          reconnectAttemptId
+          reconnectAttemptId,
         },
         timestamp: new Date(),
         isRead: false,
@@ -1642,46 +1722,67 @@ export class WebSocketService {
     // Schedule the reconnection attempt
     setTimeout(() => {
       // Double-check conditions before attempting reconnection
-      const shouldAttempt = this.socket && !this.socket.connected && this.reconnectAttempts <= this.maxReconnectAttempts;
+      const shouldAttempt =
+        this.socket &&
+        !this.socket.connected &&
+        this.reconnectAttempts <= this.maxReconnectAttempts;
 
       if (shouldAttempt) {
-        log.info('WebSocketService', 'Executing scheduled reconnection attempt', {
-          reconnectAttemptId,
-          attemptNumber: this.reconnectAttempts,
-          socketExists: !!this.socket,
-          socketConnected: this.socket?.connected || false,
-          withinAttemptLimit: this.reconnectAttempts <= this.maxReconnectAttempts
-        });
+        log.info(
+          "WebSocketService",
+          "Executing scheduled reconnection attempt",
+          {
+            reconnectAttemptId,
+            attemptNumber: this.reconnectAttempts,
+            socketExists: !!this.socket,
+            socketConnected: this.socket?.connected || false,
+            withinAttemptLimit:
+              this.reconnectAttempts <= this.maxReconnectAttempts,
+          },
+        );
 
         try {
           if (this.socket) {
             this.socket.connect();
           } else {
-            log.warn('WebSocketService', 'Cannot reconnect - socket is null', { reconnectAttemptId });
+            log.warn("WebSocketService", "Cannot reconnect - socket is null", {
+              reconnectAttemptId,
+            });
             return;
           }
-          log.debug('WebSocketService', 'Reconnection attempt initiated', {
-            reconnectAttemptId,
-            attemptNumber: this.reconnectAttempts
-          });
-        } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-          log.error('WebSocketService', 'Failed to execute reconnection attempt', {
+          log.debug("WebSocketService", "Reconnection attempt initiated", {
             reconnectAttemptId,
             attemptNumber: this.reconnectAttempts,
-            error: errorMessage
-          }, error instanceof Error ? error : undefined);
+          });
+        } catch (error) {
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
+          log.error(
+            "WebSocketService",
+            "Failed to execute reconnection attempt",
+            {
+              reconnectAttemptId,
+              attemptNumber: this.reconnectAttempts,
+              error: errorMessage,
+            },
+            error instanceof Error ? error : undefined,
+          );
         }
       } else {
-        log.warn('WebSocketService', 'Skipping reconnection attempt - conditions not met', {
-          reconnectAttemptId,
-          attemptNumber: this.reconnectAttempts,
-          reason: {
-            socketExists: !!this.socket,
-            socketConnected: this.socket?.connected || false,
-            withinAttemptLimit: this.reconnectAttempts <= this.maxReconnectAttempts
-          }
-        });
+        log.warn(
+          "WebSocketService",
+          "Skipping reconnection attempt - conditions not met",
+          {
+            reconnectAttemptId,
+            attemptNumber: this.reconnectAttempts,
+            reason: {
+              socketExists: !!this.socket,
+              socketConnected: this.socket?.connected || false,
+              withinAttemptLimit:
+                this.reconnectAttempts <= this.maxReconnectAttempts,
+            },
+          },
+        );
       }
     }, delay);
   }
@@ -1889,7 +1990,7 @@ export class WebSocketService {
     this.showToastNotification("driver_arrived", {
       driverName,
       vehicleInfo,
-      rideId
+      rideId,
     });
   }
 
@@ -1928,12 +2029,20 @@ export class WebSocketService {
     // Show toast notification
     this.showToastNotification("ride_started", {
       driverName,
-      rideId
+      rideId,
     });
   }
 
   private handleRideCompleted(data: any): void {
-    const { rideId, driverId, driverName, fare, distance, duration, timestamp } = data;
+    const {
+      rideId,
+      driverId,
+      driverName,
+      fare,
+      distance,
+      duration,
+      timestamp,
+    } = data;
 
     console.log("[WebSocketService] Processing ride completed:", {
       rideId,
@@ -1985,7 +2094,7 @@ export class WebSocketService {
     this.showToastNotification("ride_completed", {
       fare,
       driverName,
-      rideId
+      rideId,
     });
   }
 
@@ -2026,7 +2135,7 @@ export class WebSocketService {
     // Show toast notification
     this.showToastNotification("ride_cancelled", {
       reason,
-      rideId
+      rideId,
     });
   }
 
@@ -2072,11 +2181,14 @@ export class WebSocketService {
   private emit(event: string, data: any): void {
     const listeners = this.eventListeners.get(event);
     if (listeners) {
-      listeners.forEach(callback => {
+      listeners.forEach((callback) => {
         try {
           callback(data);
         } catch (error) {
-          console.error(`[WebSocketService] Error in event listener for ${event}:`, error);
+          console.error(
+            `[WebSocketService] Error in event listener for ${event}:`,
+            error,
+          );
         }
       });
     }
@@ -2091,7 +2203,7 @@ export class WebSocketService {
       const notifications = {
         driver_arrived: {
           title: "¡Conductor llegó!",
-          message: `${data.driverName} te está esperando${data.vehicleInfo ? ` con ${data.vehicleInfo}` : ''}`,
+          message: `${data.driverName} te está esperando${data.vehicleInfo ? ` con ${data.vehicleInfo}` : ""}`,
           type: "success" as const,
         },
         ride_started: {
@@ -2116,7 +2228,10 @@ export class WebSocketService {
         useUIStore.getState().showToast(notif.title, notif.message, notif.type);
       }
     } catch (error) {
-      console.warn("[WebSocketService] Could not show toast notification:", error);
+      console.warn(
+        "[WebSocketService] Could not show toast notification:",
+        error,
+      );
     }
   }
 
@@ -2171,7 +2286,7 @@ export class WebSocketService {
     rideId: number,
     driverId: number,
     driverName: string = "Carlos Rodriguez",
-    vehicleInfo: string = "Toyota Camry Negro"
+    vehicleInfo: string = "Toyota Camry Negro",
   ) {
     console.log("[WebSocketService] Simulating ride arrived for testing");
     this.emit("rideArrived", {
@@ -2186,7 +2301,7 @@ export class WebSocketService {
   simulateRideStarted(
     rideId: number,
     driverId: number,
-    driverName: string = "Carlos Rodriguez"
+    driverName: string = "Carlos Rodriguez",
   ) {
     console.log("[WebSocketService] Simulating ride started for testing");
     this.emit("rideStarted", {
@@ -2201,9 +2316,9 @@ export class WebSocketService {
     rideId: number,
     driverId: number,
     driverName: string = "Carlos Rodriguez",
-    fare: number = 18.50,
+    fare: number = 18.5,
     distance: number = 12.5,
-    duration: number = 25
+    duration: number = 25,
   ) {
     console.log("[WebSocketService] Simulating ride completed for testing");
     this.emit("rideCompleted", {
@@ -2221,7 +2336,7 @@ export class WebSocketService {
     rideId: number,
     driverId: number,
     reason: string = "Vehículo averiado",
-    cancelledBy: string = "driver"
+    cancelledBy: string = "driver",
   ) {
     console.log("[WebSocketService] Simulating ride cancelled for testing");
     this.emit("rideCancelled", {

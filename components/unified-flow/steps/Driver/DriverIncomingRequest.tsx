@@ -1,9 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
-import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 
-import { driverTransportService, PendingRequest } from "@/app/services/driverTransportService";
+import {
+  driverTransportService,
+  PendingRequest,
+} from "@/app/services/driverTransportService";
 import { websocketService } from "@/app/services/websocketService";
-import CustomButton from "@/components/CustomButton";
+import { Button, Card, Badge } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -26,13 +29,16 @@ const DriverIncomingRequest: React.FC = () => {
         console.log("[DriverIncomingRequest] Loading pending requests...");
         const response = await driverTransportService.getPendingRequests(
           driverState.currentLocation?.lat || 0,
-          driverState.currentLocation?.lng || 0
+          driverState.currentLocation?.lng || 0,
         );
         const requests = response?.data || [];
 
         if (requests.length > 0) {
           setPendingRequests(requests);
-          console.log("[DriverIncomingRequest] Pending requests loaded:", requests.length);
+          console.log(
+            "[DriverIncomingRequest] Pending requests loaded:",
+            requests.length,
+          );
         } else {
           console.log("[DriverIncomingRequest] No pending requests found");
           // If no requests, go back to availability after a short delay
@@ -41,7 +47,10 @@ const DriverIncomingRequest: React.FC = () => {
           }, 2000);
         }
       } catch (error) {
-        console.error("[DriverIncomingRequest] Error loading pending requests:", error);
+        console.error(
+          "[DriverIncomingRequest] Error loading pending requests:",
+          error,
+        );
         showError("Error", "No se pudieron cargar las solicitudes pendientes");
         setTimeout(() => {
           startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
@@ -54,7 +63,7 @@ const DriverIncomingRequest: React.FC = () => {
     loadPendingRequests();
 
     // Refresh requests every 10 seconds
-    intervalRef.current = setInterval(loadPendingRequests, 10000);
+    intervalRef.current = setInterval(loadPendingRequests, 10000) as any;
 
     return () => {
       if (intervalRef.current) {
@@ -76,7 +85,7 @@ const DriverIncomingRequest: React.FC = () => {
       await driverTransportService.respondToRequest(
         request.rideId,
         "accept",
-        estimatedArrivalMinutes
+        estimatedArrivalMinutes,
       );
 
       // Join room for realtime updates
@@ -120,7 +129,9 @@ const DriverIncomingRequest: React.FC = () => {
 
       showSuccess("Solicitud rechazada", "Buscando otras oportunidades");
       // Remove the rejected request from the list
-      setPendingRequests(prev => prev.filter(r => r.rideId !== request.rideId));
+      setPendingRequests((prev) =>
+        prev.filter((r) => r.rideId !== request.rideId),
+      );
     } catch (error) {
       console.error("[DriverIncomingRequest] Error rejecting request:", error);
       showError("Error", "No se pudo rechazar la solicitud");
@@ -149,9 +160,9 @@ const DriverIncomingRequest: React.FC = () => {
         .concat([
           {
             text: "Cancelar",
-            style: "cancel",
+            onPress: () => Promise.resolve(),
           },
-        ])
+        ]),
     );
   };
 
@@ -187,10 +198,15 @@ const DriverIncomingRequest: React.FC = () => {
   }
 
   const renderRequestCard = (request: PendingRequest) => {
-    const isProcessing = processing === `accept-${request.rideId}` || processing === `reject-${request.rideId}`;
+    const isProcessing =
+      processing === `accept-${request.rideId}` ||
+      processing === `reject-${request.rideId}`;
 
     return (
-      <View key={request.rideId} className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+      <Card
+        key={request.rideId}
+        className="mb-4"
+      >
         {/* Header with service type and rating */}
         <View className="flex-row items-center justify-between mb-3">
           <Text className="font-JakartaBold text-lg">{request.tier.name}</Text>
@@ -203,21 +219,23 @@ const DriverIncomingRequest: React.FC = () => {
         </View>
 
         {/* Passenger Info */}
-        <View className="bg-gray-50 rounded-lg p-3 mb-3">
+        <Card className="bg-gray-50 mb-3">
           <Text className="font-JakartaBold text-gray-800 mb-1">
             {request.passenger.name}
           </Text>
           <Text className="font-Jakarta text-sm text-gray-600">
             📞 {request.passenger.phone}
           </Text>
-        </View>
+        </Card>
 
         {/* Route Info */}
         <View className="mb-3">
           <View className="flex-row items-start mb-2">
             <Text className="text-green-500 mr-2 mt-1">●</Text>
             <View className="flex-1">
-              <Text className="font-Jakarta text-sm text-gray-500 mb-1">Origen</Text>
+              <Text className="font-Jakarta text-sm text-gray-500 mb-1">
+                Origen
+              </Text>
               <Text className="font-Jakarta text-base text-gray-800">
                 {request.originAddress}
               </Text>
@@ -227,7 +245,9 @@ const DriverIncomingRequest: React.FC = () => {
           <View className="flex-row items-start">
             <Text className="text-red-500 mr-2 mt-1">■</Text>
             <View className="flex-1">
-              <Text className="font-Jakarta text-sm text-gray-500 mb-1">Destino</Text>
+              <Text className="font-Jakarta text-sm text-gray-500 mb-1">
+                Destino
+              </Text>
               <Text className="font-Jakarta text-base text-gray-800">
                 {request.destinationAddress}
               </Text>
@@ -238,7 +258,9 @@ const DriverIncomingRequest: React.FC = () => {
         {/* Trip Details */}
         <View className="bg-gray-50 rounded-lg p-3 mb-4">
           <View className="flex-row justify-between mb-1">
-            <Text className="font-Jakarta text-sm text-gray-600">Distancia</Text>
+            <Text className="font-Jakarta text-sm text-gray-600">
+              Distancia
+            </Text>
             <Text className="font-JakartaBold text-sm text-gray-800">
               {request.estimatedDistance.toFixed(1)} km
             </Text>
@@ -259,30 +281,40 @@ const DriverIncomingRequest: React.FC = () => {
 
         {/* Action Buttons */}
         <View className="flex-row space-x-2">
-          <CustomButton
-            title={processing === `accept-${request.rideId}` ? "Aceptando..." : "✅ Aceptar"}
+          <Button
+            variant="success"
+            title={
+              processing === `accept-${request.rideId}`
+                ? "Aceptando..."
+                : "✅ Aceptar"
+            }
             loading={processing === `accept-${request.rideId}`}
-            bgVariant="success"
             onPress={() => handleAccept(request)}
             className="flex-1"
             disabled={isProcessing}
           />
-          <CustomButton
-            title={processing === `reject-${request.rideId}` ? "Rechazando..." : "❌ Rechazar"}
+          <Button
+            variant="danger"
+            title={
+              processing === `reject-${request.rideId}`
+                ? "Rechazando..."
+                : "❌ Rechazar"
+            }
             loading={processing === `reject-${request.rideId}`}
-            bgVariant="danger"
             onPress={() => showRejectDialog(request)}
             className="flex-1"
             disabled={isProcessing}
           />
         </View>
-      </View>
+    </Card>
     );
   };
 
   return (
     <View className="flex-1">
-      <FlowHeader title={`Solicitudes disponibles (${pendingRequests.length})`} />
+      <FlowHeader
+        title={`Solicitudes disponibles (${pendingRequests.length})`}
+      />
       <ScrollView className="flex-1 p-4">
         <Text className="font-Jakarta text-sm text-gray-600 mb-4 text-center">
           Selecciona una solicitud para aceptar o rechazar
@@ -292,7 +324,8 @@ const DriverIncomingRequest: React.FC = () => {
 
         <View className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <Text className="font-JakartaMedium text-sm text-blue-800 text-center">
-            💡 Tip: Las solicitudes se actualizan automáticamente cada 10 segundos
+            💡 Tip: Las solicitudes se actualizan automáticamente cada 10
+            segundos
           </Text>
         </View>
       </ScrollView>

@@ -1,12 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, ScrollView, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  TextInput,
+} from "react-native";
 
-import { useUI } from "@/components/UIWrapper";
-import { useMapFlow } from "@/hooks/useMapFlow";
-import { useLocationStore } from "@/store";
-import { RideType } from "@/lib/unified-flow/constants";
+import { Button, TextField, Card } from "@/components/ui";
 import GoogleTextInput from "@/components/GoogleTextInput";
+import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
+import { useMapFlow } from "@/hooks/useMapFlow";
+import { RideType } from "@/lib/unified-flow/constants";
+import { useLocationStore } from "@/store";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -17,17 +24,27 @@ interface LocationData {
 }
 
 const TransportDefinition: React.FC = () => {
-  const { next, back, setRideType, setPhoneNumber, setConfirmedOrigin, setConfirmedDestination } = useMapFlow() as any;
+  const {
+    next,
+    back,
+    setRideType,
+    setPhoneNumber,
+    setConfirmedOrigin,
+    setConfirmedDestination,
+  } = useMapFlow() as any;
   const { showError } = useUI();
   const locationStore = useLocationStore();
 
   // Estado para el tipo de viaje y teléfono
   const [rideType, setRideTypeLocal] = useState<RideType>(RideType.NORMAL);
-  const [phoneNumber, setPhoneNumberLocal] = useState('');
+  const [phoneNumber, setPhoneNumberLocal] = useState("");
 
   // Estado para las ubicaciones seleccionadas
-  const [originLocation, setOriginLocation] = useState<LocationData | null>(null);
-  const [destinationLocation, setDestinationLocation] = useState<LocationData | null>(null);
+  const [originLocation, setOriginLocation] = useState<LocationData | null>(
+    null,
+  );
+  const [destinationLocation, setDestinationLocation] =
+    useState<LocationData | null>(null);
 
   // Usar ubicación actual como origen por defecto
   useEffect(() => {
@@ -38,7 +55,11 @@ const TransportDefinition: React.FC = () => {
         address: locationStore.userAddress || "Tu ubicación actual",
       });
     }
-  }, [locationStore.userLatitude, locationStore.userLongitude, locationStore.userAddress]);
+  }, [
+    locationStore.userLatitude,
+    locationStore.userLongitude,
+    locationStore.userAddress,
+  ]);
 
   const handleOriginSelect = (locationData: LocationData) => {
     console.log("[TransportDefinition] Origin selected:", locationData);
@@ -65,7 +86,10 @@ const TransportDefinition: React.FC = () => {
     // Validar teléfono si es "viajar otro"
     if (rideType === RideType.FOR_OTHER) {
       if (!phoneNumber.trim()) {
-        showError("Error", "Por favor ingresa el número telefónico del pasajero");
+        showError(
+          "Error",
+          "Por favor ingresa el número telefónico del pasajero",
+        );
         return;
       }
     }
@@ -80,15 +104,24 @@ const TransportDefinition: React.FC = () => {
     // Guardar ubicaciones iniciales para que estén disponibles en los pasos de confirmación
     console.log("[TransportDefinition] About to save locations:");
     console.log("[TransportDefinition] originLocation:", originLocation);
-    console.log("[TransportDefinition] destinationLocation:", destinationLocation);
+    console.log(
+      "[TransportDefinition] destinationLocation:",
+      destinationLocation,
+    );
 
     if (originLocation) {
       setConfirmedOrigin(originLocation);
-      console.log("[TransportDefinition] Origin saved to store:", originLocation);
+      console.log(
+        "[TransportDefinition] Origin saved to store:",
+        originLocation,
+      );
     }
     if (destinationLocation) {
       setConfirmedDestination(destinationLocation);
-      console.log("[TransportDefinition] Destination saved to store:", destinationLocation);
+      console.log(
+        "[TransportDefinition] Destination saved to store:",
+        destinationLocation,
+      );
     }
 
     console.log("[TransportDefinition] Ride type selected:", rideType);
@@ -103,36 +136,26 @@ const TransportDefinition: React.FC = () => {
 
       {/* Tabs para tipo de viaje */}
       <View className="flex-row mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mx-5">
-        <TouchableOpacity
+        <Button
+          variant={rideType === RideType.NORMAL ? "primary" : "ghost"}
+          title="Viajar"
           onPress={() => setRideTypeLocal(RideType.NORMAL)}
           className={`flex-1 py-3 px-4 rounded-md ${
-            rideType === RideType.NORMAL ? 'bg-white dark:bg-gray-700 shadow-sm' : ''
-          }`}
-          activeOpacity={0.7}
-        >
-          <Text className={`text-center font-JakartaMedium ${
             rideType === RideType.NORMAL
-              ? 'text-gray-800 dark:text-white'
-              : 'text-gray-600 dark:text-gray-400'
-          }`}>
-            Viajar
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
+              ? ""
+              : "bg-transparent"
+          }`}
+        />
+        <Button
+          variant={rideType === RideType.FOR_OTHER ? "primary" : "ghost"}
+          title="Viajar otro"
           onPress={() => setRideTypeLocal(RideType.FOR_OTHER)}
           className={`flex-1 py-3 px-4 rounded-md ${
-            rideType === RideType.FOR_OTHER ? 'bg-white dark:bg-gray-700 shadow-sm' : ''
-          }`}
-          activeOpacity={0.7}
-        >
-          <Text className={`text-center font-JakartaMedium ${
             rideType === RideType.FOR_OTHER
-              ? 'text-gray-800 dark:text-white'
-              : 'text-gray-600 dark:text-gray-400'
-          }`}>
-            Viajar otro
-          </Text>
-        </TouchableOpacity>
+              ? ""
+              : "bg-transparent"
+          }`}
+        />
       </View>
 
       <ScrollView
@@ -161,7 +184,9 @@ const TransportDefinition: React.FC = () => {
           </Text>
           <GoogleTextInput
             icon={icons.target}
-            initialLocation={destinationLocation?.address || "Selecciona destino"}
+            initialLocation={
+              destinationLocation?.address || "Selecciona destino"
+            }
             containerStyle="mb-3"
             handlePress={handleDestinationSelect}
           />
@@ -170,16 +195,13 @@ const TransportDefinition: React.FC = () => {
         {/* Teléfono para "Viajar otro" */}
         {rideType === RideType.FOR_OTHER && (
           <View className="px-5 mb-4">
-            <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-              Teléfono del pasajero
-            </Text>
-            <TextInput
+            <TextField
+              label="Teléfono del pasajero"
               value={phoneNumber}
               onChangeText={setPhoneNumberLocal}
               placeholder="Ingresa el número telefónico"
               keyboardType="phone-pad"
-              className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg px-4 py-3 font-Jakarta text-gray-800 dark:text-white"
-              placeholderTextColor="#9CA3AF"
+              className="bg-white dark:bg-gray-800"
             />
           </View>
         )}
@@ -189,17 +211,19 @@ const TransportDefinition: React.FC = () => {
           <Text className="font-JakartaBold text-sm text-gray-700 mb-2">
             Viajes recientes
           </Text>
-          <TouchableOpacity className="flex-row items-center p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
-            <Text className="text-lg mr-2">🏠</Text>
-            <View className="flex-1">
-              <Text className="font-JakartaMedium text-gray-800 dark:text-white">
-                Casa
-              </Text>
-              <Text className="font-Jakarta text-xs text-gray-500 dark:text-gray-400">
-                Calle Principal 123
-              </Text>
+          <Card className="bg-gray-50 dark:bg-gray-800">
+            <View className="flex-row items-center">
+              <Text className="text-lg mr-2">🏠</Text>
+              <View className="flex-1">
+                <Text className="font-JakartaMedium text-gray-800 dark:text-white">
+                  Casa
+                </Text>
+                <Text className="font-Jakarta text-xs text-gray-500 dark:text-gray-400">
+                  Calle Principal 123
+                </Text>
+              </View>
             </View>
-          </TouchableOpacity>
+          </Card>
         </View>
 
         {/* Espacio extra para evitar que el botón quede pegado al borde */}
@@ -207,29 +231,31 @@ const TransportDefinition: React.FC = () => {
 
         {/* Botón Continuar */}
         <View className="px-5 pb-5">
-          <TouchableOpacity
+          <Button
+            variant={
+              originLocation &&
+              destinationLocation &&
+              (rideType === RideType.NORMAL || phoneNumber.trim())
+                ? "primary"
+                : "secondary"
+            }
+            title={
+              originLocation &&
+              destinationLocation &&
+              (rideType === RideType.NORMAL || phoneNumber.trim())
+                ? "Continuar"
+                : rideType === RideType.FOR_OTHER && !phoneNumber.trim()
+                  ? "Ingresa el teléfono del pasajero"
+                  : "Selecciona origen y destino"
+            }
             onPress={handleContinue}
             disabled={
               !originLocation ||
               !destinationLocation ||
               (rideType === RideType.FOR_OTHER && !phoneNumber.trim())
             }
-            className={`rounded-lg p-4 ${
-              originLocation && destinationLocation &&
-              (rideType === RideType.NORMAL || phoneNumber.trim())
-                ? "bg-primary-500"
-                : "bg-gray-300 dark:bg-gray-600"
-            }`}
-          >
-            <Text className="text-white font-JakartaBold text-center">
-              {originLocation && destinationLocation &&
-               (rideType === RideType.NORMAL || phoneNumber.trim())
-                ? "Continuar"
-                : rideType === RideType.FOR_OTHER && !phoneNumber.trim()
-                  ? "Ingresa el teléfono del pasajero"
-                  : "Selecciona origen y destino"}
-            </Text>
-          </TouchableOpacity>
+            className="rounded-lg p-4"
+          />
         </View>
       </ScrollView>
     </View>

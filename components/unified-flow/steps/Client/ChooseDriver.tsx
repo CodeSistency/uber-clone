@@ -1,11 +1,19 @@
 import React from "react";
-import { View, Text, ScrollView, TouchableOpacity, ActivityIndicator, Modal, Image } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  ActivityIndicator,
+  Modal,
+  Image,
+} from "react-native";
 
 import { transportClient } from "@/app/services/flowClientService";
-import { useLocationStore } from "@/store";
 import DriverCard from "@/components/DriverCard";
+import { Button, Card, Badge } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import { useLocationStore } from "@/store";
 import { useDriverStore } from "@/store";
 import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
 import { MarkerData } from "@/types/type";
@@ -15,16 +23,19 @@ import FlowHeader from "../../FlowHeader";
 const ChooseDriver: React.FC = () => {
   const { back, goTo, rideId } = useMapFlow() as any;
   const { withUI, showSuccess, showError } = useUI();
-  const { drivers, selectedDriver, setSelectedDriver, setDrivers } = useDriverStore();
+  const { drivers, selectedDriver, setSelectedDriver, setDrivers } =
+    useDriverStore();
   const { userLatitude, userLongitude } = useLocationStore();
 
   // Estados para manejar la espera de aceptación del conductor
-  const [isWaitingForAcceptance, setIsWaitingForAcceptance] = React.useState(false);
+  const [isWaitingForAcceptance, setIsWaitingForAcceptance] =
+    React.useState(false);
   const [waitingTime, setWaitingTime] = React.useState(0);
 
   // Estados para el modal de detalle del conductor
   const [showDriverModal, setShowDriverModal] = React.useState(false);
-  const [selectedDriverForModal, setSelectedDriverForModal] = React.useState<MarkerData | null>(null);
+  const [selectedDriverForModal, setSelectedDriverForModal] =
+    React.useState<MarkerData | null>(null);
 
   // Estado para loading de drivers
   const [isLoadingDrivers, setIsLoadingDrivers] = React.useState(false);
@@ -62,22 +73,27 @@ const ChooseDriver: React.FC = () => {
       });
 
       if (response?.data && Array.isArray(response.data)) {
-        console.log(`[ChooseDriver] ${simulateBeforeSearch ? 'Simulated' : 'Nearby'} drivers loaded:`, response.data.length);
+        console.log(
+          `[ChooseDriver] ${simulateBeforeSearch ? "Simulated" : "Nearby"} drivers loaded:`,
+          response.data.length,
+        );
 
-        const driverMarkers: MarkerData[] = response.data.map((driver: any) => ({
-          id: driver.driverId,
-          title: `${driver.firstName} ${driver.lastName}`,
-          first_name: driver.firstName,
-          last_name: driver.lastName,
-          profile_image_url: driver.profileImageUrl,
-          car_image_url: "",
-          car_seats: driver.carSeats,
-          rating: driver.rating,
-          latitude: userLatitude + (Math.random() - 0.5) * 0.01,
-          longitude: userLongitude + (Math.random() - 0.5) * 0.01,
-          time: driver.estimatedArrival,
-          price: `$${(Math.random() * 5 + 10).toFixed(2)}`,
-        }));
+        const driverMarkers: MarkerData[] = response.data.map(
+          (driver: any) => ({
+            id: driver.driverId,
+            title: `${driver.firstName} ${driver.lastName}`,
+            first_name: driver.firstName,
+            last_name: driver.lastName,
+            profile_image_url: driver.profileImageUrl,
+            car_image_url: "",
+            car_seats: driver.carSeats,
+            rating: driver.rating,
+            latitude: userLatitude + (Math.random() - 0.5) * 0.01,
+            longitude: userLongitude + (Math.random() - 0.5) * 0.01,
+            time: driver.estimatedArrival,
+            price: `$${(Math.random() * 5 + 10).toFixed(2)}`,
+          }),
+        );
 
         setDrivers(driverMarkers);
       } else {
@@ -86,12 +102,21 @@ const ChooseDriver: React.FC = () => {
       }
     } catch (error) {
       console.error("[ChooseDriver] Error loading drivers:", error);
-      showError("Error", `No se pudieron cargar los conductores ${simulateBeforeSearch ? '(con simulación)' : '(búsqueda directa)'}`);
+      showError(
+        "Error",
+        `No se pudieron cargar los conductores ${simulateBeforeSearch ? "(con simulación)" : "(búsqueda directa)"}`,
+      );
       setDrivers([]);
     } finally {
       setIsLoadingDrivers(false);
     }
-  }, [userLatitude, userLongitude, setDrivers, showError, simulateBeforeSearch]);
+  }, [
+    userLatitude,
+    userLongitude,
+    setDrivers,
+    showError,
+    simulateBeforeSearch,
+  ]);
 
   // Función para manejar la selección de conductor
   const handleDriverSelection = async () => {
@@ -108,7 +133,10 @@ const ChooseDriver: React.FC = () => {
       setIsWaitingForAcceptance(true);
       setWaitingTime(0);
 
-      showSuccess("¡Solicitud enviada!", "Esperando respuesta del conductor...");
+      showSuccess(
+        "¡Solicitud enviada!",
+        "Esperando respuesta del conductor...",
+      );
     } catch (error: any) {
       console.error("[ChooseDriver] Driver selection error:", error);
       showError("Error", error?.message || "Error al solicitar conductor");
@@ -122,7 +150,7 @@ const ChooseDriver: React.FC = () => {
     if (isWaitingForAcceptance && rideId) {
       pollInterval = setInterval(async () => {
         try {
-          setWaitingTime(prev => prev + 1);
+          setWaitingTime((prev) => prev + 1);
 
           const response = await transportClient.getStatus(rideId);
           const status = response?.data?.status || response?.status;
@@ -133,18 +161,26 @@ const ChooseDriver: React.FC = () => {
             // Conductor aceptó - continuar al siguiente paso
             setIsWaitingForAcceptance(false);
             if (pollInterval) clearInterval(pollInterval);
-            showSuccess("¡Conductor confirmado!", "Procediendo con la reserva...");
+            showSuccess(
+              "¡Conductor confirmado!",
+              "Procediendo con la reserva...",
+            );
             goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.GESTION_CONFIRMACION);
           } else if (status === "cancelled") {
             // Conductor rechazó - volver atrás
             setIsWaitingForAcceptance(false);
             if (pollInterval) clearInterval(pollInterval);
-            showError("Conductor no disponible", "El conductor no pudo aceptar tu solicitud. Por favor selecciona otro conductor.");
+            showError(
+              "Conductor no disponible",
+              "El conductor no pudo aceptar tu solicitud. Por favor selecciona otro conductor.",
+            );
             // Reset selection to allow choosing another driver
             setSelectedDriver(null);
           } else if (status === "requested") {
             // Aún esperando - continuar polling
-            console.log("[ChooseDriver] Still waiting for driver acceptance...");
+            console.log(
+              "[ChooseDriver] Still waiting for driver acceptance...",
+            );
           }
         } catch (error) {
           console.error("[ChooseDriver] Error polling ride status:", error);
@@ -158,7 +194,14 @@ const ChooseDriver: React.FC = () => {
         clearInterval(pollInterval);
       }
     };
-  }, [isWaitingForAcceptance, rideId, goTo, showSuccess, showError, setSelectedDriver]);
+  }, [
+    isWaitingForAcceptance,
+    rideId,
+    goTo,
+    showSuccess,
+    showError,
+    setSelectedDriver,
+  ]);
 
   // Cargar drivers cuando tengamos ubicación o cambie el modo de búsqueda
   React.useEffect(() => {
@@ -166,7 +209,13 @@ const ChooseDriver: React.FC = () => {
       console.log("[ChooseDriver] Location available, loading nearby drivers");
       loadNearbyDrivers();
     }
-  }, [userLatitude, userLongitude, isLoadingDrivers, loadNearbyDrivers, simulateBeforeSearch]);
+  }, [
+    userLatitude,
+    userLongitude,
+    isLoadingDrivers,
+    loadNearbyDrivers,
+    simulateBeforeSearch,
+  ]);
 
   // Función para cancelar la espera
   const handleCancelWaiting = () => {
@@ -217,12 +266,12 @@ const ChooseDriver: React.FC = () => {
               <Text className="text-lg font-JakartaBold text-gray-800 dark:text-white">
                 Detalle del Conductor
               </Text>
-              <TouchableOpacity
+              <Button
+                variant="ghost"
+                title="✕"
                 onPress={closeDriverModal}
-                className="w-8 h-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700"
-              >
-                <Text className="text-xl text-gray-600 dark:text-gray-400">✕</Text>
-              </TouchableOpacity>
+                className="w-8 h-8 rounded-full bg-gray-100 dark:bg-gray-700"
+              />
             </View>
 
             <ScrollView showsVerticalScrollIndicator={false}>
@@ -232,7 +281,8 @@ const ChooseDriver: React.FC = () => {
                   {/* Avatar */}
                   <View className="w-24 h-24 bg-primary-500 rounded-full items-center justify-center mb-4">
                     <Text className="text-3xl text-white font-JakartaBold">
-                      {driver.first_name.charAt(0)}{driver.last_name.charAt(0)}
+                      {driver.first_name.charAt(0)}
+                      {driver.last_name.charAt(0)}
                     </Text>
                   </View>
 
@@ -248,9 +298,13 @@ const ChooseDriver: React.FC = () => {
                   </View>
 
                   {/* Estado de selección */}
-                  <View className={`px-3 py-1 rounded-full ${isSelected ? 'bg-primary-100' : 'bg-gray-100'}`}>
-                    <Text className={`text-sm font-JakartaMedium ${isSelected ? 'text-primary-600' : 'text-gray-600'}`}>
-                      {isSelected ? '● Conductor seleccionado' : '○ Disponible'}
+                  <View
+                    className={`px-3 py-1 rounded-full ${isSelected ? "bg-primary-100" : "bg-gray-100"}`}
+                  >
+                    <Text
+                      className={`text-sm font-JakartaMedium ${isSelected ? "text-primary-600" : "text-gray-600"}`}
+                    >
+                      {isSelected ? "● Conductor seleccionado" : "○ Disponible"}
                     </Text>
                   </View>
                 </View>
@@ -263,21 +317,27 @@ const ChooseDriver: React.FC = () => {
                       <Text className="font-JakartaBold text-gray-800 dark:text-white">
                         {driver.time || 5}
                       </Text>
-                      <Text className="text-xs text-gray-600 dark:text-gray-400">min</Text>
+                      <Text className="text-xs text-gray-600 dark:text-gray-400">
+                        min
+                      </Text>
                     </View>
                     <View className="items-center flex-1">
                       <Text className="text-2xl mb-1">💰</Text>
                       <Text className="font-JakartaBold text-gray-800 dark:text-white">
-                        {driver.price || '$15.50'}
+                        {driver.price || "$15.50"}
                       </Text>
-                      <Text className="text-xs text-gray-600 dark:text-gray-400">base</Text>
+                      <Text className="text-xs text-gray-600 dark:text-gray-400">
+                        base
+                      </Text>
                     </View>
                     <View className="items-center flex-1">
                       <Text className="text-2xl mb-1">🚗</Text>
                       <Text className="font-JakartaBold text-gray-800 dark:text-white">
                         {driver.car_seats}
                       </Text>
-                      <Text className="text-xs text-gray-600 dark:text-gray-400">asientos</Text>
+                      <Text className="text-xs text-gray-600 dark:text-gray-400">
+                        asientos
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -306,13 +366,17 @@ const ChooseDriver: React.FC = () => {
                       <Text className="text-sm font-JakartaMedium text-gray-600 dark:text-gray-400 mb-1">
                         Color
                       </Text>
-                      <Text className="text-sm text-gray-800 dark:text-white">—</Text>
+                      <Text className="text-sm text-gray-800 dark:text-white">
+                        —
+                      </Text>
                     </View>
                     <View className="flex-1 ml-2">
                       <Text className="text-sm font-JakartaMedium text-gray-600 dark:text-gray-400 mb-1">
                         Placa
                       </Text>
-                      <Text className="text-sm text-gray-800 dark:text-white">—</Text>
+                      <Text className="text-sm text-gray-800 dark:text-white">
+                        —
+                      </Text>
                     </View>
                   </View>
 
@@ -345,20 +409,36 @@ const ChooseDriver: React.FC = () => {
 
                   <View className="space-y-3">
                     <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Viajes completados</Text>
-                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">—</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Viajes completados
+                      </Text>
+                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">
+                        —
+                      </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Rating promedio</Text>
-                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">{driver.rating}</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Rating promedio
+                      </Text>
+                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">
+                        {driver.rating}
+                      </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Tasa de aceptación</Text>
-                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">—</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Tasa de aceptación
+                      </Text>
+                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">
+                        —
+                      </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Tiempo promedio</Text>
-                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">—</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Tiempo promedio
+                      </Text>
+                      <Text className="text-sm font-JakartaMedium text-gray-800 dark:text-white">
+                        —
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -387,16 +467,16 @@ const ChooseDriver: React.FC = () => {
                 <Text className="text-lg font-JakartaBold text-gray-800 dark:text-white mb-3">
                   💬 Reseñas Recientes
                 </Text>
-                <View className="bg-white dark:bg-gray-700 rounded-xl p-4 border border-gray-200 dark:border-gray-600">
+                <Card className="bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600">
                   <Text className="text-sm text-gray-600 dark:text-gray-400 mb-3">
                     Próximamente disponible
                   </Text>
-                  <TouchableOpacity className="bg-gray-100 dark:bg-gray-600 rounded-lg py-2 px-4">
-                    <Text className="text-sm font-JakartaMedium text-center text-gray-600 dark:text-gray-300">
-                      Ver todas las reseñas
-                    </Text>
-                  </TouchableOpacity>
-                </View>
+                  <Button
+                    variant="secondary"
+                    title="Ver todas las reseñas"
+                    className="rounded-lg py-2 px-4"
+                  />
+                </Card>
               </View>
 
               {/* Verification & Safety */}
@@ -412,19 +492,27 @@ const ChooseDriver: React.FC = () => {
                   <View className="space-y-2">
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">⏳</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Identidad verificada</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Identidad verificada
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">⏳</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Antecedentes penales</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Antecedentes penales
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">⏳</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Licencia de conducir</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Licencia de conducir
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">⏳</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Seguro obligatorio</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Seguro obligatorio
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -443,15 +531,21 @@ const ChooseDriver: React.FC = () => {
                   <View className="space-y-2">
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">📞</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Número de teléfono</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Número de teléfono
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">💬</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Idioma y preferencias</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Idioma y preferencias
+                      </Text>
                     </View>
                     <View className="flex-row items-center">
                       <Text className="text-gray-400 mr-3">🎵</Text>
-                      <Text className="text-sm text-gray-600 dark:text-gray-400">Preferencias musicales</Text>
+                      <Text className="text-sm text-gray-600 dark:text-gray-400">
+                        Preferencias musicales
+                      </Text>
                     </View>
                   </View>
                 </View>
@@ -461,33 +555,35 @@ const ChooseDriver: React.FC = () => {
               <View className="px-6 pb-6">
                 <View className="space-y-3">
                   {/* Primary Action */}
-                  <TouchableOpacity
+                  <Button
+                    variant={isSelected ? "success" : "primary"}
+                    title={
+                      isSelected
+                        ? "✓ Conductor seleccionado"
+                        : "Solicitar conductor"
+                    }
                     onPress={() => handleSelectFromModal(driver.id)}
                     disabled={isWaitingForAcceptance}
-                    className={`rounded-xl p-4 ${isSelected ? 'bg-green-500' : 'bg-primary-500'}`}
-                  >
-                    <Text className="text-white font-JakartaBold text-center">
-                      {isSelected ? '✓ Conductor seleccionado' : 'Solicitar conductor'}
-                    </Text>
-                  </TouchableOpacity>
+                    className="rounded-xl p-4"
+                  />
 
                   {/* Secondary Actions */}
                   <View className="flex-row space-x-3">
-                    <TouchableOpacity className="flex-1 bg-gray-100 dark:bg-gray-600 rounded-lg py-3">
-                      <Text className="text-center font-JakartaMedium text-gray-600 dark:text-gray-300">
-                        📞 Llamar
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity className="flex-1 bg-gray-100 dark:bg-gray-600 rounded-lg py-3">
-                      <Text className="text-center font-JakartaMedium text-gray-600 dark:text-gray-300">
-                        💬 Mensaje
-                      </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity className="flex-1 bg-gray-100 dark:bg-gray-600 rounded-lg py-3">
-                      <Text className="text-center font-JakartaMedium text-gray-600 dark:text-gray-300">
-                        ⭐ Calificar
-                      </Text>
-                    </TouchableOpacity>
+                    <Button
+                      variant="secondary"
+                      title="📞 Llamar"
+                      className="flex-1 rounded-lg py-3"
+                    />
+                    <Button
+                      variant="secondary"
+                      title="💬 Mensaje"
+                      className="flex-1 rounded-lg py-3"
+                    />
+                    <Button
+                      variant="secondary"
+                      title="⭐ Calificar"
+                      className="flex-1 rounded-lg py-3"
+                    />
                   </View>
                 </View>
               </View>
@@ -523,7 +619,7 @@ const ChooseDriver: React.FC = () => {
                     className="w-2 h-2 bg-primary-500 rounded-full mx-1 animate-pulse"
                     style={{
                       animationDelay: `${i * 0.2}s`,
-                      animationDuration: '1.5s'
+                      animationDuration: "1.5s",
                     }}
                   />
                 ))}
@@ -546,36 +642,35 @@ const ChooseDriver: React.FC = () => {
             </View>
 
             {/* Driver Info */}
-            {selectedDriver && (() => {
-              const driver = drivers.find(d => d.id === selectedDriver);
-              if (driver) {
-                return (
-                  <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
-                    <Text className="font-JakartaBold text-blue-800 dark:text-blue-300 mb-1">
-                      Conductor seleccionado:
-                    </Text>
-                    <Text className="font-JakartaMedium text-blue-700 dark:text-blue-400">
-                      {driver.first_name} {driver.last_name}
-                    </Text>
-                    <Text className="font-Jakarta text-sm text-blue-600 dark:text-blue-500">
-                      ⭐ {driver.rating || 4.5} • {driver.time ? `${driver.time} min` : "—"}
-                    </Text>
-                  </View>
-                );
-              }
-              return null;
-            })()}
+            {selectedDriver &&
+              (() => {
+                const driver = drivers.find((d) => d.id === selectedDriver);
+                if (driver) {
+                  return (
+                    <View className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+                      <Text className="font-JakartaBold text-blue-800 dark:text-blue-300 mb-1">
+                        Conductor seleccionado:
+                      </Text>
+                      <Text className="font-JakartaMedium text-blue-700 dark:text-blue-400">
+                        {driver.first_name} {driver.last_name}
+                      </Text>
+                      <Text className="font-Jakarta text-sm text-blue-600 dark:text-blue-500">
+                        ⭐ {driver.rating || 4.5} •{" "}
+                        {driver.time ? `${driver.time} min` : "—"}
+                      </Text>
+                    </View>
+                  );
+                }
+                return null;
+              })()}
 
             {/* Cancel Button */}
-            <TouchableOpacity
+            <Button
+              variant="secondary"
+              title="Cancelar solicitud"
               onPress={handleCancelWaiting}
-              className="mt-6 bg-gray-200 dark:bg-gray-600 rounded-lg p-3"
-              activeOpacity={0.7}
-            >
-              <Text className="text-gray-700 dark:text-gray-300 font-JakartaMedium text-center">
-                Cancelar solicitud
-              </Text>
-            </TouchableOpacity>
+              className="mt-6 rounded-lg p-3"
+            />
           </View>
         </View>
       </View>
@@ -594,25 +689,21 @@ const ChooseDriver: React.FC = () => {
       {/* Toggle para modo de datos */}
       <View className="flex-row items-center justify-between px-5 mb-2">
         <Text className="font-JakartaBold text-base text-gray-700">
-        Conductores disponibles
-      </Text>
+          Conductores disponibles
+        </Text>
         <View className="flex-row items-center bg-gray-100 rounded-lg p-1">
-          <TouchableOpacity
+          <Button
+            variant={!simulateBeforeSearch ? "primary" : "ghost"}
+            title="Buscar"
             onPress={() => setSimulateBeforeSearch(false)}
-            className={`px-3 py-1 rounded-md ${!simulateBeforeSearch ? 'bg-white shadow-sm' : ''}`}
-          >
-            <Text className={`text-xs font-JakartaMedium ${!simulateBeforeSearch ? 'text-gray-800' : 'text-gray-600'}`}>
-              Buscar
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
+            className="px-3 py-1 rounded-md"
+          />
+          <Button
+            variant={simulateBeforeSearch ? "primary" : "ghost"}
+            title="Simular"
             onPress={() => setSimulateBeforeSearch(true)}
-            className={`px-3 py-1 rounded-md ${simulateBeforeSearch ? 'bg-white shadow-sm' : ''}`}
-          >
-            <Text className={`text-xs font-JakartaMedium ${simulateBeforeSearch ? 'text-gray-800' : 'text-gray-600'}`}>
-              Simular
-            </Text>
-          </TouchableOpacity>
+            className="px-3 py-1 rounded-md"
+          />
         </View>
       </View>
 
@@ -625,7 +716,10 @@ const ChooseDriver: React.FC = () => {
           <View className="items-center justify-center py-10">
             <ActivityIndicator size="large" color="#0286FF" />
             <Text className="text-gray-600 font-Jakarta mt-4 text-center">
-              {simulateBeforeSearch ? 'Simulando y buscando conductores' : 'Buscando conductores cercanos'}...
+              {simulateBeforeSearch
+                ? "Simulando y buscando conductores"
+                : "Buscando conductores cercanos"}
+              ...
             </Text>
             <Text className="text-gray-500 font-Jakarta text-sm text-center mt-2">
               Esto puede tomar unos segundos
@@ -652,30 +746,28 @@ const ChooseDriver: React.FC = () => {
             <Text className="text-gray-500 font-Jakarta text-sm text-center mb-4">
               No encontramos conductores en tu zona en este momento.
             </Text>
-            <TouchableOpacity
+            <Button
+              variant="primary"
+              title="Buscar nuevamente"
               onPress={loadNearbyDrivers}
-              className="bg-primary-500 rounded-lg px-6 py-3"
-              activeOpacity={0.8}
-            >
-              <Text className="text-white font-JakartaMedium">
-                Buscar nuevamente
-            </Text>
-            </TouchableOpacity>
+              className="rounded-lg px-6 py-3"
+            />
           </View>
         )}
       </ScrollView>
 
       <View className="px-5 pb-4">
-        <TouchableOpacity
-          disabled={!selectedDriver || isWaitingForAcceptance}
+        <Button
+          variant={selectedDriver && !isWaitingForAcceptance ? "primary" : "secondary"}
+          title={
+            isWaitingForAcceptance
+              ? "Esperando respuesta..."
+              : "Seleccionar conductor"
+          }
           onPress={handleDriverSelection}
-          className={`rounded-xl p-4 ${selectedDriver && !isWaitingForAcceptance ? "bg-primary-500" : "bg-gray-300"}`}
-          activeOpacity={0.8}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            {isWaitingForAcceptance ? "Esperando respuesta..." : "Seleccionar conductor"}
-            </Text>
-        </TouchableOpacity>
+          disabled={!selectedDriver || isWaitingForAcceptance}
+          className="rounded-xl p-4"
+        />
       </View>
 
       {/* Modal de detalle del conductor */}

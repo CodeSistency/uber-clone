@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 
@@ -23,30 +24,24 @@ const EnvioDeliveryConfirm: React.FC = () => {
       />
 
       <View className="px-5 mt-4">
-        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <Card className="bg-white">
           <Text className="font-JakartaMedium text-gray-700">Evidencia</Text>
           <Text className="font-Jakarta text-gray-600 mt-1">
             (Demo) Aquí iría la captura de firma o foto de entrega.
           </Text>
-        </View>
+        </Card>
       </View>
 
       <View className="px-5 pb-4 mt-4">
-        <TouchableOpacity
+        <Button
+          variant="primary"
+          title="Confirmar entrega"
           onPress={handleConfirm}
-          className="rounded-xl p-4 bg-primary-500"
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Confirmar entrega
-          </Text>
-        </TouchableOpacity>
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );
 };
 
 export default EnvioDeliveryConfirm;
-
-
-
-

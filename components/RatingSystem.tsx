@@ -213,3 +213,4 @@ const RatingSystem: React.FC<RatingSystemProps> = ({
 };
 
 export default RatingSystem;
+

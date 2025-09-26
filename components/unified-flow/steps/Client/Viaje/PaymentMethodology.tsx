@@ -1,12 +1,24 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Modal, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  ScrollView,
+  Modal,
+  TextInput,
+} from "react-native";
 
+import { transportClient } from "@/app/services/flowClientService";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import {
+  mapPaymentMethodToAPI,
+  validatePaymentMethod,
+  SplitPayment,
+  createSplitPayment,
+} from "@/lib/paymentValidation";
 import { usePaymentStore } from "@/store";
-import { mapPaymentMethodToAPI, validatePaymentMethod, SplitPayment, createSplitPayment } from "@/lib/paymentValidation";
-import { transportClient } from "@/app/services/flowClientService";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -18,17 +30,22 @@ const PaymentMethodology: React.FC = () => {
   // Estados de pago
   const [paymentMethod, setPaymentMethod] = useState<string | null>(null);
   const [multiplePayments, setMultiplePayments] = useState<SplitPayment[]>([]);
-  const [paymentMode, setPaymentMode] = useState<"single" | "multiple">("single");
+  const [paymentMode, setPaymentMode] = useState<"single" | "multiple">(
+    "single",
+  );
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Monto estimado del viaje (debería venir de la selección de vehículo)
-  const estimatedFare = 25.50;
+  const estimatedFare = 25.5;
 
   // Validaciones
   const paymentValidation = validatePaymentMethod(paymentMethod || "");
-  const canContinue = !isProcessingPayment &&
-    (paymentMode === "single" ? paymentValidation.isValid : multiplePayments.length > 0);
+  const canContinue =
+    !isProcessingPayment &&
+    (paymentMode === "single"
+      ? paymentValidation.isValid
+      : multiplePayments.length > 0);
 
   // Función para manejar cambio de modo de pago
   const handlePaymentModeChange = (newMode: "single" | "multiple") => {
@@ -60,20 +77,36 @@ const PaymentMethodology: React.FC = () => {
         // Convertir a formato de nuevos endpoints
         const singlePaymentData = {
           totalAmount: estimatedFare,
-          payments: [{
-            method: paymentData.method as "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash",
-            amount: estimatedFare,
-            bankCode: paymentData.method === "card" ? "0102" : undefined, // Default bank
-          }]
+          payments: [
+            {
+              method: paymentData.method as
+                | "transfer"
+                | "pago_movil"
+                | "zelle"
+                | "bitcoin"
+                | "cash",
+              amount: estimatedFare,
+              bankCode: paymentData.method === "card" ? "0102" : undefined, // Default bank
+            },
+          ],
         };
 
-        const result = await paymentStore.payRideWithMultipleMethods(id, singlePaymentData);
+        const result = await paymentStore.payRideWithMultipleMethods(
+          id,
+          singlePaymentData,
+        );
 
         if (result.data.status === "complete") {
-          showSuccess("¡Pago completado!", "Ahora buscaremos un conductor para ti");
+          showSuccess(
+            "¡Pago completado!",
+            "Ahora buscaremos un conductor para ti",
+          );
         } else {
           // Pago electrónico - mostrar referencias si existen
-          showSuccess("¡Pago configurado!", "Completa el pago electrónico para continuar");
+          showSuccess(
+            "¡Pago configurado!",
+            "Completa el pago electrónico para continuar",
+          );
         }
       } else {
         // 🆕 Pago múltiple usando nuevos endpoints
@@ -81,11 +114,19 @@ const PaymentMethodology: React.FC = () => {
           throw new Error("No se han configurado pagos múltiples");
         }
 
-        console.log("[PaymentMethodology] Processing multiple payments:", multiplePayments);
+        console.log(
+          "[PaymentMethodology] Processing multiple payments:",
+          multiplePayments,
+        );
 
         // Convertir SplitPayment a formato de nuevos endpoints
-        const paymentMethods = multiplePayments.map(payment => ({
-          method: payment.method as "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash",
+        const paymentMethods = multiplePayments.map((payment) => ({
+          method: payment.method as
+            | "transfer"
+            | "pago_movil"
+            | "zelle"
+            | "bitcoin"
+            | "cash",
           amount: payment.amount,
           bankCode: payment.bankCode,
         }));
@@ -96,19 +137,21 @@ const PaymentMethodology: React.FC = () => {
         });
 
         if (result.data.status === "complete") {
-          showSuccess("¡Pago completado!", "Ahora buscaremos un conductor para ti");
+          showSuccess(
+            "¡Pago completado!",
+            "Ahora buscaremos un conductor para ti",
+          );
         } else {
           // Mostrar referencias bancarias
           showSuccess(
             "¡Pagos configurados!",
-            `Generadas ${result.data.references?.length || 0} referencias bancarias`
+            `Generadas ${result.data.references?.length || 0} referencias bancarias`,
           );
         }
       }
 
       // Continuar con el flujo de matching
       next();
-
     } catch (error: any) {
       console.error("[PaymentMethodology] Payment confirmation error:", error);
       const errorMessage = error?.message || "Error al procesar el pago";
@@ -144,7 +187,7 @@ const PaymentMethodology: React.FC = () => {
         status: "pending" as const,
       };
 
-      setMultiplePayments(prev => [...prev, newPayment]);
+      setMultiplePayments((prev) => [...prev, newPayment]);
       setShowAddModal(false);
       setSelectedMethod("");
       setAmount("");
@@ -161,15 +204,29 @@ const PaymentMethodology: React.FC = () => {
 
             <Text className="font-JakartaMedium mb-2">Método:</Text>
             <View className="flex-row flex-wrap mb-4">
-              {["Credit Card", "Debit Card", "Cash", "Bank Transfer", "Digital Wallet"].map((method) => (
+              {[
+                "Credit Card",
+                "Debit Card",
+                "Cash",
+                "Bank Transfer",
+                "Digital Wallet",
+              ].map((method) => (
                 <TouchableOpacity
                   key={method}
                   onPress={() => setSelectedMethod(method)}
                   className={`mr-2 mb-2 px-3 py-2 rounded-lg border ${
-                    selectedMethod === method ? "border-primary-500 bg-primary-50" : "border-gray-300"
+                    selectedMethod === method
+                      ? "border-primary-500 bg-primary-50"
+                      : "border-gray-300"
                   }`}
                 >
-                  <Text className={selectedMethod === method ? "text-primary-600" : "text-gray-600"}>
+                  <Text
+                    className={
+                      selectedMethod === method
+                        ? "text-primary-600"
+                        : "text-gray-600"
+                    }
+                  >
                     {method}
                   </Text>
                 </TouchableOpacity>
@@ -186,7 +243,9 @@ const PaymentMethodology: React.FC = () => {
               placeholderTextColor="#9CA3AF"
             />
 
-            <Text className="font-JakartaMedium mb-2">Descripción (opcional):</Text>
+            <Text className="font-JakartaMedium mb-2">
+              Descripción (opcional):
+            </Text>
             <TextInput
               value={description}
               onChangeText={setDescription}
@@ -238,16 +297,22 @@ const PaymentMethodology: React.FC = () => {
               Resumen del viaje
             </Text>
             <View className="flex-row justify-between items-center">
-              <Text className="font-Jakarta text-gray-600">Distancia estimada</Text>
+              <Text className="font-Jakarta text-gray-600">
+                Distancia estimada
+              </Text>
               <Text className="font-JakartaMedium text-gray-800">15.2 km</Text>
             </View>
             <View className="flex-row justify-between items-center mt-1">
-              <Text className="font-Jakarta text-gray-600">Tiempo estimado</Text>
+              <Text className="font-Jakarta text-gray-600">
+                Tiempo estimado
+              </Text>
               <Text className="font-JakartaMedium text-gray-800">25 min</Text>
             </View>
             <View className="border-t border-gray-200 mt-3 pt-3">
               <View className="flex-row justify-between items-center">
-                <Text className="font-JakartaBold text-lg text-gray-800">Total</Text>
+                <Text className="font-JakartaBold text-lg text-gray-800">
+                  Total
+                </Text>
                 <Text className="font-JakartaBold text-xl text-primary-600">
                   ${estimatedFare.toFixed(2)}
                 </Text>
@@ -263,11 +328,11 @@ const PaymentMethodology: React.FC = () => {
                 paymentMode === "single" ? "bg-white shadow-sm" : ""
               }`}
             >
-              <Text className={`text-center font-JakartaMedium ${
-                paymentMode === "single"
-                  ? "text-gray-800"
-                  : "text-gray-600"
-              }`}>
+              <Text
+                className={`text-center font-JakartaMedium ${
+                  paymentMode === "single" ? "text-gray-800" : "text-gray-600"
+                }`}
+              >
                 Pago único
               </Text>
             </TouchableOpacity>
@@ -277,11 +342,11 @@ const PaymentMethodology: React.FC = () => {
                 paymentMode === "multiple" ? "bg-white shadow-sm" : ""
               }`}
             >
-              <Text className={`text-center font-JakartaMedium ${
-                paymentMode === "multiple"
-                  ? "text-gray-800"
-                  : "text-gray-600"
-              }`}>
+              <Text
+                className={`text-center font-JakartaMedium ${
+                  paymentMode === "multiple" ? "text-gray-800" : "text-gray-600"
+                }`}
+              >
                 Pago múltiple
               </Text>
             </TouchableOpacity>
@@ -306,13 +371,22 @@ const PaymentMethodology: React.FC = () => {
               </Text>
 
               {multiplePayments.map((payment, index) => (
-                <View key={index} className="flex-row items-center justify-between bg-gray-50 rounded-lg p-3 mb-2">
+                <View
+                  key={index}
+                  className="flex-row items-center justify-between bg-gray-50 rounded-lg p-3 mb-2"
+                >
                   <View className="flex-1">
                     <Text className="font-JakartaMedium">{payment.method}</Text>
-                    <Text className="font-Jakarta text-sm text-gray-600">${payment.amount.toFixed(2)}</Text>
+                    <Text className="font-Jakarta text-sm text-gray-600">
+                      ${payment.amount.toFixed(2)}
+                    </Text>
                   </View>
                   <TouchableOpacity
-                    onPress={() => setMultiplePayments(prev => prev.filter((_, i) => i !== index))}
+                    onPress={() =>
+                      setMultiplePayments((prev) =>
+                        prev.filter((_, i) => i !== index),
+                      )
+                    }
                     className="p-1"
                   >
                     <Text className="text-red-500 text-lg font-bold">×</Text>
@@ -325,13 +399,18 @@ const PaymentMethodology: React.FC = () => {
                 className="flex-row items-center justify-center bg-gray-100 rounded-lg p-3 border-2 border-dashed border-gray-300"
               >
                 <Text className="text-gray-600 mr-2">+</Text>
-                <Text className="text-gray-600 font-JakartaMedium">Agregar método de pago</Text>
+                <Text className="text-gray-600 font-JakartaMedium">
+                  Agregar método de pago
+                </Text>
               </TouchableOpacity>
 
               {multiplePayments.length > 0 && (
                 <View className="mt-4 p-3 bg-blue-50 rounded-lg">
                   <Text className="font-JakartaMedium text-blue-800">
-                    Total configurado: ${multiplePayments.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}
+                    Total configurado: $
+                    {multiplePayments
+                      .reduce((sum, p) => sum + p.amount, 0)
+                      .toFixed(2)}
                   </Text>
                 </View>
               )}
@@ -344,7 +423,8 @@ const PaymentMethodology: React.FC = () => {
               💳 Pago seguro
             </Text>
             <Text className="font-Jakarta text-blue-700 text-sm">
-              Tu pago será procesado de forma segura. Solo se cargará cuando confirmes al conductor encontrado.
+              Tu pago será procesado de forma segura. Solo se cargará cuando
+              confirmes al conductor encontrado.
             </Text>
           </View>
         </View>
@@ -359,8 +439,11 @@ const PaymentMethodology: React.FC = () => {
           activeOpacity={0.8}
         >
           <Text className="text-white font-JakartaBold text-center">
-            {isProcessingPayment ? "Procesando..." :
-             paymentMode === "single" ? "Pagar y buscar conductor" : "Configurar pagos y buscar conductor"}
+            {isProcessingPayment
+              ? "Procesando..."
+              : paymentMode === "single"
+                ? "Pagar y buscar conductor"
+                : "Configurar pagos y buscar conductor"}
           </Text>
           <Text className="text-white/80 font-JakartaMedium text-sm text-center mt-1">
             💳 ${estimatedFare.toFixed(2)} • 🔍 Matching automático

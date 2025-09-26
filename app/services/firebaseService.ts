@@ -3,13 +3,15 @@ import * as Device from "expo-device";
 import * as Notifications from "expo-notifications";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+
+import { config } from "@/lib/config";
 import { log } from "@/lib/logger";
 
-log.info('FirebaseService', 'Initializing Firebase service', {
+log.info("FirebaseService", "Initializing Firebase service", {
   platform: Platform.OS,
-  hasFirebaseConfig: !!Constants.expoConfig?.extra?.firebase,
+  hasFirebaseConfig: !!config.firebase,
   deviceName: Device.deviceName,
-  deviceType: Device.deviceType
+  deviceType: Device.deviceType,
 });
 
 // Configure notification handler
@@ -18,6 +20,8 @@ Notifications.setNotificationHandler({
     shouldShowAlert: true,
     shouldPlaySound: true,
     shouldSetBadge: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
   }),
 });
 
@@ -31,9 +35,9 @@ const initializeFirebaseManually = async () => {
     );
 
     // Check if we have Firebase config
-    const firebaseConfig = Constants.expoConfig?.extra?.firebase;
+    const firebaseConfig = config.firebase;
     if (!firebaseConfig) {
-      console.warn("[FirebaseService] No Firebase config found in app.json");
+      console.warn("[FirebaseService] No Firebase config found in environment");
       return false;
     }
 
@@ -108,12 +112,14 @@ export class FirebaseService {
    * Manually initialize Firebase (public method)
    */
   async initializeFirebase(): Promise<boolean> {
-    console.log("🚀 [FirebaseService] Manual Firebase initialization requested");
+    console.log(
+      "🚀 [FirebaseService] Manual Firebase initialization requested",
+    );
     console.log("🔧 [FirebaseService] Initialization context:", {
       timestamp: new Date().toISOString(),
       platform: Platform.OS,
       hasExpoConfig: !!Constants.expoConfig,
-      hasFirebaseConfig: !!Constants.expoConfig?.extra?.firebase,
+      hasFirebaseConfig: !!config.firebase,
       firebaseInitialized,
     });
 
@@ -176,12 +182,17 @@ export class FirebaseService {
         await this.setupNotificationChannel();
         console.log("✅ [FirebaseService] Notification channel configured");
       } else {
-        console.warn("⚠️ [FirebaseService] Permissions not granted - push notifications disabled");
+        console.warn(
+          "⚠️ [FirebaseService] Permissions not granted - push notifications disabled",
+        );
       }
 
       return granted;
     } catch (error) {
-      console.error("❌ [FirebaseService] Error requesting permissions:", error);
+      console.error(
+        "❌ [FirebaseService] Error requesting permissions:",
+        error,
+      );
       console.log("🔍 [FirebaseService] Permission error details:", {
         error: error instanceof Error ? error.message : String(error),
         platform: Platform.OS,
@@ -222,31 +233,31 @@ export class FirebaseService {
     const tokenRequestId = `fcm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
 
-    log.info('FirebaseService', 'FCM token request initiated', {
+    log.info("FirebaseService", "FCM token request initiated", {
       tokenRequestId,
       hasCachedToken: !!this.fcmToken,
       cachedTokenLength: this.fcmToken?.length || 0,
       deviceType: Platform.OS,
       firebaseInitialized,
-      isRetrying: this.isRetrying
+      isRetrying: this.isRetrying,
     });
 
     try {
       // Check if we already have a cached token
       const cachedToken = await SecureStore.getItemAsync("fcm_token");
       if (cachedToken && this.fcmToken) {
-        log.info('FirebaseService', 'Using cached FCM token', {
+        log.info("FirebaseService", "Using cached FCM token", {
           tokenRequestId,
           tokenLength: cachedToken.length,
-          tokenPrefix: cachedToken.substring(0, 20) + "..."
+          tokenPrefix: cachedToken.substring(0, 20) + "...",
         });
         return cachedToken;
       }
 
       if (cachedToken && !this.fcmToken) {
-        log.info('FirebaseService', 'Restoring FCM token from cache', {
+        log.info("FirebaseService", "Restoring FCM token from cache", {
           tokenRequestId,
-          tokenLength: cachedToken.length
+          tokenLength: cachedToken.length,
         });
         this.fcmToken = cachedToken;
         return cachedToken;
@@ -254,19 +265,23 @@ export class FirebaseService {
 
       // Prevent infinite loops
       if (this.isRetrying) {
-        log.warn('FirebaseService', 'Already retrying, skipping to avoid infinite loop', {
-          tokenRequestId,
-          retryAttempt: this.retryCount
-        });
+        log.warn(
+          "FirebaseService",
+          "Already retrying, skipping to avoid infinite loop",
+          {
+            tokenRequestId,
+            retryAttempt: this.retryCount,
+          },
+        );
         return null;
       }
 
       // Request permissions first
       const hasPermission = await this.requestPermissions();
       if (!hasPermission) {
-        log.warn('FirebaseService', 'No notification permissions granted', {
+        log.warn("FirebaseService", "No notification permissions granted", {
           tokenRequestId,
-          reason: 'User denied permissions'
+          reason: "User denied permissions",
         });
         return null;
       }
@@ -301,7 +316,9 @@ export class FirebaseService {
         return null;
       }
 
-      console.log("🚀 [FirebaseService] Calling Notifications.getExpoPushTokenAsync...");
+      console.log(
+        "🚀 [FirebaseService] Calling Notifications.getExpoPushTokenAsync...",
+      );
       const tokenData = await Notifications.getExpoPushTokenAsync({
         projectId: projectIdCandidate,
       });
@@ -314,9 +331,9 @@ export class FirebaseService {
 
       console.log("📊 [FirebaseService] Token details:", {
         tokenLength: token.length,
-        tokenType: token.startsWith('ExponentPushToken[') ? 'expo' : 'native',
+        tokenType: token.startsWith("ExponentPushToken[") ? "expo" : "native",
         projectId: projectIdCandidate,
-        deviceType: tokenData.type || 'unknown',
+        deviceType: tokenData.type || "unknown",
       });
 
       // Cache the token
@@ -491,12 +508,16 @@ export class FirebaseService {
 
     // Call the notification listener manually for testing
     if (notificationData.type === "foreground" && this.notificationListener) {
-      console.log("🎭 [FirebaseService] Triggering foreground notification simulation");
+      console.log(
+        "🎭 [FirebaseService] Triggering foreground notification simulation",
+      );
       // Note: In a real scenario, this would be called by the Expo notification listener
       // For simulation, we log it but don't actually trigger the listener
     }
 
-    console.log("✅ [FirebaseService] Firebase notification simulation completed");
+    console.log(
+      "✅ [FirebaseService] Firebase notification simulation completed",
+    );
   }
 
   /**
@@ -518,7 +539,7 @@ export class FirebaseService {
           data,
           notificationId: notification.request?.identifier,
           isForeground: true,
-          deviceInfo: 'available'
+          deviceInfo: "available",
         });
 
         // Log detailed notification structure for debugging
@@ -558,16 +579,19 @@ export class FirebaseService {
         const notificationData = response.notification?.request?.content;
         const { title, body, data } = notificationData || {};
 
-        console.log("👆 [FirebaseService] NOTIFICATION TAPPED (Background/Terminated)", {
-          timestamp: new Date().toISOString(),
-          title,
-          body,
-          data,
-          notificationId: response.notification?.request?.identifier,
-          actionIdentifier: response.actionIdentifier,
-          isForegroundTap: false,
-          userInfo: response.userText || null,
-        });
+        console.log(
+          "👆 [FirebaseService] NOTIFICATION TAPPED (Background/Terminated)",
+          {
+            timestamp: new Date().toISOString(),
+            title,
+            body,
+            data,
+            notificationId: response.notification?.request?.identifier,
+            actionIdentifier: response.actionIdentifier,
+            isForegroundTap: false,
+            userInfo: response.userText || null,
+          },
+        );
 
         // Log detailed response structure
         console.log("📋 [FirebaseService] Full notification response:", {
@@ -601,7 +625,9 @@ export class FirebaseService {
     this.notificationListener = notificationListener;
     this.responseListener = responseListener;
 
-    console.log("✅ [FirebaseService] Notification listeners configured successfully");
+    console.log(
+      "✅ [FirebaseService] Notification listeners configured successfully",
+    );
   }
 
   /**
@@ -609,11 +635,17 @@ export class FirebaseService {
    */
   private storeNotificationHistory(notification: any): void {
     try {
-      console.log("💾 [FirebaseService] Storing notification in history:", notification.id);
+      console.log(
+        "💾 [FirebaseService] Storing notification in history:",
+        notification.id,
+      );
       // Here you could store to AsyncStorage or send to analytics service
       // For now, just log it
     } catch (error) {
-      console.warn("[FirebaseService] Failed to store notification history:", error);
+      console.warn(
+        "[FirebaseService] Failed to store notification history:",
+        error,
+      );
     }
   }
 
@@ -622,7 +654,10 @@ export class FirebaseService {
    */
   private storeNotificationInteraction(interaction: any): void {
     try {
-      console.log("📊 [FirebaseService] Recording notification interaction:", interaction);
+      console.log(
+        "📊 [FirebaseService] Recording notification interaction:",
+        interaction,
+      );
       // Here you could send to analytics service
     } catch (error) {
       console.warn("[FirebaseService] Failed to record interaction:", error);
@@ -634,7 +669,10 @@ export class FirebaseService {
    */
   private handleNotificationNavigation(data: any): void {
     try {
-      console.log("🧭 [FirebaseService] Processing navigation for notification:", data);
+      console.log(
+        "🧭 [FirebaseService] Processing navigation for notification:",
+        data,
+      );
 
       if (!data) {
         console.log("[FirebaseService] No navigation data provided");
@@ -644,7 +682,9 @@ export class FirebaseService {
       // Navigation logic based on notification type
       switch (data.type) {
         case "RIDE_REQUEST":
-          console.log("🛵 [FirebaseService] Navigating to ride requests (driver)");
+          console.log(
+            "🛵 [FirebaseService] Navigating to ride requests (driver)",
+          );
           // router.push("/driver/ride-requests");
           break;
 
@@ -684,11 +724,17 @@ export class FirebaseService {
           break;
 
         default:
-          console.log("ℹ️ [FirebaseService] Unknown notification type:", data.type);
-          // router.push("/home");
+          console.log(
+            "ℹ️ [FirebaseService] Unknown notification type:",
+            data.type,
+          );
+        // router.push("/home");
       }
     } catch (error) {
-      console.error("[FirebaseService] Error handling notification navigation:", error);
+      console.error(
+        "[FirebaseService] Error handling notification navigation:",
+        error,
+      );
     }
   }
 
@@ -722,5 +768,9 @@ export const getFirebaseTokenData = () =>
   firebaseService.getFirebaseTokenData();
 export const clearFirebaseTokens = () => firebaseService.clearTokens();
 export const initializeFirebase = () => firebaseService.initializeFirebase();
-export const simulateFirebaseNotification = (data: { title: string; body: string; data?: any; type?: "foreground" | "background" }) =>
-  firebaseService.simulateFirebaseNotification(data);
+export const simulateFirebaseNotification = (data: {
+  title: string;
+  body: string;
+  data?: any;
+  type?: "foreground" | "background";
+}) => firebaseService.simulateFirebaseNotification(data);

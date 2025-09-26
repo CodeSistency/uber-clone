@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
+import { Button } from "@/components/ui";
 import { useDrawer, Drawer } from "@/components/drawer";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import DriverAvailability from "@/components/unified-flow/steps/Client/Delivery/DriverAvailability";
@@ -11,6 +12,8 @@ import DriverDeliveryPickupOrder from "@/components/unified-flow/steps/Driver/De
 import DriverDeliveryToCustomer from "@/components/unified-flow/steps/Driver/Delivery/DriverDeliveryToCustomer";
 import DriverFinalizationRating from "@/components/unified-flow/steps/Driver/DriverFinalizationRating";
 import DriverIncomingRequest from "@/components/unified-flow/steps/Driver/DriverIncomingRequest";
+import DriverTransportEarnings from "@/components/unified-flow/steps/Driver/DriverTransportEarnings";
+import DriverTransportRating from "@/components/unified-flow/steps/Driver/DriverTransportRating";
 import DriverEnvioDeliveryConfirm from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioDeliveryConfirm";
 import DriverEnvioNavigateToDestination from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioNavigateToDestination";
 import DriverEnvioNavigateToOrigin from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioNavigateToOrigin";
@@ -24,8 +27,6 @@ import DriverTransportArrivedAtOrigin from "@/components/unified-flow/steps/Driv
 import DriverTransportEndPayment from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportEndPayment";
 import DriverTransportInProgress from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportInProgress";
 import DriverTransportNavigateToOrigin from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportNavigateToOrigin";
-import DriverTransportRating from "@/components/unified-flow/steps/Driver/DriverTransportRating";
-import DriverTransportEarnings from "@/components/unified-flow/steps/Driver/DriverTransportEarnings";
 import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
@@ -88,7 +89,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
     <DriverTransportRating />
   ),
   // New earnings summary step
-  [FLOW_STEPS.DRIVER_TRANSPORT_VIAJE_COMPLETADO]: () => (
+  [FLOW_STEPS.DRIVER_FINALIZACION_RATING]: () => (
     <DriverTransportEarnings />
   ),
 
@@ -159,11 +160,12 @@ const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({
     <>
       {/* Header con drawer */}
       <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
-        <TouchableOpacity onPress={drawer.toggle} className="p-2">
-          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">
-            ☰
-          </Text>
-        </TouchableOpacity>
+        <Button
+          variant="ghost"
+          title="☰"
+          onPress={drawer.toggle}
+          className="p-2 text-secondary-700 dark:text-secondary-300"
+        />
         <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">
           Flujo Unificado Conductor
         </Text>

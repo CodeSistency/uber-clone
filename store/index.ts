@@ -13,6 +13,7 @@ export * from './earnings';
 export * from './safety';
 export * from './ratings';
 export * from './payment';
+export * from './splash';
 export * from './dev/dev';
 export * from './vehicleTiers/vehicleTiers';
 

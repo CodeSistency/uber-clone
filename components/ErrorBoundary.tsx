@@ -1,7 +1,8 @@
-import React, { Component, ReactNode } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Alert } from 'react-native';
-import { log } from '@/lib/logger';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { Component, ReactNode } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { log } from "@/lib/logger";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -16,14 +17,17 @@ interface ErrorBoundaryProps {
   onError?: (error: Error, errorInfo: React.ErrorInfo) => void;
 }
 
-export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = {
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: ''
+      errorId: "",
     };
   }
 
@@ -34,28 +38,35 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     return {
       hasError: true,
       error,
-      errorId
+      errorId,
     };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    const errorId = this.state.errorId || `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const errorId =
+      this.state.errorId ||
+      `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Log the error with detailed information
-    log.critical('ErrorBoundary', 'JavaScript error caught by boundary', {
-      errorId,
-      errorMessage: error.message,
-      errorStack: error.stack,
-      errorName: error.name,
-      componentStack: errorInfo.componentStack,
-      timestamp: new Date().toISOString()
-    }, error);
+    log.critical(
+      "ErrorBoundary",
+      "JavaScript error caught by boundary",
+      {
+        errorId,
+        errorMessage: error.message,
+        errorStack: error.stack,
+        errorName: error.name,
+        componentStack: errorInfo.componentStack,
+        timestamp: new Date().toISOString(),
+      },
+      error,
+    );
 
     // Update state with error info
     this.setState({
       error,
       errorInfo,
-      errorId
+      errorId,
     });
 
     // Call optional onError callback
@@ -63,46 +74,51 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
       try {
         this.props.onError(error, errorInfo);
       } catch (callbackError) {
-        log.error('ErrorBoundary', 'Error in onError callback', {
-          errorId,
-          callbackError: callbackError.message
-        }, callbackError);
+        log.error(
+          "ErrorBoundary",
+          "Error in onError callback",
+          {
+            errorId,
+            callbackError: callbackError instanceof Error ? callbackError.message : String(callbackError),
+          },
+          callbackError instanceof Error ? callbackError : undefined,
+        );
       }
     }
 
     // Show alert in development
     if (__DEV__) {
       Alert.alert(
-        'Error Boundary Triggered',
+        "Error Boundary Triggered",
         `Error ID: ${errorId}\n\n${error.message}`,
         [
-          { text: 'OK' },
+          { text: "OK" },
           {
-            text: 'View Details',
+            text: "View Details",
             onPress: () => {
               Alert.alert(
-                'Error Details',
+                "Error Details",
                 `Name: ${error.name}\nMessage: ${error.message}\n\nComponent Stack:\n${errorInfo.componentStack}`,
-                [{ text: 'Close' }]
+                [{ text: "Close" }],
               );
-            }
-          }
-        ]
+            },
+          },
+        ],
       );
     }
   }
 
   handleRetry = () => {
-    log.info('ErrorBoundary', 'User triggered error boundary retry', {
+    log.info("ErrorBoundary", "User triggered error boundary retry", {
       errorId: this.state.errorId,
-      previousError: this.state.error?.message
+      previousError: this.state.error?.message,
     });
 
     this.setState({
       hasError: false,
       error: null,
       errorInfo: null,
-      errorId: ''
+      errorId: "",
     });
   };
 
@@ -110,27 +126,27 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
     const { error, errorId } = this.state;
 
     Alert.alert(
-      'Report Error',
-      'This will help us fix the issue. Include any steps that led to this error.',
+      "Report Error",
+      "This will help us fix the issue. Include any steps that led to this error.",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Report',
+          text: "Report",
           onPress: () => {
-            log.info('ErrorBoundary', 'User reported error', {
+            log.info("ErrorBoundary", "User reported error", {
               errorId,
               errorMessage: error?.message,
-              userAction: 'reported_error'
+              userAction: "reported_error",
             });
 
             Alert.alert(
-              'Thank You',
-              'Error reported successfully. Our team will investigate this issue.',
-              [{ text: 'OK' }]
+              "Thank You",
+              "Error reported successfully. Our team will investigate this issue.",
+              [{ text: "OK" }],
             );
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
@@ -205,21 +221,24 @@ export const useErrorHandler = () => {
   return (error: Error, errorInfo?: { componentStack?: string }) => {
     const errorId = `async_error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.critical('useErrorHandler', 'Async error caught', {
-      errorId,
-      errorMessage: error.message,
-      errorStack: error.stack,
-      componentStack: errorInfo?.componentStack,
-      source: 'async_error_handler'
-    }, error);
+    log.critical(
+      "useErrorHandler",
+      "Async error caught",
+      {
+        errorId,
+        errorMessage: error.message,
+        errorStack: error.stack,
+        componentStack: errorInfo?.componentStack,
+        source: "async_error_handler",
+      },
+      error,
+    );
 
     // In development, show alert
     if (__DEV__) {
-      Alert.alert(
-        'Async Error',
-        `Error ID: ${errorId}\n\n${error.message}`,
-        [{ text: 'OK' }]
-      );
+      Alert.alert("Async Error", `Error ID: ${errorId}\n\n${error.message}`, [
+        { text: "OK" },
+      ]);
     }
   };
 };
@@ -227,7 +246,7 @@ export const useErrorHandler = () => {
 // Higher-order component for wrapping components with error boundaries
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
-  fallback?: (error: Error, retry: () => void) => ReactNode
+  fallback?: (error: Error, retry: () => void) => ReactNode,
 ) {
   const WrappedComponent = (props: P) => (
     <ErrorBoundary fallback={fallback}>

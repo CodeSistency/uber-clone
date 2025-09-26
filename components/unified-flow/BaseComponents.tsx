@@ -1,9 +1,11 @@
+import { useRouter } from "expo-router";
 import React from "react";
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
-import { useRouter } from "expo-router";
+
+import { Button, Card, Badge, Glass } from "@/components/ui";
+import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useDevStore, useNotificationStore } from "@/store";
 import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
-import { useMapFlow } from "@/hooks/useMapFlow";
 
 // Componente para manejar errores en el flujo
 export const ErrorBoundaryStep: React.FC<{ error: string }> = ({ error }) => {
@@ -18,18 +20,20 @@ export const ErrorBoundaryStep: React.FC<{ error: string }> = ({ error }) => {
       <Text className="font-Jakarta text-base text-gray-600 text-center mb-4">
         {error}
       </Text>
-      <TouchableOpacity
-        className="bg-red-500 px-6 py-3 rounded-lg"
-        onPress={() => router.replace('/(root)/(tabs)/home')}
-      >
-        <Text className="text-white font-JakartaMedium">Volver al Inicio</Text>
-      </TouchableOpacity>
+      <Button
+        variant="danger"
+        title="Volver al Inicio"
+        onPress={() => router.replace("/(root)/(tabs)/home")}
+        className="px-6 py-3"
+      />
     </View>
   );
 };
 
 // Componente para transiciones de carga
-export const LoadingTransition: React.FC<{ message: string }> = ({ message }) => {
+export const LoadingTransition: React.FC<{ message: string }> = ({
+  message,
+}) => {
   return (
     <View className="flex-1 justify-center items-center bg-white/80">
       <ActivityIndicator size="large" color="#0286FF" />
@@ -42,21 +46,23 @@ export const LoadingTransition: React.FC<{ message: string }> = ({ message }) =>
 export const WebSocketStatus: React.FC = () => {
   const realtime = useRealtimeStore();
 
-  const getStatusColor = () => {
-    if (realtime.connectionStatus.websocketConnected) return "bg-green-400";
-    return "bg-red-400";
+  const getStatusVariant = (): "success" | "danger" => {
+    return realtime.connectionStatus.websocketConnected ? "success" : "danger";
   };
 
   const getStatusText = () => {
-    if (realtime.connectionStatus.websocketConnected) return "Connected";
-    return "Disconnected";
+    return realtime.connectionStatus.websocketConnected ? "Connected" : "Disconnected";
   };
 
   return (
     <View className="flex-row items-center space-x-2">
-      <View className={`w-2 h-2 rounded-full ${getStatusColor()}`} />
+      <Badge
+        variant={getStatusVariant()}
+        label="WS"
+        className="w-6 h-6 rounded-full items-center justify-center p-0"
+      />
       <Text className="text-white text-xs font-JakartaMedium">
-        WS: {getStatusText()}
+        {getStatusText()}
       </Text>
     </View>
   );
@@ -70,7 +76,9 @@ export const NotificationSettings: React.FC = () => {
   const toggleNotifications = () => {
     setNotificationsEnabled(!notificationsEnabled);
     // Aquí se implementaría la lógica real para habilitar/deshabilitar notificaciones
-    console.log(`Notifications ${!notificationsEnabled ? 'enabled' : 'disabled'}`);
+    console.log(
+      `Notifications ${!notificationsEnabled ? "enabled" : "disabled"}`,
+    );
   };
 
   return (
@@ -78,18 +86,12 @@ export const NotificationSettings: React.FC = () => {
       <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 mb-2">
         🔔 Notificaciones Push
       </Text>
-      <TouchableOpacity
-        className={`px-3 py-2 rounded-lg ${
-          notificationsEnabled
-            ? "bg-emerald-500"
-            : "bg-gray-400"
-        }`}
+      <Button
+        variant={notificationsEnabled ? "success" : "secondary"}
+        title={`Push: ${notificationsEnabled ? "ON" : "OFF"}`}
         onPress={toggleNotifications}
-      >
-        <Text className="text-white text-xs text-center font-JakartaMedium">
-          Push: {notificationsEnabled ? "ON" : "OFF"}
-        </Text>
-      </TouchableOpacity>
+        className="px-3 py-2"
+      />
     </View>
   );
 };
@@ -99,11 +101,23 @@ export const VenezuelanPaymentSelector: React.FC = () => {
   const [selectedMethod, setSelectedMethod] = React.useState<string>("");
 
   const paymentMethods = [
-    { id: "cash", label: "💵 Efectivo", description: "Sin referencia bancaria" },
-    { id: "transfer", label: "🏦 Transferencia", description: "Referencia 20 dígitos" },
-    { id: "pago_movil", label: "📱 Pago Móvil", description: "Referencia 20 dígitos" },
+    {
+      id: "cash",
+      label: "💵 Efectivo",
+      description: "Sin referencia bancaria",
+    },
+    {
+      id: "transfer",
+      label: "🏦 Transferencia",
+      description: "Referencia 20 dígitos",
+    },
+    {
+      id: "pago_movil",
+      label: "📱 Pago Móvil",
+      description: "Referencia 20 dígitos",
+    },
     { id: "zelle", label: "💳 Zelle", description: "Confirmación directa" },
-    { id: "bitcoin", label: "₿ Bitcoin", description: "Dirección de wallet" }
+    { id: "bitcoin", label: "₿ Bitcoin", description: "Dirección de wallet" },
   ];
 
   return (
@@ -113,18 +127,13 @@ export const VenezuelanPaymentSelector: React.FC = () => {
       </Text>
       <View className="space-y-1">
         {paymentMethods.map((method) => (
-          <TouchableOpacity
+          <Button
             key={method.id}
-            className={`p-2 rounded border ${
-              selectedMethod === method.id
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                : "border-gray-200 dark:border-gray-600"
-            }`}
+            variant={selectedMethod === method.id ? "primary" : "outline"}
+            title={`${method.label}\n${method.description}`}
             onPress={() => setSelectedMethod(method.id)}
-          >
-            <Text className="text-sm font-JakartaMedium dark:text-white">{method.label}</Text>
-            <Text className="text-xs text-gray-500 dark:text-gray-400">{method.description}</Text>
-          </TouchableOpacity>
+            className="p-2 text-left"
+          />
         ))}
       </View>
     </View>
@@ -140,32 +149,32 @@ export const DriverFlowControls: React.FC = () => {
       label: "Recibir Solicitud",
       step: FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD,
       color: "bg-blue-500",
-      icon: "📨"
+      icon: "📨",
     },
     {
       label: "En Camino al Origen",
       step: FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN,
       color: "bg-green-500",
-      icon: "🚗"
+      icon: "🚗",
     },
     {
       label: "En Origen",
       step: FLOW_STEPS.DRIVER_TRANSPORT.EN_ORIGEN,
       color: "bg-purple-500",
-      icon: "📍"
+      icon: "📍",
     },
     {
       label: "En Viaje",
       step: FLOW_STEPS.DRIVER_TRANSPORT.EN_VIAJE,
       color: "bg-orange-500",
-      icon: "🏁"
+      icon: "🏁",
     },
     {
       label: "Finalizar Viaje",
       step: FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE,
       color: "bg-red-500",
-      icon: "✅"
-    }
+      icon: "✅",
+    },
   ];
 
   return (
@@ -175,15 +184,13 @@ export const DriverFlowControls: React.FC = () => {
       </Text>
       <View className="space-y-1">
         {driverStates.map((state, index) => (
-          <TouchableOpacity
+          <Button
             key={index}
-            className={`${state.color} px-3 py-2 rounded-lg`}
+            variant="primary"
+            title={`${state.icon} ${state.label}`}
             onPress={() => startWithDriverStep(state.step)}
-          >
-            <Text className="text-white text-xs text-center font-JakartaMedium">
-              {state.icon} {state.label}
-            </Text>
-          </TouchableOpacity>
+            className={`px-3 py-2 ${state.color}`}
+          />
         ))}
       </View>
     </View>
@@ -237,48 +244,24 @@ export const DevModeIndicator: React.FC = () => {
         Developer Mode
       </Text>
       <View className="flex-row space-x-2">
-        <TouchableOpacity
-          className={`flex-1 px-3 py-2 rounded-lg ${
-            devStore.developerMode
-              ? "bg-emerald-500"
-              : "bg-gray-400"
-          }`}
-          onPress={() =>
-            devStore.setDeveloperMode(!devStore.developerMode)
-          }
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            Dev: {devStore.developerMode ? "ON" : "OFF"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className={`flex-1 px-3 py-2 rounded-lg ${
-            devStore.networkBypass
-              ? "bg-emerald-500"
-              : "bg-gray-400"
-          }`}
-          onPress={() =>
-            devStore.setNetworkBypass(!devStore.networkBypass)
-          }
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            Net: {devStore.networkBypass ? "MOCK" : "LIVE"}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          className={`flex-1 px-3 py-2 rounded-lg ${
-            devStore.wsBypass
-              ? "bg-emerald-500"
-              : "bg-gray-400"
-          }`}
-          onPress={() =>
-            devStore.setWsBypass(!devStore.wsBypass)
-          }
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            WS: {devStore.wsBypass ? "OFF" : "ON"}
-          </Text>
-        </TouchableOpacity>
+        <Button
+          variant={devStore.developerMode ? "success" : "secondary"}
+          title={`Dev: ${devStore.developerMode ? "ON" : "OFF"}`}
+          onPress={() => devStore.setDeveloperMode(!devStore.developerMode)}
+          className="flex-1 px-3 py-2"
+        />
+        <Button
+          variant={devStore.networkBypass ? "success" : "secondary"}
+          title={`Net: ${devStore.networkBypass ? "MOCK" : "LIVE"}`}
+          onPress={() => devStore.setNetworkBypass(!devStore.networkBypass)}
+          className="flex-1 px-3 py-2"
+        />
+        <Button
+          variant={devStore.wsBypass ? "success" : "secondary"}
+          title={`WS: ${devStore.wsBypass ? "OFF" : "ON"}`}
+          onPress={() => devStore.setWsBypass(!devStore.wsBypass)}
+          className="flex-1 px-3 py-2"
+        />
       </View>
     </View>
   );
@@ -294,7 +277,7 @@ export const RideStatusControls: React.FC = () => {
     { status: "arrived", label: "Arrived", color: "bg-blue-600" },
     { status: "in_progress", label: "Start", color: "bg-green-500" },
     { status: "completed", label: "Complete", color: "bg-green-600" },
-    { status: "cancelled", label: "Cancel", color: "bg-red-500" }
+    { status: "cancelled", label: "Cancel", color: "bg-red-500" },
   ];
 
   return (
@@ -304,18 +287,16 @@ export const RideStatusControls: React.FC = () => {
       </Text>
       <View className="flex-row flex-wrap gap-2">
         {rideStatuses.map((status, index) => (
-          <TouchableOpacity
+          <Button
             key={index}
-            className={`${status.color} px-3 py-2 rounded-lg min-w-[70px]`}
+            variant="primary"
+            title={status.label}
             onPress={() => {
               realtime.updateRideStatus(1 as any, status.status as any);
               console.log(`Status updated to: ${status.status}`);
             }}
-          >
-            <Text className="text-white text-xs text-center font-JakartaMedium">
-              {status.label}
-            </Text>
-          </TouchableOpacity>
+            className={`px-3 py-2 min-w-[70px] ${status.color}`}
+          />
         ))}
       </View>
     </View>
@@ -332,23 +313,22 @@ export const SimulationControls: React.FC = () => {
         Simulation & Map
       </Text>
       <View className="space-y-2">
-        <TouchableOpacity
-          className={`px-4 py-2 rounded-lg ${
+        <Button
+          variant={realtime.simulationEnabled ? "danger" : "primary"}
+          title={
             realtime.simulationEnabled
-              ? "bg-orange-500"
-              : "bg-blue-500"
-          }`}
+              ? "⏸️ Pause Simulation"
+              : "▶️ Resume Simulation"
+          }
           onPress={() =>
             realtime.setSimulationEnabled(!realtime.simulationEnabled)
           }
-        >
-          <Text className="text-white text-sm text-center font-JakartaMedium">
-            {realtime.simulationEnabled ? "⏸️ Pause Simulation" : "▶️ Resume Simulation"}
-          </Text>
-        </TouchableOpacity>
+          className="px-4 py-2"
+        />
 
-        <TouchableOpacity
-          className="bg-purple-600 px-4 py-2 rounded-lg"
+        <Button
+          variant="primary"
+          title="📍 Move Driver"
           onPress={() => {
             const { userLatitude, userLongitude } =
               require("@/store").useLocationStore.getState();
@@ -364,14 +344,12 @@ export const SimulationControls: React.FC = () => {
               });
             console.log("Driver location updated");
           }}
-        >
-          <Text className="text-white text-sm text-center font-JakartaMedium">
-            📍 Move Driver
-          </Text>
-        </TouchableOpacity>
+          className="px-4 py-2 bg-purple-600"
+        />
 
-        <TouchableOpacity
-          className="bg-indigo-600 px-4 py-2 rounded-lg"
+        <Button
+          variant="primary"
+          title="🎯 Fit Route"
           onPress={() => {
             const {
               userLatitude,
@@ -397,11 +375,8 @@ export const SimulationControls: React.FC = () => {
 
             console.log("Fit Route - Points:", points.length);
           }}
-        >
-          <Text className="text-white text-sm text-center font-JakartaMedium">
-            🎯 Fit Route
-          </Text>
-        </TouchableOpacity>
+          className="px-4 py-2 bg-indigo-600"
+        />
       </View>
     </View>
   );

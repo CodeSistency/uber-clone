@@ -53,3 +53,4 @@ const RideProgressBar: React.FC<RideProgressBarProps> = ({
 };
 
 export default RideProgressBar;
+

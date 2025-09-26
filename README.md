@@ -95,6 +95,8 @@ members. It's a place where people help each other out.
 
 👉 **Responsive on Android and iOS**: Optimized for both Android and iOS devices.
 
+👉 **Advanced Splash Screen System**: Intelligent mini-splash screens during module transitions (Customer ↔ Driver ↔ Business) with optimized data loading, caching, and smooth animations.
+
 and many more, including code architecture and reusability
 
 ## <a name="quick-start">🤸 Quick Start</a>

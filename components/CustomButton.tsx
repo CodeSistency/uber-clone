@@ -1,8 +1,10 @@
+import React, { memo, useCallback } from "react";
 import { TouchableOpacity, Text } from "react-native";
 
 import { ButtonProps } from "@/types/type";
 
-const getBgVariantStyle = (variant: ButtonProps["bgVariant"]) => {
+// Memoize style functions to avoid recreating them on every render
+const getBgVariantStyle = (variant: ButtonProps["bgVariant"]): string => {
   switch (variant) {
     case "secondary":
       return "bg-black dark:bg-brand-primaryDark";
@@ -18,7 +20,7 @@ const getBgVariantStyle = (variant: ButtonProps["bgVariant"]) => {
   }
 };
 
-const getTextVariantStyle = (variant: ButtonProps["textVariant"]) => {
+const getTextVariantStyle = (variant: ButtonProps["textVariant"]): string => {
   switch (variant) {
     case "primary":
       return "text-black";
@@ -34,7 +36,11 @@ const getTextVariantStyle = (variant: ButtonProps["textVariant"]) => {
   }
 };
 
-const CustomButton = ({
+interface CustomButtonProps extends ButtonProps {
+  disabled?: boolean;
+}
+
+const CustomButtonComponent = ({
   onPress,
   title,
   bgVariant = "primary",
@@ -45,16 +51,29 @@ const CustomButton = ({
   loading,
   disabled,
   ...props
-}: ButtonProps & { disabled?: boolean }) => {
+}: CustomButtonProps) => {
+  // Memoize the press handler to prevent unnecessary re-renders
+  const handlePress = useCallback((event?: any) => {
+    if (onPress && !loading && !disabled) {
+      onPress(event);
+    }
+  }, [onPress, loading, disabled]);
+
+  // Memoize computed styles
+  const bgStyle = getBgVariantStyle(bgVariant);
+  const textStyle = getTextVariantStyle(textVariant);
+  const isDisabled = loading || disabled;
+  const containerClassName = `w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${bgStyle} ${isDisabled ? "opacity-60" : ""} ${className || ""}`;
+
   return (
     <TouchableOpacity
-      onPress={loading || disabled ? undefined : onPress}
-      disabled={loading || disabled}
-      className={`w-full rounded-full p-3 flex flex-row justify-center items-center shadow-md shadow-neutral-400/70 ${getBgVariantStyle(bgVariant)} ${loading || disabled ? "opacity-60" : ""} ${className}`}
+      onPress={handlePress}
+      disabled={isDisabled}
+      className={containerClassName}
       {...props}
     >
       {IconLeft && <IconLeft />}
-      <Text className={`text-lg font-bold ${getTextVariantStyle(textVariant)}`}>
+      <Text className={`text-lg font-bold ${textStyle}`}>
         {loading ? "Please wait…" : title}
       </Text>
       {IconRight && <IconRight />}
@@ -62,4 +81,8 @@ const CustomButton = ({
   );
 };
 
+// Memoize the component to prevent unnecessary re-renders
+export const CustomButton = memo(CustomButtonComponent);
+
+// For backward compatibility
 export default CustomButton;

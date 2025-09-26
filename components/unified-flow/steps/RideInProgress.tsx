@@ -18,7 +18,7 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
   destination,
   estimatedTime,
   onCallDriver,
-  onEmergency
+  onEmergency,
 }) => {
   const { back } = useMapFlow();
 

@@ -2,6 +2,9 @@ import { Stack } from "expo-router";
 import React from "react";
 import { View, Text, TouchableOpacity, Animated } from "react-native";
 
+import { Button } from "@/components/ui";
+
+import { websocketService } from "@/app/services/websocketService";
 import { useDrawer, Drawer } from "@/components/drawer";
 import { useUI } from "@/components/UIWrapper";
 import {
@@ -31,26 +34,25 @@ import MandadoFinalize from "@/components/unified-flow/steps/Client/Mandado/Mand
 import MandadoPriceAndPayment from "@/components/unified-flow/steps/Client/Mandado/MandadoPriceAndPayment";
 import MandadoSearching from "@/components/unified-flow/steps/Client/Mandado/MandadoSearching";
 import ServiceSelection from "@/components/unified-flow/steps/Client/ServiceSelection";
+import ConfirmDestination from "@/components/unified-flow/steps/Client/Viaje/ConfirmDestination";
+import ConfirmOrigin from "@/components/unified-flow/steps/Client/Viaje/ConfirmOrigin";
+import DriverConfirmationStep from "@/components/unified-flow/steps/Client/Viaje/DriverConfirmationStep";
+import DriverMatching from "@/components/unified-flow/steps/Client/Viaje/DriverMatching";
+import PaymentMethodology from "@/components/unified-flow/steps/Client/Viaje/PaymentMethodology";
 import TransportDefinition from "@/components/unified-flow/steps/Client/Viaje/TransportDefinition";
 import TransportVehicleSelection from "@/components/unified-flow/steps/Client/Viaje/TransportVehicleSelection";
-import PaymentMethodology from "@/components/unified-flow/steps/Client/Viaje/PaymentMethodology";
-import DriverMatching from "@/components/unified-flow/steps/Client/Viaje/DriverMatching";
-import DriverConfirmationStep from "@/components/unified-flow/steps/Client/Viaje/DriverConfirmationStep";
 import WaitingForAcceptance from "@/components/unified-flow/steps/Client/Viaje/WaitingForAcceptance";
-import ConfirmOrigin from "@/components/unified-flow/steps/Client/Viaje/ConfirmOrigin";
-import ConfirmDestination from "@/components/unified-flow/steps/Client/Viaje/ConfirmDestination";
 import DriverConfirmation from "@/components/unified-flow/steps/Driver/DriverConfirmation";
-import OrderBuilder from "@/components/unified-flow/steps/OrderBuilder";
-import RideInProgressAndFinalize from "@/components/unified-flow/steps/RideInProgressAndFinalize";
 import DriverArrived from "@/components/unified-flow/steps/DriverArrived";
-import RideInProgress from "@/components/unified-flow/steps/RideInProgress";
-import RideCompleted from "@/components/unified-flow/steps/RideCompleted";
+import OrderBuilder from "@/components/unified-flow/steps/OrderBuilder";
 import RideCancelled from "@/components/unified-flow/steps/RideCancelled";
+import RideCompleted from "@/components/unified-flow/steps/RideCompleted";
+import RideInProgress from "@/components/unified-flow/steps/RideInProgress";
+import RideInProgressAndFinalize from "@/components/unified-flow/steps/RideInProgressAndFinalize";
 import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
 import { useMapFlowContext } from "@/context/MapFlowContext";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useDevStore } from "@/store";
-import { websocketService } from "@/app/services/websocketService";
 import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
 
 // Ejemplo de cómo usar métodos type-safe para diferentes escenarios
@@ -375,7 +377,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_COMPLETADO]: () => (
     <RideCompleted
       driverName="Carlos Rodriguez"
-      fare={18.50}
+      fare={18.5}
       distance={12.5}
       duration={25}
       onRateDriver={() => {
@@ -609,11 +611,12 @@ const UnifiedFlowDemoContentInner: React.FC<{
     <>
       {/* Header con drawer */}
       <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
-        <TouchableOpacity onPress={drawer.toggle} className="p-2">
-          <Text className="text-2xl text-secondary-700 dark:text-secondary-300">
-            ☰
-          </Text>
-        </TouchableOpacity>
+        <Button
+          variant="ghost"
+          title="☰"
+          onPress={drawer.toggle}
+          className="p-2 text-secondary-700 dark:text-secondary-300"
+        />
         <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">
           Flujo Unificado Demo
         </Text>
@@ -684,19 +687,18 @@ const SimulationControls: React.FC = () => {
         />
       )}
       {/* Botón principal de toggle */}
-      <TouchableOpacity
-        className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full w-14 h-14 items-center justify-center shadow-lg border-2 border-white/20"
-        onPress={() => setIsExpanded(!isExpanded)}
-        activeOpacity={0.8}
-      >
-        <Text className="text-white text-xl font-bold">
-          {isExpanded ? "✕" : "🔧"}
-        </Text>
+      <View className="relative">
+        <Button
+          variant="primary"
+          title={isExpanded ? "✕" : "🔧"}
+          onPress={() => setIsExpanded(!isExpanded)}
+          className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full w-14 h-14 shadow-lg border-2 border-white/20"
+        />
         {/* Indicador de estado activo */}
         {devStore.developerMode && (
           <View className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border border-white" />
         )}
-      </TouchableOpacity>
+      </View>
 
       {/* Panel expandible */}
       {isExpanded && (
@@ -921,75 +923,54 @@ const WebSocketTestingControls: React.FC = () => {
         🔌 WebSocket Testing (New Events)
       </Text>
       <View className="space-y-1">
-        <TouchableOpacity
+        <Button
+          variant="success"
+          title="✅ Ride Accepted"
           onPress={simulateRideAccepted}
-          className="bg-green-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            ✅ Ride Accepted
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="primary"
+          title="📍 Driver Arrived"
           onPress={simulateDriverArrived}
-          className="bg-blue-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            📍 Driver Arrived
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2 bg-blue-500"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="primary"
+          title="▶️ Ride Started"
           onPress={simulateRideStarted}
-          className="bg-purple-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            ▶️ Ride Started
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2 bg-purple-500"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="primary"
+          title="✅ Ride Completed"
           onPress={simulateRideCompleted}
-          className="bg-indigo-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            ✅ Ride Completed
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2 bg-indigo-500"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="secondary"
+          title="❌ Ride Cancelled"
           onPress={simulateRideCancelled}
-          className="bg-orange-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            ❌ Ride Cancelled
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="danger"
+          title="🚫 Ride Rejected"
           onPress={simulateRideRejected}
-          className="bg-red-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            🚫 Ride Rejected
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="secondary"
+          title="👨‍🚗 Driver Request"
           onPress={simulateDriverRequest}
-          className="bg-gray-500 px-3 py-2 rounded-lg"
-          activeOpacity={0.7}
-        >
-          <Text className="text-white text-xs text-center font-JakartaMedium">
-            👨‍🚗 Driver Request
-          </Text>
-        </TouchableOpacity>
+          className="px-3 py-2"
+        />
 
         <View className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
           <Text className="text-xs text-gray-600 dark:text-gray-400">

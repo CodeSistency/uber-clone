@@ -1,7 +1,15 @@
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, Modal, Image, ScrollView } from "react-native";
 import { Star } from "lucide-react-native";
+import React, { useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  Image,
+  ScrollView,
+} from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 
@@ -48,7 +56,10 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
       await onConfirm();
       showSuccess("¡Conductor confirmado!", "Esperando aceptación...");
     } catch (error: any) {
-      console.error("[DriverConfirmationModal] Error confirming driver:", error);
+      console.error(
+        "[DriverConfirmationModal] Error confirming driver:",
+        error,
+      );
       showError("Error", error.message || "No se pudo confirmar el conductor");
     } finally {
       setIsProcessing(false);
@@ -62,7 +73,10 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
       console.log("[DriverConfirmationModal] Finding another driver");
       await onFindAnother();
     } catch (error: any) {
-      console.error("[DriverConfirmationModal] Error finding another driver:", error);
+      console.error(
+        "[DriverConfirmationModal] Error finding another driver:",
+        error,
+      );
       showError("Error", "No se pudo buscar otro conductor");
     }
   };
@@ -144,19 +158,25 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
                   </Text>
                   <View className="space-y-3">
                     <View className="flex-row justify-between">
-                      <Text className="font-Jakarta text-gray-600">Tiempo de llegada</Text>
+                      <Text className="font-Jakarta text-gray-600">
+                        Tiempo de llegada
+                      </Text>
                       <Text className="font-JakartaBold text-primary-600">
                         {driver.time} min
                       </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="font-Jakarta text-gray-600">Tarifa estimada</Text>
+                      <Text className="font-Jakarta text-gray-600">
+                        Tarifa estimada
+                      </Text>
                       <Text className="font-JakartaBold text-green-600">
                         {driver.price}
                       </Text>
                     </View>
                     <View className="flex-row justify-between">
-                      <Text className="font-Jakarta text-gray-600">Método de pago</Text>
+                      <Text className="font-Jakarta text-gray-600">
+                        Método de pago
+                      </Text>
                       <Text className="font-JakartaMedium text-gray-700">
                         Ya configurado ✓
                       </Text>
@@ -171,55 +191,40 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
                   🛡️ Viaje Seguro
                 </Text>
                 <Text className="font-Jakarta text-blue-700 text-sm">
-                  • Compartiremos tu ubicación en tiempo real{'\n'}
-                  • Información de contacto verificada{'\n'}
-                  • Puedes cancelar en cualquier momento
+                  • Compartiremos tu ubicación en tiempo real{"\n"}• Información
+                  de contacto verificada{"\n"}• Puedes cancelar en cualquier
+                  momento
                 </Text>
               </View>
 
               {/* Action Buttons */}
               <View className="space-y-3">
-                <TouchableOpacity
+                <Button
+                  variant={isProcessing || isConfirming ? "secondary" : "primary"}
+                  title={
+                    isProcessing || isConfirming
+                      ? "Confirmando..."
+                      : "✅ Confirmar conductor"
+                  }
                   onPress={handleConfirm}
                   disabled={isProcessing || isConfirming}
-                  className={`rounded-xl p-4 ${
-                    isProcessing || isConfirming
-                      ? "bg-gray-300"
-                      : "bg-primary-500"
-                  }`}
-                  activeOpacity={0.8}
-                >
-                  <Text className="text-white font-JakartaBold text-center text-lg">
-                    {isProcessing || isConfirming ? "Confirmando..." : "✅ Confirmar conductor"}
-                  </Text>
-                  <Text className="text-white/80 font-JakartaMedium text-center text-sm mt-1">
-                    El conductor tendrá 30 segundos para aceptar
-                  </Text>
-                </TouchableOpacity>
+                  className="rounded-xl p-4"
+                />
 
-                <TouchableOpacity
+                <Button
+                  variant="outline"
+                  title="🔄 Buscar otro conductor"
                   onPress={handleFindAnother}
                   disabled={isProcessing || isConfirming}
-                  className="rounded-xl p-4 bg-gray-100 border-2 border-gray-200"
-                  activeOpacity={0.8}
-                >
-                  <Text className="text-gray-700 font-JakartaBold text-center text-lg">
-                    🔄 Buscar otro conductor
-                  </Text>
-                  <Text className="text-gray-500 font-JakartaMedium text-center text-sm mt-1">
-                    Ver más opciones disponibles
-                  </Text>
-                </TouchableOpacity>
+                  className="rounded-xl p-4"
+                />
 
-                <TouchableOpacity
+                <Button
+                  variant="ghost"
+                  title="Más tarde"
                   onPress={onClose}
                   className="rounded-xl p-3"
-                  activeOpacity={0.8}
-                >
-                  <Text className="text-gray-500 font-JakartaMedium text-center">
-                    Más tarde
-                  </Text>
-                </TouchableOpacity>
+                />
               </View>
             </View>
           </ScrollView>

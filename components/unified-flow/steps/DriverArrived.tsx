@@ -16,7 +16,7 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
   driverName,
   vehicleInfo,
   onReady,
-  onCallDriver
+  onCallDriver,
 }) => {
   const { back } = useMapFlow();
 
@@ -32,7 +32,8 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
         </Text>
 
         <Text className="font-Jakarta text-gray-600 text-center mb-6">
-          {driverName} te está esperando{vehicleInfo ? ` con ${vehicleInfo}` : ''}
+          {driverName} te está esperando
+          {vehicleInfo ? ` con ${vehicleInfo}` : ""}
         </Text>
 
         <View className="w-full">

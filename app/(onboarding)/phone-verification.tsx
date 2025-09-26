@@ -76,7 +76,7 @@ export default function PhoneVerification() {
         // In a real implementation, you'd navigate to SMS code input
         // For now, we'll just skip this step
         nextStep();
-        router.replace("/(onboarding)");
+        router.replace("/");
       } else {
         throw new Error(response.message || "Failed to send verification code");
       }
@@ -113,7 +113,7 @@ export default function PhoneVerification() {
   const handleSkip = () => {
     console.log("[PhoneVerification] Skipping phone verification");
     nextStep();
-    router.replace("/(onboarding)");
+        router.replace("/");
   };
 
   return (

@@ -104,3 +104,46 @@ export const useUserStore = create<UserStore>((set, get) => ({
     }
   },
 }));
+
+// ===== OPTIMIZED SELECTORS =====
+// These selectors prevent unnecessary re-renders by only returning the specific data that components need
+
+export const useUser = () => useUserStore((state) => state.user);
+export const useUserId = () => useUserStore((state) => state.user?.id);
+export const useUserName = () => useUserStore((state) => state.user?.name);
+export const useUserEmail = () => useUserStore((state) => state.user?.email);
+export const useIsAuthenticated = () => useUserStore((state) => state.isAuthenticated);
+export const useIsLoading = () => useUserStore((state) => state.isLoading);
+export const useUserError = () => useUserStore((state) => state.error);
+
+// Combined selectors for common use cases
+export const useUserBasicInfo = () => useUserStore((state) => ({
+  id: state.user?.id,
+  name: state.user?.name,
+  email: state.user?.email,
+}));
+
+export const useAuthStatus = () => useUserStore((state) => ({
+  isAuthenticated: state.isAuthenticated,
+  isLoading: state.isLoading,
+  error: state.error,
+}));
+
+// Derived state selectors (computed values)
+export const useIsUserComplete = () => useUserStore((state) => {
+  const user = state.user;
+  return !!(user?.name && user?.email && user?.id);
+});
+
+export const useUserDisplayName = () => useUserStore((state) => {
+  const user = state.user;
+  return user?.name || user?.email?.split('@')[0] || 'User';
+});
+
+// Action selectors (for components that only need actions)
+export const useUserActions = () => useUserStore((state) => ({
+  setUser: state.setUser,
+  updateUser: state.updateUser,
+  clearUser: state.clearUser,
+  refreshUser: state.refreshUser,
+}));

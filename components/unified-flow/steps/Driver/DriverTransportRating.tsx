@@ -25,7 +25,7 @@ const DriverTransportRating: React.FC = () => {
       console.log("[DriverTransportRating] Submitting passenger rating:", {
         rideId,
         rating,
-        comment
+        comment,
       });
 
       if (rideId) {
@@ -33,16 +33,22 @@ const DriverTransportRating: React.FC = () => {
         await ratingsService.ratePassenger({
           rideId: String(rideId),
           rating,
-          comment // tip is not part of the ratePassenger API
+          comment, // tip is not part of the ratePassenger API
         });
       }
 
-      showSuccess("¡Gracias por tu calificación!", "Ayudas a mejorar el servicio");
+      showSuccess(
+        "¡Gracias por tu calificación!",
+        "Ayudas a mejorar el servicio",
+      );
 
       // Go to earnings summary
-      goTo(FLOW_STEPS.DRIVER_TRANSPORT_VIAJE_COMPLETADO);
+      goTo(FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE);
     } catch (error) {
-      console.error("[DriverTransportRating] Error submitting passenger rating:", error);
+      console.error(
+        "[DriverTransportRating] Error submitting passenger rating:",
+        error,
+      );
       showError("Error", "No se pudo enviar la calificación");
     } finally {
       setSubmitting(false);
@@ -51,7 +57,7 @@ const DriverTransportRating: React.FC = () => {
 
   const handleSkip = () => {
     console.log("[DriverTransportRating] Skipping rating");
-    goTo(FLOW_STEPS.DRIVER_TRANSPORT_VIAJE_COMPLETADO);
+    goTo(FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE);
   };
 
   const passengerName = activeRide?.passenger?.name || "el cliente";
@@ -64,7 +70,9 @@ const DriverTransportRating: React.FC = () => {
       <ScrollView className="flex-1 p-6">
         {/* Trip summary */}
         <View className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-          <Text className="font-JakartaBold text-lg mb-2">Viaje completado</Text>
+          <Text className="font-JakartaBold text-lg mb-2">
+            Viaje completado
+          </Text>
           <View className="flex-row justify-between mb-1">
             <Text className="font-Jakarta text-gray-600">Cliente</Text>
             <Text className="font-JakartaMedium">{passengerName}</Text>
@@ -94,9 +102,6 @@ const DriverTransportRating: React.FC = () => {
           vehicleInfo="Servicio de transporte"
           onSubmitRating={handleSubmitRating}
           onSkip={handleSkip}
-          submitButtonText="Enviar calificación"
-          skipButtonText="Omitir calificación"
-          showTipOption={false} // Tips are not part of the ratePassenger API
           className="mb-4"
         />
 
@@ -106,9 +111,9 @@ const DriverTransportRating: React.FC = () => {
             🎯 Beneficios de calificar
           </Text>
           <Text className="font-Jakarta text-xs text-green-700">
-            • Ayudas a mejorar la calidad del servicio{"\n"}
-            • Los clientes con buenas calificaciones tienen prioridad{"\n"}
-            • Contribuyes a una comunidad más segura y confiable
+            • Ayudas a mejorar la calidad del servicio{"\n"}• Los clientes con
+            buenas calificaciones tienen prioridad{"\n"}• Contribuyes a una
+            comunidad más segura y confiable
           </Text>
         </View>
       </ScrollView>

@@ -1,12 +1,16 @@
 import React from "react";
 import { View, Text, TouchableOpacity, TextInput } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { deliveryClient } from "@/app/services/flowClientService";
 import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import {
+  mapPaymentMethodToAPI,
+  validatePaymentMethod,
+} from "@/lib/paymentValidation";
 import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
-import { mapPaymentMethodToAPI, validatePaymentMethod } from "@/lib/paymentValidation";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -18,8 +22,7 @@ const DeliveryCheckout: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = React.useState<string | null>(null);
 
   const paymentValidation = validatePaymentMethod(paymentMethod || "");
-  const canConfirm =
-    address.trim().length > 5 && paymentValidation.isValid;
+  const canConfirm = address.trim().length > 5 && paymentValidation.isValid;
 
   return (
     <View className="flex-1">
@@ -30,24 +33,20 @@ const DeliveryCheckout: React.FC = () => {
       />
 
       <View className="px-5">
-        <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-          Dirección de entrega
-        </Text>
-        <TextInput
+        <TextField
+          label="Dirección de entrega"
           value={address}
           onChangeText={setAddress}
           placeholder="Calle, número, referencia"
-          className="bg-white rounded-xl p-4 border border-gray-200 mb-4"
+          className="mb-4"
         />
 
-        <Text className="font-JakartaMedium text-sm text-gray-600 mb-2">
-          Instrucciones
-        </Text>
-        <TextInput
+        <TextField
+          label="Instrucciones"
           value={instructions}
           onChangeText={setInstructions}
           placeholder="Detalles para el repartidor"
-          className="bg-white rounded-xl p-4 border border-gray-200 mb-4"
+          className="mb-4"
           multiline
         />
       </View>
@@ -59,26 +58,23 @@ const DeliveryCheckout: React.FC = () => {
       />
 
       <View className="px-5 pb-4">
-        <TouchableOpacity
-          disabled={!canConfirm}
+        <Button
+          variant={canConfirm ? "primary" : "secondary"}
+          title="Confirmar pedido"
           onPress={async () => {
             const id = orderId || 201;
             const paymentData = mapPaymentMethodToAPI(paymentMethod!);
-            await withUI(
-              () => deliveryClient.confirmPayment(id, paymentData),
-              { loadingMessage: "Confirmando pago..." },
-            );
+            await withUI(() => deliveryClient.confirmPayment(id, paymentData), {
+              loadingMessage: "Confirmando pago...",
+            });
             await withUI(() => deliveryClient.join(id), {
               loadingMessage: "Uniéndote al tracking...",
             });
             goTo(FLOW_STEPS.CUSTOMER_DELIVERY.SEGUIMIENTO_DELIVERY);
           }}
-          className={`rounded-xl p-4 ${canConfirm ? "bg-primary-500" : "bg-gray-300"}`}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Confirmar pedido
-          </Text>
-        </TouchableOpacity>
+          disabled={!canConfirm}
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );

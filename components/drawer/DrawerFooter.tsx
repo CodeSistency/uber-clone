@@ -1,5 +1,6 @@
 import React from "react";
 import { View, Text } from "react-native";
+
 import { DrawerFooterProps } from "./types";
 
 // Componente para el footer del drawer

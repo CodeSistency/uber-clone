@@ -13,6 +13,7 @@ import {
 } from "react-native";
 
 import { icons } from "@/constants";
+import { endpoints } from "@/lib/endpoints";
 import { GoogleInputProps } from "@/types/type";
 
 interface PlaceResult {
@@ -30,29 +31,23 @@ interface PlacesApiResponse {
   error_message?: string;
 }
 
-const googlePlacesApiKey =
-  process.env.EXPO_PUBLIC_PLACES_API_KEY ||
-  "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
-const googleMapsApiKey = "AIzaSyC4o0Jqu8FvUxqn2Xw2UvU2oDn2e2uvdG8"; // From app.json
+// Get API keys from centralized endpoint system
+const googlePlacesApiKey = endpoints.googleMaps.apiKey.places();
+const googleDirectionsApiKey = endpoints.googleMaps.apiKey.directions();
 
-// Use environment variable if available, otherwise use app.json key
-const apiKeyToUse = googlePlacesApiKey || googleMapsApiKey;
+// Use the centralized endpoint system
+const apiKeyToUse = googlePlacesApiKey;
 
 // Debug environment variables (only once)
 const globalAny = global as any;
 if (!globalAny.googlePlacesLogged) {
   console.log("[GoogleTextInput] 🔑 API Keys Check:", {
-    PLACES_API_KEY_ENV: googlePlacesApiKey
+    PLACES_API_KEY: googlePlacesApiKey
       ? `EXISTS (length: ${googlePlacesApiKey.length})`
       : "MISSING",
-    GOOGLE_MAPS_API_KEY_APP_JSON: googleMapsApiKey
-      ? `EXISTS (length: ${googleMapsApiKey.length})`
+    DIRECTIONS_API_KEY: googleDirectionsApiKey
+      ? `EXISTS (length: ${googleDirectionsApiKey.length})`
       : "MISSING",
-    DIRECTIONS_API_KEY:
-      process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY ||
-      "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8"
-        ? "EXISTS"
-        : "MISSING",
     USING_KEY: apiKeyToUse
       ? `USING: ${apiKeyToUse.substring(0, 10)}...`
       : "NO KEY AVAILABLE",

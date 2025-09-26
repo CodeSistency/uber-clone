@@ -8,17 +8,18 @@ import {
   Dimensions,
   ScrollView,
 } from "react-native";
+import { useColorScheme } from "react-native";
 import {
   PanGestureHandler,
   State,
   PanGestureHandlerStateChangeEvent,
   PanGestureHandlerGestureEvent,
 } from "react-native-gesture-handler";
-import { useColorScheme } from "react-native";
-import { DrawerProps } from "./types";
+
+import { DrawerFooter } from "./DrawerFooter";
 import { DrawerHeader } from "./DrawerHeader";
 import { DrawerRouteItem } from "./DrawerRouteItem";
-import { DrawerFooter } from "./DrawerFooter";
+import { DrawerProps } from "./types";
 
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 

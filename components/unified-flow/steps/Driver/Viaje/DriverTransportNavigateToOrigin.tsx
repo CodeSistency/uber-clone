@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Text } from "react-native";
 
-import CustomButton from "@/components/CustomButton";
+import { Button, Card, Badge } from "@/components/ui";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
@@ -29,7 +29,10 @@ const DriverTransportNavigateToOrigin: React.FC = () => {
   // Auto-start navigation when component mounts
   useEffect(() => {
     if (!navigationStarted && destination.latitude && destination.longitude) {
-      console.log("[DriverTransportNavigateToOrigin] Auto-starting navigation to:", destination);
+      console.log(
+        "[DriverTransportNavigateToOrigin] Auto-starting navigation to:",
+        destination,
+      );
       startNavigation({ destination, rideId: active?.ride_id });
       setNavigationStarted(true);
     }
@@ -49,22 +52,24 @@ const DriverTransportNavigateToOrigin: React.FC = () => {
         </Text>
 
         <Text className="font-Jakarta text-base text-gray-600 mb-4 text-center">
-          {active?.passenger?.name ? `Cliente: ${active.passenger.name}` : "Cliente esperando"}
+          {active?.passenger?.name
+            ? `Cliente: ${active.passenger.name}`
+            : "Cliente esperando"}
         </Text>
 
         {/* Navigation Status */}
-        <View className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
+        <Card className="bg-blue-50 mb-4 border-blue-200">
           <Text className="font-JakartaMedium text-blue-800 mb-1">
             📍 Estado de navegación
           </Text>
           <Text className="font-Jakarta text-sm text-blue-700">
             {isNavigating ? "Navegación activa" : "Iniciando navegación..."}
           </Text>
-        </View>
+        </Card>
 
         {/* Route Info */}
         {isNavigating && (
-          <View className="bg-white rounded-lg p-4 mb-4 shadow-sm border border-gray-200">
+          <Card className="bg-white mb-4">
             <Text className="font-JakartaBold text-gray-800 mb-2">
               Información de ruta
             </Text>
@@ -74,33 +79,33 @@ const DriverTransportNavigateToOrigin: React.FC = () => {
             <Text className="font-Jakarta text-sm text-gray-500">
               📏 {distanceText} • ⏱️ {etaText}
             </Text>
-          </View>
+          </Card>
         )}
 
         {/* Address */}
-        <View className="bg-gray-50 rounded-lg p-4 mb-6">
+        <Card className="bg-gray-50 mb-6">
           <Text className="font-JakartaBold text-gray-800 mb-2">
             📍 Dirección de recogida
           </Text>
           <Text className="font-Jakarta text-base text-gray-700">
             {destination.address}
           </Text>
-        </View>
+        </Card>
 
         {/* Action Button */}
-        <CustomButton
+        <Button
+          variant="success"
           title="He llegado al origen"
-          bgVariant="success"
           onPress={handleArrived}
           className="w-full"
         />
 
         {/* Safety Note */}
-        <View className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+        <Card className="mt-6 bg-yellow-50 border-yellow-200">
           <Text className="font-JakartaMedium text-sm text-yellow-800 text-center">
             ⚠️ Mantén la distancia segura y respeta las normas de tránsito
           </Text>
-        </View>
+        </Card>
       </View>
     </View>
   );

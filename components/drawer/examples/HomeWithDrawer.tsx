@@ -6,6 +6,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import { useDrawer, Drawer } from "../index";
 
 const HomeWithDrawer: React.FC = () => {

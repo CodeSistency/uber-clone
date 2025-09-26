@@ -125,17 +125,27 @@ export class RatingsService {
         throw new Error("Comment cannot exceed 500 characters");
       }
 
-      console.log("[RatingsService] Rating passenger:", { rideId, rating, commentLength: comment?.length });
+      console.log("[RatingsService] Rating passenger:", {
+        rideId,
+        rating,
+        commentLength: comment?.length,
+      });
 
-      const response = await fetchAPI(`rides/flow/driver/${rideId}/rate-passenger`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rating, comment }),
-        requiresAuth: true,
-        skipApiPrefix: true,
-      } as any);
+      const response = await fetchAPI(
+        `rides/flow/driver/${rideId}/rate-passenger`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rating, comment }),
+          requiresAuth: true,
+          skipApiPrefix: true,
+        } as any,
+      );
 
-      console.log("[RatingsService] Passenger rating submitted successfully:", response);
+      console.log(
+        "[RatingsService] Passenger rating submitted successfully:",
+        response,
+      );
       return { success: true, message: "Passenger rated successfully" };
     } catch (error) {
       console.error("[RatingsService] Error rating passenger:", error);

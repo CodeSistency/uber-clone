@@ -1,6 +1,5 @@
 import { Driver, MarkerData } from "@/types/type";
-
-const directionsAPI = process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY || "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8";
+import { endpoints } from "@/lib/endpoints";
 
 export const generateMarkersFromData = ({
   data,
@@ -140,7 +139,10 @@ export const calculateDriverTimes = async ({
         longitude: marker.longitude,
       });
       const responseToUser = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${marker.latitude},${marker.longitude}&destination=${userLatitude},${userLongitude}&key=${directionsAPI}`,
+        endpoints.googleMaps.directions('json', {
+          origin: `${marker.latitude},${marker.longitude}`,
+          destination: `${userLatitude},${userLongitude}`
+        }),
       );
       const dataToUser = await responseToUser.json();
       console.log(
@@ -151,7 +153,10 @@ export const calculateDriverTimes = async ({
       const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
 
       const responseToDestination = await fetch(
-        `https://maps.googleapis.com/maps/api/directions/json?origin=${userLatitude},${userLongitude}&destination=${destinationLatitude},${destinationLongitude}&key=${directionsAPI}`,
+        endpoints.googleMaps.directions('json', {
+          origin: `${userLatitude},${userLongitude}`,
+          destination: `${destinationLatitude},${destinationLongitude}`
+        }),
       );
       const dataToDestination = await responseToDestination.json();
       console.log(

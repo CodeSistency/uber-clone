@@ -176,7 +176,7 @@ export default function PersonalInfo() {
         console.log("[PersonalInfo] Personal info saved successfully");
         nextStep();
         // Navigate to onboarding index to redirect based on updated step
-        router.replace("/(onboarding)");
+        router.replace("/");
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       } else {
         throw new Error(

@@ -199,7 +199,7 @@ export default function LocationSelection() {
         currentStep,
         "- navigating to onboarding index for redirect",
       );
-      router.replace("/(onboarding)");
+      router.replace("/");
     }
   }, [currentStep]);
 
@@ -364,7 +364,7 @@ export default function LocationSelection() {
           useOnboardingStore.getState().currentStep,
         );
         // Ensure navigation proceeds to the next screen based on updated step
-        router.replace("/(onboarding)");
+        router.replace("./personal-info");
       } else {
         throw new Error(response.message || "Failed to save location");
       }
@@ -397,6 +397,22 @@ export default function LocationSelection() {
       setLoading(false);
     }
   };
+
+  // Prevent component execution if we're not at the right step
+  if (currentStep !== 0) {
+    console.log(
+      "[LocationSelection] Component should not be active at step",
+      currentStep,
+      "- returning null",
+    );
+    return (
+      <SafeAreaView className="flex-1 bg-white items-center justify-center">
+        <Text className="text-lg text-gray-600">
+          Navigating to next step...
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -495,20 +511,4 @@ export default function LocationSelection() {
       </ScrollView>
     </SafeAreaView>
   );
-
-  // Prevent component execution if we're not at the right step
-  if (currentStep !== 0) {
-    console.log(
-      "[LocationSelection] Component should not be active at step",
-      currentStep,
-      "- returning null",
-    );
-    return (
-      <SafeAreaView className="flex-1 bg-white items-center justify-center">
-        <Text className="text-lg text-gray-600">
-          Navigating to next step...
-        </Text>
-      </SafeAreaView>
-    );
-  }
 }

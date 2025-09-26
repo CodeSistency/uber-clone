@@ -10,8 +10,9 @@ import {
 
 import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
-import MultiplePaymentSplitter from "./MultiplePaymentSplitter";
 import { SplitPayment } from "@/lib/paymentValidation";
+
+import MultiplePaymentSplitter from "./MultiplePaymentSplitter";
 
 interface PaymentMethod {
   id: string;
@@ -316,3 +317,4 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 };
 
 export default PaymentMethodSelector;
+

@@ -1,9 +1,10 @@
-import { useChatStore, useNotificationStore } from "../../store";
-import { ChatMessage, LocationData } from "../../types/type";
 import { log } from "@/lib/logger";
 
-import { websocketService } from "./websocketService";
 import { fetchAPI } from "../../lib/fetch";
+import { useChatStore, useNotificationStore } from "../../store";
+import { ChatMessage, LocationData } from "../../types/type";
+
+import { websocketService } from "./websocketService";
 
 export class ChatService {
   private static instance: ChatService;
@@ -19,10 +20,10 @@ export class ChatService {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info('ChatService', 'Sending message via REST API', {
+      log.info("ChatService", "Sending message via REST API", {
         messageId,
         rideId,
-        messageLength: messageText.length
+        messageLength: messageText.length,
       });
 
       // Validate message
@@ -34,18 +35,18 @@ export class ChatService {
       // Send via REST API
       const messageData = {
         senderId: "current_user", // TODO: Get from auth context
-        messageText: messageText.trim()
+        messageText: messageText.trim(),
       };
 
       const response = await fetchAPI(`chat/${rideId}/messages`, {
-        method: 'POST',
-        body: JSON.stringify(messageData)
+        method: "POST",
+        body: JSON.stringify(messageData),
       });
 
-      log.info('ChatService', 'Message sent successfully via REST API', {
+      log.info("ChatService", "Message sent successfully via REST API", {
         messageId,
         rideId,
-        responseId: response.id
+        responseId: response.id,
       });
 
       // Convert response to ChatMessage format for local store
@@ -58,7 +59,7 @@ export class ChatService {
         isRead: true, // Own messages are always read
         messageType: "text",
         timestamp: new Date(response.createdAt),
-        sender: response.sender
+        sender: response.sender,
       };
 
       // Add to local store
@@ -69,25 +70,33 @@ export class ChatService {
 
       return chatMessage;
     } catch (error) {
-      log.error('ChatService', 'Failed to send message', {
-        messageId,
-        rideId,
-        error: error.message
-      }, error);
+      log.error(
+        "ChatService",
+        "Failed to send message",
+        {
+          messageId,
+          rideId,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
 
   async markMessagesRead(rideId: number): Promise<void> {
     try {
-      console.log("[ChatService] Marking messages as read:", rideId);
+      log.info("ChatService", "Marking messages as read", { rideId });
 
       useChatStore.getState().markMessagesRead(rideId);
 
       // TODO: Send to server to mark as read
       // This would typically be an API call or WebSocket message
     } catch (error) {
-      console.error("[ChatService] Failed to mark messages as read:", error);
+      log.error("ChatService", "Failed to mark messages as read", {
+        rideId,
+        error: (error as Error)?.message,
+      }, error instanceof Error ? error : undefined);
       throw error;
     }
   }
@@ -97,14 +106,14 @@ export class ChatService {
     limit: number = 50,
   ): Promise<ChatMessage[]> {
     try {
-      log.info('ChatService', 'Loading message history from API', {
+      log.info("ChatService", "Loading message history from API", {
         rideId,
-        limit
+        limit,
       });
 
       // Load from REST API
       const response = await fetchAPI(`chat/${rideId}/messages`, {
-        method: 'GET'
+        method: "GET",
       });
 
       // Convert API response to ChatMessage format
@@ -117,12 +126,12 @@ export class ChatService {
         isRead: false, // TODO: Implement read status from API
         messageType: "text",
         timestamp: new Date(msg.createdAt),
-        sender: msg.sender
+        sender: msg.sender,
       }));
 
-      log.info('ChatService', 'Message history loaded successfully', {
+      log.info("ChatService", "Message history loaded successfully", {
         rideId,
-        messageCount: messages.length
+        messageCount: messages.length,
       });
 
       // Load into store
@@ -130,23 +139,31 @@ export class ChatService {
 
       return messages;
     } catch (error) {
-      log.error('ChatService', 'Failed to load message history', {
-        rideId,
-        limit,
-        error: error.message
-      }, error);
+      log.error(
+        "ChatService",
+        "Failed to load message history",
+        {
+          rideId,
+          limit,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
 
-  async sendMessageToOrder(orderId: number, messageText: string): Promise<ChatMessage> {
+  async sendMessageToOrder(
+    orderId: number,
+    messageText: string,
+  ): Promise<ChatMessage> {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info('ChatService', 'Sending message to order via REST API', {
+      log.info("ChatService", "Sending message to order via REST API", {
         messageId,
         orderId,
-        messageLength: messageText.length
+        messageLength: messageText.length,
       });
 
       // Validate message
@@ -158,18 +175,18 @@ export class ChatService {
       // Send via REST API
       const messageData = {
         senderId: "current_user", // TODO: Get from auth context
-        messageText: messageText.trim()
+        messageText: messageText.trim(),
       };
 
       const response = await fetchAPI(`chat/order/${orderId}/messages`, {
-        method: 'POST',
-        body: JSON.stringify(messageData)
+        method: "POST",
+        body: JSON.stringify(messageData),
       });
 
-      log.info('ChatService', 'Order message sent successfully via REST API', {
+      log.info("ChatService", "Order message sent successfully via REST API", {
         messageId,
         orderId,
-        responseId: response.id
+        responseId: response.id,
       });
 
       // Convert response to ChatMessage format for local store
@@ -182,7 +199,7 @@ export class ChatService {
         isRead: true, // Own messages are always read
         messageType: "text",
         timestamp: new Date(response.createdAt),
-        sender: response.sender
+        sender: response.sender,
       };
 
       // Add to local store (using rideId as key for compatibility)
@@ -194,11 +211,16 @@ export class ChatService {
 
       return chatMessage;
     } catch (error) {
-      log.error('ChatService', 'Failed to send message to order', {
-        messageId,
-        orderId,
-        error: error.message
-      }, error);
+      log.error(
+        "ChatService",
+        "Failed to send message to order",
+        {
+          messageId,
+          orderId,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -208,14 +230,14 @@ export class ChatService {
     limit: number = 50,
   ): Promise<ChatMessage[]> {
     try {
-      log.info('ChatService', 'Loading order message history from API', {
+      log.info("ChatService", "Loading order message history from API", {
         orderId,
-        limit
+        limit,
       });
 
       // Load from REST API
       const response = await fetchAPI(`chat/order/${orderId}/messages`, {
-        method: 'GET'
+        method: "GET",
       });
 
       // Convert API response to ChatMessage format
@@ -228,12 +250,12 @@ export class ChatService {
         isRead: false, // TODO: Implement read status from API
         messageType: "text",
         timestamp: new Date(msg.createdAt),
-        sender: msg.sender
+        sender: msg.sender,
       }));
 
-      log.info('ChatService', 'Order message history loaded successfully', {
+      log.info("ChatService", "Order message history loaded successfully", {
         orderId,
-        messageCount: messages.length
+        messageCount: messages.length,
       });
 
       // Load into store (using orderId as rideId for compatibility)
@@ -242,11 +264,16 @@ export class ChatService {
 
       return messages;
     } catch (error) {
-      log.error('ChatService', 'Failed to load order message history', {
-        orderId,
-        limit,
-        error: error.message
-      }, error);
+      log.error(
+        "ChatService",
+        "Failed to load order message history",
+        {
+          orderId,
+          limit,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -262,16 +289,20 @@ export class ChatService {
       // Update local state
       useChatStore.getState().setTyping(isTyping);
     } catch (error) {
-      console.error("[ChatService] Failed to send typing indicator:", error);
+      log.error("ChatService", "Failed to send typing indicator", {
+        rideId,
+        isTyping,
+        error: (error as Error)?.message,
+      }, error instanceof Error ? error : undefined);
       throw error;
     }
   }
 
   async shareLocation(rideId: number, location: LocationData): Promise<void> {
     try {
-      log.info('ChatService', 'Sharing location', {
+      log.info("ChatService", "Sharing location", {
         rideId,
-        location: { lat: location.latitude, lng: location.longitude }
+        location: { lat: location.latitude, lng: location.longitude },
       });
 
       const locationMessage: ChatMessage = {
@@ -282,7 +313,7 @@ export class ChatService {
         messageType: "location",
         createdAt: new Date().toISOString(),
         isRead: true,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
 
       // Add to local store
@@ -290,12 +321,19 @@ export class ChatService {
 
       // TODO: Send location via WebSocket or API
       // websocketService.shareLocation(rideId, location);
-      log.warn('ChatService', 'Location sharing via API not implemented yet', { rideId });
-    } catch (error) {
-      log.error('ChatService', 'Failed to share location', {
+      log.warn("ChatService", "Location sharing via API not implemented yet", {
         rideId,
-        error: error.message
-      }, error);
+      });
+    } catch (error) {
+      log.error(
+        "ChatService",
+        "Failed to share location",
+        {
+          rideId,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -303,24 +341,33 @@ export class ChatService {
   /**
    * Broadcast message via WebSocket for real-time updates
    */
-  private broadcastMessageViaWebSocket(rideId: number | null, orderId: number | null, message: string): void {
+  private broadcastMessageViaWebSocket(
+    rideId: number | null,
+    orderId: number | null,
+    message: string,
+  ): void {
     try {
       // Connect to the correct WebSocket namespace according to docs
       // Note: This should be handled by the WebSocketService
-      log.debug('ChatService', 'Broadcasting message via WebSocket', {
+      log.debug("ChatService", "Broadcasting message via WebSocket", {
         rideId,
         orderId,
-        messageLength: message.length
+        messageLength: message.length,
       });
 
       // TODO: Implement WebSocket broadcasting according to new API
       // The WebSocket events should be updated in websocketService.ts
     } catch (error) {
-      log.error('ChatService', 'Failed to broadcast message via WebSocket', {
-        rideId,
-        orderId,
-        error: error.message
-      }, error);
+      log.error(
+        "ChatService",
+        "Failed to broadcast message via WebSocket",
+        {
+          rideId,
+          orderId,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
     }
   }
 
@@ -345,12 +392,12 @@ export class ChatService {
   }
 
   setActiveChat(rideId: number): void {
-    console.log("[ChatService] Setting active chat:", rideId);
+    log.info("ChatService", "Setting active chat", { rideId });
     useChatStore.getState().setActiveChat(rideId);
   }
 
   clearChat(rideId: number): void {
-    console.log("[ChatService] Clearing chat:", rideId);
+    log.info("ChatService", "Clearing chat", { rideId });
     useChatStore.getState().clearChat(rideId);
   }
 
@@ -428,7 +475,7 @@ export class ChatService {
 
   // Cleanup method
   cleanup(): void {
-    console.log("[ChatService] Cleaning up...");
+    log.info("ChatService", "Cleaning up chat service");
 
     // Clear all typing timeouts
     this.typingTimeouts.forEach((timeout) => {

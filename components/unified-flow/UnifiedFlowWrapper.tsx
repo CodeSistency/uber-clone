@@ -93,12 +93,17 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
           const paymentStatus = await transportClient.getPaymentStatus(rideId);
 
           // Actualizar estado de pagos si existe grupo
-          if (paymentStatus.data.hasPaymentGroup && paymentStatus.data.groupId) {
+          if (
+            paymentStatus.data.hasPaymentGroup &&
+            paymentStatus.data.groupId
+          ) {
             const { usePaymentStore } = await import("@/store");
-            usePaymentStore.getState().updateGroupStatus(
-              paymentStatus.data.groupId,
-              paymentStatus.data
-            );
+            usePaymentStore
+              .getState()
+              .updateGroupStatus(
+                paymentStatus.data.groupId,
+                paymentStatus.data,
+              );
           }
 
           // Obtener estado del viaje
@@ -116,22 +121,33 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
               in_progress: "in_progress",
               completed: "completed",
               cancelled: "cancelled",
-              rejected: "cancelled"
+              rejected: "cancelled",
             };
             const mappedStatus = statusMap[status] || "requested";
 
-            console.log(`[UnifiedFlowWrapper] Polling status for ride ${rideId}: ${status} -> ${mappedStatus}`);
+            console.log(
+              `[UnifiedFlowWrapper] Polling status for ride ${rideId}: ${status} -> ${mappedStatus}`,
+            );
             useRealtimeStore.getState().updateRideStatus(rideId, mappedStatus);
 
             // Mostrar notificación solo para cambios importantes
             if (status === "accepted") {
-              ui.showSuccess("¡Conductor aceptado!", "Tu viaje comenzará pronto");
+              ui.showSuccess(
+                "¡Conductor aceptado!",
+                "Tu viaje comenzará pronto",
+              );
             } else if (status === "arriving") {
               ui.showInfo("Conductor llegando", "Tu conductor está cerca");
             } else if (status === "arrived") {
-              ui.showSuccess("¡Conductor llegó!", "Tu conductor te está esperando");
+              ui.showSuccess(
+                "¡Conductor llegó!",
+                "Tu conductor te está esperando",
+              );
             } else if (status === "rejected") {
-              ui.showError("Viaje rechazado", "El conductor no pudo aceptar tu solicitud");
+              ui.showError(
+                "Viaje rechazado",
+                "El conductor no pudo aceptar tu solicitud",
+              );
             }
           }
         } else if (flow.service === "delivery" && (flow as any).orderId) {
@@ -159,7 +175,8 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
     if (pollable) {
       doPoll();
       // Polling más frecuente durante matching (cada 3 segundos vs 5)
-      const intervalMs = flow.step === "CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION" ? 3000 : 5000;
+      const intervalMs =
+        flow.step === "CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION" ? 3000 : 5000;
       timer = setInterval(doPoll, intervalMs);
     }
 

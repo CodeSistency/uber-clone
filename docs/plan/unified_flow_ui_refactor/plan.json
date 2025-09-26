@@ -1,0 +1,546 @@
+{
+  "proyecto": "unified_flow_ui_refactor",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Refactorización de Componentes Base y Utilitarios",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Actualización de BaseComponents.tsx",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Refactorizar los componentes base del flujo unificado para usar el sistema UI reutilizable",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card",
+            "@/components/ui/Badge",
+            "@/components/ui/Glass"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Reemplazar TouchableOpacity con Button",
+              "descripcion": "Cambiar todos los TouchableOpacity por el componente Button reutilizable manteniendo la funcionalidad",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Actualizar DriverFlowControls",
+                  "descripcion": "Reemplazar TouchableOpacity con Button en el componente DriverFlowControls"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Actualizar VenezuelanPaymentSelector",
+                  "descripcion": "Reemplazar TouchableOpacity con Button en VenezuelanPaymentSelector"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Actualizar WebSocketTestingControls",
+                  "descripcion": "Reemplazar TouchableOpacity con Button en WebSocketTestingControls"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Implementar componente Card para contenedores",
+              "descripcion": "Usar el componente Card para reemplazar los View con estilos de tarjeta",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Refactorizar contenedores de estado",
+                  "descripcion": "Convertir los View con bg-white rounded-xl p-4 en componentes Card"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Actualizar headers de sección",
+                  "descripcion": "Usar Card para secciones con título y contenido"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Implementar Badge para indicadores de estado",
+              "descripcion": "Reemplazar los View con indicadores de estado por componentes Badge",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Badge para estados de WebSocket",
+                  "descripcion": "Usar Badge en WebSocketStatus"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Badge para estados de notificaciones",
+                  "descripcion": "Usar Badge en NotificationSettings"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.4",
+              "nombre": "Implementar Glass para efectos visuales",
+              "descripcion": "Usar el componente Glass para paneles flotantes y efectos visuales",
+              "subtareas": [
+                {
+                  "id": "ST1.1.4.1",
+                  "nombre": "Refactorizar panel de SimulationControls",
+                  "descripcion": "Aplicar Glass al panel expandible de controles de simulación"
+                },
+                {
+                  "id": "ST1.1.4.2",
+                  "nombre": "Glass para paneles de información",
+                  "descripcion": "Usar Glass en paneles informativos superpuestos"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Actualización de SimulationControls",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Refactorizar el componente SimulationControls para usar componentes UI modernos",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card",
+            "@/components/ui/Glass",
+            "@/components/ui/Badge"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Reemplazar TouchableOpacity con Button",
+              "descripcion": "Convertir todos los botones del panel de simulación a componentes Button",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Botón principal de toggle",
+                  "descripcion": "Reemplazar TouchableOpacity del botón de expansión"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Botones de simulación",
+                  "descripcion": "Convertir botones de simulación (Move Driver, Fit Route, etc.)"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Implementar Card para el panel expandible",
+              "descripcion": "Usar Card para el contenedor del panel de simulación expandible",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Estructura del panel principal",
+                  "descripcion": "Convertir el Animated.View en un Card con Glass"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Secciones internas del panel",
+                  "descripcion": "Usar Card para sub-secciones dentro del panel"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Implementar Badge para indicadores de estado",
+              "descripcion": "Usar Badge para mostrar estados del developer mode y WebSocket",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Badge para estado de WebSocket",
+                  "descripcion": "Reemplazar indicador manual con componente Badge"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Badge para developer mode",
+                  "descripcion": "Usar Badge para indicadores de modo desarrollador"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Refactorización de Componentes de Flujo",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Actualización de unified-flow-demo.tsx",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Refactorizar el componente principal del flujo unificado del cliente",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card",
+            "@/components/ui/Modal",
+            "@/components/ui/TextField"
+          ],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Reemplazar Modal con componente UI",
+              "descripcion": "Modal no encontrado en unified-flow-demo.tsx - WelcomeModal está en app/components/ModeSwitcher.tsx",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Modal de selección de modo",
+                  "descripcion": "No aplicable - Modal no existe en este archivo"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Actualizar header del drawer",
+              "descripcion": "Usar componentes UI para el header del drawer customer",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Convertir TouchableOpacity a Button",
+                  "descripcion": "Reemplazar el botón del drawer con componente Button ✓ COMPLETADO"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Refactorizar SimulationControls",
+                  "descripcion": "Convertir TouchableOpacity a Button en componentes de simulación ✓ COMPLETADO"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Actualización de driver-unified-flow-demo.tsx",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Refactorizar el componente principal del flujo unificado del conductor",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card"
+          ],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Actualizar header del drawer driver",
+              "descripcion": "Refactorizar el header del drawer del conductor",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Convertir TouchableOpacity a Button",
+                  "descripcion": "Reemplazar botones del drawer con componentes Button ✓ COMPLETADO"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Optimizar componentes de estado",
+              "descripcion": "Mejorar la presentación de estados usando componentes UI - Estados manejados por BaseComponents",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Usar Badge para indicadores de estado",
+                  "descripcion": "Ya implementado en BaseComponents.tsx"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Refactorización de Pasos del Flujo",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Actualización de Pasos del Cliente",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Refactorizar todos los pasos del flujo del cliente para usar componentes UI",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card",
+            "@/components/ui/TextField",
+            "@/components/ui/Select"
+          ],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Refactorizar pasos de Viaje",
+              "descripcion": "Actualizar TransportDefinition, ConfirmOrigin, ConfirmDestination, etc.",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Reemplazar TouchableOpacity con Button",
+                  "descripcion": "Convertir todos los botones en los pasos de viaje",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Implementar TextField para inputs",
+                  "descripcion": "Usar TextField en formularios de confirmación de direcciones",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Usar Card para secciones",
+                  "descripcion": "Convertir contenedores de información en Cards",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Refactorizar pasos de Delivery",
+              "descripcion": "Actualizar DeliveryBusinessSearch, DeliveryCheckout, DeliveryTracking",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "DeliveryBusinessSearch - usar componentes UI",
+                  "descripcion": "Implementar Button, Card y TextField",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "DeliveryCheckout - usar componentes UI",
+                  "descripcion": "Implementar Button, Card y TextField",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.2.3",
+                  "nombre": "DeliveryTracking - usar componentes UI",
+                  "descripcion": "Implementar Button y Card",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T3.1.3",
+              "nombre": "Refactorizar pasos de Mandado y Envío",
+              "descripcion": "Actualizar componentes de mandado y envío",
+              "subtareas": [
+                {
+                  "id": "ST3.1.3.1",
+                  "nombre": "MandadoDetails - usar TextField y Button",
+                  "descripcion": "Convertir inputs y botones a componentes UI",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.3.2",
+                  "nombre": "EnvioDetails - usar TextField y Button",
+                  "descripcion": "Convertir inputs y botones a componentes UI",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.3.3",
+                  "nombre": "EnvioDeliveryConfirm - usar Button y Card",
+                  "descripcion": "Convertir botones y contenedores a componentes UI",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.3.4",
+                  "nombre": "EnvioPricingAndPayment - usar Button y Card",
+                  "descripcion": "Convertir botones y contenedores a componentes UI",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.3.5",
+                  "nombre": "EnvioTracking - usar Button y Card",
+                  "descripcion": "Convertir botones y contenedores a componentes UI",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.3.6",
+                  "nombre": "MandadoPriceAndPayment - usar Button y Card",
+                  "descripcion": "Convertir botones y contenedores a componentes UI",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.1.3.7",
+                  "nombre": "MandadoCommsAndConfirm - usar Button y Card",
+                  "descripcion": "Convertir botones y contenedores a componentes UI",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Actualización de Pasos del Conductor",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Refactorizar todos los pasos del flujo del conductor",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card",
+            "@/components/ui/Badge"
+          ],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Refactorizar DriverAvailability",
+              "descripcion": "Actualizar el componente principal de disponibilidad del conductor",
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Usar Button para controles principales",
+                  "descripcion": "Reemplazar TouchableOpacity en botones de online/offline",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Implementar Badge para estados",
+                  "descripcion": "Usar Badge para indicadores de estado del conductor",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.2.1.3",
+                  "nombre": "Usar Card para secciones informativas",
+                  "descripcion": "Convertir contenedores de información en Cards",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T3.2.2",
+              "nombre": "Refactorizar pasos de Viaje del Conductor",
+              "descripcion": "Actualizar DriverTransportAcceptReject, DriverTransportInProgress, etc.",
+              "subtareas": [
+                {
+                  "id": "ST3.2.2.1",
+                  "nombre": "DriverIncomingRequest - usar Button y Card",
+                  "descripcion": "Convertir botones y contenedores de solicitud",
+                  "completado": true
+                },
+                {
+                  "id": "ST3.2.2.2",
+                  "nombre": "DriverTransportInProgress - usar Button",
+                  "descripcion": "Convertir botones de acción durante el viaje",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Optimización y Testing",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Refactorización de Archivos Restantes",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Completar la refactorización de archivos restantes del flujo unificado",
+          "dependencias": [
+            "@/components/ui/Button",
+            "@/components/ui/Card",
+            "@/components/ui/TextField"
+          ],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Refactorizar archivos restantes de Viaje",
+              "descripcion": "Completar ChooseDriver, DriverMatching y otros archivos de viaje",
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "ChooseDriver.tsx - Convertir TouchableOpacity",
+                  "descripcion": "Refactorizar todos los botones y modales",
+                  "completado": true
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "DriverMatching.tsx - Convertir TouchableOpacity",
+                  "descripcion": "Refactorizar botón de cancelar",
+                  "completado": true
+                },
+                {
+                  "id": "ST4.1.1.3",
+                  "nombre": "ServiceSelection.tsx - Convertir TouchableOpacity",
+                  "descripcion": "Refactorizar tarjetas de servicios",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Refactorizar archivos restantes de Conductor",
+              "descripcion": "Completar archivos de conductor pendientes",
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "DriverAvailability.tsx - Ya completado",
+                  "descripcion": "Botones y cards ya refactorizados",
+                  "completado": true
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "DriverIncomingRequest.tsx - Ya completado",
+                  "descripcion": "Botones y cards ya refactorizados",
+                  "completado": true
+                },
+                {
+                  "id": "ST4.1.2.3",
+                  "nombre": "DriverTransportInProgress.tsx - Ya completado",
+                  "descripcion": "Botones y cards ya refactorizados",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Optimización de Performance",
+          "progreso": 0,
+          "prioridad": "Baja",
+          "descripcion": "Optimizar el rendimiento de los componentes refactorizados",
+          "dependencias": [
+            "react",
+            "react-native"
+          ],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Memoización de componentes",
+              "descripcion": "Implementar React.memo donde sea necesario",
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Memoizar componentes de lista",
+                  "descripcion": "Optimizar renderizado de listas de conductores y pedidos"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.2",
+              "nombre": "Lazy loading de componentes",
+              "descripcion": "Implementar carga diferida para componentes pesados",
+              "subtareas": [
+                {
+                  "id": "ST4.2.2.1",
+                  "nombre": "Lazy load de modales complejos",
+                  "descripcion": "Cargar modales de detalle del conductor bajo demanda"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

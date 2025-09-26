@@ -1,5 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
+import { log } from "@/lib/logger";
+
 import {
   NotificationPreferences,
   DeviceToken,
@@ -9,6 +11,8 @@ import {
   EmergencyAlert,
   ConnectionStatus,
 } from "../../types/type";
+
+// Chat storage utilities
 
 // Storage keys
 export const STORAGE_KEYS = {
@@ -247,15 +251,12 @@ export const notificationStorage = {
   },
 };
 
-// Chat storage utilities
-import { log } from "@/lib/logger";
-
 export const chatStorage = {
   // Chat history for specific ride or order
   saveChatHistory: async (
     chatId: number,
     messages: ChatMessage[],
-    chatType: 'ride' | 'order' = 'ride'
+    chatType: "ride" | "order" = "ride",
   ): Promise<void> => {
     try {
       const key = `${STORAGE_KEYS.CHAT_HISTORY_PREFIX}${chatType}_${chatId}`;
@@ -263,25 +264,31 @@ export const chatStorage = {
       const limitedMessages = messages.slice(-100);
       await storage.setItem(key, JSON.stringify(limitedMessages));
 
-      log.debug('ChatStorage', 'Chat history saved', {
+      log.debug("ChatStorage", "Chat history saved", {
         chatId,
         chatType,
-        messageCount: limitedMessages.length
+        messageCount: limitedMessages.length,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      log.error('ChatStorage', 'Failed to save chat history', {
-        chatId,
-        chatType,
-        error: errorMessage
-      }, error instanceof Error ? error : undefined);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      log.error(
+        "ChatStorage",
+        "Failed to save chat history",
+        {
+          chatId,
+          chatType,
+          error: errorMessage,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   },
 
   getChatHistory: async (
     chatId: number,
-    chatType: 'ride' | 'order' = 'ride'
+    chatType: "ride" | "order" = "ride",
   ): Promise<ChatMessage[]> => {
     try {
       const key = `${STORAGE_KEYS.CHAT_HISTORY_PREFIX}${chatType}_${chatId}`;
@@ -289,22 +296,28 @@ export const chatStorage = {
 
       if (data) {
         const messages = JSON.parse(data);
-        log.debug('ChatStorage', 'Chat history loaded', {
+        log.debug("ChatStorage", "Chat history loaded", {
           chatId,
           chatType,
-          messageCount: messages.length
+          messageCount: messages.length,
         });
         return messages;
       }
 
       return [];
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      log.error('ChatStorage', 'Failed to get chat history', {
-        chatId,
-        chatType,
-        error: errorMessage
-      }, error instanceof Error ? error : undefined);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      log.error(
+        "ChatStorage",
+        "Failed to get chat history",
+        {
+          chatId,
+          chatType,
+          error: errorMessage,
+        },
+        error instanceof Error ? error : undefined,
+      );
       return [];
     }
   },
@@ -312,7 +325,7 @@ export const chatStorage = {
   // Legacy method for backward compatibility
   getChatHistoryByRideId: async (rideId: number): Promise<ChatMessage[]> => {
     // Try new format first, then fall back to old format
-    let messages = await chatStorage.getChatHistory(rideId, 'ride');
+    let messages = await chatStorage.getChatHistory(rideId, "ride");
     if (messages.length === 0) {
       // Try old format for backward compatibility
       try {
@@ -320,7 +333,9 @@ export const chatStorage = {
         const data = await storage.getItem(oldKey);
         messages = data ? JSON.parse(data) : [];
       } catch (error) {
-        log.warn('ChatStorage', 'Old chat history format not found', { rideId });
+        log.warn("ChatStorage", "Old chat history format not found", {
+          rideId,
+        });
       }
     }
     return messages;
@@ -329,42 +344,54 @@ export const chatStorage = {
   addMessage: async (
     chatId: number,
     message: ChatMessage,
-    chatType: 'ride' | 'order' = 'ride'
+    chatType: "ride" | "order" = "ride",
   ): Promise<void> => {
     try {
       const existing = await chatStorage.getChatHistory(chatId, chatType);
       const updated = [...existing, message].slice(-100);
       await chatStorage.saveChatHistory(chatId, updated, chatType);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      log.error('ChatStorage', 'Failed to add message', {
-        chatId,
-        chatType,
-        error: errorMessage
-      }, error instanceof Error ? error : undefined);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      log.error(
+        "ChatStorage",
+        "Failed to add message",
+        {
+          chatId,
+          chatType,
+          error: errorMessage,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   },
 
   clearChatHistory: async (
     chatId: number,
-    chatType: 'ride' | 'order' = 'ride'
+    chatType: "ride" | "order" = "ride",
   ): Promise<void> => {
     try {
       const key = `${STORAGE_KEYS.CHAT_HISTORY_PREFIX}${chatType}_${chatId}`;
       await storage.removeItem(key);
 
-      log.info('ChatStorage', 'Chat history cleared', {
-        chatId,
-        chatType
-      });
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      log.error('ChatStorage', 'Failed to clear chat history', {
+      log.info("ChatStorage", "Chat history cleared", {
         chatId,
         chatType,
-        error: errorMessage
-      }, error instanceof Error ? error : undefined);
+      });
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      log.error(
+        "ChatStorage",
+        "Failed to clear chat history",
+        {
+          chatId,
+          chatType,
+          error: errorMessage,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   },

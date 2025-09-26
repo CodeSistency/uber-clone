@@ -1,5 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
+
+import { Button, TextField, Card } from "@/components/ui";
 import { icons } from "@/constants";
 
 interface LocationData {
@@ -19,10 +21,10 @@ const TripSummaryHeader: React.FC<TripSummaryHeaderProps> = ({
   origin,
   destination,
   onBack,
-  showBackButton = true
+  showBackButton = true,
 }) => {
   // Debug logs
-  console.log('[TripSummaryHeader] Received props:', { origin, destination });
+  console.log("[TripSummaryHeader] Received props:", { origin, destination });
 
   // Función para truncar direcciones largas
   const truncateAddress = (address: string, maxLength: number = 25) => {
@@ -35,13 +37,12 @@ const TripSummaryHeader: React.FC<TripSummaryHeaderProps> = ({
       <View className="flex-row items-center justify-between p-4">
         {/* Botón de retroceso */}
         {showBackButton && (
-          <TouchableOpacity
+          <Button
+            variant="ghost"
+            title="←"
             onPress={onBack}
-            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700 items-center justify-center"
-            activeOpacity={0.7}
-          >
-            <Text className="text-xl text-gray-600 dark:text-gray-300">←</Text>
-          </TouchableOpacity>
+            className="w-10 h-10 rounded-full bg-gray-100 dark:bg-gray-700"
+          />
         )}
 
         {/* Información del viaje */}
@@ -59,7 +60,9 @@ const TripSummaryHeader: React.FC<TripSummaryHeaderProps> = ({
           {/* Línea conectora */}
           <View className="flex-row items-center ml-3 mb-1">
             <View className="w-px h-4 bg-gray-300 dark:bg-gray-600 mr-2" />
-            <Text className="text-xs text-gray-400 dark:text-gray-500 mr-2">↓</Text>
+            <Text className="text-xs text-gray-400 dark:text-gray-500 mr-2">
+              ↓
+            </Text>
             <View className="flex-1 h-px bg-gray-300 dark:bg-gray-600" />
           </View>
 
@@ -69,7 +72,9 @@ const TripSummaryHeader: React.FC<TripSummaryHeaderProps> = ({
               <View className="w-2 h-2 bg-white rounded-full" />
             </View>
             <Text className="flex-1 font-Jakarta text-sm text-gray-600 dark:text-gray-300">
-              {destination ? truncateAddress(destination.address) : "Destino no definido"}
+              {destination
+                ? truncateAddress(destination.address)
+                : "Destino no definido"}
             </Text>
           </View>
         </View>

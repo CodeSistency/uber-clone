@@ -53,9 +53,11 @@ const DriverTransportEarnings: React.FC = () => {
 
         // Clear active ride
         useRealtimeStore.getState().setActiveRide(null);
-
       } catch (error) {
-        console.error("[DriverTransportEarnings] Error calculating earnings:", error);
+        console.error(
+          "[DriverTransportEarnings] Error calculating earnings:",
+          error,
+        );
       } finally {
         setLoading(false);
       }
@@ -122,12 +124,16 @@ const DriverTransportEarnings: React.FC = () => {
 
         {/* Earnings breakdown */}
         <View className="bg-white rounded-lg p-4 mb-4 shadow-sm">
-          <Text className="font-JakartaBold text-lg mb-3">Ganancias del viaje</Text>
+          <Text className="font-JakartaBold text-lg mb-3">
+            Ganancias del viaje
+          </Text>
 
           {/* Trip fare */}
           <View className="flex-row justify-between items-center mb-2">
             <Text className="font-Jakarta text-gray-600">Tarifa del viaje</Text>
-            <Text className="font-JakartaMedium">${earnings.tripFare.toFixed(2)}</Text>
+            <Text className="font-JakartaMedium">
+              ${earnings.tripFare.toFixed(2)}
+            </Text>
           </View>
 
           {/* Tips */}
@@ -143,7 +149,9 @@ const DriverTransportEarnings: React.FC = () => {
           {/* Total */}
           <View className="border-t border-gray-200 pt-2 mt-2">
             <View className="flex-row justify-between items-center">
-              <Text className="font-JakartaBold text-gray-800">Total ganado</Text>
+              <Text className="font-JakartaBold text-gray-800">
+                Total ganado
+              </Text>
               <View className="items-end">
                 <Text className="font-JakartaBold text-xl text-green-600">
                   ${earnings.totalEarnings.toFixed(2)}
@@ -160,15 +168,21 @@ const DriverTransportEarnings: React.FC = () => {
 
         {/* Today's summary */}
         <View className="bg-blue-50 rounded-lg p-4 mb-4 border border-blue-200">
-          <Text className="font-JakartaBold text-blue-800 mb-2">📊 Resumen del día</Text>
+          <Text className="font-JakartaBold text-blue-800 mb-2">
+            📊 Resumen del día
+          </Text>
           <View className="flex-row justify-between mb-1">
-            <Text className="font-Jakarta text-sm text-blue-700">Viajes completados</Text>
+            <Text className="font-Jakarta text-sm text-blue-700">
+              Viajes completados
+            </Text>
             <Text className="font-JakartaMedium text-sm text-blue-800">
               {earnings.tripCount}
             </Text>
           </View>
           <View className="flex-row justify-between">
-            <Text className="font-Jakarta text-sm text-blue-700">Ganancias totales</Text>
+            <Text className="font-Jakarta text-sm text-blue-700">
+              Ganancias totales
+            </Text>
             <Text className="font-JakartaBold text-blue-800">
               ${earnings.todayEarnings.toFixed(2)}
             </Text>
@@ -181,9 +195,9 @@ const DriverTransportEarnings: React.FC = () => {
             💡 Consejos para ganar más
           </Text>
           <Text className="font-Jakarta text-xs text-yellow-700">
-            • Mantén altas calificaciones para recibir mejores viajes{"\n"}
-            • Acepta viajes durante horas pico{"\n"}
-            • Ofrece un servicio excelente para recibir propinas
+            • Mantén altas calificaciones para recibir mejores viajes{"\n"}•
+            Acepta viajes durante horas pico{"\n"}• Ofrece un servicio excelente
+            para recibir propinas
           </Text>
         </View>
 
@@ -202,7 +216,8 @@ const DriverTransportEarnings: React.FC = () => {
           </Text>
           <Text className="font-Jakarta text-xs text-gray-600">
             Los fondos estarán disponibles en tu cuenta dentro de las próximas
-            24-48 horas. Puedes ver el detalle completo en tu panel de ganancias.
+            24-48 horas. Puedes ver el detalle completo en tu panel de
+            ganancias.
           </Text>
         </View>
       </ScrollView>

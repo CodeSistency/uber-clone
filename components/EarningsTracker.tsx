@@ -185,3 +185,4 @@ const EarningsTracker: React.FC<EarningsTrackerProps> = ({
 };
 
 export default EarningsTracker;
+

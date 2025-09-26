@@ -31,7 +31,7 @@ export const useChatStore = create<ChatStore>((set, get) => ({
       const newMessages = [...existingMessages, message];
 
       const newUnreadMessages = { ...state.unreadMessages };
-      if (message.rideId !== state.activeChat && !message.isRead) {
+      if (message.rideId && message.rideId !== state.activeChat && !message.isRead) {
         newUnreadMessages[message.rideId] =
           (newUnreadMessages[message.rideId] || 0) + 1;
       }

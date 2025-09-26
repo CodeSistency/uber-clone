@@ -9,8 +9,9 @@ import {
   ActivityIndicator,
   Image,
 } from "react-native";
-import { icons } from "@/constants";
 
+import { useUI } from "@/components/UIWrapper";
+import { icons } from "@/constants";
 import {
   SplitPayment,
   validatePaymentSplit,
@@ -20,7 +21,7 @@ import {
   BankReference,
   generateBulkReferences,
 } from "@/lib/paymentValidation";
-import { useUI } from "@/components/UIWrapper";
+
 import MultipleBankReferences from "./MultipleBankReferences";
 
 interface MultiplePaymentSplitterProps {

@@ -10,10 +10,16 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 import { firebaseService } from "@/app/services/firebaseService";
 import { websocketService } from "@/app/services/websocketService";
-import UIWrapper from "@/components/UIWrapper";
 import ErrorBoundary from "@/components/ErrorBoundary";
+import UIWrapper from "@/components/UIWrapper";
 import { initializeUserStore } from "@/lib/auth";
 import { tokenManager } from "@/lib/auth";
+import { getConfig } from "@/lib/config";
+import {
+  checkAllEndpoints,
+  areAllEndpointsAvailable,
+  HealthCheckResult,
+} from "@/lib/endpoints";
 import { useUserStore } from "@/store";
 import { useDevStore } from "@/store";
 
@@ -42,6 +48,56 @@ export default function RootLayout() {
     if (loaded || error) {
       // Hide splash screen regardless of success/failure
       SplashScreen.hideAsync();
+
+      // Validate environment configuration first (highest priority)
+      console.log("[RootLayout] Validating environment configuration...");
+      try {
+        const config = getConfig();
+        console.log(
+          "[RootLayout] ✅ Environment configuration validated successfully",
+        );
+        console.log("[RootLayout] Environment:", process.env.NODE_ENV || 'development');
+        console.log("[RootLayout] API URL:", config.EXPO_PUBLIC_SERVER_URL || 'Not configured');
+      } catch (error: any) {
+        console.error(
+          "[RootLayout] ❌ Environment configuration failed:",
+          error.message,
+        );
+        // In a production app, you might want to show an error screen or prevent app initialization
+        // For now, we'll log the error but continue (useful for development)
+        console.warn(
+          "[RootLayout] Continuing with potentially incomplete configuration...",
+        );
+      }
+
+      // Perform health checks for critical endpoints
+      console.log("[RootLayout] Performing endpoint health checks...");
+      (async () => {
+        try {
+          const healthResults: HealthCheckResult[] = await checkAllEndpoints();
+        const allAvailable = areAllEndpointsAvailable();
+
+        console.log("[RootLayout] Health check results:");
+        healthResults.forEach((result) => {
+          const status = result.available ? "✅" : "❌";
+          console.log(
+            `[RootLayout] ${status} ${result.endpoint}: ${result.available ? "Available" : result.error || "Unavailable"} (${result.responseTime}ms)`,
+          );
+        });
+
+        if (!allAvailable) {
+          console.warn(
+            "[RootLayout] ⚠️ Some endpoints are not available. App may have limited functionality.",
+          );
+          // In production, you might want to show a warning or retry
+        } else {
+          console.log("[RootLayout] ✅ All critical endpoints are available");
+        }
+      } catch (error: any) {
+        console.error("[RootLayout] ❌ Health check failed:", error.message);
+        console.warn("[RootLayout] Continuing without health check results...");
+      }
+      })();
 
       // Initialize Firebase first (highest priority)
       console.log("[RootLayout] Initializing Firebase service...");
@@ -180,7 +236,11 @@ export default function RootLayout() {
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
-        console.log("[RootLayout] Error boundary caught error:", error, errorInfo);
+        console.log(
+          "[RootLayout] Error boundary caught error:",
+          error,
+          errorInfo,
+        );
       }}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -191,7 +251,10 @@ export default function RootLayout() {
             <Stack.Screen name="(root)" options={{ headerShown: false }} />
             <Stack.Screen name="(business)" options={{ headerShown: false }} />
             <Stack.Screen name="(driver)" options={{ headerShown: false }} />
-            <Stack.Screen name="(marketplace)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="(marketplace)"
+              options={{ headerShown: false }}
+            />
             <Stack.Screen name="+not-found" />
           </Stack>
         </UIWrapper>

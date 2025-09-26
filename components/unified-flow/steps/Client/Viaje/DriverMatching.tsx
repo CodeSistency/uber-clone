@@ -1,15 +1,37 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Animated, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  Animated,
+  ActivityIndicator,
+} from "react-native";
 
+import {
+  driverMatchingService,
+  MatchingRequest,
+} from "@/app/services/driverMatchingService";
+import { Button, Card, Badge } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useLocationStore } from "@/store";
-import { driverMatchingService, MatchingRequest } from "@/app/services/driverMatchingService";
 
 import FlowHeader from "../../../FlowHeader";
 
 const DriverMatching: React.FC = () => {
-  const { next, back, startMatching, stopMatching, setMatchedDriver, rideId, isMatching, matchingTimeout, matchingStartTime, confirmedOrigin, selectedTierId, selectedVehicleTypeId } = useMapFlow() as any;
+  const {
+    next,
+    back,
+    startMatching,
+    stopMatching,
+    setMatchedDriver,
+    rideId,
+    isMatching,
+    matchingTimeout,
+    matchingStartTime,
+    confirmedOrigin,
+    selectedTierId,
+    selectedVehicleTypeId,
+  } = useMapFlow() as any;
   const { showError, showSuccess } = useUI();
   const realtime = useRealtimeStore();
   const locationStore = useLocationStore();
@@ -29,7 +51,11 @@ const DriverMatching: React.FC = () => {
       console.log("[DriverMatching] Starting driver matching...");
 
       // Validar que tenemos los datos necesarios
-      if (!selectedTierId || !locationStore.userLatitude || !locationStore.userLongitude) {
+      if (
+        !selectedTierId ||
+        !locationStore.userLatitude ||
+        !locationStore.userLongitude
+      ) {
         console.error("[DriverMatching] Missing required data for matching");
         showError("Error", "Faltan datos necesarios para buscar conductores");
         back();
@@ -58,7 +84,7 @@ const DriverMatching: React.FC = () => {
             duration: 1000,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
       pulseAnimation.start();
 
@@ -69,12 +95,16 @@ const DriverMatching: React.FC = () => {
           lng: locationStore.userLongitude,
           tierId: selectedTierId,
           vehicleTypeId: selectedVehicleTypeId || 1,
-          radiusKm: 5
+          radiusKm: 5,
         };
 
-        console.log("[DriverMatching] Making backend call with request:", matchingRequest);
+        console.log(
+          "[DriverMatching] Making backend call with request:",
+          matchingRequest,
+        );
 
-        const response = await driverMatchingService.findBestDriver(matchingRequest);
+        const response =
+          await driverMatchingService.findBestDriver(matchingRequest);
 
         if (response.success && response.driver) {
           console.log("[DriverMatching] Driver found:", response.driver);
@@ -107,7 +137,9 @@ const DriverMatching: React.FC = () => {
     if (!isMatching || !matchingStartTime) return;
 
     const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - matchingStartTime.getTime()) / 1000);
+      const elapsed = Math.floor(
+        (Date.now() - matchingStartTime.getTime()) / 1000,
+      );
       const remaining = Math.max(0, matchingTimeout - elapsed);
 
       setTimeLeft(remaining);
@@ -124,12 +156,11 @@ const DriverMatching: React.FC = () => {
   // Efecto para animación de dots
   useEffect(() => {
     const interval = setInterval(() => {
-      setDots(prev => prev.length >= 3 ? "" : prev + ".");
+      setDots((prev) => (prev.length >= 3 ? "" : prev + "."));
     }, 500);
 
     return () => clearInterval(interval);
   }, []);
-
 
   const handleDriverFound = (driver: any) => {
     console.log("[DriverMatching] Driver found:", driver);
@@ -137,7 +168,10 @@ const DriverMatching: React.FC = () => {
     setMatchedDriver(driver);
     stopMatching();
 
-    showSuccess("¡Conductor encontrado!", `${driver.firstName} está disponible`);
+    showSuccess(
+      "¡Conductor encontrado!",
+      `${driver.firstName} está disponible`,
+    );
 
     // Avanzar al siguiente paso
     setTimeout(() => {
@@ -152,7 +186,7 @@ const DriverMatching: React.FC = () => {
 
     showError(
       "Sin conductores disponibles",
-      "No hay conductores disponibles en este momento. ¿Quieres intentar con diferentes opciones?"
+      "No hay conductores disponibles en este momento. ¿Quieres intentar con diferentes opciones?",
     );
 
     // Retroceder para que el usuario pueda cambiar opciones
@@ -168,7 +202,7 @@ const DriverMatching: React.FC = () => {
 
     showError(
       "Sin conductores disponibles",
-      "No se encontraron conductores disponibles en este momento. ¿Quieres intentar nuevamente?"
+      "No se encontraron conductores disponibles en este momento. ¿Quieres intentar nuevamente?",
     );
 
     // Retroceder o mostrar opciones
@@ -186,7 +220,10 @@ const DriverMatching: React.FC = () => {
       console.log("[DriverMatching] Cancelling matching...");
       stopMatching();
 
-      showSuccess("Búsqueda cancelada", "Puedes modificar tu pedido o intentar nuevamente");
+      showSuccess(
+        "Búsqueda cancelada",
+        "Puedes modificar tu pedido o intentar nuevamente",
+      );
 
       // Retroceder al paso anterior
       back();
@@ -200,7 +237,7 @@ const DriverMatching: React.FC = () => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -241,7 +278,9 @@ const DriverMatching: React.FC = () => {
           className="bg-gray-50 rounded-xl p-6 w-full max-w-sm mb-8"
         >
           <View className="flex-row justify-between items-center mb-3">
-            <Text className="font-JakartaMedium text-gray-600">Tiempo restante</Text>
+            <Text className="font-JakartaMedium text-gray-600">
+              Tiempo restante
+            </Text>
             <Text className="font-JakartaBold text-primary-600 text-lg">
               {formatTime(timeLeft)}
             </Text>
@@ -266,35 +305,25 @@ const DriverMatching: React.FC = () => {
           style={{ opacity: fadeAnim }}
           className="bg-blue-50 rounded-xl p-4 w-full max-w-sm mb-8"
         >
-          <Text className="font-JakartaBold text-blue-800 mb-2">💡 Consejos</Text>
+          <Text className="font-JakartaBold text-blue-800 mb-2">
+            💡 Consejos
+          </Text>
           <Text className="font-Jakarta text-blue-700 text-sm">
-            • Más conductores estarán disponibles pronto{'\n'}
-            • Puedes cancelar y modificar tu pedido{'\n'}
-            • Te notificaremos cuando encontremos uno
+            • Más conductores estarán disponibles pronto{"\n"}• Puedes cancelar
+            y modificar tu pedido{"\n"}• Te notificaremos cuando encontremos uno
           </Text>
         </Animated.View>
 
         {/* Cancel Button */}
         <Animated.View style={{ opacity: fadeAnim }}>
-          <TouchableOpacity
+          <Button
+            variant="secondary"
+            title={isCancelling ? "Cancelando..." : "Cancelar búsqueda"}
             onPress={handleCancelMatching}
             disabled={isCancelling}
-            className="bg-gray-100 rounded-xl px-8 py-4"
-            activeOpacity={0.7}
-          >
-            {isCancelling ? (
-              <View className="flex-row items-center">
-                <ActivityIndicator size="small" color="#6B7280" />
-                <Text className="font-JakartaMedium text-gray-600 ml-2">
-                  Cancelando...
-                </Text>
-              </View>
-            ) : (
-              <Text className="font-JakartaMedium text-gray-600">
-                Cancelar búsqueda
-              </Text>
-            )}
-          </TouchableOpacity>
+            className="rounded-xl px-8 py-4"
+            loading={isCancelling}
+          />
         </Animated.View>
       </View>
     </View>

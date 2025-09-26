@@ -1,6 +1,7 @@
 import React from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity } from "react-native";
 
+import { Card } from "@/components/ui";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { AVAILABLE_SERVICES } from "@/lib/unified-flow/constants";
 
@@ -31,8 +32,7 @@ const ServiceSelection: React.FC = () => {
                 );
                 startService(service.id, role);
               }}
-              className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
-              activeOpacity={0.7}
+              className="bg-white"
             >
               <View className="flex-row items-center">
                 <Text className="text-3xl mr-3">{service.icon}</Text>

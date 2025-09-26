@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
 import { errandClient } from "@/app/services/flowClientService";
 import ChatModal from "@/components/ChatModal";
 import { useUI } from "@/components/UIWrapper";
@@ -28,32 +29,28 @@ const MandadoCommsAndConfirm: React.FC = () => {
       />
 
       <View className="px-5 mt-4 space-y-3">
-        <View className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <Card className="bg-white">
           <Text className="font-JakartaMedium text-gray-700">
             Detalles del conductor
           </Text>
           <Text className="font-Jakarta text-gray-600 mt-1">
             (Demo) Datos y estado del conductor asignado.
           </Text>
-        </View>
+        </Card>
 
-        <TouchableOpacity
+        <Button
+          variant="primary"
+          title="Abrir chat"
           onPress={() => setChatOpen(true)}
-          className="bg-primary-500 rounded-xl p-4"
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Abrir chat
-          </Text>
-        </TouchableOpacity>
+          className="rounded-xl p-4"
+        />
 
-        <TouchableOpacity
+        <Button
+          variant="success"
+          title="Confirmar mandado"
           onPress={handleConfirm}
-          className="bg-green-500 rounded-xl p-4"
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Confirmar mandado
-          </Text>
-        </TouchableOpacity>
+          className="rounded-xl p-4"
+        />
       </View>
 
       <ChatModal
@@ -66,18 +63,16 @@ const MandadoCommsAndConfirm: React.FC = () => {
       />
 
       <View className="px-5 pb-4 mt-2">
-        <TouchableOpacity
-          className="rounded-xl p-4 bg-red-500"
+        <Button
+          variant="danger"
+          title="Cancelar mandado"
           onPress={async () => {
             const id = errandId || 301;
             await errandClient.cancel(id);
             showSuccess("Mandado cancelado", "Se canceló tu mandado");
           }}
-        >
-          <Text className="text-white font-JakartaBold text-center">
-            Cancelar mandado
-          </Text>
-        </TouchableOpacity>
+          className="rounded-xl p-4"
+        />
       </View>
     </View>
   );

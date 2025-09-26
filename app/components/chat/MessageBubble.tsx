@@ -121,7 +121,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                 textAlign: "center",
               }}
             >
-              {message.message}
+              {message.messageText}
             </Text>
           </View>
         );
@@ -135,7 +135,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               lineHeight: 22,
             }}
           >
-            {message.message}
+              {message.messageText}
           </Text>
         );
     }
@@ -193,7 +193,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               marginRight: 4,
             }}
           >
-            {formatTimestamp(message.timestamp)}
+            {formatTimestamp(message.timestamp || new Date())}
           </Text>
 
           {getMessageStatusIcon()}

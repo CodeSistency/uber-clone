@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { View, Text, ScrollView, Alert } from "react-native";
 
 import { driverTransportService } from "@/app/services/driverTransportService";
-import CustomButton from "@/components/CustomButton";
+import { Button, Card, Badge } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -43,7 +43,7 @@ const DriverTransportAcceptReject: React.FC = () => {
         // For now, call without driverId - backend should know from auth token
         const response = await driverTransportService.getPendingRequests(
           driverState.currentLocation?.lat || 0,
-          driverState.currentLocation?.lng || 0
+          driverState.currentLocation?.lng || 0,
         );
         const pendingRequests = response?.data || [];
 
@@ -121,7 +121,7 @@ const DriverTransportAcceptReject: React.FC = () => {
         destination_latitude: 0,
         destination_longitude: 0,
         fare_price: request.farePrice,
-        user_id: parseInt(request.passenger.phone.replace(/\D/g, '')) || 0, // Usar teléfono como ID temporal
+        user_id: parseInt(request.passenger.phone.replace(/\D/g, "")) || 0, // Usar teléfono como ID temporal
         driver_id: 0, // TODO: Obtener ID del conductor actual
         created_at: request.requestedAt,
         ride_time: 0, // TODO: Calcular tiempo real
@@ -234,7 +234,8 @@ const DriverTransportAcceptReject: React.FC = () => {
           <Text className="font-JakartaMedium text-lg text-gray-600 mb-4">
             No hay solicitudes disponibles en este momento
           </Text>
-          <CustomButton
+          <Button
+            variant="primary"
             title="Volver a disponibilidad"
             onPress={() =>
               startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD)
@@ -341,33 +342,33 @@ const DriverTransportAcceptReject: React.FC = () => {
 
         {/* Botones de acción */}
         <View className="space-y-3">
-          <CustomButton
+          <Button
+            variant="success"
             title={loading ? "Aceptando..." : "Aceptar viaje"}
             onPress={handleAccept}
             loading={loading}
-            bgVariant="success"
             className="w-full"
             disabled={loading}
           />
 
-          <CustomButton
+          <Button
+            variant="danger"
             title={loading ? "Rechazando..." : "Rechazar viaje"}
             onPress={showRejectReasonDialog}
             loading={loading}
-            bgVariant="danger"
             className="w-full"
             disabled={loading}
           />
         </View>
 
         {/* Información adicional */}
-        <View className="mt-6 p-4 bg-gray-50 rounded-lg">
+        <Card className="mt-6 bg-gray-50">
           <Text className="font-JakartaMedium text-sm text-gray-600 text-center">
             Recuerda que al aceptar un viaje te comprometes a recoger al
             pasajero. Si no puedes completar el viaje, cancélalo lo antes
             posible.
           </Text>
-        </View>
+        </Card>
       </ScrollView>
     </View>
   );

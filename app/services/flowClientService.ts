@@ -11,10 +11,10 @@ export interface LocationData {
 
 export interface DeliveryOrderData {
   storeId: number;
-  items: Array<{
+  items: {
     productId: number;
     quantity: number;
-  }>;
+  }[];
   deliveryAddress: string;
   deliveryLatitude: number;
   deliveryLongitude: number;
@@ -142,11 +142,11 @@ export const transportClient = {
     rideId: number,
     data: {
       totalAmount: number;
-      payments: Array<{
+      payments: {
         method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
         amount: number;
         bankCode?: string;
-      }>;
+      }[];
     },
   ) {
     console.log(

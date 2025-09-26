@@ -123,15 +123,20 @@ export const driverTransportService = {
     } as any);
   },
 
-
   // ===== GESTIÓN DE SOLICITUDES =====
 
-  getPendingRequests: async (lat: number, lng: number): Promise<{ data: PendingRequest[] }> => {
+  getPendingRequests: async (
+    lat: number,
+    lng: number,
+  ): Promise<{ data: PendingRequest[] }> => {
     const queryParams = `?lat=${lat}&lng=${lng}`;
-    return fetchAPI(`rides/flow/driver/transport/pending-requests${queryParams}`, {
-      requiresAuth: true,
-      skipApiPrefix: true,
-    } as any);
+    return fetchAPI(
+      `rides/flow/driver/transport/pending-requests${queryParams}`,
+      {
+        requiresAuth: true,
+        skipApiPrefix: true,
+      } as any,
+    );
   },
 
   respondToRequest: async (
@@ -317,10 +322,15 @@ export const driverTransportService = {
 
   // ===== ACTUALIZACIÓN DE UBICACIÓN GPS =====
 
-  updateDriverLocation: async (location: { lat: number; lng: number; accuracy?: number; speed?: number }) => {
+  updateDriverLocation: async (location: {
+    lat: number;
+    lng: number;
+    accuracy?: number;
+    speed?: number;
+  }) => {
     console.log("[DriverTransportService] 📍 updateDriverLocation called:", {
       location,
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
     });
 
     try {
@@ -337,7 +347,7 @@ export const driverTransportService = {
       console.log("[DriverTransportService] ✅ updateDriverLocation success:", {
         status: result?.status,
         hasData: !!result?.data,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
 
       return result;
@@ -345,12 +355,11 @@ export const driverTransportService = {
       console.error("[DriverTransportService] ❌ updateDriverLocation error:", {
         error: error instanceof Error ? error.message : String(error),
         location,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
       throw error;
     }
   },
-
 
   // ===== ENDPOINTS ORIGINALES (MANTENIDOS POR COMPATIBILIDAD) =====
 

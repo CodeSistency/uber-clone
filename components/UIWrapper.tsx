@@ -18,6 +18,9 @@ import {
 } from "react-native-gesture-handler";
 
 import { useUIStore } from "@/store";
+import { useSplashStore } from "@/store";
+
+import MiniSplash from "./MiniSplash";
 
 interface UIWrapperProps {
   children: React.ReactNode;
@@ -713,6 +716,9 @@ export const UIWrapper: React.FC<UIWrapperProps> = ({
     loadTheme,
   } = useUIStore();
 
+  // Splash store state
+  const { activeSplash, isVisible } = useSplashStore();
+
   // Load saved theme once
   useEffect(() => {
     loadTheme();
@@ -732,6 +738,17 @@ export const UIWrapper: React.FC<UIWrapperProps> = ({
 
       {/* Global Loading Overlay */}
       {showGlobalLoading && <GlobalLoadingOverlay />}
+
+      {/* Mini Splash Screen */}
+      {activeSplash && isVisible && (
+        <MiniSplash
+          config={activeSplash}
+          onComplete={() => {
+            // Auto-complete handled by splash store
+          }}
+          visible={isVisible}
+        />
+      )}
 
       {/* Toast Notifications */}
       <View className="absolute top-0 left-0 right-0 z-50 pt-12">

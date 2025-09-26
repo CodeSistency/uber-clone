@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
-import { icons } from "@/constants";
 
 import { websocketService } from "@/app/services/websocketService";
+import { icons } from "@/constants";
 
 interface WebSocketStatusCardProps {
   showMetrics?: boolean;
@@ -11,7 +11,7 @@ interface WebSocketStatusCardProps {
 
 const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
   showMetrics = false,
-  className = ""
+  className = "",
 }) => {
   const [metrics, setMetrics] = useState(websocketService.getMetrics());
   const [health, setHealth] = useState(websocketService.getHealth());
@@ -80,7 +80,9 @@ const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
   };
 
   return (
-    <View className={`bg-white dark:bg-brand-primaryDark rounded-xl p-4 border border-gray-200 dark:border-gray-700 ${className}`}>
+    <View
+      className={`bg-white dark:bg-brand-primaryDark rounded-xl p-4 border border-gray-200 dark:border-gray-700 ${className}`}
+    >
       {/* Header */}
       <TouchableOpacity
         onPress={() => setIsExpanded(!isExpanded)}
@@ -112,11 +114,20 @@ const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
       {/* Basic Info */}
       <View className="mt-3 flex-row justify-between items-center">
         <Text className="text-sm text-gray-600 dark:text-gray-400">
-          Estado: <Text className="font-JakartaMedium" style={{ color: getStatusColor() }}>
-            {health.status === "excellent" ? "Excelente" :
-             health.status === "good" ? "Bueno" :
-             health.status === "fair" ? "Regular" :
-             health.status === "poor" ? "Deficiente" : "Crítico"}
+          Estado:{" "}
+          <Text
+            className="font-JakartaMedium"
+            style={{ color: getStatusColor() }}
+          >
+            {health.status === "excellent"
+              ? "Excelente"
+              : health.status === "good"
+                ? "Bueno"
+                : health.status === "fair"
+                  ? "Regular"
+                  : health.status === "poor"
+                    ? "Deficiente"
+                    : "Crítico"}
           </Text>
         </Text>
 
@@ -131,7 +142,10 @@ const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
       {health.issues.length > 0 && (
         <View className="mt-2">
           {health.issues.map((issue, index) => (
-            <Text key={index} className="text-xs text-red-600 dark:text-red-400">
+            <Text
+              key={index}
+              className="text-xs text-red-600 dark:text-red-400"
+            >
               • {issue}
             </Text>
           ))}

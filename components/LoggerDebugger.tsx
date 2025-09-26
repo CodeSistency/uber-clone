@@ -1,7 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, TextInput, Alert } from 'react-native';
-import { logger, LogLevel, LogEntry } from '@/lib/logger';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+import { logger, LogLevel, LogEntry } from "@/lib/logger";
 
 interface LoggerDebuggerProps {
   isVisible?: boolean;
@@ -10,11 +18,11 @@ interface LoggerDebuggerProps {
 
 export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
   isVisible = false,
-  onClose
+  onClose,
 }) => {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [filterLevel, setFilterLevel] = useState<LogLevel | undefined>();
-  const [filterCategory, setFilterCategory] = useState<string>('');
+  const [filterCategory, setFilterCategory] = useState<string>("");
   const [limit, setLimit] = useState(50);
   const [stats, setStats] = useState(logger.getStats());
 
@@ -26,7 +34,11 @@ export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
   }, [isVisible, filterLevel, filterCategory, limit]);
 
   const refreshLogs = () => {
-    const filteredLogs = logger.getLogs(filterLevel, filterCategory || undefined, limit);
+    const filteredLogs = logger.getLogs(
+      filterLevel,
+      filterCategory || undefined,
+      limit,
+    );
     setLogs(filteredLogs);
   };
 
@@ -35,49 +47,58 @@ export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
   };
 
   const clearLogs = () => {
-    Alert.alert(
-      'Clear Logs',
-      'Are you sure you want to clear all logs?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Clear',
-          style: 'destructive',
-          onPress: () => {
-            logger.clearLogs();
-            refreshLogs();
-            refreshStats();
-          }
-        }
-      ]
-    );
+    Alert.alert("Clear Logs", "Are you sure you want to clear all logs?", [
+      { text: "Cancel", style: "cancel" },
+      {
+        text: "Clear",
+        style: "destructive",
+        onPress: () => {
+          logger.clearLogs();
+          refreshLogs();
+          refreshStats();
+        },
+      },
+    ]);
   };
 
   const exportLogs = async () => {
     try {
       const logData = await logger.exportLogs();
-      Alert.alert('Logs Exported', 'Logs have been exported to console. Check your terminal for the full log data.');
-      console.log('=== UBER APP LOGS EXPORT ===');
+      Alert.alert(
+        "Logs Exported",
+        "Logs have been exported to console. Check your terminal for the full log data.",
+      );
+      console.log("=== UBER APP LOGS EXPORT ===");
       console.log(logData);
-      console.log('=== END LOGS EXPORT ===');
+      console.log("=== END LOGS EXPORT ===");
     } catch (error) {
-      Alert.alert('Export Failed', 'Failed to export logs');
+      Alert.alert("Export Failed", "Failed to export logs");
     }
   };
 
   const getLevelColor = (level: LogLevel) => {
     switch (level) {
-      case LogLevel.DEBUG: return 'text-gray-500';
-      case LogLevel.INFO: return 'text-blue-500';
-      case LogLevel.WARN: return 'text-yellow-500';
-      case LogLevel.ERROR: return 'text-red-500';
-      case LogLevel.CRITICAL: return 'text-red-700';
-      default: return 'text-gray-500';
+      case LogLevel.DEBUG:
+        return "text-gray-500";
+      case LogLevel.INFO:
+        return "text-blue-500";
+      case LogLevel.WARN:
+        return "text-yellow-500";
+      case LogLevel.ERROR:
+        return "text-red-500";
+      case LogLevel.CRITICAL:
+        return "text-red-700";
+      default:
+        return "text-gray-500";
     }
   };
 
   const formatTimestamp = (timestamp: Date) => {
-    return timestamp.toLocaleTimeString() + '.' + timestamp.getMilliseconds().toString().padStart(3, '0');
+    return (
+      timestamp.toLocaleTimeString() +
+      "." +
+      timestamp.getMilliseconds().toString().padStart(3, "0")
+    );
   };
 
   if (!isVisible) return null;
@@ -102,7 +123,10 @@ export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
           <View className="flex-row flex-wrap">
             <Text className="text-white mr-4">Total: {stats.total}</Text>
             {Object.entries(stats.byLevel).map(([level, count]) => (
-              <Text key={level} className={`mr-4 ${getLevelColor(LogLevel[level as keyof typeof LogLevel])}`}>
+              <Text
+                key={level}
+                className={`mr-4 ${getLevelColor(LogLevel[level as keyof typeof LogLevel])}`}
+              >
                 {level}: {count}
               </Text>
             ))}
@@ -119,19 +143,23 @@ export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
               <TouchableOpacity
                 onPress={() => setFilterLevel(undefined)}
-                className={`mr-2 px-2 py-1 rounded ${!filterLevel ? 'bg-blue-500' : 'bg-gray-600'}`}
+                className={`mr-2 px-2 py-1 rounded ${!filterLevel ? "bg-blue-500" : "bg-gray-600"}`}
               >
                 <Text className="text-white text-xs">ALL</Text>
               </TouchableOpacity>
-              {Object.values(LogLevel).filter(v => typeof v === 'number').map((level) => (
-                <TouchableOpacity
-                  key={level}
-                  onPress={() => setFilterLevel(level as LogLevel)}
-                  className={`mr-2 px-2 py-1 rounded ${filterLevel === level ? 'bg-blue-500' : 'bg-gray-600'}`}
-                >
-                  <Text className="text-white text-xs">{LogLevel[level]}</Text>
-                </TouchableOpacity>
-              ))}
+              {Object.values(LogLevel)
+                .filter((v) => typeof v === "number")
+                .map((level) => (
+                  <TouchableOpacity
+                    key={level}
+                    onPress={() => setFilterLevel(level as LogLevel)}
+                    className={`mr-2 px-2 py-1 rounded ${filterLevel === level ? "bg-blue-500" : "bg-gray-600"}`}
+                  >
+                    <Text className="text-white text-xs">
+                      {LogLevel[level]}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
             </ScrollView>
           </View>
 
@@ -186,7 +214,9 @@ export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
         {/* Logs */}
         <ScrollView className="flex-1 bg-gray-900 rounded">
           {logs.length === 0 ? (
-            <Text className="text-gray-500 text-center py-8">No logs found</Text>
+            <Text className="text-gray-500 text-center py-8">
+              No logs found
+            </Text>
           ) : (
             logs.map((log) => (
               <View key={log.id} className="border-b border-gray-700 p-2">

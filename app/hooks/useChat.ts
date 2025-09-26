@@ -4,6 +4,7 @@ import { useChatStore } from "../../store";
 import { LocationData } from "../../types/type";
 import { chatStorage } from "../lib/storage";
 import { chatService } from "../services/chatService";
+import { log } from "../../lib/logger";
 
 export const useChat = (rideId: number | null, orderId?: number | null) => {
   const {
@@ -34,12 +35,18 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
           setActiveChat(orderId); // Using orderId as chat ID for compatibility
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Failed to load chat';
-        log.error('useChat', 'Failed to initialize chat', {
-          rideId,
-          orderId,
-          error: errorMessage
-        }, error);
+        const errorMessage =
+          error instanceof Error ? error.message : "Failed to load chat";
+        log.error(
+          "useChat",
+          "Failed to initialize chat",
+          {
+            rideId,
+            orderId,
+            error: errorMessage,
+          },
+          error instanceof Error ? error : undefined,
+        );
         setError(errorMessage);
       }
     };
@@ -55,7 +62,10 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         setError(null);
 
         // Load from local storage first
-        const cachedMessages = await chatStorage.getChatHistory(chatRideId, 'ride');
+        const cachedMessages = await chatStorage.getChatHistory(
+          chatRideId,
+          "ride",
+        );
         if (cachedMessages.length > 0) {
           loadMessages(chatRideId, cachedMessages);
         }
@@ -65,10 +75,13 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         if (freshMessages.length !== cachedMessages.length) {
           loadMessages(chatRideId, freshMessages);
           // Update cache
-          await chatStorage.saveChatHistory(chatRideId, freshMessages, 'ride');
+          await chatStorage.saveChatHistory(chatRideId, freshMessages, "ride");
         }
       } catch (error) {
-        console.error("[useChat] Failed to load chat history:", error);
+        log.error("useChat", "Failed to load chat history", {
+          rideId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }, error instanceof Error ? error : undefined);
         setError(
           error instanceof Error ? error.message : "Failed to load messages",
         );
@@ -87,23 +100,36 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         setError(null);
 
         // Load from local storage first
-        const cachedMessages = await chatStorage.getChatHistory(chatOrderId, 'order');
+        const cachedMessages = await chatStorage.getChatHistory(
+          chatOrderId,
+          "order",
+        );
         if (cachedMessages.length > 0) {
           loadMessages(chatOrderId, cachedMessages);
         }
 
         // Load from API
-        const freshMessages = await chatService.loadOrderMessageHistory(chatOrderId);
+        const freshMessages =
+          await chatService.loadOrderMessageHistory(chatOrderId);
         if (freshMessages.length !== cachedMessages.length) {
           loadMessages(chatOrderId, freshMessages);
           // Update cache
-          await chatStorage.saveChatHistory(chatOrderId, freshMessages, 'order');
+          await chatStorage.saveChatHistory(
+            chatOrderId,
+            freshMessages,
+            "order",
+          );
         }
       } catch (error) {
-        log.error('useChat', 'Failed to load order chat history', {
-          orderId: chatOrderId,
-          error: error.message
-        }, error);
+        log.error(
+          "useChat",
+          "Failed to load order chat history",
+          {
+            orderId: chatOrderId,
+            error: (error as Error)?.message,
+          },
+          error instanceof Error ? error : undefined,
+        );
         setError(
           error instanceof Error ? error.message : "Failed to load messages",
         );
@@ -130,24 +156,32 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         if (rideId) {
           sentMessage = await chatService.sendMessage(rideId, messageText);
         } else if (orderId) {
-          sentMessage = await chatService.sendMessageToOrder(orderId, messageText);
+          sentMessage = await chatService.sendMessageToOrder(
+            orderId,
+            messageText,
+          );
         }
 
-        log.info('useChat', 'Message sent successfully', {
-          messageId: sentMessage.id,
+        log.info("useChat", "Message sent successfully", {
+          messageId: sentMessage?.id,
           rideId,
           orderId,
-          messageLength: messageText.length
+          messageLength: messageText.length,
         });
 
         // Message is already added to store by chatService
         // WebSocket will broadcast to other participants
       } catch (error) {
-        log.error('useChat', 'Failed to send message', {
-          rideId,
-          orderId,
-          error: error.message
-        }, error);
+        log.error(
+          "useChat",
+          "Failed to send message",
+          {
+            rideId,
+            orderId,
+            error: (error as Error)?.message,
+          },
+          error instanceof Error ? error : undefined,
+        );
         setError(
           error instanceof Error ? error.message : "Failed to send message",
         );
@@ -169,7 +203,10 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         setError(null);
         await chatService.shareLocation(rideId, location);
       } catch (error) {
-        console.error("[useChat] Failed to share location:", error);
+        log.error("useChat", "Failed to share location", {
+          rideId,
+          error: error instanceof Error ? error.message : "Failed to share location",
+        }, error instanceof Error ? error : undefined);
         setError(
           error instanceof Error ? error.message : "Failed to share location",
         );
@@ -186,7 +223,10 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
     try {
       await chatService.markMessagesRead(rideId);
     } catch (error) {
-      console.error("[useChat] Failed to mark messages as read:", error);
+      log.error("useChat", "Failed to mark messages as read", {
+        rideId,
+        error: error instanceof Error ? error.message : "Failed to mark messages as read",
+      }, error instanceof Error ? error : undefined);
       setError(
         error instanceof Error
           ? error.message
@@ -209,7 +249,7 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
   // Clear chat
   const clearChatHistory = useCallback(async () => {
     const chatId = rideId || orderId;
-    const chatType = rideId ? 'ride' : 'order';
+    const chatType = rideId ? "ride" : "order";
 
     if (!chatId) return;
 
@@ -217,11 +257,16 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
       await chatStorage.clearChatHistory(chatId, chatType);
       clearChat(chatId);
     } catch (error) {
-      log.error('useChat', 'Failed to clear chat', {
-        chatId,
-        chatType,
-        error: error.message
-      }, error);
+      log.error(
+        "useChat",
+        "Failed to clear chat",
+        {
+          chatId,
+          chatType,
+            error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       setError(error instanceof Error ? error.message : "Failed to clear chat");
     }
   }, [rideId, orderId, clearChat]);
@@ -265,7 +310,7 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
     unreadCount: currentUnreadCount,
     totalUnreadCount,
     isActive: activeChat === chatId,
-    chatType: rideId ? 'ride' : orderId ? 'order' : null,
+    chatType: rideId ? "ride" : orderId ? "order" : null,
     rideId,
     orderId,
 

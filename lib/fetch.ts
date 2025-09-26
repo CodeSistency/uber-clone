@@ -1,21 +1,155 @@
 import { useState, useEffect, useCallback } from "react";
 import { router } from "expo-router";
 import { maybeMockResponse, simulateLatency, maybeFail } from '@/lib/dev';
+import { endpoints } from '@/lib/endpoints';
 
-// Base URL for the new backend API
-const API_BASE_URL = `${process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000"}/api`;
+// Advanced retry system
+interface RetryConfig {
+  maxRetries: number;
+  baseDelay: number;
+  maxDelay: number;
+  backoffFactor: number;
+  retryableStatusCodes: number[];
+}
+
+const defaultRetryConfig: RetryConfig = {
+  maxRetries: 3,
+  baseDelay: 1000,
+  maxDelay: 10000,
+  backoffFactor: 2,
+  retryableStatusCodes: [408, 429, 500, 502, 503, 504]
+};
+
+interface QueuedRequest {
+  id: string;
+  url: string;
+  options: RequestInit;
+  retryCount: number;
+  timestamp: number;
+  resolve: (value: any) => void;
+  reject: (error: any) => void;
+}
+
+// Request queue for intelligent retries
+const requestQueue: QueuedRequest[] = [];
+let isProcessingQueue = false;
 
 // Track if we're currently refreshing token to avoid multiple refresh attempts
 let isRefreshingToken = false;
 let refreshPromise: Promise<any> | null = null;
 
-export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean; skipApiPrefix?: boolean }) => {
+// Intelligent retry utilities
+function calculateRetryDelay(retryCount: number, config: RetryConfig = defaultRetryConfig): number {
+  const delay = config.baseDelay * Math.pow(config.backoffFactor, retryCount);
+  return Math.min(delay, config.maxDelay);
+}
+
+function shouldRetry(error: any, retryCount: number, config: RetryConfig = defaultRetryConfig): boolean {
+  if (retryCount >= config.maxRetries) {
+    return false;
+  }
+
+  // Retry on network errors
+  if (error.name === 'TypeError' && error.message.includes('fetch')) {
+    return true;
+  }
+
+  // Retry on specific HTTP status codes
+  if (error.statusCode && config.retryableStatusCodes.includes(error.statusCode)) {
+    return true;
+  }
+
+  // Retry on token expiration (401) if we can refresh
+  if (error.statusCode === 401) {
+    return true;
+  }
+
+  return false;
+}
+
+async function processRequestQueue(): Promise<void> {
+  if (isProcessingQueue || requestQueue.length === 0) {
+    return;
+  }
+
+  isProcessingQueue = true;
+
+  while (requestQueue.length > 0) {
+    const queuedRequest = requestQueue.shift();
+    if (!queuedRequest) continue;
+
+    try {
+      console.log(`[RequestQueue] Processing queued request: ${queuedRequest.id}`);
+
+      // Calculate delay based on retry count
+      if (queuedRequest.retryCount > 0) {
+        const delay = calculateRetryDelay(queuedRequest.retryCount - 1);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+
+      // Execute the request
+      const response = await makeRequest(queuedRequest.url, queuedRequest.options);
+      queuedRequest.resolve(response);
+
+    } catch (error) {
+      console.error(`[RequestQueue] Request ${queuedRequest.id} failed:`, error);
+
+      // Check if we should retry
+      if (shouldRetry(error, queuedRequest.retryCount)) {
+        console.log(`[RequestQueue] Retrying request ${queuedRequest.id} (attempt ${queuedRequest.retryCount + 1})`);
+
+        // Re-queue with incremented retry count
+        const retryRequest: QueuedRequest = {
+          ...queuedRequest,
+          retryCount: queuedRequest.retryCount + 1,
+          timestamp: Date.now()
+        };
+
+        // Add back to front of queue for immediate retry
+        requestQueue.unshift(retryRequest);
+
+        // Add delay before next attempt
+        const delay = calculateRetryDelay(retryRequest.retryCount - 1);
+        await new Promise(resolve => setTimeout(resolve, delay));
+
+        continue; // Don't reject yet, try again
+      }
+
+      // Max retries reached or non-retryable error
+      queuedRequest.reject(error);
+    }
+  }
+
+  isProcessingQueue = false;
+}
+
+function queueRequest(url: string, options: RequestInit): Promise<any> {
+  return new Promise((resolve, reject) => {
+    const queuedRequest: QueuedRequest = {
+      id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      url,
+      options,
+      retryCount: 0,
+      timestamp: Date.now(),
+      resolve,
+      reject
+    };
+
+    requestQueue.push(queuedRequest);
+    console.log(`[RequestQueue] Request queued: ${queuedRequest.id}`);
+
+    // Start processing queue
+    processRequestQueue();
+  });
+}
+
+// Core request function (extracted for reuse)
+async function makeRequest(url: string, options: RequestInit): Promise<any> {
   const startMs = Date.now();
-  const fullUrl = endpoint.startsWith('http') ? endpoint : options?.skipApiPrefix ? `${process.env.EXPO_PUBLIC_SERVER_URL || "https://gnuhealth-back.alcaravan.com.ve"}/${endpoint}` : `${API_BASE_URL}/${endpoint}`;
 
   // Dev mock path (only for relative endpoints)
-  if (!endpoint.startsWith('http')) {
-    const mock = await maybeMockResponse((options?.method || 'GET').toUpperCase(), endpoint, options?.body);
+  if (!url.startsWith('http')) {
+    const mock = await maybeMockResponse((options?.method || 'GET').toUpperCase(), url, options?.body);
     if (mock) {
       return mock;
     }
@@ -23,7 +157,7 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
 
   // Add authentication headers if required
   let headers = { ...options?.headers };
-  if (options?.requiresAuth) {
+  if ((options as any)?.requiresAuth) {
     // Lazy import to avoid circular dependency
     const { tokenManager } = require("./auth");
     const authHeaders = await tokenManager.getAuthHeaders();
@@ -36,8 +170,7 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
   };
 
   console.log("[fetchAPI] ▶ Request", {
-    endpoint,
-    fullUrl,
+    url,
     options: requestOptions,
     bodyContent: options?.body && typeof options.body === 'string' ? (() => {
       try {
@@ -51,10 +184,9 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
   try {
     await simulateLatency();
     maybeFail();
-    const response = await fetch(fullUrl, requestOptions);
+    const response = await fetch(url, requestOptions);
     console.log("[fetchAPI] ◀ ResponseMeta", {
-      endpoint,
-      fullUrl,
+      url,
       ok: response.ok,
       status: response.status,
       statusText: response.statusText,
@@ -67,16 +199,16 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
         body = JSON.parse(textResponse);
       }
     } catch (parseError) {
-      console.log("[fetchAPI] ⚠ Non-JSON response", { endpoint, fullUrl });
+      console.log("[fetchAPI] ⚠ Non-JSON response", { url });
       body = { message: "Non-JSON response received" };
     }
 
-    console.log("[fetchAPI] ◀ Body", { endpoint, fullUrl, body });
+    console.log("[fetchAPI] ◀ Body", { url, body });
 
     // Handle new backend response structure
     if (!response.ok) {
       // Handle token expiration (401) - try to refresh token automatically
-      if (response.status === 401 && options?.requiresAuth) {
+      if (response.status === 401 && (options as any)?.requiresAuth) {
         console.log("[fetchAPI] 🔄 Token expired (401), attempting automatic refresh");
 
         try {
@@ -99,7 +231,7 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
               throw new Error("No refresh token available");
             }
 
-            refreshPromise = fetch(`${API_BASE_URL}/auth/refresh`, {
+            refreshPromise = fetch(endpoints.api.buildUrl('auth/refresh'), {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -121,12 +253,12 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
               // Retry the original request with new token
               console.log("[fetchAPI] 🔄 Retrying original request with new token");
               const newHeaders = { ...headers };
-              if (options?.requiresAuth) {
+              if ((options as any)?.requiresAuth) {
                 const authHeaders = await tokenManager.getAuthHeaders();
                 Object.assign(newHeaders, authHeaders);
               }
 
-              const retryResponse = await fetch(fullUrl, {
+              const retryResponse = await fetch(url, {
                 ...options,
                 headers: newHeaders
               });
@@ -190,22 +322,55 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
 
     return body;
   } catch (error) {
-    console.error("[fetchAPI] ✖ Error", { endpoint, fullUrl, error });
+    console.error("[fetchAPI] ✖ Error", { url, error });
 
     // Enhance error with backend-specific information
     if (error instanceof Error) {
       const enhancedError = error as any;
-      enhancedError.endpoint = endpoint;
-      enhancedError.fullUrl = fullUrl;
+      enhancedError.endpoint = url;
+      enhancedError.fullUrl = url;
     }
 
     throw error;
   } finally {
-    console.log("[fetchAPI] ⏱ DurationMs", { endpoint, fullUrl, ms: Date.now() - startMs });
+    console.log("[fetchAPI] ⏱ DurationMs", { url, ms: Date.now() - startMs });
   }
+}
+
+export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean; skipApiPrefix?: boolean; skipAuth?: boolean; useRetryQueue?: boolean; params?: Record<string, string> }) => {
+  // Build full URL using centralized endpoint system
+  let fullUrl: string;
+  if (endpoint.startsWith('http')) {
+    // External URL, use as-is
+    fullUrl = endpoint;
+  } else if (options?.skipApiPrefix) {
+    // Skip API prefix, build from server URL directly
+    const serverUrl = endpoints.api.baseUrl();
+    fullUrl = `${serverUrl}/${endpoint}`;
+  } else {
+    // Use API endpoint with version
+    fullUrl = endpoints.api.buildUrl(endpoint);
+  }
+
+  // Add query parameters if provided
+  if (options?.params && Object.keys(options.params).length > 0) {
+    const url = new URL(fullUrl);
+    Object.entries(options.params).forEach(([key, value]) => {
+      url.searchParams.append(key, value);
+    });
+    fullUrl = url.toString();
+  }
+
+  // Use intelligent retry queue if requested
+  if (options?.useRetryQueue) {
+    return queueRequest(fullUrl, options);
+  }
+
+  // Use direct request (existing behavior)
+  return makeRequest(fullUrl, options || {});
 };
 
-export const useFetch = <T>(endpoint: string | null, options?: RequestInit & { requiresAuth?: boolean }) => {
+export const useFetch = <T>(endpoint: string | null, options?: RequestInit & { requiresAuth?: boolean; skipAuth?: boolean; params?: Record<string, string> }) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

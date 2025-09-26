@@ -4,8 +4,8 @@ import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 import { transportClient } from "@/app/services/flowClientService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { useVehicleTiersStore } from "@/store";
 import { RideType } from "@/lib/unified-flow/constants";
+import { useVehicleTiersStore } from "@/store";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -32,9 +32,24 @@ const VEHICLE_TYPES = [
 ];
 
 const TransportVehicleSelection: React.FC = () => {
-  const { next, back, setRideId, confirmedOrigin, confirmedDestination, rideType, phoneNumber, setSelectedTierId, setSelectedVehicleTypeId } = useMapFlow() as any;
+  const {
+    next,
+    back,
+    setRideId,
+    confirmedOrigin,
+    confirmedDestination,
+    rideType,
+    phoneNumber,
+    setSelectedTierId,
+    setSelectedVehicleTypeId,
+  } = useMapFlow() as any;
   const { withUI, showError } = useUI();
-  const { tiers, loading: tiersLoading, error: tiersError, fetchTiers } = useVehicleTiersStore();
+  const {
+    tiers,
+    loading: tiersLoading,
+    error: tiersError,
+    fetchTiers,
+  } = useVehicleTiersStore();
   const [selectedTab, setSelectedTab] = useState<"car" | "motorcycle">("car");
   const [selectedVehicle, setSelectedVehicle] = useState<string>("");
   const [isProcessing, setIsProcessing] = useState(false);
@@ -42,10 +57,15 @@ const TransportVehicleSelection: React.FC = () => {
   // But if we don't have valid tiers, try to fetch them now
   React.useEffect(() => {
     const ensureTiersLoaded = async () => {
-      const hasValidTiers = tiers && ((tiers.car && tiers.car.length > 0) || (tiers.motorcycle && tiers.motorcycle.length > 0));
+      const hasValidTiers =
+        tiers &&
+        ((tiers.car && tiers.car.length > 0) ||
+          (tiers.motorcycle && tiers.motorcycle.length > 0));
 
       if (!hasValidTiers && !tiersLoading) {
-        console.log('[TransportVehicleSelection] No valid tiers found, forcing refresh from API');
+        console.log(
+          "[TransportVehicleSelection] No valid tiers found, forcing refresh from API",
+        );
         await fetchTiers();
       }
     };
@@ -55,10 +75,16 @@ const TransportVehicleSelection: React.FC = () => {
 
   // Get current tiers for the selected tab
   const currentTiers = tiers ? tiers[selectedTab] || [] : [];
-  console.log('[TransportVehicleSelection] Selected tab:', selectedTab);
-  console.log('[TransportVehicleSelection] Available tiers:', tiers);
-  console.log('[TransportVehicleSelection] Current tiers for selected tab:', currentTiers);
-  console.log('[TransportVehicleSelection] Current tiers length:', currentTiers.length);
+  console.log("[TransportVehicleSelection] Selected tab:", selectedTab);
+  console.log("[TransportVehicleSelection] Available tiers:", tiers);
+  console.log(
+    "[TransportVehicleSelection] Current tiers for selected tab:",
+    currentTiers,
+  );
+  console.log(
+    "[TransportVehicleSelection] Current tiers length:",
+    currentTiers.length,
+  );
 
   const handleContinue = async () => {
     if (!selectedVehicle) return;
@@ -72,7 +98,9 @@ const TransportVehicleSelection: React.FC = () => {
 
     try {
       const selectedTierId = parseInt(selectedVehicle);
-      const selectedTier = currentTiers.find(tier => tier.id === selectedTierId);
+      const selectedTier = currentTiers.find(
+        (tier) => tier.id === selectedTierId,
+      );
 
       if (!selectedTier) {
         showError("Error", "Tier seleccionado no encontrado");
@@ -88,10 +116,13 @@ const TransportVehicleSelection: React.FC = () => {
         destinationLat: confirmedDestination.latitude,
         destinationLng: confirmedDestination.longitude,
         minutes: 25, // TODO: Calculate based on actual distance/time
-        tierId: selectedTierId
+        tierId: selectedTierId,
       };
 
-      console.log("[TransportVehicleSelection] Creating ride with data:", rideData);
+      console.log(
+        "[TransportVehicleSelection] Creating ride with data:",
+        rideData,
+      );
 
       // Call API directly without withUI wrapper to handle response properly
       const result = await transportClient.defineRideFlow(rideData);
@@ -100,7 +131,10 @@ const TransportVehicleSelection: React.FC = () => {
       // Handle backend response structure: { data: { data: {...} }, message, statusCode, ... }
       if (result && result.data && result.data.data) {
         const rideInfo = result.data.data;
-        console.log("[TransportVehicleSelection] Ride created successfully:", rideInfo);
+        console.log(
+          "[TransportVehicleSelection] Ride created successfully:",
+          rideInfo,
+        );
 
         // Extract rideId from response (adjust based on actual structure)
         const rideId = rideInfo.id || rideInfo.rideId || rideInfo._id;
@@ -110,21 +144,31 @@ const TransportVehicleSelection: React.FC = () => {
 
           // Guardar configuración del viaje en el store para el matching
           setSelectedTierId(selectedTierId);
-          setSelectedVehicleTypeId(selectedTab === 'car' ? 1 : 2); // 1=car, 2=motorcycle
+          setSelectedVehicleTypeId(selectedTab === "car" ? 1 : 2); // 1=car, 2=motorcycle
 
-          console.log("[TransportVehicleSelection] Saved tier and vehicle type for matching:", {
-            tierId: selectedTierId,
-            vehicleTypeId: selectedTab === 'car' ? 1 : 2
-          });
+          console.log(
+            "[TransportVehicleSelection] Saved tier and vehicle type for matching:",
+            {
+              tierId: selectedTierId,
+              vehicleTypeId: selectedTab === "car" ? 1 : 2,
+            },
+          );
 
-          console.log("[TransportVehicleSelection] Navigating to payment methodology");
+          console.log(
+            "[TransportVehicleSelection] Navigating to payment methodology",
+          );
           next(); // Ahora irá a METODOLOGIA_PAGO según el SERVICE_FLOWS
         } else {
-          console.warn("[TransportVehicleSelection] No rideId found in response");
+          console.warn(
+            "[TransportVehicleSelection] No rideId found in response",
+          );
           showError("Error", "Viaje creado pero no se pudo obtener el ID");
         }
       } else {
-        console.error("[TransportVehicleSelection] Unexpected response structure:", result);
+        console.error(
+          "[TransportVehicleSelection] Unexpected response structure:",
+          result,
+        );
         showError("Error", "Respuesta del servidor inesperada");
       }
     } catch (error: any) {
@@ -167,13 +211,13 @@ const TransportVehicleSelection: React.FC = () => {
     );
   }
 
-  console.log('[TransportVehicleSelection] RENDER - Component state:', {
+  console.log("[TransportVehicleSelection] RENDER - Component state:", {
     tiers,
     tiersLoading,
     tiersError,
     selectedTab,
     currentTiers,
-    currentTiersLength: currentTiers.length
+    currentTiersLength: currentTiers.length,
   });
 
   return (
@@ -182,37 +226,42 @@ const TransportVehicleSelection: React.FC = () => {
 
       {/* Tabs - Use available vehicle types from tiers */}
       <View className="flex-row mb-4 bg-gray-100 rounded-lg p-1">
-        {tiers && Object.keys(tiers).map((vehicleType) => {
-          const isActive = selectedTab === vehicleType;
-          const tierCount = tiers[vehicleType as keyof typeof tiers]?.length || 0;
-          const vehicleTypeName = vehicleType === 'car' ? '🚗 Carro' : '🏍️ Moto';
+        {tiers &&
+          Object.keys(tiers).map((vehicleType) => {
+            const isActive = selectedTab === vehicleType;
+            const tierCount =
+              tiers[vehicleType as keyof typeof tiers]?.length || 0;
+            const vehicleTypeName =
+              vehicleType === "car" ? "🚗 Carro" : "🏍️ Moto";
 
-          console.log(`[TransportVehicleSelection] Tab ${vehicleType}:`, {
-            vehicleType,
-            isActive,
-            tierCount,
-            tiersForType: tiers[vehicleType as keyof typeof tiers],
-            vehicleTypeName
-          });
+            console.log(`[TransportVehicleSelection] Tab ${vehicleType}:`, {
+              vehicleType,
+              isActive,
+              tierCount,
+              tiersForType: tiers[vehicleType as keyof typeof tiers],
+              vehicleTypeName,
+            });
 
-          return (
-          <TouchableOpacity
-              key={vehicleType}
-              onPress={() => {
-                console.log(`[TransportVehicleSelection] Switching to tab: ${vehicleType}`);
-                setSelectedTab(vehicleType as "car" | "motorcycle");
-              }}
-            className={`flex-1 py-2 px-4 rounded-md ${
-                isActive ? "bg-white shadow-sm" : ""
-            }`}
-              activeOpacity={0.7}
-          >
-            <Text className="text-center font-JakartaMedium">
-                {vehicleTypeName} ({tierCount})
-            </Text>
-          </TouchableOpacity>
-          );
-        })}
+            return (
+              <TouchableOpacity
+                key={vehicleType}
+                onPress={() => {
+                  console.log(
+                    `[TransportVehicleSelection] Switching to tab: ${vehicleType}`,
+                  );
+                  setSelectedTab(vehicleType as "car" | "motorcycle");
+                }}
+                className={`flex-1 py-2 px-4 rounded-md ${
+                  isActive ? "bg-white shadow-sm" : ""
+                }`}
+                activeOpacity={0.7}
+              >
+                <Text className="text-center font-JakartaMedium">
+                  {vehicleTypeName} ({tierCount})
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
       </View>
 
       {/* Vehicle Options - Display tiers from API */}
@@ -220,40 +269,42 @@ const TransportVehicleSelection: React.FC = () => {
         <View className="px-5 pb-4">
           {currentTiers.length > 0 ? (
             currentTiers.map((tier) => (
-            <TouchableOpacity
+              <TouchableOpacity
                 key={tier.id}
                 onPress={() => setSelectedVehicle(tier.id.toString())}
                 className={`bg-white rounded-xl p-4 shadow-sm border-2 mb-3 ${
                   selectedVehicle === tier.id.toString()
-                  ? "border-primary-500 bg-primary-50"
-                  : "border-gray-100"
-              }`}
+                    ? "border-primary-500 bg-primary-50"
+                    : "border-gray-100"
+                }`}
                 activeOpacity={0.7}
-            >
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center flex-1">
-                  <Text className="text-2xl mr-3">
+              >
+                <View className="flex-row items-center justify-between">
+                  <View className="flex-row items-center flex-1">
+                    <Text className="text-2xl mr-3">
                       {tier.vehicleTypeIcon}
-                  </Text>
-                  <View className="flex-1">
-                    <Text className="font-JakartaBold text-lg text-gray-800">
-                        {tier.name}
                     </Text>
-                    <Text className="font-Jakarta text-sm text-gray-600">
-                        Base: ${Number(tier.baseFare).toFixed(2)} • Minuto: ${Number(tier.perMinuteRate).toFixed(2)} • Km: ${Number(tier.perMileRate).toFixed(2)}
+                    <View className="flex-1">
+                      <Text className="font-JakartaBold text-lg text-gray-800">
+                        {tier.name}
+                      </Text>
+                      <Text className="font-Jakarta text-sm text-gray-600">
+                        Base: ${Number(tier.baseFare).toFixed(2)} • Minuto: $
+                        {Number(tier.perMinuteRate).toFixed(2)} • Km: $
+                        {Number(tier.perMileRate).toFixed(2)}
+                      </Text>
+                    </View>
+                  </View>
+                  <View className="items-end">
+                    <Text className="font-JakartaBold text-xl text-primary-600">
+                      ${Number(tier.baseFare).toFixed(2)}
+                    </Text>
+                    <Text className="font-Jakarta text-xs text-gray-500">
+                      Base
                     </Text>
                   </View>
                 </View>
-                <View className="items-end">
-                  <Text className="font-JakartaBold text-xl text-primary-600">
-                      ${Number(tier.baseFare).toFixed(2)}
-                  </Text>
-                  <Text className="font-Jakarta text-xs text-gray-500">
-                      Base
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
+              </TouchableOpacity>
             ))
           ) : (
             <View className="items-center justify-center py-10">

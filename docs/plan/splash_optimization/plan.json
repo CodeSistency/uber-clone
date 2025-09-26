@@ -1,0 +1,569 @@
+{
+  "proyecto": "splash_optimization",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Análisis y Diseño del Sistema de Splash",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Análisis del Splash Actual",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Analizar la configuración actual del splash screen y el sistema de módulos",
+          "dependencias": ["app.json", "store/module/module.ts", "components/UIWrapper.tsx"],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Revisar configuración del splash en app.json",
+              "descripcion": "Analizar la configuración actual del splash principal en app.json y identificar limitaciones",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Examinar propiedades del splash actual",
+                  "descripcion": "Revisar imagen, resizeMode, backgroundColor y configuración por plataforma"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Evaluar compatibilidad con mini splashs",
+                  "descripcion": "Determinar si el splash actual puede coexistir con mini splashs"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Analizar sistema de módulos existente",
+              "descripcion": "Revisar el store de módulos y sistema de transiciones implementado",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Revisar ModuleStore y transiciones",
+                  "descripcion": "Analizar cómo funciona actualmente el cambio entre módulos (customer, driver, business)"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Identificar puntos de inyección para splash",
+                  "descripcion": "Encontrar dónde se pueden insertar los mini splashs durante las transiciones"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Evaluar capacidades del UIWrapper",
+              "descripcion": "Analizar el sistema de loading states y modales para compatibilidad con splashs",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Revisar GlobalLoadingOverlay",
+                  "descripcion": "Evaluar si se puede reutilizar para mini splashs"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Analizar sistema de animaciones",
+                  "descripcion": "Verificar capacidades de animaciones para transiciones de splash"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Diseño de Arquitectura de Splash",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Diseñar la arquitectura para mini splashs y optimizaciones del sistema de splash",
+          "dependencias": ["M1.1"],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Definir tipos y interfaces para splash",
+              "descripcion": "Crear interfaces TypeScript para diferentes tipos de splash screens",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Crear SplashType enum",
+                  "descripcion": "Definir tipos: 'main', 'module_transition', 'data_loading'"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Definir SplashConfig interface",
+                  "descripcion": "Interface para configuración de splash con imagen, texto, duración, acciones"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Diseñar sistema de splash store",
+              "descripcion": "Crear store Zustand para manejar el estado de splash screens",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Crear SplashStore interface",
+                  "descripcion": "Definir estado para splash activo, queue, configuración"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Implementar acciones del store",
+                  "descripcion": "showSplash, hideSplash, queueSplash, updateProgress"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Definir consultas importantes por módulo",
+              "descripcion": "Especificar qué datos se deben cargar durante cada transición de módulo",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Consultas para modo Driver",
+                  "descripcion": "Perfil del conductor, estado del vehículo, ubicación, disponibilidad"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Consultas para modo Business",
+                  "descripcion": "Perfil del negocio, productos, inventario, estadísticas"
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "Consultas para modo Customer",
+                  "descripcion": "Historial de viajes, preferencias, métodos de pago"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Implementación de Componentes Base",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Crear SplashStore",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar el store Zustand para manejo de splash screens",
+          "dependencias": ["M1.2"],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Crear archivo store/splash/splash.ts",
+              "descripcion": "Implementar el store principal para splash screens",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Definir SplashState interface",
+                  "descripcion": "Estado: activeSplash, splashQueue, isVisible, progress"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Implementar acciones básicas",
+                  "descripcion": "showSplash, hideSplash, setProgress, clearQueue"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Crear index.ts para el store",
+              "descripcion": "Exportar el store y tipos relacionados",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Actualizar store/index.ts",
+                  "descripcion": "Agregar export del SplashStore"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Crear Componente MiniSplash",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar componente para mini splash screens",
+          "dependencias": ["M2.1"],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Crear componente MiniSplash.tsx",
+              "descripcion": "Componente reutilizable para mostrar splash screens durante transiciones",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Implementar layout base",
+                  "descripcion": "Fondo, imagen, título, subtítulo, indicador de progreso"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Agregar animaciones de entrada/salida",
+                  "descripcion": "Transiciones suaves usando Animated API"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Crear variantes por módulo",
+              "descripcion": "Implementar versiones específicas para cada módulo (driver, business, customer)",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "DriverMiniSplash",
+                  "descripcion": "Splash específico para modo conductor con íconos de vehículo"
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "BusinessMiniSplash",
+                  "descripcion": "Splash específico para modo negocio con íconos comerciales"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.3",
+          "nombre": "Crear Servicio de Consultas por Módulo",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar servicio para manejar consultas importantes durante transiciones",
+          "dependencias": ["M1.2"],
+          "tareas": [
+            {
+              "id": "T2.3.1",
+              "nombre": "Crear ModuleDataService",
+              "descripcion": "Servicio para cargar datos críticos al cambiar de módulo",
+              "subtareas": [
+                {
+                  "id": "ST2.3.1.1",
+                  "nombre": "Implementar loadDriverData",
+                  "descripcion": "Cargar perfil conductor, vehículo, ubicación, estado"
+                },
+                {
+                  "id": "ST2.3.1.2",
+                  "nombre": "Implementar loadBusinessData",
+                  "descripcion": "Cargar perfil negocio, productos, estadísticas"
+                },
+                {
+                  "id": "ST2.3.1.3",
+                  "nombre": "Implementar loadCustomerData",
+                  "descripcion": "Cargar historial, preferencias, métodos de pago"
+                }
+              ]
+            },
+            {
+              "id": "T2.3.2",
+              "nombre": "Implementar sistema de prioridades",
+              "descripcion": "Sistema para determinar qué datos cargar primero",
+              "subtareas": [
+                {
+                  "id": "ST2.3.2.1",
+                  "nombre": "DataPriority enum",
+                  "descripcion": "CRITICAL, HIGH, MEDIUM, LOW"
+                },
+                {
+                  "id": "ST2.3.2.2",
+                  "nombre": "Queue system",
+                  "descripcion": "Sistema de cola para cargar datos en orden de prioridad"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Integración con Sistema de Módulos",
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Integrar Splash con ModuleStore",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Conectar el sistema de splash con las transiciones de módulo",
+          "dependencias": ["M2.1", "M2.2", "M2.3"],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Modificar ModuleStore para incluir splash",
+              "descripcion": "Actualizar store/module/module.ts para integrar splash screens",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Agregar splash state al ModuleState",
+                  "descripcion": "Incluir propiedades para controlar splash durante transiciones"
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Modificar setModule para mostrar splash",
+                  "descripcion": "Actualizar lógica de cambio de módulo para incluir splash"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Crear hook useModuleTransition",
+              "descripcion": "Hook personalizado para manejar transiciones con splash",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Implementar lógica de transición",
+                  "descripcion": "Mostrar splash, cargar datos, ocultar splash"
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "Manejo de errores",
+                  "descripcion": "Fallback si falla la carga de datos"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Actualizar UIWrapper para Splash",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Integrar componente MiniSplash en el UIWrapper",
+          "dependencias": ["M2.2"],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Agregar MiniSplash al UIWrapper",
+              "descripcion": "Integrar componente en el sistema de overlays del UIWrapper",
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Actualizar UIWrapper.tsx",
+                  "descripcion": "Agregar renderizado condicional de MiniSplash"
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Conectar con SplashStore",
+                  "descripcion": "Integrar estado del store en el componente"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.3",
+          "nombre": "Implementar Transiciones Específicas por Módulo",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear lógica específica para cada tipo de transición de módulo",
+          "dependencias": ["M3.1", "M3.2"],
+          "tareas": [
+            {
+              "id": "T3.3.1",
+              "nombre": "Transición Customer → Driver",
+              "descripcion": "Implementar splash y consultas para cambio a modo conductor",
+              "subtareas": [
+                {
+                  "id": "ST3.3.1.1",
+                  "nombre": "Configurar consultas críticas",
+                  "descripcion": "Perfil conductor, vehículo, ubicación GPS, estado de disponibilidad"
+                },
+                {
+                  "id": "ST3.3.1.2",
+                  "nombre": "Diseñar UI del splash",
+                  "descripcion": "Iconos de vehículo, mensajes de preparación"
+                }
+              ]
+            },
+            {
+              "id": "T3.3.2",
+              "nombre": "Transición Customer → Business",
+              "descripcion": "Implementar splash y consultas para cambio a modo negocio",
+              "subtareas": [
+                {
+                  "id": "ST3.3.2.1",
+                  "nombre": "Configurar consultas críticas",
+                  "descripcion": "Perfil negocio, productos activos, estadísticas de ventas"
+                },
+                {
+                  "id": "ST3.3.2.2",
+                  "nombre": "Diseñar UI del splash",
+                  "descripcion": "Iconos comerciales, mensajes de carga de inventario"
+                }
+              ]
+            },
+            {
+              "id": "T3.3.3",
+              "nombre": "Transición inversa (Driver/Business → Customer)",
+              "descripcion": "Implementar splash para retorno a modo cliente",
+              "subtareas": [
+                {
+                  "id": "ST3.3.3.1",
+                  "nombre": "Limpiar datos específicos del módulo",
+                  "descripcion": "Cerrar sesiones, limpiar cache específico"
+                },
+                {
+                  "id": "ST3.3.3.2",
+                  "nombre": "Diseñar UI del splash",
+                  "descripcion": "Mensajes de transición a modo cliente"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Optimización y Testing",
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Optimización de Performance",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Optimizar carga de datos y rendimiento del sistema de splash",
+          "dependencias": ["M3.3"],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Implementar carga paralela de datos",
+              "descripcion": "Optimizar consultas para cargar datos críticos en paralelo",
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Promise.all para consultas independientes",
+                  "descripcion": "Cargar datos no dependientes en paralelo"
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Sistema de prioridades",
+                  "descripcion": "Cargar datos críticos primero, luego opcionales"
+                }
+              ]
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Optimizar animaciones y transiciones",
+              "descripcion": "Mejorar fluidez de las animaciones de splash",
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "Usar useNativeDriver donde sea posible",
+                  "descripcion": "Optimizar animaciones para mejor performance"
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "Lazy loading de imágenes",
+                  "descripcion": "Cargar imágenes del splash de forma eficiente"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Testing y QA",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar tests y validación del sistema de splash",
+          "dependencias": ["M3.3"],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Crear tests unitarios",
+              "descripcion": "Tests para componentes y lógica del sistema de splash",
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Test SplashStore",
+                  "descripcion": "Probar acciones del store, estado, transiciones"
+                },
+                {
+                  "id": "ST4.2.1.2",
+                  "nombre": "Test MiniSplash component",
+                  "descripcion": "Probar renderizado, animaciones, props"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.2",
+              "nombre": "Crear tests de integración",
+              "descripcion": "Tests para transiciones completas de módulo",
+              "subtareas": [
+                {
+                  "id": "ST4.2.2.1",
+                  "nombre": "Test transiciones Customer ↔ Driver",
+                  "descripcion": "Probar cambio completo con splash y carga de datos"
+                },
+                {
+                  "id": "ST4.2.2.2",
+                  "nombre": "Test manejo de errores",
+                  "descripcion": "Probar fallos en carga de datos y recovery"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.3",
+              "nombre": "Testing manual y UX",
+              "descripcion": "Validar experiencia de usuario en diferentes escenarios",
+              "subtareas": [
+                {
+                  "id": "ST4.2.3.1",
+                  "nombre": "Test en diferentes velocidades de red",
+                  "descripcion": "Validar comportamiento con conexiones lentas"
+                },
+                {
+                  "id": "ST4.2.3.2",
+                  "nombre": "Test en diferentes dispositivos",
+                  "descripcion": "Validar en Android/iOS, diferentes tamaños de pantalla"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.3",
+          "nombre": "Documentación y Monitoreo",
+          "progreso": 100,
+          "prioridad": "Baja",
+          "descripcion": "Crear documentación y sistema de monitoreo para el sistema de splash",
+          "dependencias": ["M4.2"],
+          "tareas": [
+            {
+              "id": "T4.3.1",
+              "nombre": "Crear documentación técnica",
+              "descripcion": "Documentar arquitectura y uso del sistema de splash",
+              "subtareas": [
+                {
+                  "id": "ST4.3.1.1",
+                  "nombre": "README del sistema de splash",
+                  "descripcion": "Documentar cómo usar y configurar splash screens"
+                },
+                {
+                  "id": "ST4.3.1.2",
+                  "nombre": "API documentation",
+                  "descripcion": "Documentar hooks, stores y componentes"
+                }
+              ]
+            },
+            {
+              "id": "T4.3.2",
+              "nombre": "Implementar monitoreo",
+              "descripcion": "Sistema para trackear uso y performance del sistema de splash",
+              "subtareas": [
+                {
+                  "id": "ST4.3.2.1",
+                  "nombre": "Analytics de transiciones",
+                  "descripcion": "Trackear tiempo de carga, fallos, uso por módulo"
+                },
+                {
+                  "id": "ST4.3.2.2",
+                  "nombre": "Error reporting",
+                  "descripcion": "Reportar errores en transiciones al sistema de monitoreo"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

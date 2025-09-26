@@ -1,16 +1,32 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Animated, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  ActivityIndicator,
+} from "react-native";
 
+import { Button, TextField, Card } from "@/components/ui";
+import { driverMatchingService } from "@/app/services/driverMatchingService";
+import { websocketService } from "@/app/services/websocketService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore } from "@/store";
-import { driverMatchingService } from "@/app/services/driverMatchingService";
-import { websocketService } from "@/app/services/websocketService";
 
 import FlowHeader from "../../../FlowHeader";
 
 const WaitingForAcceptance: React.FC = () => {
-  const { next, back, matchedDriver, startAcceptanceTimer, stopAcceptanceTimer, acceptanceTimeout, acceptanceStartTime, rideId } = useMapFlow() as any;
+  const {
+    next,
+    back,
+    matchedDriver,
+    startAcceptanceTimer,
+    stopAcceptanceTimer,
+    acceptanceTimeout,
+    acceptanceStartTime,
+    rideId,
+  } = useMapFlow() as any;
   const { showError, showSuccess } = useUI();
   const realtime = useRealtimeStore();
   const [confirmationResponse, setConfirmationResponse] = useState<any>(null);
@@ -26,11 +42,16 @@ const WaitingForAcceptance: React.FC = () => {
   // Efecto para iniciar timer de aceptación y confirmar conductor
   useEffect(() => {
     const initializeAcceptance = async () => {
-      console.log("[WaitingForAcceptance] Starting acceptance timer and confirming driver...");
+      console.log(
+        "[WaitingForAcceptance] Starting acceptance timer and confirming driver...",
+      );
 
       if (!rideId || !matchedDriver) {
         console.error("[WaitingForAcceptance] Missing rideId or matchedDriver");
-        showError("Error", "Faltan datos necesarios para confirmar el conductor");
+        showError(
+          "Error",
+          "Faltan datos necesarios para confirmar el conductor",
+        );
         back();
         return;
       }
@@ -39,18 +60,30 @@ const WaitingForAcceptance: React.FC = () => {
         // Confirmar conductor con el backend
         const confirmRequest = {
           driverId: matchedDriver.id,
-          notes: "Confirmación automática desde app móvil"
+          notes: "Confirmación automática desde app móvil",
         };
 
-        console.log("[WaitingForAcceptance] Confirming driver with backend:", confirmRequest);
+        console.log(
+          "[WaitingForAcceptance] Confirming driver with backend:",
+          confirmRequest,
+        );
 
-        const response = await driverMatchingService.confirmDriver(rideId, confirmRequest);
-        console.log("[WaitingForAcceptance] Driver confirmed with backend:", response);
+        const response = await driverMatchingService.confirmDriver(
+          rideId,
+          confirmRequest,
+        );
+        console.log(
+          "[WaitingForAcceptance] Driver confirmed with backend:",
+          response,
+        );
 
         setConfirmationResponse(response);
         startAcceptanceTimer();
 
-        showSuccess("Conductor notificado", `Esperando respuesta de ${matchedDriver.firstName}`);
+        showSuccess(
+          "Conductor notificado",
+          `Esperando respuesta de ${matchedDriver.firstName}`,
+        );
 
         // Scale animation
         const scaleAnimation = Animated.loop(
@@ -65,7 +98,7 @@ const WaitingForAcceptance: React.FC = () => {
               duration: 1000,
               useNativeDriver: true,
             }),
-          ])
+          ]),
         );
         scaleAnimation.start();
 
@@ -88,7 +121,9 @@ const WaitingForAcceptance: React.FC = () => {
     if (!acceptanceStartTime) return;
 
     const interval = setInterval(() => {
-      const elapsed = Math.floor((Date.now() - acceptanceStartTime.getTime()) / 1000);
+      const elapsed = Math.floor(
+        (Date.now() - acceptanceStartTime.getTime()) / 1000,
+      );
       const remaining = Math.max(0, acceptanceTimeout - elapsed);
 
       setTimeLeft(remaining);
@@ -106,7 +141,10 @@ const WaitingForAcceptance: React.FC = () => {
   useEffect(() => {
     if (!rideId) return;
 
-    console.log("[WaitingForAcceptance] Setting up WebSocket listeners for ride:", rideId);
+    console.log(
+      "[WaitingForAcceptance] Setting up WebSocket listeners for ride:",
+      rideId,
+    );
 
     // Listener para aceptación del conductor
     const handleRideAccepted = (data: any) => {
@@ -144,11 +182,15 @@ const WaitingForAcceptance: React.FC = () => {
 
         // Si el estado cambió a accepted o rejected, manejar automáticamente
         if (currentStatus === "accepted") {
-          console.log("[WaitingForAcceptance] Status changed to accepted via polling");
+          console.log(
+            "[WaitingForAcceptance] Status changed to accepted via polling",
+          );
           handleDriverAccepted();
           clearInterval(pollInterval);
         } else if (currentStatus === "cancelled") {
-          console.log("[WaitingForAcceptance] Status changed to rejected via polling");
+          console.log(
+            "[WaitingForAcceptance] Status changed to rejected via polling",
+          );
           handleDriverRejected({ reason: "Conductor rechazó la solicitud" });
           clearInterval(pollInterval);
         }
@@ -196,13 +238,15 @@ const WaitingForAcceptance: React.FC = () => {
   };
 
   const handleTimeout = () => {
-    console.log("[WaitingForAcceptance] Acceptance timeout - driver didn't accept");
+    console.log(
+      "[WaitingForAcceptance] Acceptance timeout - driver didn't accept",
+    );
 
     stopAcceptanceTimer();
 
     showError(
       "Conductor no disponible",
-      "El conductor no pudo aceptar tu solicitud. Buscaremos otro conductor automáticamente."
+      "El conductor no pudo aceptar tu solicitud. Buscaremos otro conductor automáticamente.",
     );
 
     // Retroceder para buscar otro conductor
@@ -220,7 +264,10 @@ const WaitingForAcceptance: React.FC = () => {
       console.log("[WaitingForAcceptance] Cancelling ride request...");
       stopAcceptanceTimer();
 
-      showSuccess("Solicitud cancelada", "Puedes buscar otro conductor o modificar tu pedido");
+      showSuccess(
+        "Solicitud cancelada",
+        "Puedes buscar otro conductor o modificar tu pedido",
+      );
 
       // Retroceder al inicio del flujo
       setTimeout(() => {
@@ -237,13 +284,15 @@ const WaitingForAcceptance: React.FC = () => {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   if (!matchedDriver) {
     return (
       <View className="flex-1 justify-center items-center">
-        <Text className="text-red-500">Error: No hay conductor seleccionado</Text>
+        <Text className="text-red-500">
+          Error: No hay conductor seleccionado
+        </Text>
       </View>
     );
   }
@@ -320,7 +369,9 @@ const WaitingForAcceptance: React.FC = () => {
           <View className="space-y-2">
             <View className="flex-row justify-between">
               <Text className="font-Jakarta text-gray-600">Destino</Text>
-              <Text className="font-JakartaMedium text-gray-800">Centro, Medellín</Text>
+              <Text className="font-JakartaMedium text-gray-800">
+                Centro, Medellín
+              </Text>
             </View>
             <View className="flex-row justify-between">
               <Text className="font-Jakarta text-gray-600">Distancia</Text>
@@ -328,7 +379,9 @@ const WaitingForAcceptance: React.FC = () => {
             </View>
             <View className="flex-row justify-between">
               <Text className="font-Jakarta text-gray-600">Tarifa</Text>
-              <Text className="font-JakartaMedium text-green-600">{matchedDriver.price}</Text>
+              <Text className="font-JakartaMedium text-green-600">
+                {matchedDriver.price}
+              </Text>
             </View>
           </View>
         </View>
@@ -339,31 +392,20 @@ const WaitingForAcceptance: React.FC = () => {
             ℹ️ Información
           </Text>
           <Text className="font-Jakarta text-blue-700 text-sm text-center">
-            El conductor tiene 30 segundos para aceptar tu solicitud.
-            Si no responde, buscaremos automáticamente otro conductor disponible.
+            El conductor tiene 30 segundos para aceptar tu solicitud. Si no
+            responde, buscaremos automáticamente otro conductor disponible.
           </Text>
         </View>
 
         {/* Cancel Button */}
-        <TouchableOpacity
+        <Button
+          variant="secondary"
+          title={isCancelling ? "Cancelando..." : "Cancelar solicitud"}
           onPress={handleCancelRide}
           disabled={isCancelling}
           className="bg-gray-100 rounded-xl px-8 py-4"
-          activeOpacity={0.7}
-        >
-          {isCancelling ? (
-            <View className="flex-row items-center">
-              <ActivityIndicator size="small" color="#6B7280" />
-              <Text className="font-JakartaMedium text-gray-600 ml-2">
-                Cancelando...
-              </Text>
-            </View>
-          ) : (
-            <Text className="font-JakartaMedium text-gray-600">
-              Cancelar solicitud
-            </Text>
-          )}
-        </TouchableOpacity>
+          loading={isCancelling}
+        />
       </View>
     </View>
   );

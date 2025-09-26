@@ -1,3 +1,4 @@
+import { LinearGradient } from "expo-linear-gradient";
 import React, {
   useEffect,
   useRef,
@@ -17,7 +18,6 @@ import {
   StyleSheet,
   ColorValue,
 } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 
 // Hook para controlar el BottomSheet
 export interface BottomSheetMethods {

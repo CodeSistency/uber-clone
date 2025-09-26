@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 import { View, Text, ScrollView, TouchableOpacity, Image } from "react-native";
+
 import { icons } from "@/constants";
+import { BankReference, SplitPayment } from "@/lib/paymentValidation";
+
+import BankReferenceCard from "./BankReferenceCard";
 
 // Icono de reloj usando texto emoji
 const ClockIcon = ({ color }: { color?: string }) => (
@@ -8,9 +12,6 @@ const ClockIcon = ({ color }: { color?: string }) => (
     🕐
   </Text>
 );
-
-import BankReferenceCard from "./BankReferenceCard";
-import { BankReference, SplitPayment } from "@/lib/paymentValidation";
 
 interface MultipleBankReferencesProps {
   payments: SplitPayment[];

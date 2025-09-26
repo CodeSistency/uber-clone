@@ -20,7 +20,7 @@ export interface MultiplePaymentRequest {
 export interface MultiplePaymentResponse {
   success: boolean;
   groupId: string;
-  payments: Array<{
+  payments: {
     id: string;
     method: string;
     amount: number;
@@ -28,7 +28,7 @@ export interface MultiplePaymentResponse {
     reference?: string;
     status: "pending" | "pending_reference" | "confirmed" | "cancelled";
     expiresAt?: string;
-  }>;
+  }[];
   totalAmount: number;
   createdAt: string;
   expiresAt: string;
@@ -57,7 +57,7 @@ export interface GroupStatusResponse {
   serviceId: number;
   totalAmount: number;
   status: "active" | "completed" | "cancelled" | "expired";
-  payments: Array<{
+  payments: {
     id: string;
     method: string;
     amount: number;
@@ -66,7 +66,7 @@ export interface GroupStatusResponse {
     bankCode?: string;
     confirmedAt?: string;
     expiresAt?: string;
-  }>;
+  }[];
   confirmedAmount: number;
   remainingAmount: number;
   progress: number; // 0-100

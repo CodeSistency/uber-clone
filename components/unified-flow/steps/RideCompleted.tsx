@@ -20,7 +20,7 @@ const RideCompleted: React.FC<RideCompletedProps> = ({
   distance,
   duration,
   onRateDriver,
-  onNewRide
+  onNewRide,
 }) => {
   const { back } = useMapFlow();
 
@@ -46,23 +46,31 @@ const RideCompleted: React.FC<RideCompletedProps> = ({
           <View>
             <View className="flex-row justify-between">
               <Text className="font-Jakarta text-gray-600">Conductor</Text>
-              <Text className="font-JakartaBold text-gray-800">{driverName}</Text>
+              <Text className="font-JakartaBold text-gray-800">
+                {driverName}
+              </Text>
             </View>
 
             <View className="flex-row justify-between">
               <Text className="font-Jakarta text-gray-600">Distancia</Text>
-              <Text className="font-JakartaBold text-gray-800">{distance} km</Text>
+              <Text className="font-JakartaBold text-gray-800">
+                {distance} km
+              </Text>
             </View>
 
             <View className="flex-row justify-between">
               <Text className="font-Jakarta text-gray-600">Duración</Text>
-              <Text className="font-JakartaBold text-gray-800">{duration} min</Text>
+              <Text className="font-JakartaBold text-gray-800">
+                {duration} min
+              </Text>
             </View>
 
             <View className="border-t border-gray-200 pt-2 mt-2">
               <View className="flex-row justify-between">
                 <Text className="font-JakartaBold text-gray-800">Total</Text>
-                <Text className="font-JakartaBold text-green-600 text-lg">${fare}</Text>
+                <Text className="font-JakartaBold text-green-600 text-lg">
+                  ${fare}
+                </Text>
               </View>
             </View>
           </View>

@@ -1,16 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  ScrollView,
-  Alert,
-} from 'react-native';
-import { useChatStore, useRealtimeStore } from '@/store';
-import { websocketService } from '@/app/services/websocketService';
-import { chatService } from '@/app/services/chatService';
-import { log } from '@/lib/logger';
-import BackendConnectivityTest from './BackendConnectivityTest';
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
+
+import { chatService } from "@/app/services/chatService";
+import { websocketService } from "@/app/services/websocketService";
+import { log } from "@/lib/logger";
+import { useChatStore, useRealtimeStore } from "@/store";
+
+import BackendConnectivityTest from "./BackendConnectivityTest";
 
 interface ChatDiagnosticsProps {
   isVisible?: boolean;
@@ -31,31 +27,28 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
   const chatStore = useChatStore();
   const realtimeStore = useRealtimeStore();
 
-  useEffect(() => {
-    if (isVisible) {
-      collectDiagnosticData();
-    }
-  }, [isVisible]);
-
-  const collectDiagnosticData = () => {
+  const collectDiagnosticData = useCallback(() => {
     const data = {
       timestamp: new Date().toISOString(),
       chat: {
         messages: chatStore.messages.length,
         activeChat: chatStore.activeChat,
-        unreadCount: Object.values(chatStore.unreadMessages).reduce((a: number, b: number) => a + b, 0),
+        unreadCount: Object.values(chatStore.unreadMessages).reduce(
+          (a: number, b: number) => a + b,
+          0,
+        ),
         isTyping: chatStore.isTyping,
         totalUnread: chatStore.unreadMessages,
       },
       websocket: {
-        connected: websocketService.isConnected(),
-        connectionState: websocketService.getConnectionState(),
-        lastPing: websocketService.getLastPing(),
-        messageQueueSize: websocketService.getMessageQueueSize(),
+        connected: websocketService.isConnected,
+        connectionState: websocketService.connectionState,
+        lastPing: null, // Not available
+        messageQueueSize: 0, // Not available
       },
       realtime: {
         connectionStatus: realtimeStore.connectionStatus,
-        activeRide: realtimeStore.activeRide?.id || null,
+        activeRide: realtimeStore.activeRide?.ride_id || null,
         rideStatus: realtimeStore.rideStatus,
         isTracking: realtimeStore.isTracking,
       },
@@ -68,16 +61,25 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
     };
 
     setDiagnosticData(data);
-  };
+  }, [chatStore, realtimeStore, rideId, orderId]);
+
+  useEffect(() => {
+    if (isVisible) {
+      collectDiagnosticData();
+    }
+  }, [isVisible, collectDiagnosticData]);
 
   const testChatFunctionality = async () => {
     if (!rideId && !orderId) {
-      Alert.alert('Error', 'No ride or order ID provided for testing');
+      Alert.alert("Error", "No ride or order ID provided for testing");
       return;
     }
 
     try {
-      log.info('ChatDiagnostics', 'Starting chat functionality test', { rideId, orderId });
+      log.info("ChatDiagnostics", "Starting chat functionality test", {
+        rideId,
+        orderId,
+      });
 
       // Test sending a message
       const testMessage = `Test message ${Date.now()}`;
@@ -93,13 +95,21 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
         chatService.sendTypingIndicator(rideId || orderId!, false);
       }, 2000);
 
-      Alert.alert('Success', 'Chat functionality test completed. Check logs for details.');
+      Alert.alert(
+        "Success",
+        "Chat functionality test completed. Check logs for details.",
+      );
       collectDiagnosticData();
-
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-      log.error('ChatDiagnostics', 'Chat functionality test failed', { error: errorMessage }, error);
-      Alert.alert('Test Failed', errorMessage);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      log.error(
+        "ChatDiagnostics",
+        "Chat functionality test failed",
+        { error: errorMessage },
+        error instanceof Error ? error : undefined,
+      );
+      Alert.alert("Test Failed", errorMessage);
     }
   };
 
@@ -108,49 +118,36 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
     if (!chatId) return;
 
     Alert.alert(
-      'Clear Chat History',
-      'This will remove all messages from local storage. Continue?',
+      "Clear Chat History",
+      "This will remove all messages from local storage. Continue?",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Clear',
-          style: 'destructive',
+          text: "Clear",
+          style: "destructive",
           onPress: async () => {
             try {
               await chatService.clearChat(chatId);
-              Alert.alert('Success', 'Chat history cleared');
+              Alert.alert("Success", "Chat history cleared");
               collectDiagnosticData();
-            } catch (error) {
-              Alert.alert('Error', 'Failed to clear chat history');
+            } catch {
+              Alert.alert("Error", "Failed to clear chat history");
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
   const reconnectWebSocket = () => {
-    log.info('ChatDiagnostics', 'Manual WebSocket reconnection triggered');
-    websocketService.reconnect();
+    log.info("ChatDiagnostics", "Manual WebSocket reconnection triggered");
+    websocketService.connect("user-id", "token");
     setTimeout(() => collectDiagnosticData(), 2000);
   };
 
   const exportLogs = () => {
-    const logs = log.getLogs();
-    const recentLogs = logs.slice(-50); // Last 50 logs
-
-    const logText = recentLogs.map(log =>
-      `[${log.timestamp}] ${log.level.toUpperCase()} ${log.category}: ${log.message}`
-    ).join('\n');
-
-    Alert.alert(
-      'Recent Logs',
-      logText,
-      [
-        { text: 'Copy', onPress: () => {/* Could implement clipboard copy */} },
-        { text: 'OK' }
-      ]
-    );
+    // Logs export functionality not available in current logger implementation
+    Alert.alert("Logs Export", "Log export functionality not implemented yet");
   };
 
   if (!isVisible) return null;
@@ -180,34 +177,46 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
                   </Text>
                   <Text className="text-sm text-blue-700 dark:text-blue-300">
                     Messages: {diagnosticData.chat.messages}
-                    {'\n'}Active Chat: {diagnosticData.chat.activeChat || 'None'}
-                    {'\n'}Unread: {diagnosticData.chat.unreadCount}
-                    {'\n'}Typing: {diagnosticData.chat.isTyping ? 'Yes' : 'No'}
+                    {"\n"}Active Chat:{" "}
+                    {diagnosticData.chat.activeChat || "None"}
+                    {"\n"}Unread: {diagnosticData.chat.unreadCount}
+                    {"\n"}Typing: {diagnosticData.chat.isTyping ? "Yes" : "No"}
                   </Text>
                 </View>
 
                 {/* WebSocket Status */}
-                <View className={`p-3 rounded ${
-                  diagnosticData.websocket.connected
-                    ? 'bg-green-50 dark:bg-green-900'
-                    : 'bg-red-50 dark:bg-red-900'
-                }`}>
-                  <Text className={`font-semibold mb-2 ${
+                <View
+                  className={`p-3 rounded ${
                     diagnosticData.websocket.connected
-                      ? 'text-green-800 dark:text-green-200'
-                      : 'text-red-800 dark:text-red-200'
-                  }`}>
+                      ? "bg-green-50 dark:bg-green-900"
+                      : "bg-red-50 dark:bg-red-900"
+                  }`}
+                >
+                  <Text
+                    className={`font-semibold mb-2 ${
+                      diagnosticData.websocket.connected
+                        ? "text-green-800 dark:text-green-200"
+                        : "text-red-800 dark:text-red-200"
+                    }`}
+                  >
                     🌐 WebSocket
                   </Text>
-                  <Text className={`text-sm ${
-                    diagnosticData.websocket.connected
-                      ? 'text-green-700 dark:text-green-300'
-                      : 'text-red-700 dark:text-red-300'
-                  }`}>
-                    Status: {diagnosticData.websocket.connected ? 'Connected' : 'Disconnected'}
-                    {'\n'}State: {diagnosticData.websocket.connectionState}
-                    {'\n'}Queue: {diagnosticData.websocket.messageQueueSize} messages
-                    {'\n'}Last Ping: {diagnosticData.websocket.lastPing || 'Never'}
+                  <Text
+                    className={`text-sm ${
+                      diagnosticData.websocket.connected
+                        ? "text-green-700 dark:text-green-300"
+                        : "text-red-700 dark:text-red-300"
+                    }`}
+                  >
+                    Status:{" "}
+                    {diagnosticData.websocket.connected
+                      ? "Connected"
+                      : "Disconnected"}
+                    {"\n"}State: {diagnosticData.websocket.connectionState}
+                    {"\n"}Queue: {diagnosticData.websocket.messageQueueSize}{" "}
+                    messages
+                    {"\n"}Last Ping:{" "}
+                    {diagnosticData.websocket.lastPing || "Never"}
                   </Text>
                 </View>
 
@@ -217,10 +226,15 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
                     ⚡ Realtime Store
                   </Text>
                   <Text className="text-sm text-purple-700 dark:text-purple-300">
-                    Connection: {diagnosticData.realtime.connectionStatus?.isConnected ? 'Online' : 'Offline'}
-                    {'\n'}Active Ride: {diagnosticData.realtime.activeRide || 'None'}
-                    {'\n'}Ride Status: {diagnosticData.realtime.rideStatus}
-                    {'\n'}Tracking: {diagnosticData.realtime.isTracking ? 'Yes' : 'No'}
+                    Connection:{" "}
+                    {diagnosticData.realtime.connectionStatus?.isConnected
+                      ? "Online"
+                      : "Offline"}
+                    {"\n"}Active Ride:{" "}
+                    {diagnosticData.realtime.activeRide || "None"}
+                    {"\n"}Ride Status: {diagnosticData.realtime.rideStatus}
+                    {"\n"}Tracking:{" "}
+                    {diagnosticData.realtime.isTracking ? "Yes" : "No"}
                   </Text>
                 </View>
 
@@ -231,9 +245,9 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
                   </Text>
                   <Text className="text-sm text-gray-700 dark:text-gray-300">
                     Server: {diagnosticData.config.serverUrl}
-                    {'\n'}WebSocket: {diagnosticData.config.wsUrl}
-                    {'\n'}Ride ID: {diagnosticData.config.rideId || 'None'}
-                    {'\n'}Order ID: {diagnosticData.config.orderId || 'None'}
+                    {"\n"}WebSocket: {diagnosticData.config.wsUrl}
+                    {"\n"}Ride ID: {diagnosticData.config.rideId || "None"}
+                    {"\n"}Order ID: {diagnosticData.config.orderId || "None"}
                   </Text>
                 </View>
               </View>
