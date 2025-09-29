@@ -79,6 +79,16 @@ export class WebSocketService {
           ? wsUrl
           : `${wsUrl}/uber-realtime`;
 
+        console.log("[WebSocketService] 🔧 Initializing WebSocket connection", {
+          connectionId,
+          wsUrl,
+          finalWsUrl,
+          userId: userId.substring(0, 8) + "...",
+          tokenLength: token.length,
+          hasNamespace: finalWsUrl.includes('/uber-realtime'),
+          timestamp: new Date().toISOString(),
+        });
+
         log.info("WebSocketService", "Connection attempt initiated", {
           connectionId,
           userId: userId.substring(0, 8) + "...", // Log partial userId for privacy
@@ -105,13 +115,55 @@ export class WebSocketService {
           autoConnect: false, // We'll connect manually
         });
 
+        // Add debugging events before the main connection events
+        this.socket.on("connecting", () => {
+          console.log("[WebSocketService] 🔄 CONNECTING - Socket.IO handshake started", {
+            connectionId,
+            socketId: this.socket?.id,
+            timestamp: new Date().toISOString(),
+          });
+        });
+
+        this.socket.on("connect_attempt", () => {
+          console.log("[WebSocketService] 🎯 CONNECT_ATTEMPT - Attempting to establish connection", {
+            connectionId,
+            attemptNumber: this.reconnectAttempts + 1,
+            timestamp: new Date().toISOString(),
+          });
+        });
+
+        this.socket.on("reconnect_attempt", () => {
+          console.log("[WebSocketService] 🔄 RECONNECT_ATTEMPT", {
+            connectionId,
+            attemptNumber: this.reconnectAttempts + 1,
+            timestamp: new Date().toISOString(),
+          });
+        });
+
         // Enhanced connection events with detailed logging
         this.socket.on("connect", () => {
           const connectionTime = Date.now() - startTime;
 
+          console.log("[WebSocketService] 🟢 CONNECT SUCCESS!", {
+            connectionId,
+            connectionTime,
+            socketId: this.socket?.id,
+            transport: this.socket?.io?.engine?.transport?.name,
+            readyState: this.socket?.io?.engine?.readyState,
+            reconnectAttempts: this.reconnectAttempts,
+            queuedMessages: this.messageQueue.length,
+            auth: {
+              tokenLength: token.length,
+              userIdLength: userId.length,
+            }
+          });
+
           log.info("WebSocketService", "Successfully connected to server", {
             connectionId,
             connectionTime,
+            socketId: this.socket?.id,
+            transport: this.socket?.io?.engine?.transport?.name,
+            readyState: this.socket?.io?.engine?.readyState,
             reconnectAttempts: this.reconnectAttempts,
             queuedMessages: this.messageQueue.length,
           });
@@ -202,10 +254,33 @@ export class WebSocketService {
             {
               connectionId,
               error: error.message,
+              errorType: error.type,
+              errorDescription: error.description,
               attemptNumber: this.reconnectAttempts + 1,
+              socketState: this.socket?.connected ? 'connected' : 'disconnected',
+              socketId: this.socket?.id,
+              ioEngine: this.socket?.io?.engine?.transport?.name,
             },
             error,
           );
+
+          console.error("[WebSocketService] 🔴 CONNECT_ERROR Details:", {
+            message: error.message,
+            type: error.type,
+            description: error.description,
+            context: error.context,
+            stack: error.stack,
+            socket: {
+              connected: this.socket?.connected,
+              id: this.socket?.id,
+              io: {
+                engine: {
+                  transport: this.socket?.io?.engine?.transport?.name,
+                  readyState: this.socket?.io?.engine?.readyState,
+                }
+              }
+            }
+          });
 
           this.handleConnectionError(error);
           reject(error);
@@ -283,6 +358,22 @@ export class WebSocketService {
 
         // Set up message handlers
         this.setupMessageHandlers();
+
+        // Initiate the actual connection
+        console.log("[WebSocketService] 🚀 Calling socket.connect() now", {
+          connectionId,
+          finalWsUrl,
+          socketExists: !!this.socket,
+          timestamp: new Date().toISOString(),
+        });
+
+        this.socket.connect();
+
+        console.log("[WebSocketService] ⏳ Socket.connect() called, waiting for events...", {
+          connectionId,
+          timestamp: new Date().toISOString(),
+        });
+
       } catch (error) {
         console.error("[WebSocketService] Connection failed:", error);
         reject(error);
@@ -291,7 +382,7 @@ export class WebSocketService {
   }
 
   disconnect(): void {
-    console.log("[WebSocketService] Disconnecting...");
+    console.log("[WebSocketService] Disconnecting... (intentional disconnect)");
 
     if (this.heartbeatInterval) {
       clearInterval(this.heartbeatInterval);
@@ -303,7 +394,7 @@ export class WebSocketService {
       this.socket = null;
     }
 
-    this.updateConnectionStatus(false);
+    this.updateConnectionStatus(false, "intentional_disconnect");
   }
 
   // Room management
@@ -1499,18 +1590,28 @@ export class WebSocketService {
   private handleDisconnect(reason?: string): void {
     const disconnectId = `disconnect_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.info("WebSocketService", "Handling WebSocket disconnect", {
+    // Enhanced disconnect logging with more context
+    const disconnectContext = {
       disconnectId,
       reason,
       reconnectAttempts: this.reconnectAttempts,
       maxReconnectAttempts: this.maxReconnectAttempts,
       wasConnected: this.socket?.connected || false,
+      socketId: this.socket?.id,
       queuedMessages: this.messageQueue.length,
+      isDevMode: __DEV__,
       performanceMetrics: {
         disconnects: this.performanceMetrics.disconnects + 1,
         connectionTime: this.performanceMetrics.connectionTime,
+        uptime: this.performanceMetrics.connectionTime
+          ? Date.now() - this.performanceMetrics.connectionTime
+          : 0,
       },
-    });
+    };
+
+    console.log("[WebSocketService] 🔌 DISCONNECT EVENT:", disconnectContext);
+
+    log.info("WebSocketService", "Handling WebSocket disconnect", disconnectContext);
 
     // Track disconnect in performance metrics
     this.performanceMetrics.disconnects++;
@@ -1590,14 +1691,65 @@ export class WebSocketService {
   }
 
   private shouldAttemptReconnection(reason?: string): boolean {
-    // Don't attempt reconnection for these reasons
+    // Don't attempt reconnection for these reasons (production)
     const noReconnectReasons = [
       "io server disconnect", // Server intentionally disconnected
-      "io client disconnect", // Client intentionally disconnected
       "ping timeout", // Keep-alive failed
+      "intentional_disconnect", // Our own disconnect() method was called
     ];
 
-    return !reason || !noReconnectReasons.includes(reason);
+    // Context-aware reconnection logic
+    const context = {
+      isDev: __DEV__,
+      reason,
+      reconnectAttempts: this.reconnectAttempts,
+      maxAttempts: this.maxReconnectAttempts,
+      hasQueuedMessages: this.messageQueue.length > 0,
+      wasConnected: this.socket?.connected || false,
+    };
+
+    console.log("[WebSocketService] Evaluating reconnection", context);
+
+    // Don't reconnect if we've exceeded max attempts
+    if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+      console.log("[WebSocketService] ❌ Max reconnection attempts exceeded");
+      return false;
+    }
+
+    // Always allow reconnection in development for these reasons (handles hot reloads)
+    if (__DEV__) {
+      const devReconnectReasons = [
+        "io client disconnect", // Hot reload disconnections
+        "transport close", // Transport layer issues
+        "transport error", // Transport errors
+      ];
+
+      if (reason && devReconnectReasons.includes(reason)) {
+        console.log("[WebSocketService] 🔄 DEV MODE: Allowing reconnection for development scenario");
+        return true;
+      }
+    }
+
+    // In production, be more conservative
+    if (!__DEV__) {
+      // Don't reconnect for client-initiated disconnects
+      if (reason === "io client disconnect" || reason === "intentional_disconnect") {
+        console.log("[WebSocketService] 🛑 PROD MODE: Skipping reconnection for client-initiated disconnect");
+        return false;
+      }
+
+      // Don't reconnect if we have no queued messages and connection was stable
+      if (!context.hasQueuedMessages && this.performanceMetrics.disconnects < 3) {
+        console.log("[WebSocketService] 🛑 PROD MODE: Skipping reconnection (no pending work)");
+        return false;
+      }
+    }
+
+    // Default: attempt reconnection unless explicitly excluded
+    const shouldReconnect = !reason || !noReconnectReasons.includes(reason);
+    console.log(`[WebSocketService] ${shouldReconnect ? '✅' : '❌'} Final reconnection decision: ${shouldReconnect}`);
+
+    return shouldReconnect;
   }
 
   private handleConnectionError(error: any): void {
@@ -2378,6 +2530,48 @@ export class WebSocketService {
         }
       }, 1000);
     }
+  }
+
+  // Test basic WebSocket connectivity (without namespace)
+  async testBasicConnection(): Promise<{success: boolean, error?: string}> {
+    return new Promise((resolve) => {
+      try {
+        console.log("[WebSocketService] 🧪 Testing basic WebSocket connection (no namespace)");
+
+        const testUrl = endpoints.websocket.url().replace('/uber-realtime', '');
+        console.log("[WebSocketService] 🧪 Test URL:", testUrl);
+
+        const testSocket = io(testUrl, {
+          transports: ["websocket"],
+          timeout: 5000,
+          forceNew: true,
+        });
+
+        const timeout = setTimeout(() => {
+          testSocket.disconnect();
+          console.log("[WebSocketService] 🧪 Basic connection test: TIMEOUT");
+          resolve({ success: false, error: "Connection timeout" });
+        }, 5000);
+
+        testSocket.on("connect", () => {
+          clearTimeout(timeout);
+          console.log("[WebSocketService] 🧪 Basic connection test: SUCCESS");
+          testSocket.disconnect();
+          resolve({ success: true });
+        });
+
+        testSocket.on("connect_error", (error) => {
+          clearTimeout(timeout);
+          console.log("[WebSocketService] 🧪 Basic connection test: ERROR", error.message);
+          testSocket.disconnect();
+          resolve({ success: false, error: error.message });
+        });
+
+      } catch (error) {
+        console.log("[WebSocketService] 🧪 Basic connection test: EXCEPTION", error);
+        resolve({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+      }
+    });
   }
 
   // Cleanup

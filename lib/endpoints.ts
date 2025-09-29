@@ -443,11 +443,20 @@ async function checkApiEndpoint(endpoint: APIEndpoint, startTime: number): Promi
 }
 
 async function checkWebSocketEndpoint(endpoint: WebSocketEndpoint, startTime: number): Promise<HealthCheckResult> {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     try {
-      const ws = new WebSocket(endpoint.url);
+      // Use Socket.IO for WebSocket health check instead of native WebSocket
+      // This matches the actual client implementation
+      const { io } = await import('socket.io-client');
+
+      const socket = io(endpoint.url.replace('/uber-realtime', ''), {
+        transports: ["websocket"],
+        timeout: endpoint.timeout || 5000,
+        forceNew: true,
+      });
+
       const timeout = setTimeout(() => {
-        ws.close();
+        socket.disconnect();
         resolve({
           endpoint: 'websocket',
           available: false,
@@ -457,32 +466,34 @@ async function checkWebSocketEndpoint(endpoint: WebSocketEndpoint, startTime: nu
         });
       }, endpoint.timeout || 5000);
 
-      ws.onopen = () => {
+      socket.on("connect", () => {
         clearTimeout(timeout);
-        ws.close();
+        socket.disconnect();
         resolve({
           endpoint: 'websocket',
           available: true,
           responseTime: Date.now() - startTime,
           timestamp: new Date()
         });
-      };
+      });
 
-      ws.onerror = (error) => {
+      socket.on("connect_error", (error) => {
         clearTimeout(timeout);
+        socket.disconnect();
         resolve({
           endpoint: 'websocket',
           available: false,
-          error: 'WebSocket connection failed',
+          error: `Socket.IO connection failed: ${error.message}`,
           responseTime: Date.now() - startTime,
           timestamp: new Date()
         });
-      };
+      });
+
     } catch (error) {
       resolve({
         endpoint: 'websocket',
         available: false,
-        error: error instanceof Error ? error.message : 'WebSocket initialization failed',
+        error: error instanceof Error ? error.message : 'Socket.IO initialization failed',
         responseTime: Date.now() - startTime,
         timestamp: new Date()
       });

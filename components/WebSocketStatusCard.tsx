@@ -16,6 +16,8 @@ const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
   const [metrics, setMetrics] = useState(websocketService.getMetrics());
   const [health, setHealth] = useState(websocketService.getHealth());
   const [isExpanded, setIsExpanded] = useState(false);
+  const [testResult, setTestResult] = useState<{success: boolean, error?: string} | null>(null);
+  const [isTesting, setIsTesting] = useState(false);
 
   // Update metrics every 5 seconds
   useEffect(() => {
@@ -77,6 +79,19 @@ const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
   const formatResponseTime = (ms: number): string => {
     if (ms < 1000) return `${Math.round(ms)}ms`;
     return `${(ms / 1000).toFixed(1)}s`;
+  };
+
+  const testBasicConnection = async () => {
+    setIsTesting(true);
+    setTestResult(null);
+    try {
+      const result = await websocketService.testBasicConnection();
+      setTestResult(result);
+    } catch (error) {
+      setTestResult({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+    } finally {
+      setIsTesting(false);
+    }
   };
 
   return (
@@ -192,7 +207,40 @@ const WebSocketStatusCard: React.FC<WebSocketStatusCardProps> = ({
               </View>
             </View>
 
+            {/* Test Results */}
+            {testResult && (
+              <View className="mb-3 p-2 rounded-lg bg-gray-50 dark:bg-gray-800">
+                <Text className="text-xs font-JakartaBold mb-1">
+                  Test Básico de Conexión:
+                </Text>
+                <Text className={`text-xs ${testResult.success ? 'text-green-600' : 'text-red-600'}`}>
+                  {testResult.success ? '✅ Éxito' : '❌ Falló'}
+                  {testResult.error && `: ${testResult.error}`}
+                </Text>
+              </View>
+            )}
+
             {/* Actions */}
+            <View className="flex-row space-x-2 mb-2">
+              <TouchableOpacity
+                onPress={testBasicConnection}
+                disabled={isTesting}
+                className={`flex-1 rounded-lg p-2 items-center ${
+                  isTesting
+                    ? 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-blue-100 dark:bg-blue-900'
+                }`}
+              >
+                <Text className={`text-xs font-JakartaMedium ${
+                  isTesting
+                    ? 'text-gray-500'
+                    : 'text-blue-700 dark:text-blue-300'
+                }`}>
+                  {isTesting ? '🔄 Probando...' : '🧪 Test Básico'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+
             <View className="flex-row space-x-2">
               <TouchableOpacity
                 onPress={() => websocketService.resetMetrics()}

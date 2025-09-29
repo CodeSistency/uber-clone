@@ -301,6 +301,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.SELECCION_SERVICIO]: () => <ServiceSelection />,
 
   // Customer Transport - Flujo de transporte del cliente
+  // Flujo optimizado: Matching automático después del pago (sin ELECCION_CONDUCTOR manual)
   [FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE]: () => (
     <TransportDefinition />
   ),
@@ -331,13 +332,13 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
     <PaymentMethodology />
   ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.BUSCANDO_CONDUCTOR]: () => <DriverMatching />,
+  // Nota: ELECCION_CONDUCTOR removido - matching automático después del pago
   [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRMAR_CONDUCTOR]: () => (
     <DriverConfirmationStep />
   ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.ESPERANDO_ACEPTACION]: () => (
     <WaitingForAcceptance />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.ELECCION_CONDUCTOR]: () => <ChooseDriver />,
   [FLOW_STEPS.CUSTOMER_TRANSPORT.GESTION_CONFIRMACION]: () => (
     <DriverConfirmation />
   ),
@@ -346,12 +347,14 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.CONDUCTOR_LLEGO]: () => (
     <DriverArrived
-      driverName="Carlos Rodriguez"
-      vehicleInfo="Toyota Camry Negro"
+      // Datos reales vienen del store (matchedDriver, rideId)
       onReady={() => {
         console.log("[Demo] Driver arrived - ready clicked");
-        // Simulate ride started
-        websocketService.simulateRideStarted(123, 456);
+        // Simulate ride started - usar rideId real del store
+        const { rideId } = useMapFlow();
+        if (rideId) {
+          websocketService.simulateRideStarted(rideId, 456);
+        }
       }}
       onCallDriver={() => {
         console.log("[Demo] Call driver clicked");
@@ -361,8 +364,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   ),
   [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_EN_CURSO]: () => (
     <RideInProgress
-      driverName="Carlos Rodriguez"
-      destination="Centro Histórico, Bogotá"
+      // Datos reales vienen del store (matchedDriver, confirmedDestination, rideId)
       estimatedTime={15}
       onCallDriver={() => {
         console.log("[Demo] Call driver clicked");
@@ -443,7 +445,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   // ['paso_que_no_existe']: () => <SomeComponent />, // Error: no es MapFlowStep
 
   // ✅ Ejemplos de pasos adicionales que podríamos agregar fácilmente:
-  // [FLOW_STEPS.CUSTOMER_TRANSPORT.ELECCION_CONDUCTOR]: () => <DriverSelection />,
+  // [FLOW_STEPS.CUSTOMER_TRANSPORT.ELECCION_CONDUCTOR]: () => <DriverSelection />, // Removido - redundante después del pago
   // [FLOW_STEPS.CUSTOMER_DELIVERY.ARMADO_PEDIDO]: () => <OrderBuilder />,
   // [FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD]: () => <DriverRequest />,
 };
