@@ -27,7 +27,7 @@ export class WebSocketService {
   private reconnectDelay = 1000;
   private messageHandlers: Map<string, Function[]> = new Map();
   private eventListeners: Map<string, Function[]> = new Map();
-  private heartbeatInterval: number | null = null;
+  private heartbeatInterval: ReturnType<typeof setInterval> | null = null;
 
   // Performance optimizations
   private messageQueue: { event: string; data: any; timestamp: number }[] = [];
@@ -54,14 +54,6 @@ export class WebSocketService {
     const startTime = Date.now();
     const connectionId = `conn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.info("WebSocketService", "Connection attempt initiated", {
-      connectionId,
-      userId: userId.substring(0, 8) + "...", // Log partial userId for privacy
-      wsUrl: endpoints.websocket.url(),
-      devMode: useDevStore.getState().developerMode,
-      wsBypass: useDevStore.getState().wsBypass,
-    });
-
     // PRODUCTION-READY: No more development bypass
     // The WebSocket will always attempt real connection
     log.info("WebSocketService", "Production WebSocket connection initiated", {
@@ -81,7 +73,22 @@ export class WebSocketService {
         // Initialize socket connection with enhanced configuration
         // Updated to use /uber-realtime namespace according to API documentation
         const wsUrl = endpoints.websocket.url();
-        this.socket = io(`${wsUrl}/uber-realtime`, {
+
+        // Check if the URL already includes the namespace to avoid duplication
+        const finalWsUrl = wsUrl.endsWith('/uber-realtime')
+          ? wsUrl
+          : `${wsUrl}/uber-realtime`;
+
+        log.info("WebSocketService", "Connection attempt initiated", {
+          connectionId,
+          userId: userId.substring(0, 8) + "...", // Log partial userId for privacy
+          wsUrl: endpoints.websocket.url(),
+          finalWsUrl,
+          devMode: useDevStore.getState().developerMode,
+          wsBypass: useDevStore.getState().wsBypass,
+        });
+
+        this.socket = io(finalWsUrl, {
           auth: {
             token,
             userId,
