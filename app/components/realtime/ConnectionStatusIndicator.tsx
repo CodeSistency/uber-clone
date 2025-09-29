@@ -2,20 +2,23 @@ import { Ionicons } from "@expo/vector-icons";
 import React, { useEffect, useState } from "react";
 import { View, Text, TouchableOpacity, Animated } from "react-native";
 
-// import NetInfo from '@react-native-community/netinfo'; // Temporarily commented for TypeScript compatibility
+import NetInfo from '@react-native-community/netinfo'; // ✅ Activated for real connectivity detection
 import { useRealtimeStore } from "../../../store";
 import { ConnectionStatus } from "../../../types/type";
+import { connectivityManager, useConnectivityManager } from "@/lib/connectivity";
 
 interface ConnectionStatusIndicatorProps {
   showDetails?: boolean;
   onReconnect?: () => void;
   style?: "compact" | "detailed";
+  showPendingCount?: boolean;
 }
 
 export const ConnectionStatusIndicator: React.FC<
   ConnectionStatusIndicatorProps
-> = ({ showDetails = false, onReconnect, style = "compact" }) => {
-  const { connectionStatus, setConnectionStatus } = useRealtimeStore();
+> = ({ showDetails = false, onReconnect, style = "compact", showPendingCount = true }) => {
+  const { connectionStatus } = useRealtimeStore();
+  const connectivity = useConnectivityManager();
   const [pulseAnim] = useState(new Animated.Value(1));
   const [isReconnecting, setIsReconnecting] = useState(false);
 
@@ -29,20 +32,22 @@ export const ConnectionStatusIndicator: React.FC<
   }, [connectionStatus.isConnected, connectionStatus.websocketConnected]);
 
   useEffect(() => {
-    // Listen to network changes
-    // Temporarily commented for TypeScript compatibility
-    // const unsubscribe = NetInfo.addEventListener(state => {
-    //   const newStatus = {
-    //     isConnected: state.isConnected ?? false,
-    //     connectionType: state.type === 'wifi' ? 'wifi' : 'cellular',
-    //     websocketConnected: connectionStatus.websocketConnected,
-    //     lastPing: new Date(),
-    //   };
-    //   setConnectionStatus(newStatus);
-    // });
+    // Initialize connectivity manager
+    const initializeConnectivity = async () => {
+      try {
+        await connectivityManager.initialize();
+        console.log('[ConnectionStatusIndicator] ConnectivityManager initialized');
+      } catch (error) {
+        console.error('[ConnectionStatusIndicator] Failed to initialize connectivity:', error);
+      }
+    };
 
-    // return () => unsubscribe();
-    return () => {}; // Placeholder return
+    initializeConnectivity();
+
+    // Cleanup on unmount
+    return () => {
+      connectivityManager.destroy();
+    };
   }, []);
 
   const startPulseAnimation = () => {
@@ -105,16 +110,29 @@ export const ConnectionStatusIndicator: React.FC<
   const getDetailedStatus = () => {
     const parts = [];
 
-    if (connectionStatus.isConnected) {
-      parts.push(`${connectionStatus.connectionType.toUpperCase()}`);
+    if (connectivity.isOnline) {
+      parts.push(`${connectivity.connectionType.toUpperCase()}`);
+      parts.push(`${connectivity.connectionSpeed} Mbps`);
+      parts.push(`Quality: ${connectivity.connectionQuality}`);
     } else {
       parts.push("No Network");
+    }
+
+    if (connectivity.isInternetReachable) {
+      parts.push("Internet Reachable");
+    } else {
+      parts.push("No Internet");
     }
 
     if (connectionStatus.websocketConnected) {
       parts.push("Real-time Active");
     } else {
       parts.push("Real-time Offline");
+    }
+
+    // Add pending sync count if requested
+    if (showPendingCount && 'pendingSyncCount' in connectivity && (connectivity as any).pendingSyncCount > 0) {
+      parts.push(`${(connectivity as any).pendingSyncCount} pending sync`);
     }
 
     return parts.join(" • ");
@@ -158,6 +176,31 @@ export const ConnectionStatusIndicator: React.FC<
           >
             {isReconnecting ? "Reconnecting..." : getStatusText()}
           </Text>
+
+          {showPendingCount && 'pendingSyncCount' in connectivity && (connectivity as any).pendingSyncCount > 0 && (
+            <View
+              style={{
+                backgroundColor: "#F59E0B",
+                borderRadius: 8,
+                minWidth: 16,
+                height: 16,
+                justifyContent: "center",
+                alignItems: "center",
+                marginLeft: 4,
+                paddingHorizontal: 4,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "bold",
+                  color: "#FFFFFF",
+                }}
+              >
+                {(connectivity as any).pendingSyncCount > 99 ? "99+" : (connectivity as any).pendingSyncCount}
+              </Text>
+            </View>
+          )}
         </TouchableOpacity>
       </Animated.View>
     );

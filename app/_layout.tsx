@@ -99,7 +99,21 @@ export default function RootLayout() {
       }
       })();
 
-      // Initialize Firebase first (highest priority)
+      // Initialize connectivity manager first (foundation for all network operations)
+      const initializeConnectivity = async () => {
+        console.log("[RootLayout] Initializing connectivity manager...");
+        try {
+          const { connectivityManager } = await import("@/lib/connectivity");
+          await connectivityManager.initialize();
+          console.log("[RootLayout] ✅ Connectivity manager initialized");
+        } catch (error) {
+          console.error("[RootLayout] ❌ Connectivity manager initialization failed:", error);
+          console.warn("[RootLayout] Network detection may not work properly");
+        }
+      };
+      initializeConnectivity();
+
+      // Initialize Firebase (highest priority)
       console.log("[RootLayout] Initializing Firebase service...");
       try {
         firebaseService.initializeFirebase().catch((error: any) => {

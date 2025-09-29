@@ -1,7 +1,38 @@
-import { useState, useEffect, useCallback } from "react";
+/**
+ * Advanced Fetch API with Offline Queue Support
+ *
+ * This module provides intelligent HTTP request handling with:
+ * - Automatic offline queue management for supported operations
+ * - Selective offline capability based on endpoint type
+ * - Intelligent retry strategies with exponential backoff
+ * - Authentication token refresh handling
+ *
+ * OFFLINE CAPABILITY CONFIGURATION:
+ * - ALWAYS_ONLINE_ENDPOINTS: Operations that require immediate network connectivity
+ *   (auth, registration, password reset, profile updates)
+ * - OFFLINE_CAPABLE_ENDPOINTS: Operations that can be queued for later processing
+ *   (ride operations, location updates, messages during active rides)
+ *
+ * Use OfflineConfig utility to manage offline capabilities:
+ * ```typescript
+ * import { OfflineConfig } from '@/lib/fetch';
+ *
+ * // Check if endpoint can work offline
+ * if (OfflineConfig.canWorkOffline('/ride/create')) {
+ *   // Safe to queue
+ * }
+ *
+ * // Add new offline-capable endpoint
+ * OfflineConfig.addOfflineCapableEndpoint('/new/endpoint');
+ * ```
+ */
+
 import { router } from "expo-router";
-import { maybeMockResponse, simulateLatency, maybeFail } from '@/lib/dev';
-import { endpoints } from '@/lib/endpoints';
+import { useState, useEffect, useCallback } from "react";
+
+import { connectivityManager } from "@/lib/connectivity";
+import { maybeMockResponse, simulateLatency, maybeFail } from "@/lib/dev";
+import { endpoints } from "@/lib/endpoints";
 
 // Advanced retry system
 interface RetryConfig {
@@ -17,7 +48,7 @@ const defaultRetryConfig: RetryConfig = {
   baseDelay: 1000,
   maxDelay: 10000,
   backoffFactor: 2,
-  retryableStatusCodes: [408, 429, 500, 502, 503, 504]
+  retryableStatusCodes: [408, 429, 500, 502, 503, 504],
 };
 
 interface QueuedRequest {
@@ -39,23 +70,33 @@ let isRefreshingToken = false;
 let refreshPromise: Promise<any> | null = null;
 
 // Intelligent retry utilities
-function calculateRetryDelay(retryCount: number, config: RetryConfig = defaultRetryConfig): number {
+function calculateRetryDelay(
+  retryCount: number,
+  config: RetryConfig = defaultRetryConfig,
+): number {
   const delay = config.baseDelay * Math.pow(config.backoffFactor, retryCount);
   return Math.min(delay, config.maxDelay);
 }
 
-function shouldRetry(error: any, retryCount: number, config: RetryConfig = defaultRetryConfig): boolean {
+function shouldRetry(
+  error: any,
+  retryCount: number,
+  config: RetryConfig = defaultRetryConfig,
+): boolean {
   if (retryCount >= config.maxRetries) {
     return false;
   }
 
   // Retry on network errors
-  if (error.name === 'TypeError' && error.message.includes('fetch')) {
+  if (error.name === "TypeError" && error.message.includes("fetch")) {
     return true;
   }
 
   // Retry on specific HTTP status codes
-  if (error.statusCode && config.retryableStatusCodes.includes(error.statusCode)) {
+  if (
+    error.statusCode &&
+    config.retryableStatusCodes.includes(error.statusCode)
+  ) {
     return true;
   }
 
@@ -79,30 +120,43 @@ async function processRequestQueue(): Promise<void> {
     if (!queuedRequest) continue;
 
     try {
-      console.log(`[RequestQueue] Processing queued request: ${queuedRequest.id}`);
+      console.log(
+        `[RequestQueue] Processing queued request: ${queuedRequest.id}`,
+      );
 
       // Calculate delay based on retry count
       if (queuedRequest.retryCount > 0) {
         const delay = calculateRetryDelay(queuedRequest.retryCount - 1);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
 
       // Execute the request
-      const response = await makeRequest(queuedRequest.url, queuedRequest.options);
+      const response = await makeRequest(
+        queuedRequest.url,
+        queuedRequest.options,
+      );
       queuedRequest.resolve(response);
-
     } catch (error) {
-      console.error(`[RequestQueue] Request ${queuedRequest.id} failed:`, error);
+      console.error(
+        `[RequestQueue] Request ${queuedRequest.id} failed:`,
+        error,
+      );
 
-      // Check if we should retry
-      if (shouldRetry(error, queuedRequest.retryCount)) {
-        console.log(`[RequestQueue] Retrying request ${queuedRequest.id} (attempt ${queuedRequest.retryCount + 1})`);
+      // Check if we should retry (but never retry auth endpoints)
+      const isAuthEndpoint = ALWAYS_ONLINE_ENDPOINTS.some((pattern) =>
+        queuedRequest.url.includes(pattern),
+      );
+
+      if (shouldRetry(error, queuedRequest.retryCount) && !isAuthEndpoint) {
+        console.log(
+          `[RequestQueue] Retrying request ${queuedRequest.id} (attempt ${queuedRequest.retryCount + 1})`,
+        );
 
         // Re-queue with incremented retry count
         const retryRequest: QueuedRequest = {
           ...queuedRequest,
           retryCount: queuedRequest.retryCount + 1,
-          timestamp: Date.now()
+          timestamp: Date.now(),
         };
 
         // Add back to front of queue for immediate retry
@@ -110,7 +164,7 @@ async function processRequestQueue(): Promise<void> {
 
         // Add delay before next attempt
         const delay = calculateRetryDelay(retryRequest.retryCount - 1);
-        await new Promise(resolve => setTimeout(resolve, delay));
+        await new Promise((resolve) => setTimeout(resolve, delay));
 
         continue; // Don't reject yet, try again
       }
@@ -132,7 +186,7 @@ function queueRequest(url: string, options: RequestInit): Promise<any> {
       retryCount: 0,
       timestamp: Date.now(),
       resolve,
-      reject
+      reject,
     };
 
     requestQueue.push(queuedRequest);
@@ -148,8 +202,12 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
   const startMs = Date.now();
 
   // Dev mock path (only for relative endpoints)
-  if (!url.startsWith('http')) {
-    const mock = await maybeMockResponse((options?.method || 'GET').toUpperCase(), url, options?.body);
+  if (!url.startsWith("http")) {
+    const mock = await maybeMockResponse(
+      (options?.method || "GET").toUpperCase(),
+      url,
+      options?.body,
+    );
     if (mock) {
       return mock;
     }
@@ -166,19 +224,22 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
 
   const requestOptions = {
     ...options,
-    headers
+    headers,
   };
 
   console.log("[fetchAPI] ▶ Request", {
     url,
     options: requestOptions,
-    bodyContent: options?.body && typeof options.body === 'string' ? (() => {
-      try {
-        return JSON.parse(options.body as string);
-      } catch {
-        return options.body;
-      }
-    })() : options?.body
+    bodyContent:
+      options?.body && typeof options.body === "string"
+        ? (() => {
+            try {
+              return JSON.parse(options.body as string);
+            } catch {
+              return options.body;
+            }
+          })()
+        : options?.body,
   });
 
   try {
@@ -209,7 +270,9 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
     if (!response.ok) {
       // Handle token expiration (401) - try to refresh token automatically
       if (response.status === 401 && (options as any)?.requiresAuth) {
-        console.log("[fetchAPI] 🔄 Token expired (401), attempting automatic refresh");
+        console.log(
+          "[fetchAPI] 🔄 Token expired (401), attempting automatic refresh",
+        );
 
         try {
           // Prevent multiple simultaneous refresh attempts
@@ -227,15 +290,17 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
             // Attempt to refresh token
             const refreshToken = await tokenManager.getRefreshToken();
             if (!refreshToken) {
-              console.log("[fetchAPI] No refresh token available, redirecting to login");
+              console.log(
+                "[fetchAPI] No refresh token available, redirecting to login",
+              );
               throw new Error("No refresh token available");
             }
 
-            refreshPromise = fetch(endpoints.api.buildUrl('auth/refresh'), {
+            refreshPromise = fetch(endpoints.api.buildUrl("auth/refresh"), {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${refreshToken}`,
+                Authorization: `Bearer ${refreshToken}`,
               },
               body: JSON.stringify({ refreshToken }),
             });
@@ -243,7 +308,11 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
             const refreshResponse = await refreshPromise;
             const refreshData = await refreshResponse.json();
 
-            if (refreshResponse.ok && refreshData?.accessToken && refreshData?.refreshToken) {
+            if (
+              refreshResponse.ok &&
+              refreshData?.accessToken &&
+              refreshData?.refreshToken
+            ) {
               console.log("[fetchAPI] ✅ Token refreshed successfully");
 
               // Store new tokens
@@ -251,7 +320,9 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
               await tokenManager.setRefreshToken(refreshData.refreshToken);
 
               // Retry the original request with new token
-              console.log("[fetchAPI] 🔄 Retrying original request with new token");
+              console.log(
+                "[fetchAPI] 🔄 Retrying original request with new token",
+              );
               const newHeaders = { ...headers };
               if ((options as any)?.requiresAuth) {
                 const authHeaders = await tokenManager.getAuthHeaders();
@@ -260,7 +331,7 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
 
               const retryResponse = await fetch(url, {
                 ...options,
-                headers: newHeaders
+                headers: newHeaders,
               });
 
               const retryBody = await retryResponse.text();
@@ -271,16 +342,24 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
                 retryData = { message: "Non-JSON response received" };
               }
 
-              console.log("[fetchAPI] 🔄 Retry response:", { ok: retryResponse.ok, status: retryResponse.status });
+              console.log("[fetchAPI] 🔄 Retry response:", {
+                ok: retryResponse.ok,
+                status: retryResponse.status,
+              });
 
               if (retryResponse.ok) {
                 console.log("[fetchAPI] ✅ Retry successful");
                 return retryData;
               } else {
-                throw new Error(retryData?.message || `HTTP error! status: ${retryResponse.status}`);
+                throw new Error(
+                  retryData?.message ||
+                    `HTTP error! status: ${retryResponse.status}`,
+                );
               }
             } else {
-              console.log("[fetchAPI] ❌ Token refresh failed, redirecting to login");
+              console.log(
+                "[fetchAPI] ❌ Token refresh failed, redirecting to login",
+              );
               throw new Error("Token refresh failed");
             }
           }
@@ -297,7 +376,9 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
             userStore.clearUser();
 
             // Redirect to login
-            console.log("[fetchAPI] 🔄 Redirecting to login due to authentication failure");
+            console.log(
+              "[fetchAPI] 🔄 Redirecting to login due to authentication failure",
+            );
             router.replace("/(auth)/sign-in");
           } catch (cleanupError) {
             console.error("[fetchAPI] Error during cleanup:", cleanupError);
@@ -310,9 +391,10 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
         }
       }
 
-      const errorMessage = body?.message ||
-                          (Array.isArray(body?.message) ? body.message.join(', ') : null) ||
-                          `HTTP error! status: ${response.status}`;
+      const errorMessage =
+        body?.message ||
+        (Array.isArray(body?.message) ? body.message.join(", ") : null) ||
+        `HTTP error! status: ${response.status}`;
 
       const error = new Error(errorMessage);
       (error as any).statusCode = response.status;
@@ -337,10 +419,19 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
   }
 }
 
-export const fetchAPI = async (endpoint: string, options?: RequestInit & { requiresAuth?: boolean; skipApiPrefix?: boolean; skipAuth?: boolean; useRetryQueue?: boolean; params?: Record<string, string> }) => {
+export const fetchAPI = async (
+  endpoint: string,
+  options?: RequestInit & {
+    requiresAuth?: boolean;
+    skipApiPrefix?: boolean;
+    skipAuth?: boolean;
+    useRetryQueue?: boolean;
+    params?: Record<string, string>;
+  },
+) => {
   // Build full URL using centralized endpoint system
   let fullUrl: string;
-  if (endpoint.startsWith('http')) {
+  if (endpoint.startsWith("http")) {
     // External URL, use as-is
     fullUrl = endpoint;
   } else if (options?.skipApiPrefix) {
@@ -361,16 +452,191 @@ export const fetchAPI = async (endpoint: string, options?: RequestInit & { requi
     fullUrl = url.toString();
   }
 
-  // Use intelligent retry queue if requested
-  if (options?.useRetryQueue) {
-    return queueRequest(fullUrl, options);
+  // Lazy import offline queue to avoid circular dependencies
+  const { offlineQueue } = await import("./offline/OfflineQueue");
+
+  // Check if we should attempt network operation
+  const shouldAttemptNetwork =
+    connectivityManager.shouldAttemptNetworkOperation();
+
+  // If no network, check if this operation can work offline
+  if (!shouldAttemptNetwork && !options?.useRetryQueue) {
+    const method = (options?.method || "GET").toUpperCase();
+
+    // Check if this endpoint is allowed to work offline
+    if (canWorkOffline(endpoint, method)) {
+      console.log(
+        "[fetchAPI] 📦 No network connectivity, but endpoint can work offline - queuing request:",
+        {
+          endpoint,
+          method,
+        },
+      );
+
+      // Queue request with appropriate priority
+      const priority = determineRequestPriority(endpoint, options);
+      return offlineQueue.add({
+        endpoint: fullUrl,
+        method: (options?.method as any) || "GET",
+        data: options?.body ? JSON.parse(options.body as string) : undefined,
+        headers: options?.headers as any,
+        priority,
+        requiresAuth: options?.requiresAuth,
+      });
+    } else {
+      // This operation requires network connectivity
+      console.log("[fetchAPI] ❌ Operation requires network connectivity:", {
+        endpoint,
+        method,
+      });
+
+      throw new Error(
+        "Esta operación requiere conexión a internet. Por favor, verifica tu conexión e intenta nuevamente.",
+      );
+    }
+  }
+
+  // Use intelligent retry queue only for specific endpoints (like messages)
+  // Check if this endpoint should use the retry queue
+  const shouldUseQueue =
+    options?.useRetryQueue ||
+    (shouldAttemptNetwork &&
+      canWorkOffline(endpoint, (options?.method || "GET").toUpperCase()));
+
+  if (shouldUseQueue) {
+    return queueRequest(fullUrl, options || {});
   }
 
   // Use direct request (existing behavior)
   return makeRequest(fullUrl, options || {});
 };
 
-export const useFetch = <T>(endpoint: string | null, options?: RequestInit & { requiresAuth?: boolean; skipAuth?: boolean; params?: Record<string, string> }) => {
+// Configuration for offline-capable endpoints
+const OFFLINE_CAPABLE_ENDPOINTS = [
+  // Rides operations
+  "/ride/create",
+  "/ride/update",
+  "/ride/cancel",
+  // Location updates (critical for active rides)
+  "/location/update",
+  // Messages during active rides
+  "/message/send",
+  // Status updates
+  "/status/update",
+  // Emergency operations
+  "/emergency",
+];
+
+// Endpoints that should NEVER work offline
+const ALWAYS_ONLINE_ENDPOINTS = [
+  "/auth/register",
+  "/auth/login",
+  "/auth/refresh",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/user/profile", // Profile updates might need server validation
+];
+
+// Utility functions for managing offline capabilities
+export const OfflineConfig = {
+  // Check if endpoint can work offline
+  canWorkOffline: (endpoint: string, method: string = "GET"): boolean => {
+    // Auth operations should always require connection
+    if (ALWAYS_ONLINE_ENDPOINTS.some((pattern) => endpoint.includes(pattern))) {
+      return false;
+    }
+
+    // Check if this endpoint is explicitly allowed offline
+    return OFFLINE_CAPABLE_ENDPOINTS.some((pattern) =>
+      endpoint.includes(pattern),
+    );
+  },
+
+  // Check if endpoint requires online connection
+  requiresOnline: (endpoint: string): boolean => {
+    return ALWAYS_ONLINE_ENDPOINTS.some((pattern) =>
+      endpoint.includes(pattern),
+    );
+  },
+
+  // Get all offline-capable endpoints
+  getOfflineCapableEndpoints: (): string[] => [...OFFLINE_CAPABLE_ENDPOINTS],
+
+  // Get all always-online endpoints
+  getAlwaysOnlineEndpoints: (): string[] => [...ALWAYS_ONLINE_ENDPOINTS],
+
+  // Add new offline-capable endpoint (for runtime configuration)
+  addOfflineCapableEndpoint: (endpoint: string): void => {
+    if (!OFFLINE_CAPABLE_ENDPOINTS.includes(endpoint)) {
+      OFFLINE_CAPABLE_ENDPOINTS.push(endpoint);
+      console.log(
+        `[OfflineConfig] Added offline-capable endpoint: ${endpoint}`,
+      );
+    }
+  },
+
+  // Add new always-online endpoint (for runtime configuration)
+  addAlwaysOnlineEndpoint: (endpoint: string): void => {
+    if (!ALWAYS_ONLINE_ENDPOINTS.includes(endpoint)) {
+      ALWAYS_ONLINE_ENDPOINTS.push(endpoint);
+      console.log(`[OfflineConfig] Added always-online endpoint: ${endpoint}`);
+    }
+  },
+};
+
+// Helper function to check if endpoint can work offline
+function canWorkOffline(endpoint: string, method: string): boolean {
+  return OfflineConfig.canWorkOffline(endpoint, method);
+}
+
+// Helper function to determine request priority based on endpoint
+function determineRequestPriority(
+  endpoint: string,
+  options?: RequestInit & { requiresAuth?: boolean },
+): "low" | "medium" | "high" | "critical" {
+  const method = (options?.method || "GET").toUpperCase();
+
+  // Critical operations
+  if (
+    method === "POST" &&
+    (endpoint.includes("/ride/create") ||
+      endpoint.includes("/payment") ||
+      endpoint.includes("/emergency"))
+  ) {
+    return "critical";
+  }
+
+  // High priority operations
+  if (
+    method === "POST" &&
+    (endpoint.includes("/location") ||
+      endpoint.includes("/message") ||
+      endpoint.includes("/status"))
+  ) {
+    return "high";
+  }
+
+  // Medium priority operations
+  if (method === "POST" || method === "PUT") {
+    return "medium";
+  }
+
+  // GET requests are generally low priority
+  if (method === "GET") {
+    return "low";
+  }
+
+  return "medium"; // Default fallback
+}
+
+export const useFetch = <T>(
+  endpoint: string | null,
+  options?: RequestInit & {
+    requiresAuth?: boolean;
+    skipAuth?: boolean;
+    params?: Record<string, string>;
+  },
+) => {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -394,7 +660,7 @@ export const useFetch = <T>(endpoint: string | null, options?: RequestInit & { r
       // Handle error responses from new backend API
       if (result?.statusCode && result.statusCode >= 400) {
         const errorMessage = Array.isArray(result.message)
-          ? result.message.join(', ')
+          ? result.message.join(", ")
           : result.message || `HTTP ${result.statusCode} error`;
         setError(errorMessage);
         setData(null);
@@ -408,10 +674,13 @@ export const useFetch = <T>(endpoint: string | null, options?: RequestInit & { r
       console.error("[useFetch] ✖ Error", { endpoint, err });
 
       // Handle enhanced error information
-      const errorMessage = err.response?.message ||
-                          (Array.isArray(err.response?.message) ? err.response.message.join(', ') : null) ||
-                          err.message ||
-                          "An error occurred while fetching data";
+      const errorMessage =
+        err.response?.message ||
+        (Array.isArray(err.response?.message)
+          ? err.response.message.join(", ")
+          : null) ||
+        err.message ||
+        "An error occurred while fetching data";
 
       setError(errorMessage);
       setData(null);

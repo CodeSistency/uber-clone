@@ -1,6 +1,6 @@
 import { Stack } from "expo-router";
 import React from "react";
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, ScrollView } from "react-native";
 
 import { Button } from "@/components/ui";
 import { useDrawer, Drawer } from "@/components/drawer";
@@ -84,13 +84,9 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE]: () => (
     <DriverTransportEndPayment />
   ),
-  // New rating step for transport rides
-  [FLOW_STEPS.DRIVER_FINALIZACION_RATING as any]: () => (
-    <DriverTransportRating />
-  ),
-  // New earnings summary step
+  // Rating step for transport rides
   [FLOW_STEPS.DRIVER_FINALIZACION_RATING]: () => (
-    <DriverTransportEarnings />
+    <DriverTransportRating />
   ),
 
   // Delivery
@@ -171,6 +167,7 @@ const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({
         </Text>
         <View className="w-10" />
       </View>
+
 
       <UnifiedFlowWrapper role="driver" renderStep={renderStep} />
     </>

@@ -14,8 +14,15 @@ export * from './safety';
 export * from './ratings';
 export * from './payment';
 export * from './splash';
+export * from './rides';
 export * from './dev/dev';
 export * from './vehicleTiers/vehicleTiers';
+export * from './driverProfile';
+export * from './vehicles';
+export * from './driverEarnings';
+export * from './emergency';
+export * from './driverRole';
+export * from './driverOnboarding';
 
 // Specific exports to avoid naming conflicts
 export {

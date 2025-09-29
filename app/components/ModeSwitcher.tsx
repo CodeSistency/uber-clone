@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Modal, Alert } from "react-native";
 
 import { useUI } from "@/components/UIWrapper";
+import { useModuleTransition } from "@/store/module/module";
 
 import { userModeStorage } from "../lib/storage";
 
@@ -24,6 +25,9 @@ const ModeSwitcher = ({
   const [showModal, setShowModal] = useState(false);
   const [isDriverRegistered, setIsDriverRegistered] = useState(false);
   const [isBusinessRegistered, setIsBusinessRegistered] = useState(false);
+
+  // Use the module transition hook for splash screen transitions
+  const { switchToCustomer, switchToBusiness, switchToDriver } = useModuleTransition();
 
   // Load registration status using storage utility
   React.useEffect(() => {
@@ -76,7 +80,7 @@ const ModeSwitcher = ({
     },
   ];
 
-  const handleModeSwitch = (modeId: string) => {
+  const handleModeSwitch = async (modeId: string) => {
     const selectedMode = modes.find((mode) => mode.id === modeId);
 
     if (!selectedMode) return;
@@ -103,27 +107,32 @@ const ModeSwitcher = ({
       return;
     }
 
-    // Save current mode using storage utility
-    userModeStorage
-      .setMode(modeId as "customer" | "driver" | "business")
-      .catch((error) => {
-        console.error("Error saving user mode:", error);
-      });
+    try {
+      // Use the module transition functions with splash screens
+      if (modeId === "customer") {
+        await switchToCustomer();
+      } else if (modeId === "business") {
+        await switchToBusiness();
+      } else if (modeId === "driver") {
+        await switchToDriver();
+      }
 
-    // Notify parent component about mode change
-    if (onModeChange) {
-      onModeChange(modeId as "customer" | "driver" | "business");
-    }
+      // Notify parent component about mode change
+      if (onModeChange) {
+        onModeChange(modeId as "customer" | "driver" | "business");
+      }
 
-    // Switch to the selected mode
-    router.replace(selectedMode.route as any);
+      if (onClose) {
+        onClose();
+      }
 
-    if (onClose) {
-      onClose();
-    }
-
-    if (variant === "modal") {
-      setShowModal(false);
+      if (variant === "modal") {
+        setShowModal(false);
+      }
+    } catch (error) {
+      console.error("[ModeSwitcher] Error switching mode:", error);
+      // On error, don't navigate - just show error
+      Alert.alert("Error", "Failed to switch mode. Please try again.");
     }
   };
 

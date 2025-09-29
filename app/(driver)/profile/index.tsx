@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -8,48 +8,45 @@ import {
   Alert,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { router } from "expo-router";
 
-import CustomButton from "@/components/CustomButton";
-
-// Dummy data for driver profile
-const DUMMY_DRIVER = {
-  firstName: "Alex",
-  lastName: "Rodriguez",
-  email: "alex.rodriguez@example.com",
-  phone: "+1 (555) 123-4567",
-  profileImage: "https://via.placeholder.com/100x100",
-  carModel: "Toyota Camry",
-  licensePlate: "ABC-1234",
-  carSeats: 4,
-  rating: 4.8,
-  totalTrips: 1247,
-  joinDate: "January 2023",
-};
-
-const DUMMY_DOCUMENTS = [
-  {
-    id: "license",
-    name: "Driver License",
-    status: "approved",
-    uploadedDate: "2024-01-15",
-  },
-  {
-    id: "registration",
-    name: "Vehicle Registration",
-    status: "approved",
-    uploadedDate: "2024-01-15",
-  },
-  {
-    id: "insurance",
-    name: "Insurance Certificate",
-    status: "pending",
-    uploadedDate: "2024-01-10",
-  },
-];
+import { Button, TextField, Card } from "@/components/ui";
+import { useDriverProfileStore } from "@/store/driverProfile";
+import { useUI } from "@/components/UIWrapper";
+import { useDriverNavigation } from "@/hooks/useDriverNavigation";
 
 const DriverProfile = () => {
-  const [driver] = useState(DUMMY_DRIVER);
-  const [documents] = useState(DUMMY_DOCUMENTS);
+  const {
+    profile,
+    documents,
+    isLoading,
+    error,
+    fetchProfile,
+    updateProfile
+  } = useDriverProfileStore();
+
+  const { showError, showSuccess } = useUI();
+  const { hasActiveRide, currentServiceType, navigateToVehicles, navigateToEarnings } = useDriverNavigation();
+
+  useEffect(() => {
+    // Fetch profile data on component mount
+    fetchProfile();
+  }, [fetchProfile]);
+
+  // Fetch vehicles and documents when profile is loaded
+  useEffect(() => {
+    if (profile) {
+      // These will be called by individual views when needed
+      // fetchVehicles();
+      // fetchDocuments();
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    if (error) {
+      showError("Error", error);
+    }
+  }, [error]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -59,6 +56,8 @@ const DriverProfile = () => {
         return "text-warning-500";
       case "rejected":
         return "text-danger-500";
+      case "in_review":
+        return "text-blue-500";
       default:
         return "text-secondary-600";
     }
@@ -72,17 +71,66 @@ const DriverProfile = () => {
         return "⏳";
       case "rejected":
         return "❌";
+      case "in_review":
+        return "🔄";
       default:
         return "📄";
     }
   };
 
+  const handleEditPersonalInfo = () => {
+    if (hasActiveRide) {
+      showError(
+        "Action Not Available",
+        `You cannot edit personal information while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+      );
+      return;
+    }
+
+    Alert.alert(
+      "Edit Personal Information",
+      "Personal info editing - integrate with form component",
+      [{ text: "OK" }]
+    );
+  };
+
+  const handleUpdateVehicle = () => {
+    navigateToVehicles();
+  };
+
+  const handleViewEarnings = () => {
+    navigateToEarnings();
+  };
+
   const handleUploadDocument = (docType: string) => {
     Alert.alert(
       "Upload Document",
-      `Upload ${docType} functionality would open camera/gallery`,
+      `Upload ${docType} functionality - integrate with camera/gallery API`,
+      [{ text: "OK" }]
     );
   };
+
+  if (isLoading && !profile) {
+    return (
+      <SafeAreaView className="flex-1 bg-general-500 justify-center items-center">
+        <Text className="text-lg">Loading profile...</Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <SafeAreaView className="flex-1 bg-general-500 justify-center items-center">
+        <Text className="text-lg text-danger-500">Failed to load profile</Text>
+        <TouchableOpacity
+          onPress={() => fetchProfile()}
+          className="mt-4 bg-primary-500 px-4 py-2 rounded"
+        >
+          <Text className="text-white">Retry</Text>
+        </TouchableOpacity>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-general-500">
@@ -98,144 +146,120 @@ const DriverProfile = () => {
         {/* Profile Header */}
         <View className="bg-white rounded-lg p-4 mb-4 items-center">
           <Image
-            source={{ uri: driver.profileImage }}
+            source={{ uri: "https://via.placeholder.com/100x100" }}
             className="w-20 h-20 rounded-full mb-3"
           />
           <Text className="text-xl font-JakartaExtraBold mb-1">
-            {driver.firstName} {driver.lastName}
+            {profile.firstName} {profile.lastName}
           </Text>
-          <Text className="text-secondary-600 mb-2">{driver.email}</Text>
+          <Text className="text-secondary-600 mb-2">{profile.email}</Text>
 
-          {/* Rating and Stats */}
-          <View className="flex-row space-x-6">
-            <View className="items-center">
-              <Text className="text-lg font-JakartaExtraBold text-warning-500">
-                ⭐ {driver.rating}
-              </Text>
-              <Text className="text-xs text-secondary-600">Rating</Text>
+          {/* Statistics - Using Badge component for better visual hierarchy */}
+          <View className="flex-row justify-between mt-4">
+            <View className="items-center flex-1">
+              <View className="bg-warning-50 px-3 py-2 rounded-lg mb-1">
+                <Text className="text-lg font-JakartaBold text-warning-600">
+                  ⭐ {profile.averageRating}
+                </Text>
+              </View>
+              <Text className="text-xs text-secondary-600 font-JakartaMedium">Rating</Text>
             </View>
-            <View className="items-center">
-              <Text className="text-lg font-JakartaExtraBold text-primary-500">
-                {driver.totalTrips}
-              </Text>
-              <Text className="text-xs text-secondary-600">Trips</Text>
+            <View className="items-center flex-1">
+              <View className="bg-primary-50 px-3 py-2 rounded-lg mb-1">
+                <Text className="text-lg font-JakartaBold text-primary-600">
+                  {profile.totalRides}
+                </Text>
+              </View>
+              <Text className="text-xs text-secondary-600 font-JakartaMedium">Trips</Text>
             </View>
-            <View className="items-center">
-              <Text className="text-lg font-JakartaExtraBold text-success-500">
-                {driver.joinDate}
-              </Text>
-              <Text className="text-xs text-secondary-600">Member</Text>
+            <View className="items-center flex-1">
+              <View className="bg-success-50 px-3 py-2 rounded-lg mb-1">
+                <Text className="text-lg font-JakartaBold text-success-600">
+                  {new Date(profile.joinedDate).getFullYear()}
+                </Text>
+              </View>
+              <Text className="text-xs text-secondary-600 font-JakartaMedium">Member</Text>
             </View>
           </View>
         </View>
 
-        {/* Personal Information */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">
-            Personal Information
-          </Text>
+        {/* Personal Information - Using @ui/ components */}
+        <Card className="mb-4">
+          <View className="flex-row justify-between items-center mb-4">
+            <Text className="text-lg font-JakartaBold">
+              Personal Information
+            </Text>
+            <Button
+              title="Edit"
+              onPress={() => router.push("/(driver)/profile/edit" as any)}
+              variant="outline"
+              className="px-4 py-2"
+            />
+          </View>
+
+          <View className="space-y-4">
+            <TextField
+              label="Full Name"
+              value={`${profile.firstName} ${profile.lastName}`}
+              editable={false}
+              containerClassName="bg-general-50"
+            />
+
+            <TextField
+              label="Email"
+              value={profile.email}
+              editable={false}
+              containerClassName="bg-general-50"
+            />
+
+            <TextField
+              label="Phone"
+              value={profile.phone}
+              editable={false}
+              containerClassName="bg-general-50"
+            />
+          </View>
+        </Card>
+
+        {/* Quick Actions - Using @ui/ Button component */}
+        <Card className="mb-4">
+          <Text className="text-lg font-JakartaBold mb-4">Quick Actions</Text>
 
           <View className="space-y-3">
-            <View>
-              <Text className="text-sm text-secondary-600 mb-1">Full Name</Text>
-              <Text className="font-JakartaMedium">
-                {driver.firstName} {driver.lastName}
-              </Text>
-            </View>
-
-            <View>
-              <Text className="text-sm text-secondary-600 mb-1">Email</Text>
-              <Text className="font-JakartaMedium">{driver.email}</Text>
-            </View>
-
-            <View>
-              <Text className="text-sm text-secondary-600 mb-1">Phone</Text>
-              <Text className="font-JakartaMedium">{driver.phone}</Text>
-            </View>
+            <Button
+              title="Manage Vehicles"
+              onPress={handleUpdateVehicle}
+              className="w-full"
+              variant="primary"
+            />
+            <Button
+              title="View Earnings"
+              onPress={handleViewEarnings}
+              className="w-full"
+              variant="success"
+            />
           </View>
+        </Card>
 
-          <TouchableOpacity className="bg-primary-500 rounded-full py-3 mt-4">
-            <Text className="text-white font-JakartaBold text-center">
-              Edit Information
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Vehicle Information */}
+        {/* Documents Status */}
         <View className="bg-white rounded-lg p-4 mb-4">
           <Text className="text-lg font-JakartaBold mb-3">
-            Vehicle Information
+            Verification Status
           </Text>
 
-          <View className="space-y-3">
-            <View>
-              <Text className="text-sm text-secondary-600 mb-1">Model</Text>
-              <Text className="font-JakartaMedium">{driver.carModel}</Text>
-            </View>
-
-            <View>
-              <Text className="text-sm text-secondary-600 mb-1">
-                License Plate
-              </Text>
-              <Text className="font-JakartaMedium">{driver.licensePlate}</Text>
-            </View>
-
-            <View>
-              <Text className="text-sm text-secondary-600 mb-1">
-                Passenger Seats
-              </Text>
-              <Text className="font-JakartaMedium">{driver.carSeats}</Text>
-            </View>
+          <View className="flex-row items-center justify-between mb-3">
+            <Text className="text-secondary-600">Documents Verified</Text>
+            <Text className="font-JakartaBold">
+              {documents.filter(d => d.status === "approved").length}/{documents.length}
+            </Text>
           </View>
 
-          <TouchableOpacity className="bg-primary-500 rounded-full py-3 mt-4">
-            <Text className="text-white font-JakartaBold text-center">
-              Update Vehicle
-            </Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* Documents */}
-        <View className="bg-white rounded-lg p-4 mb-4">
-          <Text className="text-lg font-JakartaBold mb-3">
-            Verification Documents
-          </Text>
-
-          {documents.map((doc) => (
-            <View
-              key={doc.id}
-              className="flex-row items-center justify-between py-3 border-b border-general-500 last:border-b-0"
-            >
-              <View className="flex-row items-center">
-                <Text className="text-lg mr-3">
-                  {getStatusIcon(doc.status)}
-                </Text>
-                <View>
-                  <Text className="font-JakartaMedium">{doc.name}</Text>
-                  <Text className="text-xs text-secondary-600">
-                    Uploaded: {doc.uploadedDate}
-                  </Text>
-                </View>
-              </View>
-              <View className="items-end">
-                <Text
-                  className={`font-JakartaBold text-sm ${getStatusColor(doc.status)}`}
-                >
-                  {doc.status.toUpperCase()}
-                </Text>
-                {doc.status === "pending" && (
-                  <TouchableOpacity
-                    onPress={() => handleUploadDocument(doc.name)}
-                    className="mt-1"
-                  >
-                    <Text className="text-primary-500 text-xs font-JakartaBold">
-                      Re-upload
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-          ))}
+          <Button
+            title="Manage Documents"
+            onPress={() => router.push("/(driver)/documents" as any)}
+            className="w-full"
+            variant="outline"
+          />
         </View>
 
         {/* Account Actions */}

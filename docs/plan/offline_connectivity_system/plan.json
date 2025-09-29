@@ -1,0 +1,915 @@
+{
+  "proyecto": "offline_connectivity_system",
+  "progreso_general": 100,
+  "etapas_completadas": ["E1", "E2", "E3", "E4", "E5", "E6"],
+  "fecha_completado": "2024-01-26",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Fundamentos de Conectividad",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Implementación de NetInfo",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar completamente la librería NetInfo para detectar cambios reales de conectividad de red",
+          "dependencias": [
+            "@react-native-community/netinfo",
+            "store/realtime/realtime.ts",
+            "app/components/realtime/ConnectionStatusIndicator.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear utilidad de conectividad",
+              "descripcion": "Crear archivo lib/connectivity.ts con clase ConnectivityManager para manejar NetInfo",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Implementar inicialización de NetInfo",
+                  "descripcion": "Crear método initialize() que configure el listener de cambios de red",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Crear actualización de estado de conexión",
+                  "descripcion": "Implementar updateConnectionStatus() para sincronizar con realtime store",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Agregar métricas de conexión detalladas",
+                  "descripcion": "Incluir velocidad de conexión, tipo de red y reachability",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Actualizar ConnectionStatusIndicator",
+              "descripcion": "Descomentar y activar completamente el uso de NetInfo en el componente",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Descomentar import de NetInfo",
+                  "descripcion": "Quitar comentario del import en línea 5",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Activar listener de cambios de red",
+                  "descripcion": "Descomentar el useEffect que configura NetInfo.addEventListener",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Agregar métricas de conexión al UI",
+                  "descripcion": "Mostrar velocidad y tipo de conexión en el indicador",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Integrar con realtime store",
+              "descripcion": "Actualizar el store para usar los nuevos datos de conectividad",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Extender interfaz ConnectionStatus",
+                  "descripcion": "Agregar campos connectionSpeed e isInternetReachable",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Actualizar setConnectionStatus",
+                  "descripcion": "Modificar el método para aceptar los nuevos campos",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Utilidades de conectividad",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear hooks y utilidades para manejar conectividad en componentes",
+          "dependencias": [
+            "lib/connectivity.ts",
+            "store/realtime/realtime.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear hook useConnectivity",
+              "descripcion": "Crear hooks/useConnectivity.ts con estado completo de conectividad",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Definir interfaz ConnectivityState",
+                  "descripcion": "Crear tipo para el estado completo de conectividad",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar lógica de sincronización automática",
+                  "descripcion": "Detectar cuando vuelve la conexión y procesar cola offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Crear función isFeatureAvailable",
+                  "descripcion": "Determinar si funcionalidades específicas están disponibles según conectividad",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Crear utilidades de verificación de features",
+              "descripcion": "Crear funciones helper para verificar disponibilidad de funcionalidades",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Definir matriz de requisitos por feature",
+                  "descripcion": "Mapear qué funcionalidades requieren qué tipo de conexión",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Implementar lógica de fallback",
+                  "descripcion": "Proporcionar alternativas offline para features críticas",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Sistema de Cola Offline",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Arquitectura de cola persistente",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar sistema de cola que persista requests cuando no hay conexión",
+          "dependencias": [
+            "@react-native-async-storage/async-storage",
+            "lib/fetch.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Crear clase OfflineQueue",
+              "descripcion": "Crear lib/offline/OfflineQueue.ts con gestión completa de cola",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Definir interfaz QueuedRequest",
+                  "descripcion": "Crear tipo para requests en cola con metadata",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Implementar persistencia en AsyncStorage",
+                  "descripcion": "Guardar y cargar cola desde almacenamiento local",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Crear lógica de prioridades",
+                  "descripcion": "Sistema de prioridades (critical, high, medium, low)",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Sistema de procesamiento por lotes",
+              "descripcion": "Procesar requests en lotes cuando vuelve la conexión",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Implementar processQueue",
+                  "descripcion": "Método para procesar toda la cola cuando hay conexión",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Crear límite de tamaño de cola",
+                  "descripcion": "Evitar que la cola crezca indefinidamente",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.1.2.3",
+                  "nombre": "Agregar retry con backoff exponencial",
+                  "descripcion": "Reintentar requests fallidos con delays progresivos",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Integración con fetchAPI",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Modificar fetchAPI para usar cola offline cuando no hay conexión",
+          "dependencias": [
+            "lib/fetch.ts",
+            "lib/offline/OfflineQueue.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Extender fetchAPI con modo offline",
+              "descripcion": "Agregar parámetro useRetryQueue para encolar requests offline",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Modificar función fetchAPI",
+                  "descripcion": "Agregar lógica para detectar desconexión y encolar",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Crear función queueRequest",
+                  "descripcion": "Método específico para agregar a cola offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.2.1.3",
+                  "nombre": "Implementar detección automática de desconexión",
+                  "descripcion": "Verificar conectividad antes de hacer requests",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Sistema de prioridades por endpoint",
+              "descripcion": "Asignar prioridades automáticamente según el tipo de request",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Definir prioridades por endpoint",
+                  "descripcion": "Mapear endpoints críticos vs opcionales",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "Crear lógica de prioridad automática",
+                  "descripcion": "Asignar prioridades basadas en el endpoint y método HTTP",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Cache de Datos Críticos",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Cache de ubicaciones",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar cache para ubicaciones recientes y direcciones frecuentes",
+          "dependencias": [
+            "@react-native-async-storage/async-storage",
+            "store/location/location.ts",
+            "store/rides/rides.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Crear CriticalDataCache",
+              "descripcion": "Crear lib/cache/CriticalDataCache.ts para cache de datos críticos",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Implementar cacheLocation",
+                  "descripcion": "Método para guardar ubicaciones recientes",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Implementar getCachedLocations",
+                  "descripcion": "Método para recuperar ubicaciones cacheadas",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Agregar expiración automática",
+                  "descripcion": "Limpiar ubicaciones expiradas automáticamente",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Integración con Google Places",
+              "descripcion": "Usar cache para búsquedas de direcciones frecuentes",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Modificar GoogleTextInput",
+                  "descripcion": "Usar cache para autocompletado offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "Crear función de búsqueda híbrida",
+                  "descripcion": "Combinar búsqueda online con cache local",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Cache de historial de viajes",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Cachear historial de viajes para acceso offline",
+          "dependencias": [
+            "lib/cache/CriticalDataCache.ts",
+            "app/(root)/(tabs)/rides"
+          ],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Implementar cache de rides",
+              "descripcion": "Guardar y recuperar historial de viajes localmente",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Modificar rides store",
+                  "descripcion": "Integrar cache con el store de rides",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Crear componente de rides offline",
+                  "descripcion": "Mostrar rides cacheados cuando no hay conexión",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T3.2.2",
+              "nombre": "Sincronización de historial",
+              "descripcion": "Sincronizar historial cuando vuelve la conexión",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.2.2.1",
+                  "nombre": "Implementar merge strategy",
+                  "descripcion": "Estrategia para fusionar datos online y offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST3.2.2.2",
+                  "nombre": "Crear indicador de sincronización",
+                  "descripcion": "Mostrar progreso de sincronización al usuario",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "UI/UX para Modo Offline",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Indicadores visuales de estado",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear componentes visuales que indiquen claramente el estado de conectividad",
+          "dependencias": [
+            "hooks/useConnectivity.ts",
+            "components/offline/OfflineIndicator.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Crear componente OfflineIndicator",
+              "descripcion": "Crear components/offline/OfflineIndicator.tsx para mostrar estado offline",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Diseñar layout del indicador",
+                  "descripcion": "Crear diseño visual para el indicador de desconexión",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Implementar animaciones de pulso",
+                  "descripcion": "Agregar animación de pulso cuando está offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST4.1.1.3",
+                  "nombre": "Crear botón de sincronización",
+                  "descripcion": "Botón para forzar sincronización manual",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Mejorar ConnectionStatusIndicator",
+              "descripcion": "Extender el indicador existente con más información",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "Agregar modo compacto vs detallado",
+                  "descripcion": "Dos modos de visualización según contexto",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "Mostrar contador de items pendientes",
+                  "descripcion": "Indicar cuántos items esperan sincronización",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Estados de error con recovery",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear componentes de error que ofrezcan opciones de recuperación",
+          "dependencias": [
+            "components/ui/ErrorBoundary.tsx",
+            "hooks/useConnectivity.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Crear componente NetworkErrorModal",
+              "descripcion": "Modal específico para errores de conectividad",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Diseñar UI del modal de error",
+                  "descripcion": "Crear layout para modal de error de red",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST4.2.1.2",
+                  "nombre": "Implementar opciones de retry",
+                  "descripcion": "Botones para reintentar o guardar offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST4.2.1.3",
+                  "nombre": "Agregar temporizador de retry automático",
+                  "descripcion": "Reintentar automáticamente después de delay",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.2",
+              "nombre": "Mejorar ErrorBoundary existente",
+              "descripcion": "Extender ErrorBoundary para manejar errores de conectividad",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST4.2.2.1",
+                  "nombre": "Detectar errores de red vs otros errores",
+                  "descripcion": "Diferenciar errores de conectividad de otros",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST4.2.2.2",
+                  "nombre": "Crear acciones específicas para errores de red",
+                  "descripcion": "Ofrecer retry o modo offline según el error",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "nombre": "Funcionalidades Específicas Offline",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M5.1",
+          "nombre": "Modo offline para rides",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar funcionalidades específicas para rides cuando no hay conexión",
+          "dependencias": [
+            "lib/cache/CriticalDataCache.ts",
+            "app/(root)/(tabs)/rides",
+            "hooks/useConnectivity.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T5.1.1",
+              "nombre": "Crear componente RidesOfflineView",
+              "descripcion": "Vista alternativa que muestra rides cacheados cuando está offline",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST5.1.1.1",
+                  "nombre": "Implementar lista de rides offline",
+                  "descripcion": "Mostrar rides desde cache local",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST5.1.1.2",
+                  "nombre": "Agregar indicador de estado de sincronización",
+                  "descripcion": "Mostrar si el ride está sincronizado o pendiente",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST5.1.1.3",
+                  "nombre": "Crear botón de sincronización manual",
+                  "descripcion": "Permitir forzar sincronización de rides",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T5.1.2",
+              "nombre": "Sistema de rides pendientes",
+              "descripcion": "Manejar rides que se crearon offline y necesitan sincronización",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST5.1.2.1",
+                  "nombre": "Crear interfaz para rides offline",
+                  "descripcion": "Definir estructura para rides no sincronizados",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST5.1.2.2",
+                  "nombre": "Implementar detección de rides duplicados",
+                  "descripcion": "Evitar crear rides duplicados al sincronizar",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M5.2",
+          "nombre": "Modo offline para ubicación",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Mejorar experiencia de ubicación cuando no hay conexión",
+          "dependencias": [
+            "lib/cache/CriticalDataCache.ts",
+            "store/location/location.ts",
+            "components/GoogleTextInput.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T5.2.1",
+              "nombre": "Cache de direcciones frecuentes",
+              "descripcion": "Guardar direcciones usadas recientemente para autocompletado offline",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST5.2.1.1",
+                  "nombre": "Modificar GoogleTextInput para modo híbrido",
+                  "descripcion": "Combinar búsqueda online con cache local",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST5.2.1.2",
+                  "nombre": "Crear ranking de direcciones frecuentes",
+                  "descripcion": "Ordenar direcciones por frecuencia de uso",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T5.2.2",
+              "nombre": "Búsqueda de lugares offline",
+              "descripcion": "Implementar búsqueda básica de lugares usando datos cacheados",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST5.2.2.1",
+                  "nombre": "Crear índice de búsqueda local",
+                  "descripcion": "Índice para búsqueda rápida en ubicaciones cacheadas",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST5.2.2.2",
+                  "nombre": "Implementar fuzzy search básico",
+                  "descripcion": "Búsqueda aproximada para autocompletado offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "nombre": "Testing y Optimización",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M6.1",
+          "nombre": "Testing de escenarios offline",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear tests exhaustivos para todos los escenarios de conectividad",
+          "dependencias": [
+            "lib/connectivity.ts",
+            "lib/offline/OfflineQueue.ts",
+            "lib/cache/CriticalDataCache.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T6.1.1",
+              "nombre": "Crear tests de conectividad",
+              "descripcion": "Tests para verificar detección correcta de cambios de red",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST6.1.1.1",
+                  "nombre": "Test de cambios de WiFi a cellular",
+                  "descripcion": "Verificar que detecta correctamente cambios de tipo de conexión",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.1.1.2",
+                  "nombre": "Test de pérdida total de conexión",
+                  "descripcion": "Verificar comportamiento cuando se pierde toda conectividad",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.1.1.3",
+                  "nombre": "Test de reconexión automática",
+                  "descripcion": "Verificar que procesa cola cuando vuelve la conexión",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T6.1.2",
+              "nombre": "Tests de cola offline",
+              "descripcion": "Tests para verificar funcionamiento correcto de la cola persistente",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST6.1.2.1",
+                  "nombre": "Test de persistencia de cola",
+                  "descripcion": "Verificar que la cola sobrevive al reinicio de la app",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.1.2.2",
+                  "nombre": "Test de prioridades",
+                  "descripcion": "Verificar que procesa requests según prioridad",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.1.2.3",
+                  "nombre": "Test de límite de tamaño",
+                  "descripcion": "Verificar que respeta el límite de tamaño de cola",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M6.2",
+          "nombre": "Optimización de performance",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Optimizar el sistema para minimizar impacto en performance",
+          "dependencias": [
+            "lib/connectivity.ts",
+            "lib/offline/OfflineQueue.ts",
+            "lib/cache/CriticalDataCache.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T6.2.1",
+              "nombre": "Optimización de AsyncStorage",
+              "descripcion": "Optimizar operaciones de almacenamiento para mejor performance",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST6.2.1.1",
+                  "nombre": "Implementar operaciones batch",
+                  "descripcion": "Agrupar operaciones de storage para reducir I/O",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.2.1.2",
+                  "nombre": "Crear sistema de debounce",
+                  "descripcion": "Evitar escrituras frecuentes al storage",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.2.1.3",
+                  "nombre": "Implementar compresión de datos",
+                  "descripcion": "Comprimir datos antes de guardarlos si es necesario",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            },
+            {
+              "id": "T6.2.2",
+              "nombre": "Monitoreo de performance",
+              "descripcion": "Agregar métricas de performance para el sistema offline",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST6.2.2.1",
+                  "nombre": "Crear métricas de tiempo de respuesta",
+                  "descripcion": "Medir tiempo de respuesta de operaciones offline",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                },
+                {
+                  "id": "ST6.2.2.2",
+                  "nombre": "Implementar logging de performance",
+                  "descripcion": "Loggear métricas de performance del sistema",
+                  "progreso": 100,
+                  "completado": true,
+                  "fecha_completado": "2024-01-26"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

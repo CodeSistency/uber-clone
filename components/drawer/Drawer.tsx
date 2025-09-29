@@ -21,6 +21,9 @@ import { DrawerHeader } from "./DrawerHeader";
 import { DrawerRouteItem } from "./DrawerRouteItem";
 import { DrawerProps } from "./types";
 
+import ModuleSwitcherWithSplash from "@/components/ModuleSwitcherWithSplash";
+import { useModuleStore } from "@/store/module/module";
+
 const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 // Componente principal del Drawer
@@ -41,6 +44,12 @@ const Drawer: React.FC<DrawerProps> = ({
   animationType = "slide",
   backdropOpacity = 0.5,
 }) => {
+  // Estados para transiciones de módulo
+  const { isSplashActive, splashProgress, currentTransition } = useModuleStore((state) => ({
+    isSplashActive: state.isSplashActive,
+    splashProgress: state.splashProgress,
+    currentTransition: state.currentTransition,
+  }));
   // Refs y animaciones
   const slideAnim = useRef(
     new Animated.Value(position === "left" ? -width : SCREEN_WIDTH),
@@ -158,7 +167,8 @@ const Drawer: React.FC<DrawerProps> = ({
             backgroundColor: "rgba(0, 0, 0, 0.3)",
           }}
           activeOpacity={1}
-          onPress={onClose}
+          onPress={isSplashActive ? undefined : onClose}
+          disabled={isSplashActive}
         >
           <Animated.View
             className="absolute inset-0"
@@ -176,7 +186,7 @@ const Drawer: React.FC<DrawerProps> = ({
       <PanGestureHandler
         onGestureEvent={onGestureEvent}
         onHandlerStateChange={onHandlerStateChange}
-        enabled={isOpen}
+        enabled={isOpen && !isSplashActive}
         minPointers={1}
         maxPointers={1}
         shouldCancelWhenOutside={false}
@@ -187,6 +197,28 @@ const Drawer: React.FC<DrawerProps> = ({
           className={`absolute top-0 bottom-0 z-50 ${className}`}
           style={[drawerStyle, animatedStyle, { [position]: 0 }]}
         >
+          {/* Overlay de transición de módulo */}
+          {isSplashActive && (
+            <View className="absolute inset-0 bg-black/20 z-10 items-center justify-center">
+              <View className="bg-white rounded-lg p-6 mx-4 shadow-lg items-center">
+                <Text className="text-lg font-JakartaBold text-gray-800 mb-2">
+                  Cambiando a {currentTransition?.toModule}
+                </Text>
+                <Text className="text-sm font-JakartaMedium text-gray-600 mb-4">
+                  Cargando configuración...
+                </Text>
+                <View className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                  <View
+                    className="bg-primary-500 h-2 rounded-full"
+                    style={{ width: `${splashProgress}%` }}
+                  />
+                </View>
+                <Text className="text-xs font-JakartaMedium text-gray-500">
+                  {splashProgress}% completado
+                </Text>
+              </View>
+            </View>
+          )}
           {/* Header */}
           {config.header && <DrawerHeader config={config.header} />}
 
@@ -213,6 +245,16 @@ const Drawer: React.FC<DrawerProps> = ({
                 currentModule={currentModule}
               />
             ))}
+
+            {/* Module Switcher with Splash Screens */}
+            {currentModule && (
+              <View className="mt-4 mb-4">
+                <ModuleSwitcherWithSplash
+                  currentModule={currentModule}
+                  onModuleChange={onModuleChange}
+                />
+              </View>
+            )}
           </ScrollView>
 
           {/* Footer */}

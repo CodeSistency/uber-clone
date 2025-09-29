@@ -8,6 +8,18 @@ interface User {
   clerkId?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  // Additional properties for driver migration
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  dateOfBirth?: Date | null;
+  address?: string;
+  city?: string;
+  state?: string;
+  zipCode?: string;
+  language?: string;
+  currency?: string;
+  timezone?: string;
 }
 
 interface UserStore {

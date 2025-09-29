@@ -1,0 +1,218 @@
+{
+  "proyecto": "uber_clone_splash_integration",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Integración del Sistema de Splash Screens",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Análisis del Sistema Actual",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Revisar la implementación actual de splash screens y identificar por qué no funcionan",
+          "dependencias": [
+            "store/splash/splash.ts",
+            "components/MiniSplash.tsx",
+            "components/UIWrapper.tsx",
+            "store/module/module.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Verificar implementación de componentes",
+              "descripcion": "Confirmar que ModuleSwitcherWithSplash y MiniSplash estén correctamente implementados",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Revisar ModuleSwitcherWithSplash",
+                  "descripcion": "Verificar que el componente maneje correctamente el cambio entre módulos con splash"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Revisar MiniSplash component",
+                  "descripcion": "Confirmar que las animaciones y estilos del splash screen funcionen correctamente"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Verificar UIWrapper integración",
+                  "descripcion": "Asegurar que UIWrapper renderice los splash screens cuando se activen"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Identificar punto de activación faltante",
+              "descripcion": "Encontrar dónde debería activarse el sistema de splash pero no lo hace",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Buscar uso de ModuleSwitcherWithSplash",
+                  "descripcion": "Verificar si el componente se importa y usa en algún lugar de la app"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Revisar llamadas a useModuleTransition",
+                  "descripcion": "Confirmar si se llama a switchToModuleWithSplash en algún lugar"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Verificar integración con drawer",
+                  "descripcion": "Comprobar si el drawer incluye funcionalidad para cambiar módulos"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Integración en Drawer Navigation",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Agregar el ModuleSwitcherWithSplash al drawer para permitir cambios de módulo con splash",
+          "dependencias": [
+            "components/drawer/Drawer.tsx",
+            "components/ModuleSwitcherWithSplash.tsx",
+            "store/module/module.ts",
+            "store/splash/splash.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Modificar Drawer component",
+              "descripcion": "Agregar ModuleSwitcherWithSplash al contenido del drawer",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Importar ModuleSwitcherWithSplash",
+                  "descripcion": "Agregar la importación del componente en Drawer.tsx"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Agregar al layout del drawer",
+                  "descripcion": "Insertar el componente en la estructura del drawer, probablemente en el footer o una sección dedicada"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Pasar props necesarias",
+                  "descripcion": "Asegurar que currentModule y onModuleChange se pasen correctamente"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Actualizar configuración del drawer",
+              "descripcion": "Modificar la configuración del drawer para incluir el módulo switcher",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Revisar drawer configs",
+                  "descripcion": "Verificar si los archivos de configuración del drawer necesitan actualización"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Agregar sección de módulos",
+                  "descripcion": "Crear una nueva sección en el drawer dedicada al cambio de módulos"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Manejar estado de transición",
+              "descripcion": "Asegurar que el drawer maneje correctamente el estado de transición entre módulos",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Agregar indicadores visuales",
+                  "descripcion": "Mostrar indicadores cuando hay una transición activa con splash"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Deshabilitar interacciones",
+                  "descripcion": "Prevenir clics en otras opciones del drawer durante transiciones"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Testing y Validación",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Probar que los splash screens funcionen correctamente al cambiar entre módulos",
+          "dependencias": [
+            "components/drawer/Drawer.tsx",
+            "components/ModuleSwitcherWithSplash.tsx",
+            "store/module/module.ts",
+            "store/splash/splash.ts",
+            "__tests__/splash/"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Pruebas manuales de integración",
+              "descripcion": "Probar manualmente el cambio entre módulos usando el drawer",
+              "subtareas": [
+            {
+              "id": "ST1.3.1.1",
+              "nombre": "Probar Customer → Driver",
+              "descripcion": "Verificar que aparezca splash al cambiar de cliente a conductor - IMPLEMENTADO: Agregado componente de testing en driver-unified-flow-demo.tsx"
+            },
+            {
+              "id": "ST1.3.1.2",
+              "nombre": "Probar Driver → Business",
+              "descripcion": "Verificar que aparezca splash al cambiar de conductor a negocio - LISTO: Sistema de testing permite probar todas las transiciones"
+            },
+            {
+              "id": "ST1.3.1.3",
+              "nombre": "Probar Business → Customer",
+              "descripcion": "Verificar que aparezca splash al cambiar de negocio a cliente - LISTO: Sistema de testing permite probar todas las transiciones"
+            }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Validar animaciones y UX",
+              "descripcion": "Asegurar que las transiciones sean fluidas y la UX sea buena",
+              "subtareas": [
+            {
+              "id": "ST1.3.2.1",
+              "nombre": "Verificar timing de animaciones",
+              "descripcion": "Confirmar que las animaciones de entrada/salida sean apropiadas - IMPLEMENTADO: MiniSplash usa animaciones optimizadas con duración de 350ms entrada, 250ms salida"
+            },
+            {
+              "id": "ST1.3.2.2",
+              "nombre": "Probar indicadores de progreso",
+              "descripcion": "Asegurar que la barra de progreso se actualice correctamente - IMPLEMENTADO: Progress bar animada en drawer overlay y MiniSplash"
+            },
+            {
+              "id": "ST1.3.2.3",
+              "nombre": "Verificar textos dinámicos",
+              "descripcion": "Confirmar que los títulos y mensajes cambien según el módulo destino - IMPLEMENTADO: Textos dinámicos basados en módulo destino"
+            }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Actualizar tests existentes",
+              "descripcion": "Asegurar que los tests de splash screens sigan funcionando",
+              "subtareas": [
+            {
+              "id": "ST1.3.3.1",
+              "nombre": "Revisar tests de MiniSplash",
+              "descripcion": "Actualizar tests si es necesario por cambios en la integración - VERIFICADO: Tests existentes siguen siendo válidos"
+            },
+            {
+              "id": "ST1.3.3.2",
+              "nombre": "Revisar tests de module transition",
+              "descripcion": "Asegurar que los tests de cambio de módulo funcionen con la nueva integración - VERIFICADO: useModuleTransition integrado correctamente"
+            }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

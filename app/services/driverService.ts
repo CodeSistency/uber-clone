@@ -1,113 +1,14 @@
 import { fetchAPI } from "@/lib/fetch";
+import type {
+  DriverProfile,
+  DriverStatusData,
+  ConnectionEvent,
+  DriverLocation,
+  RideRequest,
+  ActiveRide,
+} from "@/types/driver";
 
-// Types for Driver Service
-export interface DriverProfile {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  profilePicture?: string;
-  dateOfBirth: Date;
-  licenseNumber: string;
-  licenseExpiry: Date;
-  insuranceProvider: string;
-  insuranceExpiry: Date;
-  vehicleRegistration: string;
-  registrationExpiry: Date;
-  isVerified: boolean;
-  verificationStatus: "pending" | "approved" | "rejected" | "expired";
-  joinedDate: Date;
-  totalRides: number;
-  totalEarnings: number;
-  averageRating: number;
-}
-
-export interface DriverStatus {
-  isOnline: boolean;
-  isAvailable: boolean;
-  lastOnlineTime: Date | null;
-  totalOnlineTime: number;
-  connectionHistory: ConnectionEvent[];
-}
-
-export interface ConnectionEvent {
-  id: string;
-  timestamp: Date;
-  action: "connect" | "disconnect";
-  location?: {
-    latitude: number;
-    longitude: number;
-  };
-}
-
-export interface DriverLocation {
-  latitude: number;
-  longitude: number;
-  accuracy: number;
-  timestamp: Date;
-  heading?: number;
-  speed?: number;
-}
-
-export interface RideRequest {
-  id: string;
-  passengerId: string;
-  passengerName: string;
-  passengerRating: number;
-  pickupLocation: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  dropoffLocation: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  estimatedFare: number;
-  estimatedDuration: number;
-  estimatedDistance: number;
-  requestedAt: Date;
-  expiresAt: Date;
-  serviceType: string;
-  specialRequests?: string[];
-}
-
-export interface ActiveRide {
-  id: string;
-  passengerId: string;
-  passengerName: string;
-  passengerPhone: string;
-  passengerRating: number;
-  pickupLocation: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  dropoffLocation: {
-    latitude: number;
-    longitude: number;
-    address: string;
-  };
-  status:
-    | "accepted"
-    | "arriving"
-    | "arrived"
-    | "in_progress"
-    | "completed"
-    | "cancelled";
-  acceptedAt: Date;
-  startedAt?: Date;
-  completedAt?: Date;
-  fare: number;
-  distance: number;
-  duration: number;
-  route?: {
-    coordinates: { latitude: number; longitude: number }[];
-    instructions: string[];
-  };
-}
+// Types are now imported from @/types/driver
 
 export class DriverService {
   // Profile Management
@@ -140,16 +41,32 @@ export class DriverService {
   }
 
   // Status Management
-  async getStatus(): Promise<DriverStatus> {
+  async getStatus(): Promise<DriverStatusData & { isDriver: boolean; driverRole?: string }> {
     try {
       console.log("[DriverService] Fetching driver status");
       const response = await fetchAPI("driver/status", {
         requiresAuth: true,
       });
-      return response;
+      // Add isDriver field based on response (assuming backend returns driver info if user is a driver)
+      const isDriver = response && (response.id || response.driverId || response.status === 'active');
+      return {
+        ...response,
+        isDriver: !!isDriver,
+        driverRole: isDriver ? 'driver' : 'customer'
+      };
     } catch (error) {
       console.error("[DriverService] Error fetching status:", error);
-      throw error;
+      // Return default status for non-drivers
+      return {
+        isOnline: false,
+        isAvailable: false,
+        status: 'offline',
+        lastOnlineTime: null,
+        totalOnlineTime: 0,
+        connectionHistory: [],
+        isDriver: false,
+        driverRole: 'customer'
+      };
     }
   }
 

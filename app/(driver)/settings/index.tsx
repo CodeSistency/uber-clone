@@ -10,13 +10,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { driverService, DriverProfile } from "@/app/services/driverService";
+import { driverService } from "@/app/services/driverService";
+import type { DriverProfile } from "@/types/driver";
 import { useUI } from "@/components/UIWrapper";
 import { useDriverConfigStore } from "@/store";
 
 // Dummy data for development
 const dummyDriverProfile: DriverProfile = {
   id: "driver_123",
+  userId: "user_123",
   firstName: "Carlos",
   lastName: "Rodriguez",
   email: "carlos.rodriguez@email.com",
@@ -35,6 +37,8 @@ const dummyDriverProfile: DriverProfile = {
   totalRides: 1234,
   totalEarnings: 18765.4,
   averageRating: 4.8,
+  status: "active",
+  isOnline: true,
 };
 
 const SettingsScreen = () => {

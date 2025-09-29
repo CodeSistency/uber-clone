@@ -3,9 +3,8 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CustomButton from "@/components/CustomButton";
 import ProgressBar from "@/components/onboarding/ProgressBar";
-import { TextField, Button, Glass } from "@/components/ui";
+import { TextField, Button, Glass, Card } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
@@ -181,23 +180,19 @@ export default function ProfileCompletion() {
           </Text>
         </View>
 
-        {/* Home Address */}
-        <View className="mb-6">
+        {/* Home Address Card */}
+        <Card title="🏠 Home Address" className="mb-6">
           <TextField
-            label="Home Address"
+            label="Address"
             placeholder="Calle 123, Centro, Caracas"
             value={form.address}
             onChangeText={(value) => handleInputChange("address", value)}
           />
-          <Text className="text-xs text-gray-500 mt-1">Optional</Text>
-        </View>
+          <Text className="text-xs text-gray-500 mt-2">Optional</Text>
+        </Card>
 
-        {/* Profile Picture */}
-        <View className="mb-6">
-          <Text className="text-base font-Jakarta-Bold text-gray-800 mb-4">
-            📸 Profile Picture (Optional)
-          </Text>
-
+        {/* Profile Picture Card */}
+        <Card title="📸 Profile Picture" subtitle="Optional" className="mb-6">
           <View className="flex-row justify-center space-x-4">
             <Glass className="p-4 mr-2">
               <Text className="text-center font-Jakarta-Medium text-black dark:text-white">
@@ -210,17 +205,10 @@ export default function ProfileCompletion() {
               </Text>
             </Glass>
           </View>
-        </View>
+        </Card>
 
-        {/* Emergency Contact */}
-        <View className="mb-8">
-          <Text className="text-base font-Jakarta-Bold text-gray-800 mb-2">
-            🚨 Emergency Contact
-          </Text>
-          <Text className="text-sm text-gray-600 mb-4">
-            Optional - Leave all fields empty to skip
-          </Text>
-
+        {/* Emergency Contact Card */}
+        <Card title="🚨 Emergency Contact" subtitle="Optional - Leave all fields empty to skip" className="mb-8">
           <TextField
             label="Contact Name"
             placeholder="Maria Perez"
@@ -250,11 +238,11 @@ export default function ProfileCompletion() {
               handleInputChange("emergencyContactRelationship", value)
             }
           />
-        </View>
+        </Card>
 
         {/* Complete Setup Button */}
         <View className="mb-6">
-          <CustomButton
+          <Button
             title="🚀 Complete Setup & Start Riding"
             onPress={handleCompleteSetup}
             loading={isLoading}

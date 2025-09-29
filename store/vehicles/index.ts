@@ -1,0 +1,2 @@
+export { useVehiclesStore } from './vehicles';
+

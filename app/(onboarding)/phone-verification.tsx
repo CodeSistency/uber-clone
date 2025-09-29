@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CustomButton from "@/components/CustomButton";
+import { Button } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
@@ -169,7 +169,7 @@ export default function PhoneVerification() {
 
         {/* Send Verification Button */}
         <View className="mb-4">
-          <CustomButton
+          <Button
             title="Send Verification Code"
             onPress={handleSendVerification}
             loading={isLoading}

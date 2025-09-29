@@ -1,0 +1,158 @@
+{
+  "proyecto": "uber_clone_module_transitions_fix",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Corrección de Transiciones de Módulos",
+      "progreso_general": 100,
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Corregir Switch to Driver - Loop de Verificación",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Resolver el loop infinito de verificación de driver que se queda en 'verifying driver'",
+          "dependencias": [
+            "store/module/module.ts",
+            "store/driverRole/driverRole.ts",
+            "components/ModuleSwitcherWithSplash.tsx",
+            "components/MiniSplash.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Analizar causa del loop en verificación de driver",
+              "descripcion": "Identificar por qué la verificación de driver queda en loop infinito - COMPLETADO: Falta de timeout en checkDriverRole",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Revisar lógica en switchToDriver",
+                  "descripcion": "Verificar el flujo de verificación de permisos en store/module/module.ts - OK"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Revisar implementación de checkDriverRole",
+                  "descripcion": "Analizar store/driverRole/driverRole.ts para identificar posibles causas de loop - CAUSA ENCONTRADA: Sin timeout"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Verificar manejo de errores en API",
+                  "descripcion": "Comprobar si el endpoint /api/driver/status causa respuestas inesperadas - 404 endpoint no existe, pero se maneja correctamente"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Implementar timeout máximo de 5 segundos",
+              "descripcion": "Asegurar que la verificación de driver no tome más de 5 segundos - COMPLETADO",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Agregar timeout a checkDriverRole",
+                  "descripcion": "Implementar Promise.race con timeout de 5 segundos en la verificación - IMPLEMENTADO"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Manejar timeout como 'no driver'",
+                  "descripcion": "Si timeout ocurre, asumir que usuario no es driver y proceder al onboarding - IMPLEMENTADO"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Corregir flujo de redirección al onboarding",
+              "descripcion": "Asegurar que el splash se muestre antes de redirigir al onboarding - COMPLETADO",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Mostrar splash por 1.5 segundos mínimo",
+                  "descripcion": "Asegurar que el splash sea visible antes de cualquier redirección - IMPLEMENTADO con setTimeout 1500ms"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Implementar redirección controlada",
+                  "descripcion": "Usar setTimeout para redirigir después del splash, no inmediatamente - IMPLEMENTADO"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Corregir Loop Infinito DriverLayout - Maximum Update Depth",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Resolver el loop infinito entre DriverRoleStore y DriverLayout que causa 'Maximum update depth exceeded'",
+          "dependencias": [
+            "app/(driver)/_layout.tsx",
+            "store/driverRole/driverRole.ts",
+            "store/module/module.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Analizar causa del loop en DriverLayout",
+              "descripcion": "Identificar por qué DriverLayout está checkeando role del driver en un loop infinito - COMPLETADO: checkDriverRole en dependencias del useEffect causaba loop",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Revisar useEffect en DriverLayout",
+                  "descripcion": "Verificar si hay un useEffect que se ejecuta cada vez que cambia el estado del store - COMPLETADO: useEffect se ejecutaba por checkDriverRole en deps"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Revisar dependencias del useEffect",
+                  "descripcion": "Comprobar si las dependencias del useEffect están causando re-renders infinitos - COMPLETADO: checkDriverRole removido de deps"
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Verificar llamadas a checkDriverRole",
+                  "descripcion": "Asegurar que checkDriverRole no esté siendo llamada en cada render - COMPLETADO: Agregado flag verificationInProgress"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar debouncing o memoización",
+              "descripcion": "Agregar lógica para prevenir que DriverLayout se ejecute en loop - COMPLETADO",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Agregar useCallback a checkDriverRole",
+                  "descripcion": "Memoizar la función checkDriverRole para evitar re-ejecuciones innecesarias - CANCELADO: No necesario con Zustand"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Implementar flag de verificación en progreso",
+                  "descripcion": "Agregar estado local para prevenir verificaciones simultáneas - COMPLETADO: verificationInProgress implementado"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Optimizar dependencias del useEffect",
+                  "descripcion": "Asegurar que el useEffect solo se ejecute cuando sea necesario - COMPLETADO: checkDriverRole removido de deps"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Implementar manejo de errores robusto",
+              "descripcion": "Asegurar que errores en la verificación no causen loops - COMPLETADO",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Agregar try-catch en DriverLayout",
+                  "descripcion": "Envolver la lógica de verificación en manejo de errores apropiado - COMPLETADO: Try-catch específico implementado"
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Implementar fallback para estados de error",
+                  "descripcion": "Definir comportamiento cuando la verificación falla - COMPLETADO: Fallback a welcome screen implementado"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

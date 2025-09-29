@@ -188,14 +188,17 @@ export const EmergencyButton: React.FC<EmergencyButtonProps> = ({
 
   const handleEmergencyTrigger = async () => {
     try {
-      const emergencyAlert = await emergencyService.triggerEmergency(
-        rideId,
-        "sos",
-        location,
-        "Emergency triggered from app",
-      );
+      const emergencyAlert = await emergencyService.triggerEmergency({
+        type: "sos",
+        location: {
+          latitude: location.latitude,
+          longitude: location.longitude,
+          address: location.address || "Unknown location"
+        },
+        description: "Emergency triggered from app",
+      });
 
-      onEmergencyTriggered(emergencyAlert);
+      onEmergencyTriggered(emergencyAlert as unknown as EmergencyAlert);
 
       // Show success feedback
       // Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); // Temporarily commented

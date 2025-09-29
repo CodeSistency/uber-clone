@@ -1,0 +1,1248 @@
+{
+  "proyecto": "drivers_frontend_implementation",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Configuración Inicial y Estructura Base",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Configuración de Navegación y Layout",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Establecer la estructura base de navegación y layout para el módulo de drivers en app/(driver)/",
+          "dependencias": [
+            "app/_layout.tsx",
+            "components/drawer/configs/driverDrawerConfig.ts",
+            "store/index.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear Layout Base del Driver",
+              "descripcion": "Implementar app/(driver)/_layout.tsx con configuración de navegación específica para conductores",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Configurar Stack Navigation",
+                  "descripcion": "Configurar Stack.Screen para todas las rutas de driver con headers apropiados"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Implementar Guards de Autenticación",
+                  "descripcion": "Añadir validación de rol de conductor en el layout"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Configurar UIWrapper para Driver",
+                  "descripcion": "Integrar UIWrapper con configuración específica para módulo de conductor"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Actualizar Drawer Configuration",
+              "descripcion": "Expandir driverDrawerConfig.ts con todas las nuevas rutas basadas en la API",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Añadir rutas de gestión de perfil",
+                  "descripcion": "Incluir rutas para profile, settings, y documentos"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Añadir rutas de gestión de vehículos",
+                  "descripcion": "Incluir rutas para vehicles, vehicle documents, y vehicle settings"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Añadir rutas financieras",
+                  "descripcion": "Incluir rutas para earnings, payments, y payment methods"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Crear Stores Zustand Específicos",
+              "descripcion": "Implementar stores para gestión de estado específico de drivers",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Driver Profile Store",
+                  "descripcion": "Crear store/driverProfile.ts para estado de perfil del conductor"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Vehicles Store",
+                  "descripcion": "Crear store/vehicles.ts para gestión de vehículos del conductor"
+                },
+                {
+                  "id": "ST1.1.3.3",
+                  "nombre": "Driver Earnings Store",
+                  "descripcion": "Crear store/driverEarnings.ts para gestión de ganancias y pagos"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Servicios API para Drivers",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear servicios de API para consumir todos los endpoints de backend de drivers",
+          "dependencias": [
+            "lib/fetch.ts",
+            "lib/auth.ts",
+            "types/driver.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Driver Profile Service",
+              "descripcion": "Implementar servicio para endpoints de perfil de conductor",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "GET /api/driver/profile/:id",
+                  "descripcion": "Implementar función para obtener perfil completo del conductor"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "PUT /api/driver/profile/:id",
+                  "descripcion": "Implementar función para actualizar perfil del conductor"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "GET /api/driver/:driverId/statistics",
+                  "descripcion": "Implementar función para obtener estadísticas del conductor"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Vehicles Service",
+              "descripcion": "Implementar servicio para gestión de vehículos",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "POST /api/driver/:driverId/vehicles",
+                  "descripcion": "Implementar función para crear nuevo vehículo"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "GET /api/driver/:driverId/vehicles",
+                  "descripcion": "Implementar función para obtener lista de vehículos"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "PUT /api/driver/vehicles/:vehicleId",
+                  "descripcion": "Implementar función para actualizar vehículo"
+                },
+                {
+                  "id": "ST1.2.2.4",
+                  "nombre": "DELETE /api/driver/vehicles/:vehicleId",
+                  "descripcion": "Implementar función para eliminar vehículo"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Documents Service",
+              "descripcion": "Implementar servicio para gestión de documentos",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "POST /api/driver/documents",
+                  "descripcion": "Implementar función para subir documentos del conductor"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "POST /api/driver/vehicles/documents",
+                  "descripcion": "Implementar función para subir documentos de vehículos"
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "GET /api/driver/:driverId/documents",
+                  "descripcion": "Implementar función para obtener documentos del conductor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Tipos TypeScript para Drivers",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Crear definiciones TypeScript basadas en los DTOs del backend",
+          "dependencias": [
+            "types/type.d.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Driver Types",
+              "descripcion": "Definir interfaces para entidades de conductor",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Driver Interface",
+                  "descripcion": "Definir interface Driver con todos los campos del backend"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "DriverProfile Interface",
+                  "descripcion": "Definir interface DriverProfile para respuestas completas"
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "DriverStatistics Interface",
+                  "descripcion": "Definir interface para estadísticas del conductor"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Vehicle Types",
+              "descripcion": "Definir interfaces para entidades de vehículo",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Vehicle Interface",
+                  "descripcion": "Definir interface Vehicle con todos los campos"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "CreateVehicleDto Interface",
+                  "descripcion": "Definir interface para creación de vehículos"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "UpdateVehicleDto Interface",
+                  "descripcion": "Definir interface para actualización de vehículos"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Payment Types",
+              "descripcion": "Definir interfaces para entidades de pagos",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "PaymentMethod Interface",
+                  "descripcion": "Definir interface PaymentMethod"
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "DriverPayment Interface",
+                  "descripcion": "Definir interface DriverPayment"
+                },
+                {
+                  "id": "ST1.3.3.3",
+                  "nombre": "PaymentMethodType Enum",
+                  "descripcion": "Definir enum para tipos de método de pago"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.4",
+          "nombre": "Vistas de Perfil del Conductor",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear vistas UI para gestión de perfil del conductor usando componentes @ui/",
+          "dependencias": [
+            "components/ui/",
+            "store/driverProfile.ts",
+            "app/services/driverService.ts",
+            "types/driver.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.4.0",
+              "nombre": "Integración API de Perfil",
+              "descripcion": "Implementar llamadas a endpoints reales para perfil del conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.4.0.1",
+                  "nombre": "GET /api/driver/profile/:id",
+                  "descripcion": "Integrar llamada a API para obtener datos del perfil usando driverService"
+                },
+                {
+                  "id": "ST1.4.0.2",
+                  "nombre": "PUT /api/driver/profile/:id",
+                  "descripcion": "Implementar actualización de perfil con manejo de errores y loading states",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.4.0.3",
+                  "nombre": "GET /api/driver/:driverId/statistics",
+                  "descripcion": "Conectar endpoint de estadísticas con componentes de métricas",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.4.1",
+              "nombre": "Vista de Perfil Principal",
+              "descripcion": "Implementar app/(driver)/profile/index.tsx con información completa del conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.4.1.1",
+                  "nombre": "Header con foto y información básica",
+                  "descripcion": "Usar Card y Button de @ui/ para mostrar foto, nombre, rating y estado",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.4.1.2",
+                  "nombre": "Estadísticas principales",
+                  "descripcion": "Mostrar viajes completados, ganancias totales usando Badge de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.4.1.3",
+                  "nombre": "Información de contacto",
+                  "descripcion": "Campos de email, teléfono usando TextField de @ui/",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.4.2",
+              "nombre": "Vista de Edición de Perfil",
+              "descripcion": "Implementar app/(driver)/profile/edit.tsx para actualizar información del conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.4.2.1",
+                  "nombre": "Formulario con validación",
+                  "descripcion": "Usar MultiStepForm de @ui/ para edición de perfil con validación",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.4.2.2",
+                  "nombre": "Subida de imagen de perfil",
+                  "descripcion": "Integrar selector de imagen con preview usando Card de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.4.2.3",
+                  "nombre": "Guardar cambios",
+                  "descripcion": "Botón de guardar con loading state usando Button de @ui/",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.4.3",
+              "nombre": "Vista de Estadísticas Detalladas",
+              "descripcion": "Implementar app/(driver)/profile/statistics.tsx con métricas detalladas",
+              "subtareas": [
+                {
+                  "id": "ST1.4.3.1",
+                  "nombre": "Métricas principales",
+                  "descripcion": "Mostrar KPIs usando Card y Badge de @ui/ en grid layout"
+                },
+                {
+                  "id": "ST1.4.3.2",
+                  "nombre": "Gráficos de rendimiento",
+                  "descripcion": "Integrar gráficos usando componentes de @ui/ para tendencias"
+                },
+                {
+                  "id": "ST1.4.3.3",
+                  "nombre": "Filtros por período",
+                  "descripcion": "Usar Select de @ui/ para filtrar por día/semana/mes"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.5",
+          "nombre": "Vistas de Gestión de Vehículos",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear vistas UI para gestión completa de vehículos del conductor",
+          "dependencias": [
+            "components/ui/",
+            "store/driverProfile.ts",
+            "app/services/vehicleService.ts",
+            "types/driver.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.5.0",
+              "nombre": "Integración API de Vehículos",
+              "descripcion": "Implementar llamadas a endpoints reales para gestión completa de vehículos",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.5.0.1",
+                  "nombre": "POST /api/driver/:driverId/vehicles",
+                  "descripcion": "Integrar creación de vehículos con validación y subida de documentos",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.0.2",
+                  "nombre": "GET /api/driver/:driverId/vehicles",
+                  "descripcion": "Conectar listado de vehículos con estado de verificación",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.0.3",
+                  "nombre": "PUT /api/driver/vehicles/:vehicleId",
+                  "descripcion": "Implementar actualización de vehículos con manejo de cambios",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.0.4",
+                  "nombre": "DELETE /api/driver/vehicles/:vehicleId",
+                  "descripcion": "Conectar eliminación de vehículos con confirmación",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.5.1",
+              "nombre": "Lista de Vehículos",
+              "descripcion": "Implementar app/(driver)/vehicles/index.tsx para mostrar todos los vehículos",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.5.1.1",
+                  "nombre": "Lista con scroll",
+                  "descripcion": "Usar ScrollView con Card de @ui/ para cada vehículo",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.1.2",
+                  "nombre": "Indicador de vehículo activo",
+                  "descripcion": "Mostrar vehículo predeterminado con Badge destacado",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.1.3",
+                  "nombre": "Botón añadir vehículo",
+                  "descripcion": "Button flotante usando Button de @ui/ con icono",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.5.2",
+              "nombre": "Vista de Detalles del Vehículo",
+              "descripcion": "Implementar app/(driver)/vehicles/[id].tsx para ver/editar un vehículo específico",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.5.2.1",
+                  "nombre": "Información del vehículo",
+                  "descripcion": "Mostrar todos los campos usando Card y TextField de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.2.2",
+                  "nombre": "Estado de verificación",
+                  "descripcion": "Indicador visual del estado usando Badge de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.2.3",
+                  "nombre": "Documentos del vehículo",
+                  "descripcion": "Lista de documentos con estado de verificación",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.5.3",
+              "nombre": "Vista de Añadir Vehículo",
+              "descripcion": "Implementar app/(driver)/vehicles/add.tsx con formulario completo",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.5.3.1",
+                  "nombre": "Formulario paso a paso",
+                  "descripcion": "Usar MultiStepForm de @ui/ para proceso de registro de vehículo",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.3.2",
+                  "nombre": "Subida de imágenes",
+                  "descripcion": "Selector múltiple de imágenes usando componentes de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.5.3.3",
+                  "nombre": "Validación de documentos",
+                  "descripcion": "Verificación de documentos requeridos con feedback visual",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.6",
+          "nombre": "Vistas de Gestión Financiera",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear vistas UI para gestión de ganancias, pagos y métodos de pago",
+          "dependencias": [
+            "components/ui/",
+            "store/driverEarnings.ts",
+            "app/services/earningsService.ts",
+            "types/driver.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.6.0",
+              "nombre": "Integración API Financiera",
+              "descripcion": "Implementar llamadas a endpoints reales para gestión financiera completa",
+              "subtareas": [
+                {
+                  "id": "ST1.6.0.1",
+                  "nombre": "GET /api/driver/:driverId/payments",
+                  "descripcion": "Conectar historial de pagos con filtros por fecha y estado"
+                },
+                {
+                  "id": "ST1.6.0.2",
+                  "nombre": "POST /api/driver/:driverId/payment-methods",
+                  "descripcion": "Implementar creación de métodos de pago con verificación"
+                },
+                {
+                  "id": "ST1.6.0.3",
+                  "nombre": "GET /api/driver/:driverId/payment-methods",
+                  "descripcion": "Conectar listado de métodos de pago con estados de verificación"
+                },
+                {
+                  "id": "ST1.6.0.4",
+                  "nombre": "PUT /api/driver/payment-methods/:methodId",
+                  "descripcion": "Implementar actualización de métodos de pago"
+                },
+                {
+                  "id": "ST1.6.0.5",
+                  "nombre": "DELETE /api/driver/payment-methods/:methodId",
+                  "descripcion": "Conectar eliminación de métodos de pago"
+                },
+                {
+                  "id": "ST1.6.0.6",
+                  "nombre": "Completar integración API faltante",
+                  "descripcion": "Implementar fetchTripHistory, fetchPromotions y fetchChallenges usando earningsService",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.6.1",
+              "nombre": "Dashboard de Ganancias",
+              "descripcion": "Implementar app/(driver)/earnings/index.tsx con resumen financiero",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.6.1.1",
+                  "nombre": "Resumen semanal/mensual",
+                  "descripcion": "Cards con métricas principales usando Card y Badge de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.6.1.2",
+                  "nombre": "Gráfico de ingresos",
+                  "descripcion": "Visualización de tendencias usando componentes de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.6.1.3",
+                  "nombre": "Próximo pago",
+                  "descripcion": "Información del siguiente pago programado",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.6.2",
+              "nombre": "Historial de Pagos",
+              "descripcion": "Implementar app/(driver)/earnings/history.tsx con lista de transacciones",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.6.2.1",
+                  "nombre": "Lista filtrable",
+                  "descripcion": "Lista de pagos con filtros usando Select y Tabs de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.6.2.2",
+                  "nombre": "Detalles de cada pago",
+                  "descripcion": "Vista expandible con detalles usando BottomSheet de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.6.2.3",
+                  "nombre": "Exportar recibos",
+                  "descripcion": "Botón para descargar comprobantes usando Button de @ui/",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.6.3",
+              "nombre": "Métodos de Pago",
+              "descripcion": "Implementar app/(driver)/payments/methods.tsx para gestión de pagos",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.6.3.1",
+                  "nombre": "Lista de métodos activos",
+                  "descripcion": "Mostrar métodos configurados usando Card de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.6.3.2",
+                  "nombre": "Añadir nuevo método",
+                  "descripcion": "Formulario para nuevos métodos usando MultiStepForm de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.6.3.3",
+                  "nombre": "Verificación de métodos",
+                  "descripcion": "Estado de verificación con indicadores visuales",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.7",
+          "nombre": "Vistas de Documentos y Verificación",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Crear vistas UI para gestión de documentos de verificación",
+          "dependencias": [
+            "components/ui/",
+            "store/driverProfile.ts",
+            "app/services/documentService.ts",
+            "types/driver.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.7.0",
+              "nombre": "Integración API de Documentos",
+              "descripcion": "Implementar llamadas a endpoints reales para gestión de documentos de verificación",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.7.0.1",
+                  "nombre": "POST /api/driver/documents",
+                  "descripcion": "Implementar subida de documentos del conductor con validación de tipo y tamaño",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.7.0.2",
+                  "nombre": "POST /api/driver/vehicles/documents",
+                  "descripcion": "Conectar subida de documentos de vehículos con asociación automática",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.7.0.3",
+                  "nombre": "GET /api/driver/:driverId/documents",
+                  "descripcion": "Implementar consulta de documentos con estados de verificación",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.7.0.4",
+                  "nombre": "PUT /api/driver/documents/:documentId",
+                  "descripcion": "Conectar re-subida de documentos rechazados",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.7.1",
+              "nombre": "Centro de Documentos",
+              "descripcion": "Implementar app/(driver)/documents/index.tsx como dashboard de documentos",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.7.1.1",
+                  "nombre": "Estado de verificación general",
+                  "descripcion": "Indicador global usando Badge y Card de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.7.1.2",
+                  "nombre": "Lista de documentos requeridos",
+                  "descripcion": "Grid de documentos con estado usando Card de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.7.1.3",
+                  "nombre": "Documentos pendientes",
+                  "descripcion": "Sección destacada para documentos que requieren atención",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.7.2",
+              "nombre": "Subida de Documentos",
+              "descripcion": "Implementar app/(driver)/documents/upload.tsx para subir documentos",
+              "subtareas": [
+                {
+                  "id": "ST1.7.2.1",
+                  "nombre": "Selector de tipo de documento",
+                  "descripcion": "Dropdown usando Select de @ui/ para elegir tipo"
+                },
+                {
+                  "id": "ST1.7.2.2",
+                  "nombre": "Captura/subida de imagen",
+                  "descripcion": "Selector de imagen con preview usando Card de @ui/"
+                },
+                {
+                  "id": "ST1.7.2.3",
+                  "nombre": "Proceso de verificación",
+                  "descripcion": "Feedback del estado de verificación usando Badge de @ui/"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.9",
+          "nombre": "Integración con Flujo Unificado Existente",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Integrar las nuevas vistas de gestión con el sistema de flujo unificado existente (driver-unified-flow-demo.tsx)",
+          "dependencias": [
+            "app/(root)/driver-unified-flow-demo.tsx",
+            "components/drawer/configs/driverDrawerConfig.ts",
+            "store/index.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.9.1",
+              "nombre": "Actualizar Drawer con Nuevas Rutas",
+              "descripcion": "Añadir rutas de gestión (perfil, vehículos, finanzas, documentos) al drawer del conductor",
+              "subtareas": [
+                {
+                  "id": "ST1.9.1.1",
+                  "nombre": "Configurar navegación híbrida",
+                  "descripcion": "Permitir navegación entre flujo operativo (unified-flow) y vistas de gestión"
+                },
+                {
+                  "id": "ST1.9.1.2",
+                  "nombre": "Preservar estado del flujo",
+                  "descripcion": "Mantener estado del flujo unificado al navegar a vistas de gestión y viceversa"
+                },
+                {
+                  "id": "ST1.9.1.3",
+                  "nombre": "Actualizar drawer config",
+                  "descripcion": "Añadir rutas faltantes al driverDrawerConfig.ts"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.9.2",
+              "nombre": "Integración de Estados Globales",
+              "descripcion": "Conectar stores de gestión con el estado del flujo unificado",
+              "subtareas": [
+                {
+                  "id": "ST1.9.2.1",
+                  "nombre": "Sincronizar perfil del conductor",
+                  "descripcion": "Conectar store/driverProfile.ts con datos del flujo unificado"
+                },
+                {
+                  "id": "ST1.9.2.2",
+                  "nombre": "Estados de vehículos en tiempo real",
+                  "descripcion": "Actualizar estados de vehículos según contexto del viaje activo"
+                },
+                {
+                  "id": "ST1.9.2.3",
+                  "nombre": "Actualización de earnings",
+                  "descripcion": "Reflejar earnings en tiempo real desde el flujo operativo"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.9.3",
+              "nombre": "Navegación Contextual Inteligente",
+              "descripcion": "Implementar navegación inteligente basada en el estado operativo del conductor",
+              "subtareas": [
+                {
+                  "id": "ST1.9.3.1",
+                  "nombre": "Bloquear gestión durante viajes",
+                  "descripcion": "Prevenir acceso a vistas de gestión mientras hay viaje activo"
+                },
+                {
+                  "id": "ST1.9.3.2",
+                  "nombre": "Navegación desde flujo operativo",
+                  "descripcion": "Permitir acceso a gestión desde estados específicos del flujo unificado"
+                },
+                {
+                  "id": "ST1.9.3.3",
+                  "nombre": "Notificaciones contextuales",
+                  "descripcion": "Mostrar notificaciones relevantes basadas en estado operativo"
+                }
+              ],
+              "progreso": 100
+            }
+          ]
+        },
+        {
+          "id": "E2",
+          "nombre": "Completar Funciones Faltantes del Store",
+          "progreso": 100,
+          "modulos": [
+            {
+              "id": "M2.1",
+              "nombre": "Completar Funciones del Store DriverProfile",
+              "progreso": 100,
+              "prioridad": "Alta",
+              "descripcion": "Implementar las funciones faltantes en driverProfile store que tienen TODO",
+              "dependencias": [
+                "store/driverProfile.ts",
+                "app/services/driverService.ts",
+                "app/services/vehicleService.ts",
+                "app/services/documentService.ts"
+              ],
+              "tareas": [
+                {
+                  "id": "T2.1.1",
+                  "nombre": "Implementar updateProfile",
+                  "descripcion": "Completar la función updateProfile en driverProfile store usando driverService",
+                  "progreso": 100,
+                  "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Conectar con PUT /api/driver/profile/:id",
+                  "descripcion": "Implementar llamada real a la API de actualización de perfil",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Manejo de errores y validación",
+                  "descripcion": "Implementar manejo de errores apropiado y validación de respuesta",
+                  "progreso": 100
+                }
+                  ]
+                },
+                {
+                  "id": "T2.1.2",
+                  "nombre": "Implementar updateVehicle",
+                  "descripcion": "Completar la función updateVehicle en driverProfile store usando vehicleService",
+                  "progreso": 100,
+                  "subtareas": [
+                    {
+                      "id": "ST2.1.2.1",
+                      "nombre": "Conectar con PUT /api/driver/vehicles/:vehicleId",
+                      "descripcion": "Implementar llamada real a la API de actualización de vehículo",
+                      "progreso": 100
+                    },
+                    {
+                      "id": "ST2.1.2.2",
+                      "nombre": "Actualización optimista del estado",
+                      "descripcion": "Implementar actualización optimista del estado local",
+                      "progreso": 100
+                    }
+                  ]
+                },
+                {
+                  "id": "T2.1.3",
+                  "nombre": "Implementar deleteVehicle",
+                  "descripcion": "Completar la función deleteVehicle en driverProfile store usando vehicleService",
+                  "progreso": 100,
+                  "subtareas": [
+                    {
+                      "id": "ST2.1.3.1",
+                      "nombre": "Conectar con DELETE /api/driver/vehicles/:vehicleId",
+                      "descripcion": "Implementar llamada real a la API de eliminación de vehículo",
+                      "progreso": 100
+                    },
+                    {
+                      "id": "ST2.1.3.2",
+                      "nombre": "Confirmación de eliminación",
+                      "descripcion": "Implementar diálogo de confirmación antes de eliminar",
+                      "progreso": 100
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "id": "M2.2",
+              "nombre": "Completar Funciones del Store DriverEarnings",
+              "progreso": 100,
+              "prioridad": "Media",
+              "descripcion": "Implementar las funciones faltantes en driverEarnings store",
+              "dependencias": [
+                "store/driverEarnings.ts",
+                "app/services/earningsService.ts"
+              ],
+              "tareas": [
+                {
+                  "id": "T2.2.1",
+                  "nombre": "Implementar fetchTripHistory",
+                  "descripcion": "Completar la función fetchTripHistory usando earningsService.getTripHistory",
+                  "progreso": 100,
+                  "subtareas": [
+                    {
+                      "id": "ST2.2.1.1",
+                      "nombre": "Conectar con GET /api/driver/earnings/trips",
+                      "descripcion": "Implementar llamada real a la API de historial de viajes",
+                      "progreso": 100
+                    },
+                    {
+                      "id": "ST2.2.1.2",
+                      "nombre": "Paginación y filtros",
+                      "descripcion": "Implementar paginación y filtros por período",
+                      "progreso": 100
+                    }
+                  ]
+                },
+                {
+                  "id": "T2.2.2",
+                  "nombre": "Implementar fetchPromotions",
+                  "descripcion": "Completar la función fetchPromotions usando earningsService.getActivePromotions",
+                  "progreso": 100,
+                  "subtareas": [
+                    {
+                      "id": "ST2.2.2.1",
+                      "nombre": "Conectar con GET /api/driver/earnings/promotions/active",
+                      "descripcion": "Implementar llamada real a la API de promociones activas",
+                      "progreso": 100
+                    }
+                  ]
+                },
+                {
+                  "id": "T2.2.3",
+                  "nombre": "Implementar fetchChallenges",
+                  "descripcion": "Completar la función fetchChallenges usando earningsService.getActiveChallenges",
+                  "progreso": 100,
+                  "subtareas": [
+                    {
+                      "id": "ST2.2.3.1",
+                      "nombre": "Conectar con GET /api/driver/earnings/challenges/active",
+                      "descripcion": "Implementar llamada real a la API de desafíos activos",
+                      "progreso": 100
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.8",
+          "nombre": "Sistema de Emergencias",
+          "progreso": 100,
+          "prioridad": "Crítica",
+          "descripcion": "Implementar sistema completo de emergencias con alertas, contactos y recursos de seguridad",
+          "dependencias": [
+            "store/emergency/emergency.ts",
+            "app/(driver)/emergency/"
+          ],
+          "tareas": [
+            {
+              "id": "T1.8.1",
+              "nombre": "Dashboard de Emergencias",
+              "descripcion": "Implementar app/(driver)/emergency/index.tsx como centro de control de emergencias",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.8.1.1",
+                  "nombre": "Botón SOS prominente",
+                  "descripcion": "Botón de emergencia grande y accesible usando Card de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.8.1.2",
+                  "nombre": "Gestión de contactos de emergencia",
+                  "descripcion": "Lista de contactos con botones de llamada usando Button de @ui/",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.8.1.3",
+                  "nombre": "Historial de emergencias",
+                  "descripcion": "Vista de emergencias anteriores con estados y tipos",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.9",
+          "nombre": "Sistema de Roles y Onboarding de Conductor",
+          "progreso": 100,
+          "prioridad": "Crítica",
+          "descripcion": "Sistema completo para conversión usuario→conductor con verificación de rol y onboarding",
+          "dependencias": [
+            "store/driverRole/driverRole.ts",
+            "app/(driver)/onboarding/",
+            "app/services/driverService.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.9.1",
+              "nombre": "Verificación de Rol de Conductor",
+              "descripcion": "Implementar endpoint y lógica para verificar si usuario es conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.9.1.1",
+                  "nombre": "Extender driverService.getStatus()",
+                  "descripcion": "Añadir campo isDriver al endpoint existente GET /api/driver/status",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.1.2",
+                  "nombre": "Crear DriverRoleStore",
+                  "descripcion": "Store Zustand para manejar estado de rol de conductor y persistencia offline",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.1.3",
+                  "nombre": "Implementar guards de rol",
+                  "descripcion": "Verificar rol de conductor en layouts y redireccionar automáticamente",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.9.2",
+              "nombre": "Minisplash para Switch de Modo",
+              "descripcion": "Integrar sistema de splash existente con verificación de rol y onboarding",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.9.2.1",
+                  "nombre": "Modificar switchToDriver",
+                  "descripcion": "Extender hook useModuleTransition para verificar rol antes de mostrar splash",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.2.2",
+                  "nombre": "Splash condicional",
+                  "descripcion": "Mostrar splash normal si ya es conductor, o redirigir a onboarding si no lo es",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.2.3",
+                  "nombre": "Actualizar DriverMiniSplash",
+                  "descripcion": "Personalizar mensajes del splash según contexto (primera vez vs switch normal)",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.9.3",
+              "nombre": "Persistencia Offline del Rol",
+              "descripcion": "Guardar estado de conductor en AsyncStorage para funcionamiento offline",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.9.3.1",
+                  "nombre": "AsyncStorage integration",
+                  "descripcion": "Implementar guardado automático del rol en AsyncStorage",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.3.2",
+                  "nombre": "Offline verification",
+                  "descripcion": "Verificar rol localmente cuando no hay conexión a internet",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.3.3",
+                  "nombre": "Sync on reconnect",
+                  "descripcion": "Sincronizar estado local con servidor cuando se recupera la conexión",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.9.4",
+              "nombre": "Reutilización de Datos de Usuario",
+              "descripcion": "Migrar automáticamente datos del perfil de usuario al perfil de conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.9.4.1",
+                  "nombre": "Mapping de campos",
+                  "descripcion": "Definir correspondencia entre campos de usuario y campos de conductor",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.4.2",
+                  "nombre": "Migración automática",
+                  "descripcion": "Implementar lógica para copiar datos durante el proceso de onboarding",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.9.4.3",
+                  "nombre": "Validación de datos",
+                  "descripcion": "Verificar que los datos migrados cumplan con requerimientos de conductor",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.10",
+          "nombre": "Onboarding Flow para Conductores",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Flujo completo de onboarding para convertir usuarios en conductores verificados",
+          "dependencias": [
+            "app/(driver)/onboarding/",
+            "store/driverOnboarding/driverOnboarding.ts",
+            "components/onboarding/"
+          ],
+          "tareas": [
+            {
+              "id": "T1.10.1",
+              "nombre": "Paso 1: Verificación de Requisitos",
+              "descripcion": "Verificar edad mínima, licencia de conducir válida, y otros prerrequisitos",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.10.1.1",
+                  "nombre": "Formulario de prerrequisitos",
+                  "descripcion": "Preguntas iniciales sobre edad, experiencia, tipo de vehículo",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.1.2",
+                  "nombre": "Validación automática",
+                  "descripcion": "Verificar automáticamente si cumple con requisitos mínimos",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.10.2",
+              "nombre": "Paso 2: Información Personal",
+              "descripcion": "Completar información adicional requerida para conductores",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.10.2.1",
+                  "nombre": "Datos adicionales",
+                  "descripcion": "Dirección, teléfono secundario, referencias personales",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.2.2",
+                  "nombre": "Preferencias de trabajo",
+                  "descripcion": "Horarios preferidos, zonas de trabajo, tipos de servicio",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.10.3",
+              "nombre": "Paso 3: Verificación de Documentos",
+              "descripcion": "Subida y verificación de documentos requeridos para conductores",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.10.3.1",
+                  "nombre": "Documentos requeridos",
+                  "descripcion": "Licencia, seguro, registro vehicular, foto del conductor",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.3.2",
+                  "nombre": "Proceso de verificación",
+                  "descripcion": "Subida automática y estado de verificación en tiempo real",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.10.4",
+              "nombre": "Paso 4: Información del Vehículo",
+              "descripcion": "Registro completo del vehículo que usará para los servicios",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.10.4.1",
+                  "nombre": "Registro del vehículo",
+                  "descripcion": "Información básica: marca, modelo, año, color, capacidad",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.4.2",
+                  "nombre": "Documentos del vehículo",
+                  "descripcion": "Seguro, registro, inspección técnica, fotos del vehículo",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.10.5",
+              "nombre": "Paso 5: Acuerdos y Términos",
+              "descripcion": "Aceptación de términos del servicio, políticas de seguridad y acuerdos legales",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.10.5.1",
+                  "nombre": "Términos del servicio",
+                  "descripcion": "Aceptación de términos y condiciones específicas para conductores",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.5.2",
+                  "nombre": "Políticas de seguridad",
+                  "descripcion": "Compromiso con políticas de seguridad y conducta profesional",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.5.3",
+                  "nombre": "Acuerdos legales",
+                  "descripcion": "Firma digital de contratos y acuerdos de servicio",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.10.6",
+              "nombre": "Paso 6: Verificación Final y Activación",
+              "descripcion": "Revisión final, verificación de documentos y activación de cuenta de conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.10.6.1",
+                  "nombre": "Revisión automática",
+                  "descripcion": "Verificación automática de que todos los requisitos están completos",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.6.2",
+                  "nombre": "Activación de cuenta",
+                  "descripcion": "Cambio de rol a conductor y envío de notificación de bienvenida",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.10.6.3",
+                  "nombre": "Tutorial inicial",
+                  "descripcion": "Guía rápida de la plataforma para conductores nuevos",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

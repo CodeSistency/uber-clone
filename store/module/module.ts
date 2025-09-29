@@ -52,6 +52,8 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
     }
 
     const splashStore = useSplashStore.getState();
+    const splashId = `module-transition-${Date.now()}`;
+    let safetyTimeout: NodeJS.Timeout | undefined;
 
     try {
       // Iniciar transición con splash
@@ -68,13 +70,14 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
         },
       });
 
-      // Mostrar splash de transición
+      // Mostrar splash de transición con timeout máximo de 5 segundos
       const splashConfig = splashConfigs.moduleTransition(current, module);
       splashStore.showSplash({
-        id: `module-transition-${Date.now()}`,
+        id: splashId,
         type: "module_transition",
         ...splashConfig,
         progress: 0,
+        duration: 5000, // Máximo 5 segundos
         moduleSpecific: {
           fromModule: current,
           toModule: module,
@@ -82,20 +85,31 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
         },
       });
 
+      // Timeout de seguridad para ocultar splash después de 5 segundos
+      safetyTimeout = setTimeout(() => {
+        console.log("[ModuleStore] Safety timeout: hiding splash after 5 seconds");
+        splashStore.hideSplash(splashId);
+        set({
+          isTransitioning: false,
+          isSplashActive: false,
+          splashProgress: 100,
+          currentTransition: null,
+        });
+      }, 5000);
+
       // Cargar datos del módulo en paralelo con splash
       const dataLoader = getDataLoaderForModule(module);
       if (dataLoader) {
+        console.log(`[ModuleStore] Starting data loading for module: ${module}`);
         const result = await dataLoader((completed, total, currentTask) => {
           const progress = Math.round((completed / total) * 100);
+          console.log(`[ModuleStore] Data loading progress: ${progress}% - ${currentTask}`);
           set({ splashProgress: progress });
-          splashStore.updateProgress(
-            progress,
-            `module-transition-${Date.now()}`,
-          );
+          splashStore.updateProgress(progress, splashId);
 
           // Actualizar el título del splash con la tarea actual
           splashStore.showSplash({
-            id: `module-transition-${Date.now()}`,
+            id: splashId,
             type: "module_transition",
             ...splashConfig,
             progress,
@@ -107,6 +121,7 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
             },
           });
         });
+        console.log(`[ModuleStore] Data loading completed for module: ${module}, success: ${result.success}`);
 
         if (!result.success) {
           console.warn(
@@ -114,28 +129,44 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
             result.errors,
           );
         }
+
+        // Limpiar timeout de seguridad si la carga se completó antes
+        if (safetyTimeout) clearTimeout(safetyTimeout);
+
+        // Persistir en AsyncStorage
+        await AsyncStorage.setItem("user_module", module);
+        console.log("[ModuleStore] Module persisted to AsyncStorage:", module);
+
+        // Completar splash y transición
+        splashStore.hideSplash(splashId);
+
+        set({
+          isTransitioning: false,
+          isSplashActive: false,
+          splashProgress: 100,
+          currentTransition: null,
+        });
+
+        console.log("[ModuleStore] Module transition with splash completed");
+      } else {
+        // Si no hay dataLoader, completar inmediatamente
+        if (safetyTimeout) clearTimeout(safetyTimeout);
+        splashStore.hideSplash(splashId);
+        set({
+          isTransitioning: false,
+          isSplashActive: false,
+          splashProgress: 100,
+          currentTransition: null,
+        });
       }
-
-      // Persistir en AsyncStorage
-      await AsyncStorage.setItem("user_module", module);
-      console.log("[ModuleStore] Module persisted to AsyncStorage:", module);
-
-      // Completar splash y transición
-      splashStore.hideSplash(`module-transition-${Date.now()}`);
-
-      set({
-        isTransitioning: false,
-        isSplashActive: false,
-        splashProgress: 100,
-        currentTransition: null,
-      });
-
-      console.log("[ModuleStore] Module transition with splash completed");
     } catch (error) {
       console.error("[ModuleStore] Error in switchToModuleWithSplash:", error);
 
+      // Limpiar timeout de seguridad
+      if (safetyTimeout) clearTimeout(safetyTimeout);
+
       // Ocultar splash en caso de error
-      splashStore.hideSplash(`module-transition-${Date.now()}`);
+      splashStore.hideSplash(splashId);
 
       // Revertir cambios en caso de error
       set({
@@ -155,9 +186,50 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
     get().switchToModuleWithSplash("customer");
   },
 
-  switchToBusiness: () => {
-    console.log("[ModuleStore] Switching to business module with splash");
-    get().switchToModuleWithSplash("business");
+  switchToBusiness: async () => {
+    console.log("[ModuleStore] Switching to business module - checking permissions");
+
+    // Check business permissions (random for demo purposes)
+    const hasBusinessPermissions = Math.random() > 0.5; // 50% chance
+
+    console.log(`[ModuleStore] Business permissions check: ${hasBusinessPermissions ? 'GRANTED' : 'DENIED'}`);
+
+    if (hasBusinessPermissions) {
+      // User has business permissions, proceed with splash transition
+      console.log("[ModuleStore] Business permissions granted, proceeding with splash");
+      await get().switchToModuleWithSplash("business");
+    } else {
+      // User doesn't have business permissions, redirect to registration after splash
+      console.log("[ModuleStore] Business permissions denied, redirecting to registration");
+
+      // Show splash for business registration
+      const splashStore = useSplashStore.getState();
+      const splashId = `business-registration-${Date.now()}`;
+
+      splashStore.showSplash({
+        id: splashId,
+        type: "module_transition",
+        title: "Registrando Negocio",
+        subtitle: "Configurando cuenta comercial...",
+        backgroundColor: "#10B981", // Green for business
+        showProgress: true,
+        duration: 5000, // 5 seconds max
+        moduleSpecific: {
+          fromModule: get().currentModule,
+          toModule: "business",
+        },
+      });
+
+      // Redirect to business registration after showing splash
+      setTimeout(async () => {
+        try {
+          const { router } = await import('expo-router');
+          router.replace("/(auth)/business-register" as any);
+        } catch (error) {
+          console.error("[ModuleStore] Error redirecting to business registration:", error);
+        }
+      }, 2000); // Show splash for 2 seconds before redirecting
+    }
   },
 
   switchToDriver: () => {
@@ -231,7 +303,10 @@ export const useModuleTransition = () => {
   );
 
   const switchToDriver = useCallback(
-    () => switchModule("driver"),
+    async () => {
+      console.log("[useModuleTransition] Switching to driver module");
+      await switchModule("driver");
+    },
     [switchModule],
   );
   const switchToBusiness = useCallback(

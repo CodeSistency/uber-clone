@@ -1,0 +1,2 @@
+export { useDriverProfileStore } from './driverProfile';
+

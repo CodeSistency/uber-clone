@@ -5,9 +5,8 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CustomButton from "@/components/CustomButton";
 import ProgressBar from "@/components/onboarding/ProgressBar";
-import { Select, Button } from "@/components/ui";
+import { Select, Button, Card } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
@@ -454,53 +453,56 @@ export default function LocationSelection() {
           />
         </View>
 
-        {/* Country */}
-        <View className="mb-4">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">
-            🌍 Country
-          </Text>
-          <Select
-            value={selectedCountry}
-            onChange={(code) => handleCountrySelect(code)}
-            options={filteredCountries.map((c) => ({
-              label: `${c.flag} ${c.name}`,
-              value: c.code,
-            }))}
-            placeholder="Select country"
-          />
-        </View>
+        {/* Location Information Card */}
+        <Card title="📍 Location Information" className="mb-8">
+          {/* Country */}
+          <View className="mb-4">
+            <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">
+              🌍 Country
+            </Text>
+            <Select
+              value={selectedCountry}
+              onChange={(code) => handleCountrySelect(code)}
+              options={filteredCountries.map((c) => ({
+                label: `${c.flag} ${c.name}`,
+                value: c.code,
+              }))}
+              placeholder="Select country"
+            />
+          </View>
 
-        {/* State (optional) */}
-        <View className="mb-4">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">
-            🏛️ State / Province
-          </Text>
-          <Select
-            value={selectedState}
-            onChange={(s) => handleStateSelect(s)}
-            options={availableStates.map((s) => ({ label: s, value: s }))}
-            placeholder={
-              availableStates.length ? "Select state" : "Select country first"
-            }
-          />
-        </View>
+          {/* State (optional) */}
+          <View className="mb-4">
+            <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">
+              🏛️ State / Province
+            </Text>
+            <Select
+              value={selectedState}
+              onChange={(s) => handleStateSelect(s)}
+              options={availableStates.map((s) => ({ label: s, value: s }))}
+              placeholder={
+                availableStates.length ? "Select state" : "Select country first"
+              }
+            />
+          </View>
 
-        {/* City */}
-        <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">
-            🏙️ City
-          </Text>
-          <Select
-            value={selectedCity}
-            onChange={(c) => handleCitySelect(c)}
-            options={availableCities.map((c) => ({ label: c, value: c }))}
-            placeholder={
-              availableCities.length ? "Select city" : "Select state first"
-            }
-          />
-        </View>
+          {/* City */}
+          <View className="mb-0">
+            <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-2">
+              🏙️ City
+            </Text>
+            <Select
+              value={selectedCity}
+              onChange={(c) => handleCitySelect(c)}
+              options={availableCities.map((c) => ({ label: c, value: c }))}
+              placeholder={
+                availableCities.length ? "Select city" : "Select state first"
+              }
+            />
+          </View>
+        </Card>
 
-        <CustomButton
+        <Button
           title="Continue"
           onPress={handleContinue}
           disabled={!selectedCountry || !selectedCity}

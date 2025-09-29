@@ -12,8 +12,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useUI } from "@/components/UIWrapper";
 import { logoutUser } from "@/lib/auth";
+import ModuleSwitcherWithSplash from "@/components/ModuleSwitcherWithSplash";
 
-import ModeSwitcher from "./ModeSwitcher";
 
 interface DrawerContentProps {
   currentMode?: "customer" | "driver" | "business";
@@ -112,6 +112,11 @@ const DrawerContent = ({
       route: "/(root)/map-flows-demo",
     },
     {
+      title: "Test Drawer Demo",
+      icon: "🪟",
+      route: "/(root)/testDrawer",
+    },
+    {
       title: "Flujo Unificado Demo",
       icon: "🔄",
       route: "/(root)/unified-flow-demo",
@@ -190,12 +195,10 @@ const DrawerContent = ({
 
             <ScrollView className="flex-1">
               {/* Mode Switcher */}
-              <ModeSwitcher
-                currentMode={currentMode}
-                variant="drawer"
-                theme={theme}
+              <ModuleSwitcherWithSplash
+                currentModule={currentMode}
+                onModuleChange={onModeChange}
                 onClose={onClose}
-                onModeChange={onModeChange}
               />
 
               {/* Menu Items */}

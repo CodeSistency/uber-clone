@@ -1,178 +1,197 @@
+import { useEffect, useMemo } from "react";
 import { useRouter, usePathname } from "expo-router";
-import { useCallback } from "react";
+import { useMapFlowStore } from "@/store/mapFlow/mapFlow";
+import { useDriverProfileStore } from "@/store/driverProfile";
+import { useUI } from "@/components/UIWrapper";
+
+// Define restricted routes during active rides
+const RESTRICTED_ROUTES_DURING_RIDE = [
+  "/(driver)/vehicles",
+  "/(driver)/documents",
+  "/(driver)/earnings",
+];
+
+// Define routes that should show contextual notifications
+const CONTEXTUAL_NOTIFICATION_ROUTES = [
+  "/(driver)/profile",
+  "/(driver)/vehicles",
+  "/(driver)/documents",
+  "/(driver)/earnings",
+];
 
 export const useDriverNavigation = () => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const navigateToDashboard = useCallback(() => {
-    router.push('/(driver)/dashboard' as any);
-  }, [router]);
+  const { showError, showSuccess, showInfo } = useUI();
+  const { profile } = useDriverProfileStore();
 
-  const navigateToEarnings = useCallback(() => {
-    router.push('/(driver)/earnings' as any);
-  }, [router]);
+  // Get current flow state
+  const {
+    step,
+    rideId,
+    orderId,
+    errandId,
+    parcelId,
+    role,
+    isActive: flowIsActive,
+  } = useMapFlowStore();
 
-  const navigateToSafety = useCallback(() => {
-    router.push('/(driver)/safety' as any);
-  }, [router]);
+  // Determine if driver has an active ride
+  const hasActiveRide = useMemo(() => {
+    // Check if there's any active service identifier
+    const hasActiveService = !!(rideId || orderId || errandId || parcelId);
 
-  const navigateToRatings = useCallback(() => {
-    router.push('/(driver)/ratings' as any);
-  }, [router]);
+    // Check if current step is an operational step (not availability)
+    const isOperationalStep = step && step !== "DRIVER_DISPONIBILIDAD";
 
-  const navigateToSettings = useCallback(() => {
-    router.push('/(driver)/settings' as any);
-  }, [router]);
+    // Driver has active ride if they have a service identifier AND are in operational flow
+    return hasActiveService && isOperationalStep && flowIsActive;
+  }, [step, rideId, orderId, errandId, parcelId, flowIsActive]);
 
-  const navigateToRideRequests = useCallback(() => {
-    router.push('/(driver)/ride-requests' as any);
-  }, [router]);
+  // Get current service type based on active identifiers
+  const currentServiceType = useMemo(() => {
+    if (rideId) return "transport";
+    if (orderId) return "delivery";
+    if (errandId) return "mandado";
+    if (parcelId) return "envio";
+    return null;
+  }, [rideId, orderId, errandId, parcelId]);
 
-  const navigateToActiveRide = useCallback((rideId?: string) => {
-    if (rideId) {
-      router.push(`/(driver)/active-ride?id=${rideId}` as any);
-    } else {
-      router.push('/(driver)/active-ride' as any);
+  // Check if current route is restricted during active ride
+  const isCurrentRouteRestricted = useMemo(() => {
+    return RESTRICTED_ROUTES_DURING_RIDE.includes(pathname);
+  }, [pathname]);
+
+  // Show contextual notifications based on current route and driver state
+  useEffect(() => {
+    if (!CONTEXTUAL_NOTIFICATION_ROUTES.includes(pathname)) return;
+
+    const showContextualNotification = () => {
+      // Don't show notifications if profile is loading or not available
+      if (!profile) return;
+
+      const baseMessage = "You can manage this information while offline.";
+      const serviceType = currentServiceType || "service";
+
+      if (hasActiveRide) {
+        showInfo(
+          "Active Service",
+          `You're currently on a ${serviceType} service. ${baseMessage}`,
+          5000 // Show for 5 seconds
+        );
+      } else if (step === "DRIVER_DISPONIBILIDAD") {
+        showSuccess(
+          "Available for Services",
+          `You're online and available for ${serviceType || "services"}. ${baseMessage}`,
+          3000
+        );
+      }
+    };
+
+    // Small delay to allow UI to settle
+    const timeoutId = setTimeout(showContextualNotification, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [pathname, hasActiveRide, currentServiceType, step, profile]);
+
+  // Navigation guard for restricted routes during active rides
+  useEffect(() => {
+    if (hasActiveRide && isCurrentRouteRestricted) {
+      const serviceType = currentServiceType || "service";
+
+      showError(
+        "Action Not Available",
+        `You cannot access this section while on an active ${serviceType} service. Please complete your current service first.`,
+        8000 // Show longer error message
+      );
+
+      // Navigate back to a safe route
+      setTimeout(() => {
+        router.replace("/(driver)/available");
+      }, 2000);
     }
-  }, [router]);
+  }, [hasActiveRide, isCurrentRouteRestricted, currentServiceType]);
 
-  const navigateToEarningsHistory = useCallback(() => {
-    router.push('/(driver)/earnings/history' as any);
-  }, [router]);
+  // Helper methods for navigation
+  const navigateToProfile = () => {
+    if (canNavigateToManagement()) {
+      router.push("/(driver)/profile");
+    }
+  };
 
-  const navigateToEarningsAnalytics = useCallback(() => {
-    router.push('/(driver)/earnings/analytics' as any);
-  }, [router]);
+  const navigateToVehicles = () => {
+    if (canNavigateToManagement()) {
+      router.push("/(driver)/vehicles" as any);
+    }
+  };
 
-  const navigateToEarningsPromotions = useCallback(() => {
-    router.push('/(driver)/earnings/promotions' as any);
-  }, [router]);
+  const navigateToDocuments = () => {
+    if (canNavigateToManagement()) {
+      router.push("/(driver)/documents" as any);
+    }
+  };
 
-  const navigateToEarningsInstantPay = useCallback(() => {
-    router.push('/(driver)/earnings/instant-pay' as any);
-  }, [router]);
+  const navigateToEarnings = () => {
+    if (canNavigateToManagement()) {
+      router.push("/(driver)/earnings");
+    }
+  };
 
-  const navigateToSafetyContacts = useCallback(() => {
-    router.push('/(driver)/safety/contacts' as any);
-  }, [router]);
+  const canNavigateToManagement = () => {
+    if (hasActiveRide) {
+      const serviceType = currentServiceType || "service";
+      showError(
+        "Action Not Available",
+        `You cannot access management sections while on an active ${serviceType} service. Please complete your current service first.`
+      );
+      return false;
+    }
+    return true;
+  };
 
-  const navigateToSafetyIncidents = useCallback(() => {
-    router.push('/(driver)/safety/incidents' as any);
-  }, [router]);
+  const navigateToAvailable = () => {
+    router.replace("/(driver)/available");
+  };
 
-  const navigateToSafetyShareTrip = useCallback(() => {
-    router.push('/(driver)/safety/share-trip' as any);
-  }, [router]);
-
-  const navigateToSafetySettings = useCallback(() => {
-    router.push('/(driver)/safety/settings' as any);
-  }, [router]);
-
-  const navigateToRatingsHistory = useCallback(() => {
-    router.push('/(driver)/ratings/history' as any);
-  }, [router]);
-
-  const navigateToRatingsAnalytics = useCallback(() => {
-    router.push('/(driver)/ratings/analytics' as any);
-  }, [router]);
-
-  const navigateToRatingsFeedback = useCallback(() => {
-    router.push('/(driver)/ratings/feedback' as any);
-  }, [router]);
-
-  const navigateToRatingsSupport = useCallback(() => {
-    router.push('/(driver)/ratings/support' as any);
-  }, [router]);
-
-  const navigateToSettingsProfile = useCallback(() => {
-    router.push('/(driver)/settings/profile' as any);
-  }, [router]);
-
-  const navigateToSettingsVehicles = useCallback(() => {
-    router.push('/(driver)/settings/vehicles' as any);
-  }, [router]);
-
-  const navigateToSettingsDocuments = useCallback(() => {
-    router.push('/(driver)/settings/documents' as any);
-  }, [router]);
-
-  const navigateToSettingsServiceTypes = useCallback(() => {
-    router.push('/(driver)/settings/service-types' as any);
-  }, [router]);
-
-  const navigateToSettingsPaymentMethods = useCallback(() => {
-    router.push('/(driver)/settings/payment-methods' as any);
-  }, [router]);
-
-  const navigateToSettingsNotifications = useCallback(() => {
-    router.push('/(driver)/settings/notifications' as any);
-  }, [router]);
-
-  const navigateToSettingsHelp = useCallback(() => {
-    router.push('/(driver)/settings/help' as any);
-  }, [router]);
-
-  const navigateBack = useCallback(() => {
-    router.back();
-  }, [router]);
-
-  const navigateToHome = useCallback(() => {
-    router.push('/(root)/(tabs)/home' as any);
-  }, [router]);
-
-  const isCurrentRoute = useCallback((route: string) => {
-    return pathname === route;
-  }, [pathname]);
-
-  const isDriverRoute = useCallback(() => {
-    return pathname.startsWith('/(driver)');
-  }, [pathname]);
+  const navigateToEarningsFromRide = () => {
+    // Allow navigation to earnings even during active ride for viewing current earnings
+    router.push("/(driver)/earnings");
+  };
 
   return {
-    // Navigation functions
-    navigateToDashboard,
+    // State
+    hasActiveRide,
+    currentServiceType,
+    isCurrentRouteRestricted,
+    canNavigateToManagement,
+
+    // Navigation methods
+    navigateToProfile,
+    navigateToVehicles,
+    navigateToDocuments,
     navigateToEarnings,
-    navigateToSafety,
-    navigateToRatings,
-    navigateToSettings,
-    navigateToRideRequests,
-    navigateToActiveRide,
-    
-    // Earnings navigation
-    navigateToEarningsHistory,
-    navigateToEarningsAnalytics,
-    navigateToEarningsPromotions,
-    navigateToEarningsInstantPay,
-    
-    // Safety navigation
-    navigateToSafetyContacts,
-    navigateToSafetyIncidents,
-    navigateToSafetyShareTrip,
-    navigateToSafetySettings,
-    
-    // Ratings navigation
-    navigateToRatingsHistory,
-    navigateToRatingsAnalytics,
-    navigateToRatingsFeedback,
-    navigateToRatingsSupport,
-    
-    // Settings navigation
-    navigateToSettingsProfile,
-    navigateToSettingsVehicles,
-    navigateToSettingsDocuments,
-    navigateToSettingsServiceTypes,
-    navigateToSettingsPaymentMethods,
-    navigateToSettingsNotifications,
-    navigateToSettingsHelp,
-    
-    // Utility functions
-    navigateBack,
-    navigateToHome,
-    isCurrentRoute,
-    isDriverRoute,
-    
-    // Current state
-    currentPath: pathname
+    navigateToAvailable,
+    navigateToEarningsFromRide,
+
+    // Utility methods
+    showContextualNotification: () => {
+      if (CONTEXTUAL_NOTIFICATION_ROUTES.includes(pathname)) {
+        const baseMessage = "You can manage this information while offline.";
+
+        if (hasActiveRide) {
+          const serviceType = currentServiceType || "service";
+          showInfo(
+            "Active Service",
+            `You're currently on a ${serviceType} service. ${baseMessage}`
+          );
+        } else if (step === "DRIVER_DISPONIBILIDAD") {
+          showSuccess(
+            "Available for Services",
+            `You're online and available for services. ${baseMessage}`
+          );
+        }
+      }
+    },
   };
 };

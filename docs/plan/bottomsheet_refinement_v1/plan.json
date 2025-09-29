@@ -1,0 +1,401 @@
+{
+  "proyecto": "bottomsheet_refinement_v1",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Refinamiento UX y Animaciones del Bottom Sheet",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Animaciones de Transición entre Pasos",
+          "progreso": 80,
+          "prioridad": "Alta",
+          "descripcion": "Implementar animaciones suaves al cambiar la altura del bottom sheet cuando el flujo avanza o retrocede entre pasos.",
+          "dependencias": [
+            "store/mapFlow/mapFlow.ts",
+            "hooks/useMapFlow.ts",
+            "components/ui/InlineBottomSheet.tsx",
+            "components/unified-flow/UnifiedFlowWrapper.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Auditoría de flujo de alturas por paso",
+              "descripcion": "Revisar la configuración actual de alturas del bottom sheet por paso y mapear los cambios abruptos que requieren animación.",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Documentar configuraciones",
+                  "descripcion": "Listar valores min/max/initial y flags de drag de los pasos relevantes en store/mapFlow.",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Identificar transiciones críticas",
+                  "descripcion": "Detectar pasos consecutivos con diferencias grandes de altura para priorizar animaciones.",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Diseñar estrategia de animación",
+              "descripcion": "Definir cómo sincronizar cambios de altura utilizando Animated o Reanimated, asegurando que las transiciones se interpoleen entre alturas previas y nuevas.",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Seleccionar API de animación",
+                  "descripcion": "Evaluar Animated spring actual vs. integración con Reanimated 3 para consistencia iOS-like.",
+                  "progreso": 100 
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Planificar sincronización",
+                  "descripcion": "Definir cómo anticipar la altura destino antes de renderizar el nuevo contenido para evitar saltos.",
+                  "progreso": 100 
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Implementar animación suave",
+              "descripcion": "Actualizar InlineBottomSheet para animar entre alturas cuando cambian las props y exponer métodos para ajustes programáticos.",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Interpolar altura",
+                  "descripcion": "Agregar effect que detecte cambios en min/max/initial y ejecute transición con easing natural.",
+                  "progreso": 100 
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Sincronizar con MapFlow",
+                  "descripcion": "Asegurar que cambios de estado en useMapFlow disparen animación en lugar de setValue directo.",
+                  "progreso": 100 
+                }
+              ]
+            },
+            {
+              "id": "T1.1.4",
+              "nombre": "Pruebas y ajustes",
+              "descripcion": "Validar animaciones en pasos clave y ajustar parámetros de duración/bounciness para experiencia iOS-like.",
+              "subtareas": [
+                {
+                  "id": "ST1.1.4.1",
+                  "nombre": "Pruebas en transporte",
+                  "descripcion": "Ejecutar flujo CUSTOMER_TRANSPORT del demo y verificar transiciones sin saltos." 
+                },
+                {
+                  "id": "ST1.1.4.2",
+                  "nombre": "Ajuste de tuning",
+                  "descripcion": "Refinar valores de spring (stiffness/damping) para sensación fluida." 
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Usabilidad del Área de Drag",
+          "progreso": 75,
+          "prioridad": "Alta",
+          "descripcion": "Mejorar la accesibilidad y ergonomía de la zona superior del bottom sheet para facilitar gestos de arrastre.",
+          "dependencias": [
+            "components/ui/InlineBottomSheet.tsx",
+            "components/unified-flow/BaseComponents/index.ts",
+            "hooks/useMapFlow.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Investigación UX",
+              "descripcion": "Analizar patrones de drag handles en apps iOS y recoger feedback actual para definir objetivos de mejora.",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Benchmark iOS",
+                  "descripcion": "Observar componentes similares (Apple Maps, Apple Music) y anotar dimensiones y comportamientos.",
+                  "progreso": 100 
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Feedback interno",
+                  "descripcion": "Recolectar comentarios del equipo sobre dificultades con el handle actual.",
+                  "progreso": 100 
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Rediseño del handle",
+              "descripcion": "Actualizar diseño y hitbox del handle para mejorar la capturabilidad sin afectar estética.",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Amplificar área táctil",
+                  "descripcion": "Introducir wrapper invisible con mayor altura y margen para capturar gestos fácilmente.",
+                  "progreso": 100 
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Refinar estilo visual",
+                  "descripcion": "Ajustar grosor/radio/contraste del handle siguiendo guías iOS Human Interface.",
+                  "progreso": 100 
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Optimización de gestos",
+              "descripcion": "Revisar PanResponder para suavizar detección y considerar adopción de Gesture Handler si es necesario.",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Ajustar umbrales",
+                  "descripcion": "Reducir sensibilidad a movimientos pequeños sin provocar arrastres accidentales.",
+                  "progreso": 100,
+                  "notas": "Reducido a 3px con verificación de predominancia vertical."
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Evaluar gesture-handler",
+                  "descripcion": "Estimar impacto de migrar a react-native-gesture-handler para soporte nativo iOS-like.",
+                  "progreso": 100 
+                }
+              ]
+            },
+            {
+              "id": "T1.2.4",
+              "nombre": "Validación y ajustes",
+              "descripcion": "Probar nuevas dimensiones en dispositivos táctiles reales y refinar según feedback.",
+              "progreso": 25,
+              "subtareas": [
+                {
+                  "id": "ST1.2.4.1",
+                  "nombre": "Pruebas en simulador iOS",
+                  "descripcion": "Evaluar facilidad de agarre y respuesta del handle en simuladores iPhone.",
+                  "progreso": 0 
+                },
+                {
+                  "id": "ST1.2.4.2",
+                  "nombre": "Feedback del equipo",
+                  "descripcion": "Recoger impresiones tras la mejora y ajustar detalles finales.",
+                  "progreso": 50 
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Sensación iOS-like General",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Pulir detalles visuales y de interacción del bottom sheet para alinear con expectativas iOS (blur, rebote, fricción).",
+          "dependencias": [
+            "components/ui/InlineBottomSheet.tsx",
+            "components/unified-flow/UnifiedFlowWrapper.tsx",
+            "hooks/useMapController.ts",
+            "tailwind.config.js"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Revisión visual",
+              "descripcion": "Evaluar paleta, opacidades, sombras y gradientes actuales comparándolos con modales iOS.",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Ajustar gradiente",
+                  "descripcion": "Afinar colores/alpha del degradado para lograr apariencia translúcida suave." 
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Sombra y blur",
+                  "descripcion": "Considerar uso de blur o shadow que imite tarjetas iOS sin afectar rendimiento." 
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Sensación de rebote",
+              "descripcion": "Configurar animaciones de rebote y fricción para que el sheet responda con elasticidad controlada.",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Calibrar spring",
+                  "descripcion": "Ajustar bounciness/speed o damping/stiffness acorde al feedback iOS-like obtenido." 
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Bloqueo en extremos",
+                  "descripcion": "Garantizar que al llegar a min/max se perciba un ligero bounce sin overshoot excesivo." 
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Micro-interacciones complementarias",
+              "descripcion": "Añadir pequeñas transiciones (fade/scale) para contenido interno al expandir/contraer el sheet.",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Animar header",
+                  "descripcion": "Aplicar fade/slide a títulos o botones dentro del sheet al cambiar de estado." 
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Sincronizar contenido",
+                  "descripcion": "Coordinar animaciones internas con el movimiento principal para evitar desfasajes." 
+                }
+              ]
+            },
+            {
+              "id": "T1.3.4",
+              "nombre": "QA y documentación",
+              "descripcion": "Verificar la experiencia final en iOS/Android y documentar ajustes para futuros mantenimientos.",
+              "subtareas": [
+                {
+                  "id": "ST1.3.4.1",
+                  "nombre": "Checklista cross-platform",
+                  "descripcion": "Probar en iPhone y Android de referencia para asegurar consistencia." 
+                },
+                {
+                  "id": "ST1.3.4.2",
+                  "nombre": "Actualización de docs",
+                  "descripcion": "Registrar cambios en README/UI guidelines para el bottom sheet." 
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Ambient Blur Enhancements",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Implementación de Blur Dinámico",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Incorporar efecto de blur adaptable cuando el bottom sheet use gradiente, manteniendo compatibilidad cross-platform y control desde la configuración del flujo.",
+          "dependencias": [
+            "components/ui/InlineBottomSheet.tsx",
+            "components/unified-flow/UnifiedFlowWrapper.tsx",
+            "tailwind.config.js",
+            "app.json"
+          ],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Investigación técnica de blur",
+              "descripcion": "Evaluar APIs disponibles (Expo BlurView, soluciones nativas o personalizadas) y determinar viabilidad de implementación en iOS y Android.",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Comparativa de opciones",
+                  "descripcion": "Analizar expo-blur, react-native-blur y aproximaciones personalizadas para seleccionar la mejor alternativa." 
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Evaluación de rendimiento",
+                  "descripcion": "Probar en dispositivos objetivo el impacto de cada opción en FPS y consumo para validar su uso en producción." 
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Actualización del wrapper para blur",
+              "descripcion": "Extender InlineBottomSheet y UnifiedFlowWrapper para soportar un prop/config que active el blur cuando se utilicen gradientes.",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Incorporar prop de blur",
+                  "descripcion": "Añadir parámetro controlable que permita establecer intensidad y fallback dentro de InlineBottomSheet." 
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Sincronizar con MapFlow",
+                  "descripcion": "Actualizar configuraciones de pasos en mapFlow/useMapFlow para activar el blur según el estado del flujo." 
+                }
+              ]
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Ajustes visuales y fallback",
+              "descripcion": "Refinar intensidad del blur, asegurar legibilidad del contenido y definir comportamientos alternos para dispositivos sin soporte.",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Calibración visual",
+                  "descripcion": "Afinar niveles de blur y opacidad para equilibrar estética con contraste del contenido." 
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Definir fallback",
+                  "descripcion": "Implementar degradados o fondos sólidos cuando el blur no esté disponible o afecte rendimiento." 
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "QA y Documentación del Blur",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Validar la experiencia de blur en diferentes dispositivos y documentar lineamientos de uso para el equipo.",
+          "dependencias": [
+            "components/ui/InlineBottomSheet.tsx",
+            "components/unified-flow/UnifiedFlowWrapper.tsx",
+            "docs/ui-guidelines.md"
+          ],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Pruebas visuales cross-platform",
+              "descripcion": "Ejecutar pruebas en simuladores iOS y dispositivos Android para verificar consistencia del blur y del fallback.",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Validación en iOS",
+                  "descripcion": "Probar en simuladores y, si es posible, en hardware iOS real para confirmar efecto y rendimiento." 
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Validación en Android",
+                  "descripcion": "Verificar funcionamiento en gama media/baja y capturar diferencias para documentar el fallback." 
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Documentación y handoff",
+              "descripcion": "Actualizar guías de UI con parámetros de blur, proceso de activación y consideraciones de compatibilidad.",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Actualizar guía de estilos",
+                  "descripcion": "Registrar instrucciones en docs/ui-guidelines.md sobre cuándo y cómo habilitar el blur." 
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "Comunicar cambios al equipo",
+                  "descripcion": "Preparar resumen del feature y compartirlo en canales internos para adopción rápida." 
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

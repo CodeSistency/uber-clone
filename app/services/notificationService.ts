@@ -213,7 +213,6 @@ export class NotificationService {
             autoDismiss: true,
           },
           trigger: {
-            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
             seconds: delayInSeconds,
           },
         });

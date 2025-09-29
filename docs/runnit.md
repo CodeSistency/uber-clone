@@ -1,0 +1,1 @@
+$env:JAVA_HOME = "C:\Program Files\OpenLogic\jdk-17.0.13.11-hotspot"; $env:ANDROID_HOME = "C:\Users\valer\AppData\Local\Android\Sdk"; $env:PATH = "$env:JAVA_HOME\bin;$env:ANDROID_HOME\platform-

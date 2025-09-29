@@ -35,13 +35,13 @@ export const driverDrawerConfig: DrawerConfig = {
       title: "Earnings",
       icon: "dollar-sign",
       href: "/(driver)/earnings",
-      badge: "$127.50", // Monto diario
+      badge: "$247.50", // Monto del día
     },
     {
-      id: "weekly-summary",
-      title: "Weekly Summary",
-      icon: "calendar",
-      href: "/(driver)/weekly-summary",
+      id: "wallet",
+      title: "Driver Wallet",
+      icon: "wallet",
+      href: "/(driver)/wallet",
     },
 
     // Historial y estadísticas
@@ -59,12 +59,6 @@ export const driverDrawerConfig: DrawerConfig = {
     },
 
     // Servicios adicionales
-    {
-      id: "wallet",
-      title: "Driver Wallet",
-      icon: "wallet",
-      href: "/(driver)/wallet",
-    },
     {
       id: "emergency",
       title: "Emergency",
@@ -101,12 +95,18 @@ export const driverDrawerConfig: DrawerConfig = {
       divider: true,
     },
 
-    // Configuración del conductor
+    // Gestión de cuenta
     {
-      id: "vehicle",
-      title: "Vehicle",
+      id: "profile",
+      title: "My Profile",
+      icon: "user",
+      href: "/(driver)/profile",
+    },
+    {
+      id: "vehicles",
+      title: "My Vehicles",
       icon: "car",
-      href: "/(driver)/vehicle",
+      href: "/(driver)/vehicles",
     },
     {
       id: "documents",
@@ -114,8 +114,24 @@ export const driverDrawerConfig: DrawerConfig = {
       icon: "file-text",
       href: "/(driver)/documents",
     },
+
+    // Separador
     {
-      id: "driver-settings",
+      id: "divider-account",
+      title: "",
+      divider: true,
+    },
+
+    // Onboarding y configuración
+    {
+      id: "onboarding",
+      title: "Driver Onboarding",
+      icon: "user-plus",
+      href: "/(driver)/onboarding",
+      badge: "setup", // Indicador de configuración pendiente
+    },
+    {
+      id: "settings",
       title: "Settings",
       icon: "settings",
       href: "/(driver)/settings",

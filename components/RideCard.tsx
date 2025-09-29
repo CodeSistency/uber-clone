@@ -5,7 +5,7 @@ import { endpoints } from "@/lib/endpoints";
 import { formatDate, formatTime } from "@/lib/utils";
 import { Ride } from "@/types/type";
 
-const RideCard = ({ ride, onPress }: { ride: Ride; onPress?: () => void }) => {
+const RideCard = ({ ride, onPress, showStatus }: { ride: Ride; onPress?: () => void; showStatus?: boolean }) => {
   console.log("[RideCard] Rendering ride:", {
     rideId: ride.ride_id,
     origin: ride.origin_address,
@@ -81,6 +81,24 @@ const RideCard = ({ ride, onPress }: { ride: Ride; onPress?: () => void }) => {
               {ride.driver.car_seats}
             </Text>
           </View>
+
+          {showStatus && ride.status && (
+            <View className="flex flex-row items-center w-full justify-between mb-3">
+              <Text className="text-md font-JakartaMedium text-gray-500 dark:text-gray-300">
+                Status
+              </Text>
+              <Text
+                className={`text-md capitalize font-JakartaBold ${
+                  ride.status === "completed" ? "text-green-500" :
+                  ride.status === "cancelled" ? "text-red-500" :
+                  ride.status === "in_progress" ? "text-blue-500" :
+                  "text-gray-500"
+                }`}
+              >
+                {ride.status}
+              </Text>
+            </View>
+          )}
 
           <View className="flex flex-row items-center w-full justify-between">
             <Text className="text-md font-JakartaMedium text-gray-500 dark:text-gray-300">

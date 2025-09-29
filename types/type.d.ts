@@ -44,13 +44,15 @@ declare interface Ride {
   ride_time: number;
   fare_price: number;
   payment_status: string;
+  status?: string;
   driver_id: number;
-  user_id: number;
+  user_id?: number;
   created_at: string;
   driver: {
     first_name: string;
     last_name: string;
     car_seats: number;
+    rating?: number;
   };
 }
 
@@ -198,6 +200,7 @@ declare interface LocationData {
   longitude: number;
   accuracy?: number;
   timestamp: Date;
+  address?: string;
 }
 
 // Enums

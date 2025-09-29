@@ -1,0 +1,352 @@
+{
+  "proyecto": "onboarding_refactor",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Refactorización de Componentes Base",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Reemplazo de CustomButton con Button UI",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Reemplazar todas las instancias de CustomButton en las vistas de onboarding con el componente Button del sistema UI, aprovechando sus variantes avanzadas y estados de loading",
+          "dependencias": ["components/ui/Button.tsx", "components/CustomButton.tsx"],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Actualizar imports en archivos de onboarding",
+              "descripcion": "Cambiar imports de CustomButton a Button en todos los archivos de onboarding",
+              "progreso": 100
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Actualizar country-selection.tsx",
+                  "descripcion": "Reemplazar import de CustomButton por Button UI",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Actualizar travel-preferences.tsx",
+                  "descripcion": "Reemplazar import de CustomButton por Button UI",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Actualizar phone-verification.tsx",
+                  "descripcion": "Reemplazar import de CustomButton por Button UI",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.4",
+                  "nombre": "Actualizar profile-completion.tsx",
+                  "descripcion": "Reemplazar import de CustomButton por Button UI",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.5",
+                  "nombre": "Actualizar welcome.tsx",
+                  "descripcion": "Reemplazar import de CustomButton por Button UI",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Adaptar props de botones",
+              "descripcion": "Actualizar las props de los botones para usar la API del componente Button UI",
+              "progreso": 100
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Migrar bgVariant a variant",
+                  "descripcion": "Cambiar bgVariant por variant y adaptar los valores (primary, secondary, danger, etc.)",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Agregar soporte para loading states",
+                  "descripcion": "Implementar loading prop donde sea necesario usando el estado del store",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Adaptar IconLeft/IconRight",
+                  "descripcion": "Cambiar IconLeft/IconRight por LeftIcon/RightIcon según la API del Button UI",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Reemplazo de InputField con TextField UI",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Reemplazar InputField con TextField UI que incluye validación integrada, diferentes variantes y mejor UX",
+          "dependencias": ["components/ui/TextField.tsx", "components/InputField.tsx"],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Actualizar imports de InputField",
+              "descripcion": "Cambiar imports de InputField por TextField en archivos relevantes",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Actualizar profile-completion.tsx",
+                  "descripcion": "Reemplazar InputField por TextField en formularios de contacto de emergencia",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Adaptar props de campos de texto",
+              "descripcion": "Actualizar props para usar la API del componente TextField UI",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Migrar containerStyle/inputStyle",
+                  "descripcion": "Cambiar containerStyle/inputStyle por containerClassName/inputClassName",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Implementar validación con errorText",
+                  "descripcion": "Agregar validación en tiempo real usando errorText prop",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Refactorización de Selectores y Controles",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Reemplazo de Select con Select UI",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Reemplazar los selectores personalizados con el componente Select UI que tiene mejor UX y modal integrado",
+          "dependencias": ["components/ui/Select.tsx", "components/ui/types.ts"],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Refactorizar selectores de ubicación",
+              "descripcion": "Reemplazar los selectores de país, estado y ciudad en country-selection.tsx",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Crear opciones formateadas",
+                  "descripcion": "Convertir arrays de países/estados/ciudades al formato SelectOption",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Implementar cascada de selecciones",
+                  "descripcion": "Mantener la lógica de filtrado estado->ciudad usando Select UI",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Refactorizar selectores de preferencias",
+              "descripcion": "Reemplazar selectores de idioma y moneda en travel-preferences.tsx",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Selector de idioma",
+                  "descripcion": "Convertir selector de idioma a componente Select UI",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Selector de moneda",
+                  "descripcion": "Convertir selector de moneda a componente Select UI",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Reemplazo de RadioGroup personalizado",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Reemplazar radio buttons personalizados con RadioGroup UI para selecciones de vehículo y servicio",
+          "dependencias": ["components/ui/RadioGroup.tsx"],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Refactorizar selección de vehículo",
+              "descripcion": "Convertir selección de tipo de vehículo en travel-preferences.tsx a RadioGroup",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Crear opciones de vehículo",
+                  "descripcion": "Convertir VEHICLE_TYPES al formato RadioOption",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Implementar selección visual",
+                  "descripcion": "Mantener cards visuales pero usar RadioGroup para estado",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Refactorizar selección de servicio",
+              "descripcion": "Convertir selección de nivel de servicio en travel-preferences.tsx a RadioGroup",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Crear opciones de servicio",
+                  "descripcion": "Convertir SERVICE_LEVELS al formato RadioOption",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Optimización de Layout y UX",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Implementación de Card UI",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Usar componentes Card para mejorar el layout y organización visual de secciones",
+          "dependencias": ["components/ui/Card.tsx"],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Cards para secciones de formulario",
+              "descripcion": "Envolver secciones de formulario en componentes Card",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Card para información de ubicación",
+                  "descripcion": "Usar Card en country-selection.tsx para agrupar selectores",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Card para preferencias de viaje",
+                  "descripcion": "Usar Card en travel-preferences.tsx para agrupar selecciones",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Card para contacto de emergencia",
+                  "descripcion": "Usar Card en profile-completion.tsx para formulario de emergencia",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Mejora de navegación con Tabs UI",
+          "progreso": 100,
+          "prioridad": "Baja",
+          "descripcion": "Considerar usar Tabs UI para navegación entre pasos si es apropiado",
+          "dependencias": ["components/ui/Tabs.tsx"],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Evaluar uso de Tabs",
+              "descripcion": "Determinar si Tabs UI puede mejorar la navegación del onboarding",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Comparar UX actual vs Tabs",
+                  "descripcion": "Analizar si Tabs proporcionaría mejor navegación que ProgressBar - Resultado: ProgressBar es más apropiado para flujo secuencial",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Testing y Validación",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Testing de Componentes Refactorizados",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear y ejecutar tests para validar que los componentes refactorizados funcionan correctamente",
+          "dependencias": ["__tests__/components/", "jest.config.js"],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Tests de integración de componentes",
+              "descripcion": "Crear tests que validen la integración entre componentes UI y lógica de onboarding",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Test de country-selection refactorizado",
+                  "descripcion": "Validar funcionamiento de Select UI en selección de ubicación",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Test de travel-preferences refactorizado",
+                  "descripcion": "Validar RadioGroup UI en selecciones de preferencias",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Tests de UX/UI",
+              "descripcion": "Validar que la experiencia de usuario se mantiene o mejora",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "Test de accesibilidad",
+                  "descripcion": "Verificar que componentes UI mantienen accesibilidad",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "Test de responsive design",
+                  "descripcion": "Validar que componentes funcionan en diferentes tamaños de pantalla",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

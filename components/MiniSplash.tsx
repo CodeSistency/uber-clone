@@ -98,6 +98,14 @@ const MiniSplash: React.FC<MiniSplashProps> = ({
   onComplete,
   visible,
 }) => {
+  console.log("[MiniSplash] Render called with:", {
+    config: config?.id,
+    type: config?.type,
+    visible,
+    title: config?.title,
+    module: config?.moduleSpecific?.toModule
+  });
+
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
@@ -169,8 +177,13 @@ const MiniSplash: React.FC<MiniSplashProps> = ({
 
   return (
     <Animated.View
-      className="absolute inset-0 z-50"
       style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 9999,
         opacity: fadeAnim,
       }}
     >

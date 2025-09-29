@@ -17,7 +17,11 @@ import {
   Dimensions,
   StyleSheet,
   ColorValue,
+  TouchableWithoutFeedback,
 } from "react-native";
+
+const SPRING_BOUNCINESS = 6;
+const SPRING_SPEED = 9;
 
 // Hook para controlar el BottomSheet
 export interface BottomSheetMethods {
@@ -60,8 +64,14 @@ export const useBottomSheet = (config: BottomSheetConfig = {}) => {
 
   // Default animation config
   const defaultAnimConfig = {
-    bounciness: 8,
-    speed: 12,
+    bounciness:
+      animationConfig.bounciness !== undefined
+        ? animationConfig.bounciness
+        : SPRING_BOUNCINESS,
+    speed:
+      animationConfig.speed !== undefined
+        ? animationConfig.speed
+        : SPRING_SPEED,
     ...animationConfig,
   };
 
@@ -255,6 +265,26 @@ const InlineBottomSheet = forwardRef<
     const heightAnim = useHook ? hookData.heightAnim : heightAnimFallback;
     const startHeightRef = useRef(initialHeight);
     const currentHeightRef = useRef(initialHeight);
+    const previousTargetHeightRef = useRef(initialHeight);
+
+    const computeTargetHeight = useCallback(() => {
+      const clampedInitial = Math.min(
+        Math.max(initialHeight, minHeight),
+        maxHeight,
+      );
+
+      if (snapPoints && snapPoints.length > 0) {
+        const sorted = [...snapPoints].sort((a, b) => a - b);
+        const closest = sorted.reduce((prev, curr) =>
+          Math.abs(curr - clampedInitial) < Math.abs(prev - clampedInitial)
+            ? curr
+            : prev,
+        );
+        return Math.min(Math.max(closest, minHeight), maxHeight);
+      }
+
+      return clampedInitial;
+    }, [initialHeight, minHeight, maxHeight, snapPoints]);
 
     useEffect(() => {
       console.log("[InlineBottomSheet] Setting up height listener");
@@ -267,6 +297,33 @@ const InlineBottomSheet = forwardRef<
         heightAnim.removeListener(id);
       };
     }, [heightAnim]);
+
+    useEffect(() => {
+      if (!visible) {
+        previousTargetHeightRef.current = initialHeight;
+        return;
+      }
+
+      const nextTarget = computeTargetHeight();
+      const prevTarget = previousTargetHeightRef.current;
+
+      if (Math.abs(nextTarget - prevTarget) < 1) {
+        return;
+      }
+
+      previousTargetHeightRef.current = nextTarget;
+
+      if (useHook) {
+        hookData.methods.goToHeight(nextTarget);
+      } else {
+        Animated.spring(heightAnim, {
+          toValue: nextTarget,
+          useNativeDriver: false,
+          bounciness: SPRING_BOUNCINESS,
+          speed: SPRING_SPEED,
+        }).start();
+      }
+    }, [computeTargetHeight, visible, useHook, hookData.methods, heightAnim, initialHeight]);
 
     const clamp = (value: number, min: number, max: number) =>
       Math.min(Math.max(value, min), max);
@@ -316,7 +373,11 @@ const InlineBottomSheet = forwardRef<
         onMoveShouldSetPanResponder: (_, g) => {
           const canDrag =
             allowDrag && (useHook ? hookData.scrollEnabled : true);
-          return canDrag && Math.abs(g.dy) > 6;
+          const verticalThreshold = 3;
+          const horizontalThreshold = 6;
+          const isVerticalEnough = Math.abs(g.dy) > verticalThreshold;
+          const isMostlyVertical = Math.abs(g.dy) > Math.abs(g.dx);
+          return canDrag && isVerticalEnough && isMostlyVertical;
         },
         onPanResponderGrant: () => {
           startHeightRef.current = currentHeightRef.current;
@@ -393,10 +454,19 @@ const InlineBottomSheet = forwardRef<
           {/* Drag handle */}
           {showHandle && (
             <View
+              accessibilityRole="adjustable"
+              accessibilityLabel="Ajustar hoja"
+              pointerEvents={allowDrag ? "auto" : "none"}
+              className="w-full items-center pt-3 pb-3"
               {...(allowDrag ? panResponder.panHandlers : {})}
-              className="items-center pt-2 pb-1"
             >
-              <View className="w-12 h-1.5 rounded-full bg-gray-300 dark:bg-gray-500" />
+              <View
+                className={`w-9 h-1 rounded-full shadow-sm ${
+                  allowDrag
+                    ? "bg-gray-300/90 dark:bg-gray-400"
+                    : "bg-gray-300/50 dark:bg-gray-600/50"
+                }`}
+              />
             </View>
           )}
 

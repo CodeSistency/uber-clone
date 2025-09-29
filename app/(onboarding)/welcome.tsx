@@ -3,7 +3,7 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CustomButton from "@/components/CustomButton";
+import { Button } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import { useOnboardingStore } from "@/store";
 
@@ -67,7 +67,7 @@ export default function Welcome() {
 
         {/* Action Buttons */}
         <View className="w-full space-y-4">
-          <CustomButton
+          <Button
             title="Start Exploring"
             onPress={handleStartExploring}
             className="w-full"

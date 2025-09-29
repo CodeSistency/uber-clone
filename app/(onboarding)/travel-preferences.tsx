@@ -3,9 +3,9 @@ import React, { useState } from "react";
 import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import CustomButton from "@/components/CustomButton";
+import { Button } from "@/components/ui";
 import ProgressBar from "@/components/onboarding/ProgressBar";
-import { Tabs, RadioGroup, Select } from "@/components/ui";
+import { Tabs, RadioGroup, Select, Card } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
@@ -167,11 +167,8 @@ export default function TravelPreferences() {
           </Text>
         </View>
 
-        {/* Vehicle Type Selection (segmented tabs) */}
-        <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-            🚗 Preferred Vehicle Type
-          </Text>
+        {/* Vehicle Type Selection Card */}
+        <Card title="🚗 Preferred Vehicle Type" className="mb-6">
           <Tabs
             variant="segmented"
             items={VEHICLE_TYPES.map((v) => ({
@@ -185,13 +182,10 @@ export default function TravelPreferences() {
               )
             }
           />
-        </View>
+        </Card>
 
-        {/* Service Level Selection (radio-like) */}
-        <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-            💎 Service Level Preference
-          </Text>
+        {/* Service Level Selection Card */}
+        <Card title="💎 Service Level Preference" className="mb-6">
           <RadioGroup
             options={SERVICE_LEVELS.map((s) => ({
               value: s.id,
@@ -202,13 +196,10 @@ export default function TravelPreferences() {
               handleServiceSelect(v as "economy" | "comfort" | "premium")
             }
           />
-        </View>
+        </Card>
 
-        {/* Language & Currency */}
-        <View className="mb-8">
-          <Text className="text-lg font-Jakarta-Bold text-gray-800 mb-4">
-            🌐 Language & Currency
-          </Text>
+        {/* Language & Currency Card */}
+        <Card title="🌐 Language & Currency" className="mb-8">
           <View className="mb-3">
             <Select
               value={preferences.language}
@@ -230,11 +221,11 @@ export default function TravelPreferences() {
             ]}
             placeholder="Currency"
           />
-        </View>
+        </Card>
 
         {/* Continue Button */}
         <View className="mb-8">
-          <CustomButton
+          <Button
             title="Continue"
             onPress={handleContinue}
             loading={isLoading}

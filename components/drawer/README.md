@@ -12,6 +12,7 @@ Un componente reutilizable y type-safe para drawers de navegación con soporte c
 - ✅ **Integración Expo Router**: Navegación automática y detección de ruta activa
 - ✅ **Gestos**: Swipe para abrir/cerrar
 - ✅ **Accesibilidad**: Soporte completo para lectores de pantalla
+- ✅ **Layout animado reutilizable**: Efecto de escala estilo super-app listo para múltiples pantallas
 
 ## Instalación
 
@@ -71,6 +72,42 @@ const CustomerScreen: React.FC = () => {
 ```
 
 ### 3. Uso con configuración personalizada
+### 4. Layout animado reutilizable (escala + drawer expuesto)
+
+Si necesitas replicar el patrón "super app" donde el contenido principal se escala y desplaza para dejar expuesto el menú, usa el nuevo `AnimatedDrawerLayout`.
+
+```tsx
+import { Dimensions } from 'react-native';
+import { AnimatedDrawerLayout } from '@/components/drawer';
+
+const Screen = () => {
+  const screenWidth = Dimensions.get('window').width;
+  const drawerWidth = screenWidth * 0.5;
+
+  return (
+    <AnimatedDrawerLayout
+      width={drawerWidth}
+      screenWidth={screenWidth}
+      overflowMargin={screenWidth * 0.08}
+      scaleFactor={0.58}
+      borderRadius={28}
+      renderDrawer={({ close }) => <DrawerMenu onNavigate={close} />}
+      renderContent={({ open, close, isOpen }) => (
+        <MainContent openDrawer={open} closeDrawer={close} isDrawerOpen={isOpen} />
+      )}
+    />
+  );
+};
+```
+
+Props clave:
+
+- `width`: ancho del drawer (puede ser porcentaje del ancho de pantalla).
+- `overflowMargin`: espacio extra para que el drawer quede visible tras la escala.
+- `scaleFactor`: escala objetivo del contenido (por defecto `0.58`).
+- `renderDrawer` / `renderContent`: funciones que reciben `progress`, `open`, `close`, `toggle` e `isOpen` para componer UI personalizada.
+- `secondaryScaleFactor` / `secondaryTranslateMultiplier`: controlan la pantalla "fantasma" que refuerza el efecto de profundidad.
+- `renderBackdrop`: permite personalizar el fondo semitransparente que aparece bajo el contenido.
 
 ```typescript
 const CustomScreen: React.FC = () => {

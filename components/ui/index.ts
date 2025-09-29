@@ -10,6 +10,7 @@ export * from "./Tabs";
 export * from "./BottomSheet";
 export * from "./TextArea";
 export * from "./Checkbox";
+export { default as RadioButton } from "./RadioButton";
 export * from "./RadioGroup";
 export * from "./Select";
 export * from "./Stepper";

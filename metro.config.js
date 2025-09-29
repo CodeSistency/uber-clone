@@ -51,52 +51,10 @@ config.watchFolders = [
   // Add any additional folders to watch for changes
 ];
 
-// Configure cache for better performance
-config.cacheStores = [
-  // Use file system cache for better performance
-  {
-    type: 'file',
-    key: 'metro-cache',
-    cacheDirectory: '.metro-cache',
-  },
-];
 
-// Configure code splitting by domain/feature
+// Configure serializer for production optimizations
 config.serializer = {
   ...config.serializer,
-  // Create async chunks for different domains
-  createModuleIdFactory: function () {
-    const { createModuleIdFactory } = require('metro/src/lib/createModuleIdFactory');
-    const factory = createModuleIdFactory();
-
-    return function (path) {
-      // Create separate chunks for different domains
-      if (path.includes('(auth)')) {
-        return `auth_${factory(path)}`;
-      }
-      if (path.includes('(driver)')) {
-        return `driver_${factory(path)}`;
-      }
-      if (path.includes('(business)')) {
-        return `business_${factory(path)}`;
-      }
-      if (path.includes('(marketplace)')) {
-        return `marketplace_${factory(path)}`;
-      }
-      if (path.includes('(onboarding)')) {
-        return `onboarding_${factory(path)}`;
-      }
-      if (path.includes('services/websocket')) {
-        return `websocket_${factory(path)}`;
-      }
-      if (path.includes('components/Map') || path.includes('GoogleTextInput')) {
-        return `maps_${factory(path)}`;
-      }
-
-      return factory(path);
-    };
-  },
-
   // Custom serializer for better chunking
   getModulesRunBeforeMainModule: function () {
     // Ensure critical modules are loaded first

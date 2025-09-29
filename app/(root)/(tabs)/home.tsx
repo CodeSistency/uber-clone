@@ -17,6 +17,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { HamburgerMenu } from "@/app/components/DrawerContent";
 import DrawerContent from "@/app/components/DrawerContent";
 import { useUI } from "@/components/UIWrapper";
+import { useModuleTransition } from "../../../store/module/module";
 
 import GoogleTextInput from "../../../components/GoogleTextInput";
 import Map from "../../../components/Map";
@@ -41,6 +42,7 @@ const Home = () => {
   const { theme } = useUI();
   const { user } = useUserStore();
   const { setUserLocation, setDestinationLocation } = useLocationStore();
+  const { currentModule } = useModuleTransition();
 
   const handleSignOut = async () => {
     try {
@@ -53,16 +55,7 @@ const Home = () => {
     }
   };
 
-  // Function to handle mode changes from drawer
-  const handleModeChange = (newMode: "customer" | "driver" | "business") => {
-    console.log("Mode changed from drawer to:", newMode);
-    setCurrentMode(newMode);
-    setDrawerVisible(false);
-  };
   const [drawerVisible, setDrawerVisible] = useState(false);
-  const [currentMode, setCurrentMode] = useState<
-    "customer" | "driver" | "business"
-  >("customer");
   const [serviceType, setServiceType] = useState<"transport" | "delivery">(
     "transport",
   );
@@ -72,23 +65,6 @@ const Home = () => {
   const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
 
-  useEffect(() => {
-    const loadCurrentMode = async () => {
-      try {
-        const savedMode = (await AsyncStorage.getItem("user_mode")) as
-          | "customer"
-          | "driver"
-          | "business"
-          | null;
-        if (savedMode) {
-          setCurrentMode(savedMode);
-        }
-      } catch (error) {
-        console.error("Error loading current mode:", error);
-      }
-    };
-    loadCurrentMode();
-  }, []);
 
   // Load restaurants when delivery mode is selected
   useEffect(() => {
@@ -388,8 +364,7 @@ const Home = () => {
 
       <DrawerContent
         visible={drawerVisible}
-        currentMode={currentMode}
-        onModeChange={handleModeChange}
+        currentMode={currentModule}
         onClose={() => {
           console.log("Global drawer closed");
           setDrawerVisible(false);

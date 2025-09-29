@@ -1,0 +1,702 @@
+{
+  "proyecto": "expo_notifications_system",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Configuración Inicial y Estructura Base - COMPLETADO",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Estructura de Archivos y Carpetas",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear la estructura de directorios y archivos base para el nuevo sistema de notificaciones Expo-only, separado del sistema Firebase existente",
+          "dependencias": [],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear carpetas base del sistema",
+              "descripcion": "Establecer la jerarquía de directorios para el nuevo sistema de notificaciones Expo",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Crear carpeta app/services/expo-notifications/",
+                  "descripcion": "Directorio principal para servicios de notificaciones Expo"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Crear carpeta store/expo-notifications/",
+                  "descripcion": "Directorio para el store Zustand de notificaciones Expo"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Crear carpeta app/hooks/expo-notifications/",
+                  "descripcion": "Directorio para hooks personalizados del sistema Expo"
+                },
+                {
+                  "id": "ST1.1.1.4",
+                  "nombre": "Crear carpeta lib/expo-notifications/",
+                  "descripcion": "Directorio para utilidades y configuraciones del sistema Expo"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Definir tipos y interfaces",
+              "descripcion": "Crear archivo de tipos TypeScript específico para el sistema Expo Notifications",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Crear types/expo-notifications.d.ts",
+                  "descripcion": "Definir interfaces para tokens, permisos y configuraciones Expo"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Crear interfaces de notificación Expo",
+                  "descripcion": "Definir tipos para diferentes tipos de notificaciones Expo"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Crear tipos de configuración",
+                  "descripcion": "Definir interfaces para configuración de canales y preferencias"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Sistema de Configuración Expo",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Configurar el sistema base de Expo Notifications con gestión de tokens y permisos",
+          "dependencias": ["M1.1"],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear ExpoNotificationConfig",
+              "descripcion": "Implementar configuración centralizada para Expo Notifications",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Variables de entorno específicas",
+                  "descripcion": "Definir variables EXPO_PUBLIC para configuración Expo"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Configuración de canales por plataforma",
+                  "descripcion": "Setup de canales de notificación para iOS y Android"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Manejadores de eventos base",
+                  "descripcion": "Configurar NotificationHandler y event listeners"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Sistema de Gestión de Tokens",
+              "descripcion": "Implementar gestión de tokens push de Expo",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Servicio de obtención de tokens",
+                  "descripcion": "Implementar getExpoPushTokenAsync con manejo de errores"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Almacenamiento seguro de tokens",
+                  "descripcion": "Usar SecureStore para persistir tokens Expo"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Validación y refresh de tokens",
+                  "descripcion": "Implementar validación y renovación automática de tokens"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Servicio Core de Notificaciones",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear el servicio principal que maneja todas las operaciones de notificaciones Expo",
+          "dependencias": ["M1.1", "M1.2"],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "ExpoNotificationService Base",
+              "descripcion": "Implementar clase principal del servicio con patrón singleton",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Constructor y inicialización",
+                  "descripcion": "Setup del servicio con configuración y estado inicial"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Método initialize()",
+                  "descripcion": "Inicialización completa del servicio Expo"
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Setup de event listeners",
+                  "descripcion": "Configurar listeners para eventos de notificación"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Gestión de Permisos",
+              "descripcion": "Implementar sistema completo de permisos de notificación",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Verificación de permisos",
+                  "descripcion": "Método para checkear estado actual de permisos"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Solicitud de permisos",
+                  "descripcion": "Implementar requestPermissionsAsync con UX"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Manejo de permisos denegados",
+                  "descripcion": "Estrategia para cuando usuario niega permisos"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Testing e Integración con UI - COMPLETADO",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Testing del Sistema",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear tests unitarios y de integración para el sistema de notificaciones Expo",
+          "dependencias": ["M1.1", "M1.2", "M1.3"],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Tests unitarios del servicio",
+              "descripcion": "Crear tests para ExpoNotificationService (permisos, tokens, notificaciones)",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Test de inicialización",
+                  "descripcion": "Test del método initialize() y configuración inicial"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Test de permisos",
+                  "descripcion": "Test de requestPermissions() y manejo de estados"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Test de tokens",
+                  "descripcion": "Test de obtención y gestión de tokens push"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Tests del store Zustand",
+              "descripcion": "Crear tests para el store de notificaciones y selectores",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Test de acciones del store",
+                  "descripcion": "Test de addNotification, markAsRead, etc."
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Test de selectores optimizados",
+                  "descripcion": "Test de useUnreadNotifications, etc."
+                }
+              ]
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Tests de integración",
+              "descripcion": "Test de integración entre servicio, store y hooks",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Test end-to-end",
+                  "descripcion": "Test completo de envío a recepción de notificación"
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Test de simulación",
+                  "descripcion": "Test de funcionalidades de simulación para desarrollo"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Componentes de UI para Notificaciones",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Crear componentes React Native para gestionar notificaciones desde la UI",
+          "dependencias": ["M1.1", "M1.2", "M1.3"],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Componente NotificationItem",
+              "descripcion": "Componente para mostrar una notificación individual",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Layout básico",
+                  "descripcion": "Estructura visual con título, mensaje, timestamp"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Estados visuales",
+                  "descripcion": "Indicadores de leído/no leído, tipos de notificación"
+                },
+                {
+                  "id": "ST2.2.1.3",
+                  "nombre": "Acciones interactivas",
+                  "descripcion": "Tap para marcar como leído, swipe para acciones"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Componente NotificationList",
+              "descripcion": "Lista scrollable de notificaciones con filtros y búsqueda",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Lista virtualizada",
+                  "descripcion": "FlatList optimizada para muchas notificaciones"
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "Filtros y búsqueda",
+                  "descripcion": "Filtrar por tipo, fecha, estado de lectura"
+                },
+                {
+                  "id": "ST2.2.2.3",
+                  "nombre": "Estados vacíos",
+                  "descripcion": "Pantalla cuando no hay notificaciones"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.3",
+              "nombre": "Preferencias de Notificaciones",
+              "descripcion": "Pantalla de configuración de preferencias de usuario",
+              "subtareas": [
+                {
+                  "id": "ST2.2.3.1",
+                  "nombre": "Toggles de configuración",
+                  "descripcion": "Switches para cada tipo de notificación"
+                },
+                {
+                  "id": "ST2.2.3.2",
+                  "nombre": "Configuración de sonidos",
+                  "descripcion": "Opciones de sonido y vibración"
+                },
+                {
+                  "id": "ST2.2.3.3",
+                  "nombre": "Horas de silencio",
+                  "descripcion": "Configuración de quiet hours"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.3",
+          "nombre": "Optimizaciones y Performance",
+          "progreso": 60,
+          "prioridad": "Media",
+          "descripcion": "Optimizar performance, memoria y experiencia de usuario",
+          "dependencias": ["M1.1", "M1.2", "M1.3", "M2.1"],
+          "tareas": [
+            {
+              "id": "T2.3.1",
+              "nombre": "Optimización de Memoria",
+              "descripcion": "Implementar límites de memoria y cleanup automático",
+              "subtareas": [
+                {
+                  "id": "ST2.3.1.1",
+                  "nombre": "Límite de notificaciones",
+                  "descripcion": "Mantener máximo 100 notificaciones en memoria"
+                },
+                {
+                  "id": "ST2.3.1.2",
+                  "nombre": "Cleanup automático",
+                  "descripcion": "Eliminar notificaciones antiguas automáticamente"
+                }
+              ]
+            },
+            {
+              "id": "T2.3.2",
+              "nombre": "Debouncing y Throttling",
+              "descripcion": "Implementar límites de frecuencia para operaciones",
+              "subtareas": [
+                {
+                  "id": "ST2.3.2.1",
+                  "nombre": "Debounce de tokens",
+                  "descripcion": "Evitar requests excesivos de tokens"
+                },
+                {
+                  "id": "ST2.3.2.2",
+                  "nombre": "Throttle de notificaciones",
+                  "descripcion": "Límite de frecuencia de notificaciones locales"
+                }
+              ]
+            },
+            {
+              "id": "T2.3.3",
+              "nombre": "Offline Support",
+              "descripcion": "Funcionalidad básica cuando no hay conexión",
+              "subtareas": [
+                {
+                  "id": "ST2.3.3.1",
+                  "nombre": "Queue de notificaciones",
+                  "descripcion": "Guardar notificaciones para enviar cuando haya conexión"
+                },
+                {
+                  "id": "ST2.3.3.2",
+                  "nombre": "Sincronización al reconectar",
+                  "descripcion": "Enviar notificaciones pendientes al reconectar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Integración en App Principal - COMPLETADO",
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Análisis de Integración Actual - COMPLETADO",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Analizar cómo está integrado el sistema de notificaciones Firebase actual en la aplicación",
+          "dependencias": ["M1.1", "M1.2", "M1.3"],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Mapear puntos de integración Firebase",
+              "descripcion": "Identificar todos los archivos y componentes que usan firebaseService y notificationService",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Revisar _layout.tsx",
+                  "descripcion": "Analizar inicialización de Firebase en layout raíz",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Revisar hooks useNotifications",
+                  "descripcion": "Analizar el hook principal de notificaciones",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Revisar componentes UI",
+                  "descripcion": "Identificar componentes que usan notificaciones",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.1.4",
+                  "nombre": "Revisar stores de notificaciones",
+                  "descripcion": "Analizar estado y persistencia actual",
+                  "progreso": 100
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Documentar dependencias y flujos",
+              "descripcion": "Crear mapa completo de cómo fluyen las notificaciones en la app",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Flujo de inicialización",
+                  "descripcion": "Documentar cómo se inicializan las notificaciones al inicio",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "Flujo de recepción",
+                  "descripcion": "Documentar cómo llegan las notificaciones push",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.1.2.3",
+                  "nombre": "Flujo de interacción",
+                  "descripcion": "Documentar cómo el usuario interactúa con notificaciones",
+                  "progreso": 100
+                }
+              ],
+              "progreso": 100
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Migración Gradual de Servicios - COMPLETADO",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Reemplazar gradualmente el sistema Firebase con el sistema Expo",
+          "dependencias": ["M3.1"],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Crear wrapper de compatibilidad",
+              "descripcion": "Crear hook que mantiene API existente pero usa sistema Expo internamente",
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "useNotificationsCompat hook",
+                  "descripcion": "Crear hook wrapper que traduce API antigua a nueva",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Adaptador de tipos",
+                  "descripcion": "Convertir NotificationData ↔ ExpoNotificationData",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.2.1.3",
+                  "nombre": "Manejo de estado legacy",
+                  "descripcion": "Mantener compatibilidad con estado existente",
+                  "progreso": 100
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T3.2.2",
+              "nombre": "Actualizar _layout.tsx",
+              "descripcion": "Reemplazar inicialización de Firebase por Expo en el layout raíz",
+              "subtareas": [
+                {
+                  "id": "ST3.2.2.1",
+                  "nombre": "Importar servicios Expo",
+                  "descripcion": "Cambiar imports de firebaseService a expoNotificationService"
+                },
+                {
+                  "id": "ST3.2.2.2",
+                  "nombre": "Actualizar inicialización",
+                  "descripcion": "Reemplazar firebaseService.initializeFirebase() por expoNotificationService.initialize()"
+                },
+                {
+                  "id": "ST3.2.2.3",
+                  "nombre": "Actualizar manejo de errores",
+                  "descripcion": "Adaptar manejo de errores para sistema Expo"
+                }
+              ],
+              "progreso": 0
+            },
+            {
+              "id": "T3.2.3",
+              "nombre": "Migrar hooks principales",
+              "descripcion": "Reemplazar useNotifications con useExpoNotifications",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST3.2.3.1",
+                  "nombre": "Actualizar useNotifications",
+                  "descripcion": "Migrar hook principal al sistema Expo manteniendo compatibilidad",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.2.3.2",
+                  "nombre": "Actualizar imports en componentes",
+                  "descripcion": "Cambiar imports de hooks en toda la aplicación"
+                },
+                {
+                  "id": "ST3.2.3.3",
+                  "nombre": "Migrar estado y preferencias",
+                  "descripcion": "Transferir configuración de usuario del store antiguo al nuevo"
+                }
+              ]
+            },
+            {
+              "id": "T3.2.3",
+              "nombre": "Actualizar componentes UI",
+              "descripcion": "Migrar componentes de notificaciones al nuevo sistema",
+              "subtareas": [
+                {
+                  "id": "ST3.2.3.1",
+                  "nombre": "Reemplazar NotificationList",
+                  "descripcion": "Cambiar componente existente por nueva implementación Expo"
+                },
+                {
+                  "id": "ST3.2.3.2",
+                  "nombre": "Actualizar tipos TypeScript",
+                  "descripcion": "Cambiar imports de tipos en componentes"
+                },
+                {
+                  "id": "ST3.2.3.3",
+                  "nome": "Adaptar props y callbacks",
+                  "descripcion": "Ajustar interfaces de componentes para nuevo sistema"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.3",
+          "nombre": "Testing de Integración - COMPLETADO",
+          "progreso": 80,
+          "prioridad": "Alta",
+          "descripcion": "Probar que la integración funciona correctamente en toda la aplicación",
+          "dependencias": ["M3.2"],
+          "tareas": [
+            {
+              "id": "T3.3.1",
+              "nombre": "Testing funcional básico",
+              "descripcion": "Verificar que las funcionalidades básicas funcionan después de la migración",
+              "progreso": 70,
+              "subtareas": [
+                {
+                  "id": "ST3.3.1.1",
+                  "nome": "Test de inicialización",
+                  "descripcion": "Verificar que la app inicia correctamente con nuevo sistema",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST3.3.1.2",
+                  "nome": "Test de permisos",
+                  "descripcion": "Verificar flujo de solicitud de permisos",
+                  "progreso": 50
+                },
+                {
+                  "id": "ST3.3.1.3",
+                  "nome": "Test de notificaciones locales",
+                  "descripcion": "Verificar envío de notificaciones locales",
+                  "progreso": 50
+                }
+              ]
+            },
+            {
+              "id": "T3.3.2",
+              "nome": "Testing de navegación",
+              "descripcion": "Verificar que las interacciones con notificaciones funcionan",
+              "subtareas": [
+                {
+                  "id": "ST3.3.2.1",
+                  "nome": "Test de apertura de notificaciones",
+                  "descripcion": "Verificar que tocar notificaciones funciona"
+                },
+                {
+                  "id": "ST3.3.2.2",
+                  "nome": "Test de navegación por tipo",
+                  "descripcion": "Verificar navegación basada en tipo de notificación"
+                }
+              ]
+            },
+            {
+              "id": "T3.3.3",
+              "nome": "Testing de compatibilidad",
+              "descripcion": "Asegurar que no se rompió ninguna funcionalidad existente",
+              "subtareas": [
+                {
+                  "id": "ST3.3.3.1",
+                  "nome": "Test de regression",
+                  "descripcion": "Verificar que features existentes siguen funcionando"
+                },
+                {
+                  "id": "ST3.3.3.2",
+                  "nome": "Test de performance",
+                  "descripcion": "Verificar que no hay degradación de performance"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.4",
+          "nombre": "Limpieza y Optimización Final",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Remover código legacy y optimizar la integración final",
+          "dependencias": ["M3.3"],
+          "tareas": [
+            {
+              "id": "T3.4.1",
+              "nome": "Remover código Firebase legacy",
+              "descripcion": "Eliminar servicios y componentes Firebase no utilizados",
+              "subtareas": [
+                {
+                  "id": "ST3.4.1.1",
+                  "nome": "Remover imports Firebase",
+                  "descripcion": "Eliminar imports de firebaseService en toda la app"
+                },
+                {
+                  "id": "ST3.4.1.2",
+                  "nome": "Limpiar servicios no utilizados",
+                  "descripcion": "Remover archivos de servicios Firebase obsoletos"
+                },
+                {
+                  "id": "ST3.4.1.3",
+                  "nome": "Actualizar dependencias",
+                  "descripcion": "Remover dependencias Firebase del package.json"
+                }
+              ]
+            },
+            {
+              "id": "T3.4.2",
+              "nome": "Optimización de bundle",
+              "descripcion": "Optimizar tamaño del bundle eliminando código no utilizado",
+              "subtareas": [
+                {
+                  "id": "ST3.4.2.1",
+                  "nome": "Tree shaking",
+                  "descripcion": "Asegurar que se elimina código no utilizado"
+                },
+                {
+                  "id": "ST3.4.2.2",
+                  "nome": "Lazy loading",
+                  "descripcion": "Implementar carga diferida de componentes de notificaciones"
+                }
+              ]
+            },
+            {
+              "id": "T3.4.3",
+              "nome": "Documentación final",
+              "descripcion": "Actualizar documentación para reflejar el nuevo sistema",
+              "subtareas": [
+                {
+                  "id": "ST3.4.3.1",
+                  "nome": "README principal",
+                  "descripcion": "Actualizar documentación principal de la app"
+                },
+                {
+                  "id": "ST3.4.3.2",
+                  "nome": "Guía de migración",
+                  "descripcion": "Documentar proceso de migración para futuros desarrolladores"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

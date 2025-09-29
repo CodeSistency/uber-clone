@@ -18,10 +18,16 @@ export { useDrawer } from "./useDrawer";
 
 // Exportar componentes
 export { default as Drawer } from "./Drawer";
+export { default as AnimatedDrawerLayout } from "./AnimatedDrawerLayout";
 export { DrawerHeader } from "./DrawerHeader";
 export { DrawerRouteItem } from "./DrawerRouteItem";
 export { DrawerFooter } from "./DrawerFooter";
 export { ModuleSwitcher } from "./ModuleSwitcher";
+export {
+  useAnimatedDrawerLayout,
+  type DrawerRenderParams,
+  type ContentRenderParams,
+} from "./useAnimatedDrawerLayout";
 
 // Exportar configuraciones
 export { drawerConfigs } from "./configs";

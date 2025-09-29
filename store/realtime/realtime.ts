@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { ConnectionStatus, Ride, RideStatus, LocationData } from "@/types/type";
+import { ExtendedConnectionStatus } from "@/lib/connectivity";
 
 // Ride Summary Interface
 interface RideSummary {
@@ -37,6 +38,8 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
   connectionStatus: {
     isConnected: false,
     connectionType: "none",
+    connectionSpeed: 0,
+    isInternetReachable: false,
     websocketConnected: false,
     lastPing: new Date(),
   },

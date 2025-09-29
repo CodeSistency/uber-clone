@@ -7,11 +7,13 @@ import { useModuleTransition } from "@/store/module/module";
 interface ModuleSwitcherWithSplashProps {
   currentModule: ModuleType;
   onModuleChange?: (module: ModuleType) => void;
+  onClose?: () => void;
 }
 
 const ModuleSwitcherWithSplash: React.FC<ModuleSwitcherWithSplashProps> = ({
   currentModule,
   onModuleChange,
+  onClose,
 }) => {
   const {
     switchToDriver,
@@ -24,7 +26,7 @@ const ModuleSwitcherWithSplash: React.FC<ModuleSwitcherWithSplashProps> = ({
 
   const handleModuleSwitch = async (targetModule: ModuleType) => {
     if (targetModule === currentModule) {
-      Alert.alert("Info", `Ya estás en el módulo ${targetModule}`);
+      console.log(`Already in module ${targetModule}`);
       return;
     }
 
@@ -42,8 +44,9 @@ const ModuleSwitcherWithSplash: React.FC<ModuleSwitcherWithSplashProps> = ({
       }
 
       onModuleChange?.(targetModule);
+      onClose?.(); // Close drawer after successful module switch
     } catch (error) {
-      Alert.alert("Error", "No se pudo cambiar de módulo. Inténtalo de nuevo.");
+      Alert.alert("No se pudo cambiar el módulo");
       console.error("Module switch error:", error);
     }
   };

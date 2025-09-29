@@ -736,10 +736,7 @@ export const UIWrapper: React.FC<UIWrapperProps> = ({
         {children}
       </View>
 
-      {/* Global Loading Overlay */}
-      {showGlobalLoading && <GlobalLoadingOverlay />}
-
-      {/* Mini Splash Screen */}
+      {/* Mini Splash Screen - Full Screen Overlay */}
       {activeSplash && isVisible && (
         <MiniSplash
           config={activeSplash}
@@ -749,6 +746,9 @@ export const UIWrapper: React.FC<UIWrapperProps> = ({
           visible={isVisible}
         />
       )}
+
+      {/* Global Loading Overlay */}
+      {showGlobalLoading && <GlobalLoadingOverlay />}
 
       {/* Toast Notifications */}
       <View className="absolute top-0 left-0 right-0 z-50 pt-12">
