@@ -1,10 +1,5 @@
 import React, { useState } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -56,7 +51,7 @@ const DriverAddVehicle = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot add vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot add vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       router.back();
     }
@@ -90,7 +85,10 @@ const DriverAddVehicle = () => {
 
     const seatsNum = parseInt(formData.seats);
     if (isNaN(seatsNum) || seatsNum < 1 || seatsNum > 20) {
-      showError("Validation Error", "Please enter a valid number of seats (1-20)");
+      showError(
+        "Validation Error",
+        "Please enter a valid number of seats (1-20)",
+      );
       return false;
     }
 
@@ -149,8 +147,8 @@ const DriverAddVehicle = () => {
       "Photo upload functionality will be implemented soon. For now, you can proceed without photos.",
       [
         { text: "Skip", style: "cancel" },
-        { text: "Add Later", onPress: () => setCurrentStep(4) }
-      ]
+        { text: "Add Later", onPress: () => setCurrentStep(4) },
+      ],
     );
   };
 
@@ -168,14 +166,21 @@ const DriverAddVehicle = () => {
         seats: parseInt(formData.seats),
         insurancePolicyNumber: formData.insurancePolicyNumber,
         insuranceProvider: formData.insuranceProvider,
-        insuranceExpiry: formData.insuranceExpiry ? new Date(formData.insuranceExpiry) : new Date(),
+        insuranceExpiry: formData.insuranceExpiry
+          ? new Date(formData.insuranceExpiry)
+          : new Date(),
         registrationNumber: formData.registrationNumber,
-        registrationExpiry: formData.registrationExpiry ? new Date(formData.registrationExpiry) : new Date(),
+        registrationExpiry: formData.registrationExpiry
+          ? new Date(formData.registrationExpiry)
+          : new Date(),
       };
 
       await addVehicle(vehicleData);
 
-      showSuccess("Vehicle Added", "Your vehicle has been added successfully and is pending verification");
+      showSuccess(
+        "Vehicle Added",
+        "Your vehicle has been added successfully and is pending verification",
+      );
 
       // Navigate back after success
       setTimeout(() => {
@@ -228,7 +233,9 @@ const DriverAddVehicle = () => {
             <TextField
               label="Make"
               value={formData.make}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, make: text }))}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, make: text }))
+              }
               placeholder="e.g. Toyota"
             />
           </View>
@@ -236,7 +243,9 @@ const DriverAddVehicle = () => {
             <TextField
               label="Model"
               value={formData.model}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, model: text }))}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, model: text }))
+              }
               placeholder="e.g. Camry"
             />
           </View>
@@ -247,7 +256,9 @@ const DriverAddVehicle = () => {
             <TextField
               label="Year"
               value={formData.year}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, year: text }))}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, year: text }))
+              }
               placeholder="e.g. 2020"
               keyboardType="numeric"
             />
@@ -256,7 +267,9 @@ const DriverAddVehicle = () => {
             <TextField
               label="Seats"
               value={formData.seats}
-              onChangeText={(text) => setFormData(prev => ({ ...prev, seats: text }))}
+              onChangeText={(text) =>
+                setFormData((prev) => ({ ...prev, seats: text }))
+              }
               placeholder="e.g. 4"
               keyboardType="numeric"
             />
@@ -266,7 +279,12 @@ const DriverAddVehicle = () => {
         <TextField
           label="License Plate"
           value={formData.licensePlate}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, licensePlate: text.toUpperCase() }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({
+              ...prev,
+              licensePlate: text.toUpperCase(),
+            }))
+          }
           placeholder="e.g. ABC123"
           autoCapitalize="characters"
         />
@@ -274,7 +292,9 @@ const DriverAddVehicle = () => {
         <TextField
           label="Color"
           value={formData.color}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, color: text }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, color: text }))
+          }
           placeholder="e.g. White"
         />
       </View>
@@ -283,41 +303,53 @@ const DriverAddVehicle = () => {
 
   const renderStep2 = () => (
     <Card className="mb-6">
-      <Text className="text-lg font-JakartaBold mb-4">Insurance & Registration</Text>
+      <Text className="text-lg font-JakartaBold mb-4">
+        Insurance & Registration
+      </Text>
 
       <View className="space-y-4">
         <TextField
           label="Insurance Policy Number"
           value={formData.insurancePolicyNumber}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, insurancePolicyNumber: text }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, insurancePolicyNumber: text }))
+          }
           placeholder="Enter policy number"
         />
 
         <TextField
           label="Insurance Provider"
           value={formData.insuranceProvider}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, insuranceProvider: text }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, insuranceProvider: text }))
+          }
           placeholder="e.g. State Farm"
         />
 
         <TextField
           label="Insurance Expiry Date"
           value={formData.insuranceExpiry}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, insuranceExpiry: text }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, insuranceExpiry: text }))
+          }
           placeholder="YYYY-MM-DD"
         />
 
         <TextField
           label="Registration Number"
           value={formData.registrationNumber}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, registrationNumber: text }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, registrationNumber: text }))
+          }
           placeholder="Enter registration number"
         />
 
         <TextField
           label="Registration Expiry Date"
           value={formData.registrationExpiry}
-          onChangeText={(text) => setFormData(prev => ({ ...prev, registrationExpiry: text }))}
+          onChangeText={(text) =>
+            setFormData((prev) => ({ ...prev, registrationExpiry: text }))
+          }
           placeholder="YYYY-MM-DD"
         />
       </View>
@@ -352,7 +384,9 @@ const DriverAddVehicle = () => {
       <View className="space-y-3">
         <View className="flex-row justify-between">
           <Text className="text-secondary-600">Vehicle:</Text>
-          <Text className="font-JakartaMedium">{formData.year} {formData.make} {formData.model}</Text>
+          <Text className="font-JakartaMedium">
+            {formData.year} {formData.make} {formData.model}
+          </Text>
         </View>
         <View className="flex-row justify-between">
           <Text className="text-secondary-600">License Plate:</Text>
@@ -360,18 +394,25 @@ const DriverAddVehicle = () => {
         </View>
         <View className="flex-row justify-between">
           <Text className="text-secondary-600">Insurance:</Text>
-          <Text className="font-JakartaMedium">{formData.insuranceProvider}</Text>
+          <Text className="font-JakartaMedium">
+            {formData.insuranceProvider}
+          </Text>
         </View>
         <View className="flex-row justify-between">
           <Text className="text-secondary-600">Photos:</Text>
-          <Text className="font-JakartaMedium">{photos.length > 0 ? `${photos.length} uploaded` : "None uploaded"}</Text>
+          <Text className="font-JakartaMedium">
+            {photos.length > 0 ? `${photos.length} uploaded` : "None uploaded"}
+          </Text>
         </View>
       </View>
 
       <View className="bg-warning-50 border border-warning-200 rounded-lg p-4 mt-4">
-        <Text className="text-warning-800 font-JakartaMedium mb-1">Verification Required</Text>
+        <Text className="text-warning-800 font-JakartaMedium mb-1">
+          Verification Required
+        </Text>
         <Text className="text-warning-700 text-sm">
-          Your vehicle will be reviewed by our team. You'll receive a notification once verification is complete.
+          Your vehicle will be reviewed by our team. You'll receive a
+          notification once verification is complete.
         </Text>
       </View>
     </Card>

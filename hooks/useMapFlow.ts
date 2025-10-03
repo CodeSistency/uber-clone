@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback } from "react";
 import {
   useMapFlowStore,
   MapFlowRole,
@@ -14,9 +14,9 @@ import {
   CustomerMandadoStep,
   DriverMandadoStep,
   CustomerEnvioStep,
-  DriverEnvioStep
-} from '@/store/mapFlow/mapFlow';
-import { useVehicleTiersStore } from '@/store';
+  DriverEnvioStep,
+} from "@/store/mapFlow/mapFlow";
+import { useVehicleTiersStore } from "@/store";
 
 /**
  * Hook para controlar el flujo de mapas con navegación type-safe
@@ -86,66 +86,88 @@ import { useVehicleTiersStore } from '@/store';
 export const useMapFlow = () => {
   const state = useMapFlowStore();
 
-  console.log('[useMapFlow] Current state:', {
-    step: state.step,
-    service: state.service,
-    isActive: state.isActive,
-    bottomSheetVisible: state.bottomSheetVisible,
-    bottomSheetAllowDrag: state.bottomSheetAllowDrag,
-    bottomSheetMinHeight: state.bottomSheetMinHeight,
-    bottomSheetMaxHeight: state.bottomSheetMaxHeight,
-    bottomSheetInitialHeight: state.bottomSheetInitialHeight,
-  });
+  const start = useCallback(
+    (role: MapFlowRole) => {
+      state.start(role);
+    },
+    [state],
+  );
 
-  const start = useCallback((role: MapFlowRole) => {
-    console.log('[useMapFlow] Starting flow with role:', role);
-    state.start(role);
-  }, [state]);
+  const startService = useCallback(
+    async (service: ServiceType, role?: FlowRole) => {
+      // Pre-load vehicle tiers when starting transport service
+      if (service === "transport") {
+        const tiersStore = useVehicleTiersStore.getState();
 
-  const startService = useCallback(async (service: ServiceType, role?: FlowRole) => {
-    console.log('[useMapFlow] Starting service flow:', { service, role });
+        // First try to load from AsyncStorage
+        const storedTiers = await tiersStore.loadTiersFromStorage();
 
-    // Pre-load vehicle tiers when starting transport service
-    if (service === 'transport') {
-      console.log('[useMapFlow] Pre-loading vehicle tiers for transport service...');
-      const tiersStore = useVehicleTiersStore.getState();
-
-      // First try to load from AsyncStorage
-      const storedTiers = await tiersStore.loadTiersFromStorage();
-
-      if (!storedTiers) {
-        console.log('[useMapFlow] No tiers in storage, fetching from API...');
-        // If not in storage, fetch from API
-        await tiersStore.fetchTiers();
-      } else {
-        console.log('[useMapFlow] Tiers loaded from storage successfully');
+        if (!storedTiers) {
+          // If not in storage, fetch from API
+          await tiersStore.fetchTiers();
+        }
       }
-    }
 
-    state.startService(service, role);
-  }, [state]);
+      state.startService(service, role);
+    },
+    [state],
+  );
 
   const stop = useCallback(() => state.stop(), [state]);
   const reset = useCallback(() => state.reset(), [state]);
   const next = useCallback(() => state.next(), [state]);
   const back = useCallback(() => state.back(), [state]);
   const goTo = useCallback((step: MapFlowStep) => state.goTo(step), [state]);
-  const goToStep = useCallback((stepName: string) => state.goToStep(stepName), [state]);
+  const goToStep = useCallback(
+    (stepName: string) => state.goToStep(stepName),
+    [state],
+  );
 
   // Helper methods
-  const getInitialStepConfig = useCallback((step: MapFlowStep) => state.getInitialStepConfig(step), [state]);
-  const startWithConfig = useCallback((step: MapFlowStep, role?: MapFlowRole) => state.startWithConfig(step, role), [state]);
+  const getInitialStepConfig = useCallback(
+    (step: MapFlowStep) => state.getInitialStepConfig(step),
+    [state],
+  );
+  const startWithConfig = useCallback(
+    (step: MapFlowStep, role?: MapFlowRole) =>
+      state.startWithConfig(step, role),
+    [state],
+  );
 
   // Type-safe helper methods
-  const startWithCustomerStep = useCallback((step: CustomerFlowStep) => state.startWithCustomerStep(step), [state]);
-  const startWithDriverStep = useCallback((step: DriverFlowStep) => state.startWithDriverStep(step), [state]);
-  const startWithTransportStep = useCallback((step: CustomerTransportStep | DriverTransportStep, role: FlowRole) => state.startWithTransportStep(step, role), [state]);
-  const startWithDeliveryStep = useCallback((step: CustomerDeliveryStep | DriverDeliveryStep, role: FlowRole) => state.startWithDeliveryStep(step, role), [state]);
-  const startWithMandadoStep = useCallback((step: CustomerMandadoStep | DriverMandadoStep, role: FlowRole) => state.startWithMandadoStep(step, role), [state]);
-  const startWithEnvioStep = useCallback((step: CustomerEnvioStep | DriverEnvioStep, role: FlowRole) => state.startWithEnvioStep(step, role), [state]);
+  const startWithCustomerStep = useCallback(
+    (step: CustomerFlowStep) => state.startWithCustomerStep(step),
+    [state],
+  );
+  const startWithDriverStep = useCallback(
+    (step: DriverFlowStep) => state.startWithDriverStep(step),
+    [state],
+  );
+  const startWithTransportStep = useCallback(
+    (step: CustomerTransportStep | DriverTransportStep, role: FlowRole) =>
+      state.startWithTransportStep(step, role),
+    [state],
+  );
+  const startWithDeliveryStep = useCallback(
+    (step: CustomerDeliveryStep | DriverDeliveryStep, role: FlowRole) =>
+      state.startWithDeliveryStep(step, role),
+    [state],
+  );
+  const startWithMandadoStep = useCallback(
+    (step: CustomerMandadoStep | DriverMandadoStep, role: FlowRole) =>
+      state.startWithMandadoStep(step, role),
+    [state],
+  );
+  const startWithEnvioStep = useCallback(
+    (step: CustomerEnvioStep | DriverEnvioStep, role: FlowRole) =>
+      state.startWithEnvioStep(step, role),
+    [state],
+  );
 
   return {
+    // Include all state properties and functions from the store
     ...state,
+    // Override with custom functions
     start,
     startService,
     stop,
@@ -163,12 +185,5 @@ export const useMapFlow = () => {
     startWithDeliveryStep,
     startWithMandadoStep,
     startWithEnvioStep,
-    // State setters
-    setRideType: state.setRideType,
-    setConfirmedOrigin: state.setConfirmedOrigin,
-    setConfirmedDestination: state.setConfirmedDestination,
-    setPhoneNumber: state.setPhoneNumber,
   };
 };
-
-

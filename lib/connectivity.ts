@@ -1,9 +1,9 @@
-import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
-import { useRealtimeStore } from '@/store';
+import NetInfo, { NetInfoState } from "@react-native-community/netinfo";
+import { useRealtimeStore } from "@/store";
 
 export interface ExtendedConnectionStatus {
   isConnected: boolean;
-  connectionType: 'wifi' | 'cellular' | 'none';
+  connectionType: "wifi" | "cellular" | "none";
   connectionSpeed: number;
   isInternetReachable: boolean;
   websocketConnected: boolean;
@@ -17,12 +17,12 @@ export class ConnectivityManager {
 
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log('[ConnectivityManager] Already initialized, skipping');
+      console.log("[ConnectivityManager] Already initialized, skipping");
       return;
     }
 
     try {
-      console.log('[ConnectivityManager] Initializing NetInfo...');
+      console.log("[ConnectivityManager] Initializing NetInfo...");
 
       // Get initial state
       const initialState = await NetInfo.fetch();
@@ -31,7 +31,7 @@ export class ConnectivityManager {
 
       // Set up listener for network changes
       this.unsubscribe = NetInfo.addEventListener((state) => {
-        console.log('[ConnectivityManager] Network state changed:', {
+        console.log("[ConnectivityManager] Network state changed:", {
           isConnected: state.isConnected,
           type: state.type,
           isInternetReachable: state.isInternetReachable,
@@ -43,9 +43,9 @@ export class ConnectivityManager {
       });
 
       this.isInitialized = true;
-      console.log('[ConnectivityManager] ✅ Initialized successfully');
+      console.log("[ConnectivityManager] ✅ Initialized successfully");
     } catch (error) {
-      console.error('[ConnectivityManager] ❌ Failed to initialize:', error);
+      console.error("[ConnectivityManager] ❌ Failed to initialize:", error);
       throw error;
     }
   }
@@ -61,7 +61,8 @@ export class ConnectivityManager {
         connectionType: this.mapConnectionType(state.type),
         connectionSpeed,
         isInternetReachable,
-        websocketConnected: useRealtimeStore.getState().connectionStatus.websocketConnected,
+        websocketConnected:
+          useRealtimeStore.getState().connectionStatus.websocketConnected,
         lastPing: new Date(),
       };
 
@@ -73,30 +74,34 @@ export class ConnectivityManager {
         lastPing: extendedStatus.lastPing,
       });
 
-      console.log('[ConnectivityManager] Status updated:', {
+      console.log("[ConnectivityManager] Status updated:", {
         isConnected: extendedStatus.isConnected,
         connectionType: extendedStatus.connectionType,
         connectionSpeed: `${connectionSpeed} Mbps`,
         isInternetReachable,
       });
-
     } catch (error) {
-      console.error('[ConnectivityManager] Failed to update connection status:', error);
+      console.error(
+        "[ConnectivityManager] Failed to update connection status:",
+        error,
+      );
     }
   }
 
-  private mapConnectionType(type: string | null | undefined): 'wifi' | 'cellular' | 'none' {
-    if (!type) return 'none';
+  private mapConnectionType(
+    type: string | null | undefined,
+  ): "wifi" | "cellular" | "none" {
+    if (!type) return "none";
 
     switch (type.toLowerCase()) {
-      case 'wifi':
-      case 'ethernet':
-        return 'wifi';
-      case 'cellular':
-      case 'mobile':
-        return 'cellular';
+      case "wifi":
+      case "ethernet":
+        return "wifi";
+      case "cellular":
+      case "mobile":
+        return "cellular";
       default:
-        return 'none';
+        return "none";
     }
   }
 
@@ -104,7 +109,7 @@ export class ConnectivityManager {
     const details = state.details as any;
 
     // Try to get connection strength/speed from different sources
-    if (typeof details?.strength === 'number') {
+    if (typeof details?.strength === "number") {
       // Convert WiFi strength percentage to approximate Mbps
       return Math.round(details.strength * 0.3); // Rough estimate
     }
@@ -115,7 +120,7 @@ export class ConnectivityManager {
     }
 
     // Default fallback
-    return state.type === 'wifi' ? 10 : 5; // Mbps estimates
+    return state.type === "wifi" ? 10 : 5; // Mbps estimates
   }
 
   getCurrentState(): NetInfoState | null {
@@ -126,17 +131,19 @@ export class ConnectivityManager {
     return this.lastKnownState?.isInternetReachable ?? false;
   }
 
-  getConnectionQuality(): 'excellent' | 'good' | 'fair' | 'poor' {
-    const speed = this.extractConnectionSpeed(this.lastKnownState as any || {} as any);
+  getConnectionQuality(): "excellent" | "good" | "fair" | "poor" {
+    const speed = this.extractConnectionSpeed(
+      (this.lastKnownState as any) || ({} as any),
+    );
 
-    if (speed >= 20) return 'excellent';
-    if (speed >= 10) return 'good';
-    if (speed >= 5) return 'fair';
-    return 'poor';
+    if (speed >= 20) return "excellent";
+    if (speed >= 10) return "good";
+    if (speed >= 5) return "fair";
+    return "poor";
   }
 
   destroy(): void {
-    console.log('[ConnectivityManager] Destroying...');
+    console.log("[ConnectivityManager] Destroying...");
 
     if (this.unsubscribe) {
       this.unsubscribe();
@@ -146,7 +153,7 @@ export class ConnectivityManager {
     this.isInitialized = false;
     this.lastKnownState = null;
 
-    console.log('[ConnectivityManager] ✅ Destroyed successfully');
+    console.log("[ConnectivityManager] ✅ Destroyed successfully");
   }
 
   // Utility method to check if we should attempt network operations
@@ -173,10 +180,13 @@ export const useConnectivityManager = () => {
 
   const isOnline = connectionStatus.isConnected;
   const connectionType = connectionStatus.connectionType;
-  const connectionSpeed = connectivityManager['extractConnectionSpeed'](connectivityManager.getCurrentState() as any || {} as any);
+  const connectionSpeed = connectivityManager["extractConnectionSpeed"](
+    (connectivityManager.getCurrentState() as any) || ({} as any),
+  );
   const isInternetReachable = connectivityManager.isNetworkReachable();
   const connectionQuality = connectivityManager.getConnectionQuality();
-  const shouldAttemptNetworkOp = connectivityManager.shouldAttemptNetworkOperation();
+  const shouldAttemptNetworkOp =
+    connectivityManager.shouldAttemptNetworkOperation();
 
   return {
     isOnline,

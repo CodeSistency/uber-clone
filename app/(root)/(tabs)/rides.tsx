@@ -43,20 +43,23 @@ const Rides = () => {
   }, []);
 
   // Memoize empty component
-  const ListEmptyComponent = useMemo(() => (
-    <View className="flex flex-col items-center justify-center px-5">
-      <Image
-        source={images.noResult}
-        className="w-40 h-40"
-        alt="No recent rides found"
-        resizeMode="contain"
-      />
-      <Text className="text-sm">No recent rides found</Text>
-      <Text className="text-primary text-sm font-JakartaBold">
-        Book your first ride now!
-      </Text>
-    </View>
-  ), []);
+  const ListEmptyComponent = useMemo(
+    () => (
+      <View className="flex flex-col items-center justify-center px-5">
+        <Image
+          source={images.noResult}
+          className="w-40 h-40"
+          alt="No recent rides found"
+          resizeMode="contain"
+        />
+        <Text className="text-sm">No recent rides found</Text>
+        <Text className="text-primary text-sm font-JakartaBold">
+          Book your first ride now!
+        </Text>
+      </View>
+    ),
+    [],
+  );
 
   console.log("[Rides] Page data:", {
     userId,
@@ -80,7 +83,9 @@ const Rides = () => {
   if (error) {
     return (
       <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark items-center justify-center px-5">
-        <Text className="text-white text-center mb-4">Unable to load rides</Text>
+        <Text className="text-white text-center mb-4">
+          Unable to load rides
+        </Text>
         <Text className="text-white/70 text-center text-sm">{error}</Text>
       </SafeAreaView>
     );

@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button, Card, TextField } from "@/components/ui";
@@ -13,12 +7,8 @@ import { useDriverOnboardingStore } from "@/store/driverOnboarding";
 import { useUI } from "@/components/UIWrapper";
 
 const OnboardingStep4 = () => {
-  const {
-    onboardingData,
-    updateStepData,
-    completeStep,
-    goToStep,
-  } = useDriverOnboardingStore();
+  const { onboardingData, updateStepData, completeStep, goToStep } =
+    useDriverOnboardingStore();
 
   const { showError } = useUI();
 
@@ -46,14 +36,38 @@ const OnboardingStep4 = () => {
   }, [onboardingData]);
 
   const vehicleMakes = [
-    "Toyota", "Honda", "Ford", "Chevrolet", "Nissan", "BMW", "Mercedes-Benz",
-    "Audi", "Volkswagen", "Hyundai", "Kia", "Mazda", "Subaru", "Lexus",
-    "Tesla", "Volvo", "Other"
+    "Toyota",
+    "Honda",
+    "Ford",
+    "Chevrolet",
+    "Nissan",
+    "BMW",
+    "Mercedes-Benz",
+    "Audi",
+    "Volkswagen",
+    "Hyundai",
+    "Kia",
+    "Mazda",
+    "Subaru",
+    "Lexus",
+    "Tesla",
+    "Volvo",
+    "Other",
   ];
 
   const vehicleColors = [
-    "White", "Black", "Silver", "Gray", "Blue", "Red", "Green", "Brown",
-    "Yellow", "Orange", "Purple", "Other"
+    "White",
+    "Black",
+    "Silver",
+    "Gray",
+    "Blue",
+    "Red",
+    "Green",
+    "Brown",
+    "Yellow",
+    "Orange",
+    "Purple",
+    "Other",
   ];
 
   const vehicleFeatures = [
@@ -71,18 +85,18 @@ const OnboardingStep4 = () => {
   ];
 
   const updateVehicleField = (field: keyof typeof vehicleData, value: any) => {
-    setVehicleData(prev => ({
+    setVehicleData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
   const toggleFeature = (feature: string) => {
-    setVehicleData(prev => ({
+    setVehicleData((prev) => ({
       ...prev,
       features: prev.features.includes(feature)
-        ? prev.features.filter(f => f !== feature)
-        : [...prev.features, feature]
+        ? prev.features.filter((f) => f !== feature)
+        : [...prev.features, feature],
     }));
   };
 
@@ -105,7 +119,10 @@ const OnboardingStep4 = () => {
     const year = parseInt(vehicleData.year);
     const currentYear = new Date().getFullYear();
     if (year < 1990 || year > currentYear + 1) {
-      showError("Validation Error", "Please enter a valid vehicle year (1990-present)");
+      showError(
+        "Validation Error",
+        "Please enter a valid vehicle year (1990-present)",
+      );
       return false;
     }
 
@@ -157,7 +174,7 @@ const OnboardingStep4 = () => {
     Alert.alert(
       "Photo Upload",
       "Vehicle photo upload functionality will be implemented soon.\n\nFor now, vehicle details are sufficient for verification.",
-      [{ text: "OK" }]
+      [{ text: "OK" }],
     );
   };
 
@@ -179,21 +196,27 @@ const OnboardingStep4 = () => {
               <View key={step} className="flex-row items-center">
                 <View
                   className={`w-8 h-8 rounded-full items-center justify-center ${
-                    step < 4 ? "bg-green-500" :
-                    step === 4 ? "bg-primary-500" :
-                    "bg-secondary-300"
+                    step < 4
+                      ? "bg-green-500"
+                      : step === 4
+                        ? "bg-primary-500"
+                        : "bg-secondary-300"
                   }`}
                 >
-                  <Text className={`text-xs font-JakartaBold ${
-                    step <= 4 ? "text-white" : "text-secondary-600"
-                  }`}>
+                  <Text
+                    className={`text-xs font-JakartaBold ${
+                      step <= 4 ? "text-white" : "text-secondary-600"
+                    }`}
+                  >
                     {step}
                   </Text>
                 </View>
                 {step < 6 && (
-                  <View className={`w-1 h-6 ${
-                    step < 4 ? "bg-green-500" : "bg-secondary-300"
-                  }`} />
+                  <View
+                    className={`w-1 h-6 ${
+                      step < 4 ? "bg-green-500" : "bg-secondary-300"
+                    }`}
+                  />
                 )}
               </View>
             ))}
@@ -201,7 +224,9 @@ const OnboardingStep4 = () => {
 
           {/* Vehicle Photo Upload */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-4">Vehicle Photos</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Vehicle Photos
+            </Text>
 
             <View className="bg-secondary-50 border-2 border-dashed border-secondary-300 rounded-lg p-6 items-center mb-4">
               <Text className="text-4xl mb-3">📸</Text>
@@ -229,14 +254,17 @@ const OnboardingStep4 = () => {
                 📷 Photo Guidelines
               </Text>
               <Text className="text-blue-700 text-sm">
-                Clear photos help passengers identify your vehicle. Include exterior shots from multiple angles and interior photos.
+                Clear photos help passengers identify your vehicle. Include
+                exterior shots from multiple angles and interior photos.
               </Text>
             </View>
           </Card>
 
           {/* Basic Information */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-4">Basic Information</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Basic Information
+            </Text>
 
             <View className="space-y-4">
               {/* Make and Model */}
@@ -248,15 +276,21 @@ const OnboardingStep4 = () => {
                       Alert.alert(
                         "Select Make",
                         "Select your vehicle make",
-                        vehicleMakes.map(make => ({
+                        vehicleMakes.map((make) => ({
                           text: make,
-                          onPress: () => updateVehicleField('make', make)
-                        }))
+                          onPress: () => updateVehicleField("make", make),
+                        })),
                       );
                     }}
                     className="border border-secondary-300 rounded-lg p-3 bg-white"
                   >
-                    <Text className={vehicleData.make ? "text-secondary-700" : "text-secondary-400"}>
+                    <Text
+                      className={
+                        vehicleData.make
+                          ? "text-secondary-700"
+                          : "text-secondary-400"
+                      }
+                    >
                       {vehicleData.make || "Select make"}
                     </Text>
                   </TouchableOpacity>
@@ -267,7 +301,7 @@ const OnboardingStep4 = () => {
                     label="Model"
                     placeholder="e.g. Camry, Civic, F-150"
                     value={vehicleData.model}
-                    onChangeText={(text) => updateVehicleField('model', text)}
+                    onChangeText={(text) => updateVehicleField("model", text)}
                   />
                 </View>
               </View>
@@ -279,7 +313,7 @@ const OnboardingStep4 = () => {
                     label="Year"
                     placeholder="e.g. 2020"
                     value={vehicleData.year}
-                    onChangeText={(text) => updateVehicleField('year', text)}
+                    onChangeText={(text) => updateVehicleField("year", text)}
                     keyboardType="numeric"
                   />
                 </View>
@@ -291,15 +325,21 @@ const OnboardingStep4 = () => {
                       Alert.alert(
                         "Select Color",
                         "Select your vehicle color",
-                        vehicleColors.map(color => ({
+                        vehicleColors.map((color) => ({
                           text: color,
-                          onPress: () => updateVehicleField('color', color)
-                        }))
+                          onPress: () => updateVehicleField("color", color),
+                        })),
                       );
                     }}
                     className="border border-secondary-300 rounded-lg p-3 bg-white"
                   >
-                    <Text className={vehicleData.color ? "text-secondary-700" : "text-secondary-400"}>
+                    <Text
+                      className={
+                        vehicleData.color
+                          ? "text-secondary-700"
+                          : "text-secondary-400"
+                      }
+                    >
                       {vehicleData.color || "Select color"}
                     </Text>
                   </TouchableOpacity>
@@ -308,23 +348,29 @@ const OnboardingStep4 = () => {
 
               {/* Seats */}
               <View>
-                <Text className="text-sm font-JakartaMedium mb-2">Passenger Capacity</Text>
+                <Text className="text-sm font-JakartaMedium mb-2">
+                  Passenger Capacity
+                </Text>
                 <View className="flex-row space-x-2">
                   {[2, 3, 4, 5, 6, 7, 8].map((seats) => (
                     <TouchableOpacity
                       key={seats}
-                      onPress={() => updateVehicleField('seats', seats.toString())}
+                      onPress={() =>
+                        updateVehicleField("seats", seats.toString())
+                      }
                       className={`flex-1 py-3 rounded-lg border items-center ${
                         vehicleData.seats === seats.toString()
                           ? "border-primary-500 bg-primary-50"
                           : "border-secondary-300 bg-white"
                       }`}
                     >
-                      <Text className={`text-sm font-JakartaBold ${
-                        vehicleData.seats === seats.toString()
-                          ? "text-primary-700"
-                          : "text-secondary-600"
-                      }`}>
+                      <Text
+                        className={`text-sm font-JakartaBold ${
+                          vehicleData.seats === seats.toString()
+                            ? "text-primary-700"
+                            : "text-secondary-600"
+                        }`}
+                      >
                         {seats}
                       </Text>
                       <Text className="text-xs text-secondary-500">seats</Text>
@@ -337,9 +383,12 @@ const OnboardingStep4 = () => {
 
           {/* Vehicle Features */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-4">Vehicle Features</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Vehicle Features
+            </Text>
             <Text className="text-secondary-600 mb-4">
-              Select all features that apply to help passengers choose the right ride.
+              Select all features that apply to help passengers choose the right
+              ride.
             </Text>
 
             <View className="flex-row flex-wrap">
@@ -353,12 +402,15 @@ const OnboardingStep4 = () => {
                       : "border-secondary-300 bg-white"
                   }`}
                 >
-                  <Text className={`text-sm ${
-                    vehicleData.features.includes(feature)
-                      ? "text-primary-700"
-                      : "text-secondary-600"
-                  }`}>
-                    {vehicleData.features.includes(feature) ? "✓ " : ""}{feature}
+                  <Text
+                    className={`text-sm ${
+                      vehicleData.features.includes(feature)
+                        ? "text-primary-700"
+                        : "text-secondary-600"
+                    }`}
+                  >
+                    {vehicleData.features.includes(feature) ? "✓ " : ""}
+                    {feature}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -369,21 +421,25 @@ const OnboardingStep4 = () => {
                 🚗 Feature Benefits
               </Text>
               <Text className="text-green-700 text-sm">
-                Highlighting your vehicle's features helps you attract more passengers and potentially earn more.
+                Highlighting your vehicle's features helps you attract more
+                passengers and potentially earn more.
               </Text>
             </View>
           </Card>
 
           {/* Safety Notice */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-3">Safety & Maintenance</Text>
+            <Text className="text-lg font-JakartaBold mb-3">
+              Safety & Maintenance
+            </Text>
 
             <View className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
               <Text className="text-yellow-800 font-JakartaBold mb-1">
                 ⚠️ Safety Requirements
               </Text>
               <Text className="text-yellow-700 text-sm">
-                Your vehicle must meet all local safety standards and be in good mechanical condition. Regular maintenance is required.
+                Your vehicle must meet all local safety standards and be in good
+                mechanical condition. Regular maintenance is required.
               </Text>
             </View>
 
@@ -392,7 +448,8 @@ const OnboardingStep4 = () => {
                 🚫 Prohibited Vehicles
               </Text>
               <Text className="text-red-700 text-sm">
-                Modified vehicles, those with expired inspections, or vehicles that don't meet safety standards cannot be used for rides.
+                Modified vehicles, those with expired inspections, or vehicles
+                that don't meet safety standards cannot be used for rides.
               </Text>
             </View>
           </Card>

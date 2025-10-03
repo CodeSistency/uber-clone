@@ -46,9 +46,11 @@ interface ApiError {
 ### Endpoints Principales
 
 #### GET /drivers/profile
+
 Obtiene el perfil completo del conductor autenticado.
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -79,9 +81,11 @@ Obtiene el perfil completo del conductor autenticado.
 ```
 
 #### PUT /drivers/profile
+
 Actualiza el perfil del conductor.
 
 **Request Body:**
+
 ```typescript
 {
   "firstName": "Carlos",
@@ -96,17 +100,21 @@ Actualiza el perfil del conductor.
 ```
 
 #### POST /drivers/profile/photo
+
 Sube una foto de perfil.
 
 **Content-Type:** `multipart/form-data`
 
 **Form Data:**
+
 - `photo`: File (image/jpeg, image/png, max 5MB)
 
 #### GET /drivers/profile/verification-status
+
 Obtiene el estado de verificación del conductor.
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -126,14 +134,17 @@ Obtiene el estado de verificación del conductor.
 ### Endpoints Principales
 
 #### GET /drivers/vehicles
+
 Obtiene todos los vehículos del conductor.
 
 **Parámetros de Query:**
+
 - `status`: `active | inactive | pending | rejected` (opcional)
 - `limit`: número (opcional, default: 10)
 - `offset`: número (opcional, default: 0)
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -167,9 +178,11 @@ Obtiene todos los vehículos del conductor.
 ```
 
 #### POST /drivers/vehicles
+
 Registra un nuevo vehículo.
 
 **Request Body:**
+
 ```typescript
 {
   "make": "Honda",
@@ -187,9 +200,11 @@ Registra un nuevo vehículo.
 ```
 
 #### PUT /drivers/vehicles/{vehicleId}
+
 Actualiza un vehículo existente.
 
 **Request Body:**
+
 ```typescript
 {
   "status": "inactive",
@@ -198,23 +213,28 @@ Actualiza un vehículo existente.
 ```
 
 #### DELETE /drivers/vehicles/{vehicleId}
+
 Elimina un vehículo (solo si no está en uso).
 
 #### POST /drivers/vehicles/{vehicleId}/photos
+
 Sube fotos del vehículo.
 
 **Content-Type:** `multipart/form-data`
 
 **Form Data:**
+
 - `front`: File (image)
 - `back`: File (image)
 - `interior`: File (image)
 - `damage`: File (image, opcional)
 
 #### PUT /drivers/vehicles/{vehicleId}/status
+
 Cambia el estado del vehículo.
 
 **Request Body:**
+
 ```typescript
 {
   "status": "active"
@@ -222,6 +242,7 @@ Cambia el estado del vehículo.
 ```
 
 **Estados válidos:**
+
 - `active`: Vehículo disponible para viajes
 - `inactive`: Vehículo temporalmente inactivo
 - `maintenance`: En mantenimiento
@@ -229,9 +250,11 @@ Cambia el estado del vehículo.
 - `rejected`: Rechazado en verificación
 
 #### GET /drivers/vehicles/{vehicleId}/verification
+
 Obtiene el estado de verificación del vehículo.
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -252,13 +275,16 @@ Obtiene el estado de verificación del vehículo.
 ### Endpoints Principales
 
 #### GET /drivers/documents
+
 Obtiene todos los documentos del conductor.
 
 **Parámetros de Query:**
+
 - `status`: `pending | approved | rejected | expired` (opcional)
 - `type`: tipo de documento (opcional)
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -281,19 +307,23 @@ Obtiene todos los documentos del conductor.
 ```
 
 #### POST /drivers/documents
+
 Sube un nuevo documento.
 
 **Content-Type:** `multipart/form-data`
 
 **Form Data:**
+
 - `file`: File (PDF, JPG, PNG, max 10MB)
 - `type`: `driver_license | insurance | registration | background_check`
 - `name`: string (opcional, nombre descriptivo)
 
 #### PUT /drivers/documents/{documentId}
+
 Actualiza un documento existente.
 
 **Request Body:**
+
 ```typescript
 {
   "name": "Updated Driver License"
@@ -301,20 +331,25 @@ Actualiza un documento existente.
 ```
 
 #### DELETE /drivers/documents/{documentId}
+
 Elimina un documento.
 
 #### POST /drivers/documents/{documentId}/reupload
+
 Re-subir un documento rechazado.
 
 **Content-Type:** `multipart/form-data`
 
 **Form Data:**
+
 - `file`: File (nuevo archivo)
 
 #### GET /drivers/documents/types
+
 Obtiene los tipos de documentos requeridos.
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -333,9 +368,11 @@ Obtiene los tipos de documentos requeridos.
 ```
 
 #### GET /drivers/documents/verification-status
+
 Obtiene el estado general de verificación de documentos.
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -356,12 +393,15 @@ Obtiene el estado general de verificación de documentos.
 ### Endpoints Principales
 
 #### GET /drivers/earnings/summary
+
 Obtiene el resumen de ganancias del conductor.
 
 **Parámetros de Query:**
+
 - `period`: `today | week | month | total` (opcional, default: today)
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -403,15 +443,18 @@ Obtiene el resumen de ganancias del conductor.
 ```
 
 #### GET /drivers/earnings/history
+
 Obtiene el historial de viajes con ganancias.
 
 **Parámetros de Query:**
+
 - `startDate`: fecha ISO (opcional)
 - `endDate`: fecha ISO (opcional)
 - `limit`: número (opcional, default: 50)
 - `offset`: número (opcional, default: 0)
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -443,9 +486,11 @@ Obtiene el historial de viajes con ganancias.
 ```
 
 #### GET /drivers/earnings/promotions
+
 Obtiene las promociones activas y desafíos.
 
 **Respuesta:**
+
 ```typescript
 {
   "success": true,
@@ -487,6 +532,7 @@ Obtiene las promociones activas y desafíos.
 ### Eventos de Estado del Conductor
 
 #### driver:status-update
+
 ```typescript
 {
   "event": "driver:status-update",
@@ -503,6 +549,7 @@ Obtiene las promociones activas y desafíos.
 ```
 
 #### driver:vehicle-status-update
+
 ```typescript
 {
   "event": "driver:vehicle-status-update",
@@ -518,6 +565,7 @@ Obtiene las promociones activas y desafíos.
 ### Eventos de Viajes
 
 #### driver:trip-request
+
 ```typescript
 {
   "event": "driver:trip-request",
@@ -543,6 +591,7 @@ Obtiene las promociones activas y desafíos.
 ```
 
 #### driver:trip-accepted
+
 ```typescript
 {
   "event": "driver:trip-accepted",
@@ -558,16 +607,16 @@ Obtiene las promociones activas y desafíos.
 
 ## Códigos de Error Comunes
 
-| Código | Descripción |
-|--------|-------------|
-| 400 | Datos inválidos |
-| 401 | No autorizado |
-| 403 | Acceso prohibido |
-| 404 | Recurso no encontrado |
-| 409 | Conflicto (ej: vehículo ya existe) |
-| 422 | Validación fallida |
-| 429 | Demasiadas peticiones |
-| 500 | Error interno del servidor |
+| Código | Descripción                        |
+| ------ | ---------------------------------- |
+| 400    | Datos inválidos                    |
+| 401    | No autorizado                      |
+| 403    | Acceso prohibido                   |
+| 404    | Recurso no encontrado              |
+| 409    | Conflicto (ej: vehículo ya existe) |
+| 422    | Validación fallida                 |
+| 429    | Demasiadas peticiones              |
+| 500    | Error interno del servidor         |
 
 ## Rate Limiting
 

@@ -30,10 +30,10 @@ export const DUMMY_RESTAURANTS: Restaurant[] = [
     distance: 1.2,
     location: {
       latitude: 40.7128, // Approximate NYC coordinates
-      longitude: -74.0060
+      longitude: -74.006,
     },
     image: "🍕",
-    isOpen: true
+    isOpen: true,
   },
   {
     id: "rest_002",
@@ -46,10 +46,10 @@ export const DUMMY_RESTAURANTS: Restaurant[] = [
     distance: 0.8,
     location: {
       latitude: 40.7135,
-      longitude: -74.0055
+      longitude: -74.0055,
     },
     image: "🍔",
-    isOpen: true
+    isOpen: true,
   },
   {
     id: "rest_003",
@@ -61,11 +61,11 @@ export const DUMMY_RESTAURANTS: Restaurant[] = [
     deliveryFee: 0.99,
     distance: 1.5,
     location: {
-      latitude: 40.7120,
-      longitude: -74.0070
+      latitude: 40.712,
+      longitude: -74.007,
     },
     image: "🥗",
-    isOpen: true
+    isOpen: true,
   },
   {
     id: "rest_004",
@@ -78,10 +78,10 @@ export const DUMMY_RESTAURANTS: Restaurant[] = [
     distance: 2.1,
     location: {
       latitude: 40.7115,
-      longitude: -74.0045
+      longitude: -74.0045,
     },
     image: "🍱",
-    isOpen: true
+    isOpen: true,
   },
   {
     id: "rest_005",
@@ -94,10 +94,10 @@ export const DUMMY_RESTAURANTS: Restaurant[] = [
     distance: 1.8,
     location: {
       latitude: 40.7138,
-      longitude: -74.0075
+      longitude: -74.0075,
     },
     image: "🌮",
-    isOpen: false
+    isOpen: false,
   },
   {
     id: "rest_006",
@@ -110,69 +110,70 @@ export const DUMMY_RESTAURANTS: Restaurant[] = [
     distance: 2.5,
     location: {
       latitude: 40.7123,
-      longitude: -74.0035
+      longitude: -74.0035,
     },
     image: "🛒",
-    isOpen: true
-  }
+    isOpen: true,
+  },
 ];
 
 // Function to simulate API call delay
 export const loadNearbyRestaurants = async (): Promise<Restaurant[]> => {
   // Simulate network delay
-  await new Promise(resolve => setTimeout(resolve, 800));
+  await new Promise((resolve) => setTimeout(resolve, 800));
 
   return DUMMY_RESTAURANTS;
 };
 
 // Get restaurants by category
 export const getRestaurantsByCategory = (category: string): Restaurant[] => {
-  if (category === 'all') return DUMMY_RESTAURANTS;
-  return DUMMY_RESTAURANTS.filter(restaurant =>
-    restaurant.category.toLowerCase() === category.toLowerCase()
+  if (category === "all") return DUMMY_RESTAURANTS;
+  return DUMMY_RESTAURANTS.filter(
+    (restaurant) =>
+      restaurant.category.toLowerCase() === category.toLowerCase(),
   );
 };
 
 // Quick access categories for delivery mode
 export const DELIVERY_CATEGORIES = [
   {
-    id: 'pizza',
-    name: 'Pizza',
-    icon: '🍕',
-    count: DUMMY_RESTAURANTS.filter(r => r.category === 'Italian').length
+    id: "pizza",
+    name: "Pizza",
+    icon: "🍕",
+    count: DUMMY_RESTAURANTS.filter((r) => r.category === "Italian").length,
   },
   {
-    id: 'burgers',
-    name: 'Burgers',
-    icon: '🍔',
-    count: DUMMY_RESTAURANTS.filter(r => r.category === 'American').length
+    id: "burgers",
+    name: "Burgers",
+    icon: "🍔",
+    count: DUMMY_RESTAURANTS.filter((r) => r.category === "American").length,
   },
   {
-    id: 'healthy',
-    name: 'Healthy',
-    icon: '🥗',
-    count: DUMMY_RESTAURANTS.filter(r => r.category === 'Healthy').length
-  }
+    id: "healthy",
+    name: "Healthy",
+    icon: "🥗",
+    count: DUMMY_RESTAURANTS.filter((r) => r.category === "Healthy").length,
+  },
 ];
 
 // Transport mode quick access (existing functionality)
 export const TRANSPORT_QUICK_ACCESS = [
   {
-    id: 'home',
-    name: 'Home',
-    icon: '🏠',
-    action: 'navigate_to_home'
+    id: "home",
+    name: "Home",
+    icon: "🏠",
+    action: "navigate_to_home",
   },
   {
-    id: 'work',
-    name: 'Work',
-    icon: '💼',
-    action: 'navigate_to_work'
+    id: "work",
+    name: "Work",
+    icon: "💼",
+    action: "navigate_to_work",
   },
   {
-    id: 'mall',
-    name: 'Mall',
-    icon: '🛒',
-    action: 'navigate_to_mall'
-  }
+    id: "mall",
+    name: "Mall",
+    icon: "🛒",
+    action: "navigate_to_mall",
+  },
 ];

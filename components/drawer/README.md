@@ -19,7 +19,7 @@ Un componente reutilizable y type-safe para drawers de navegación con soporte c
 El componente ya está integrado en el proyecto. Solo necesitas importarlo:
 
 ```typescript
-import { useDrawer, Drawer } from '@/components/drawer';
+import { useDrawer, Drawer } from "@/components/drawer";
 ```
 
 ## Uso Básico
@@ -65,23 +65,24 @@ const MyScreen: React.FC = () => {
 
 ```typescript
 const CustomerScreen: React.FC = () => {
-  const drawer = useDrawer({ module: 'customer' });
+  const drawer = useDrawer({ module: "customer" });
 
   // ... resto del código igual
 };
 ```
 
 ### 3. Uso con configuración personalizada
+
 ### 4. Layout animado reutilizable (escala + drawer expuesto)
 
 Si necesitas replicar el patrón "super app" donde el contenido principal se escala y desplaza para dejar expuesto el menú, usa el nuevo `AnimatedDrawerLayout`.
 
 ```tsx
-import { Dimensions } from 'react-native';
-import { AnimatedDrawerLayout } from '@/components/drawer';
+import { Dimensions } from "react-native";
+import { AnimatedDrawerLayout } from "@/components/drawer";
 
 const Screen = () => {
-  const screenWidth = Dimensions.get('window').width;
+  const screenWidth = Dimensions.get("window").width;
   const drawerWidth = screenWidth * 0.5;
 
   return (
@@ -93,7 +94,11 @@ const Screen = () => {
       borderRadius={28}
       renderDrawer={({ close }) => <DrawerMenu onNavigate={close} />}
       renderContent={({ open, close, isOpen }) => (
-        <MainContent openDrawer={open} closeDrawer={close} isDrawerOpen={isOpen} />
+        <MainContent
+          openDrawer={open}
+          closeDrawer={close}
+          isDrawerOpen={isOpen}
+        />
       )}
     />
   );
@@ -114,14 +119,14 @@ const CustomScreen: React.FC = () => {
   const drawer = useDrawer({
     config: {
       header: {
-        title: 'Custom Screen',
+        title: "Custom Screen",
       },
       routes: [
         {
-          id: 'custom-action',
-          title: 'Custom Action',
-          icon: '⭐',
-          onPress: () => console.log('Custom action!'),
+          id: "custom-action",
+          title: "Custom Action",
+          icon: "⭐",
+          onPress: () => console.log("Custom action!"),
         },
       ],
     },
@@ -136,6 +141,7 @@ const CustomScreen: React.FC = () => {
 ### Hook `useDrawer(options?)`
 
 #### Opciones
+
 ```typescript
 interface UseDrawerOptions {
   module?: ModuleType; // 'customer' | 'business' | 'driver'
@@ -146,6 +152,7 @@ interface UseDrawerOptions {
 ```
 
 #### Retorno
+
 ```typescript
 interface UseDrawerReturn {
   // Estado
@@ -189,11 +196,11 @@ interface DrawerProps {
 
   // Styling
   width?: number;
-  position?: 'left' | 'right';
+  position?: "left" | "right";
   className?: string;
 
   // Animations
-  animationType?: 'slide' | 'fade' | 'scale';
+  animationType?: "slide" | "fade" | "scale";
   backdropOpacity?: number;
 }
 ```
@@ -201,20 +208,22 @@ interface DrawerProps {
 ## Estructura de Rutas
 
 ### Ruta básica
+
 ```typescript
 interface DrawerRoute {
-  id: string;           // Identificador único
-  title: string;        // Texto a mostrar
+  id: string; // Identificador único
+  title: string; // Texto a mostrar
   icon?: string | React.ComponentType; // Icono
-  href?: string;        // Ruta de Expo Router
+  href?: string; // Ruta de Expo Router
   subroutes?: DrawerRoute[]; // Rutas hijas
   badge?: string | number; // Notificaciones
-  disabled?: boolean;   // Deshabilitada
-  divider?: boolean;    // Separador visual
+  disabled?: boolean; // Deshabilitada
+  divider?: boolean; // Separador visual
 }
 ```
 
 ### Ruta con cambio de módulo
+
 ```typescript
 {
   id: 'switch-to-business',
@@ -226,6 +235,7 @@ interface DrawerRoute {
 ```
 
 ### Ruta con acción personalizada
+
 ```typescript
 {
   id: 'custom-action',
@@ -238,18 +248,21 @@ interface DrawerRoute {
 ## Configuraciones por Módulo
 
 ### Customer Module
+
 - Home, Rides, Chat, Profile
 - Marketplace con subrutas
 - Wallet, Emergency
 - Opciones para cambiar a Business/Driver
 
 ### Business Module
+
 - Dashboard, Orders, Analytics
 - Marketplace integrado
 - Team management, Settings
 - Opción para volver a Customer
 
 ### Driver Module
+
 - Dashboard, Earnings, Active Ride
 - Performance, Documents
 - Vehicle management
@@ -258,14 +271,15 @@ interface DrawerRoute {
 ## Gestión de Estado Global
 
 ### Store de Módulos
+
 ```typescript
-import { useModuleStore } from '@/store/module';
+import { useModuleStore } from "@/store/module";
 
 // Obtener estado actual
-const currentModule = useModuleStore(state => state.currentModule);
+const currentModule = useModuleStore((state) => state.currentModule);
 
 // Cambiar módulo
-useModuleStore.getState().setModule('business');
+useModuleStore.getState().setModule("business");
 
 // Métodos específicos
 useModuleStore.getState().switchToCustomer();
@@ -276,6 +290,7 @@ useModuleStore.getState().switchToDriver();
 ## Ejemplos Avanzados
 
 ### Integración con UI existente
+
 ```typescript
 import { useUI } from '@/components/UIWrapper';
 
@@ -298,6 +313,7 @@ const MyComponent = () => {
 ```
 
 ### Drawer con animaciones personalizadas
+
 ```typescript
 <Drawer
   animationType="scale"
@@ -311,19 +327,21 @@ const MyComponent = () => {
 ## Mejores Prácticas
 
 ### 1. Usar módulo automático cuando sea posible
+
 ```typescript
 // ✅ Recomendado
 const drawer = useDrawer(); // Detecta automáticamente
 
 // ❌ Evitar cuando no sea necesario
-const drawer = useDrawer({ module: 'customer' }); // Forzado
+const drawer = useDrawer({ module: "customer" }); // Forzado
 ```
 
 ### 2. Manejar cambios de módulo correctamente
+
 ```typescript
 const handleModuleSwitch = async () => {
   try {
-    await drawer.switchModule('business');
+    await drawer.switchModule("business");
     // Módulo cambió automáticamente
   } catch (error) {
     // Manejar error
@@ -332,13 +350,14 @@ const handleModuleSwitch = async () => {
 ```
 
 ### 3. Configuraciones personalizadas para pantallas específicas
+
 ```typescript
 const specialDrawer = useDrawer({
   config: {
     routes: [
       // Solo rutas relevantes para esta pantalla
-      { id: 'back', title: 'Back', href: '/previous' },
-      { id: 'settings', title: 'Settings', href: '/settings' },
+      { id: "back", title: "Back", href: "/previous" },
+      { id: "settings", title: "Settings", href: "/settings" },
     ],
   },
 });
@@ -347,34 +366,39 @@ const specialDrawer = useDrawer({
 ## Troubleshooting
 
 ### El drawer no se abre
+
 - Verificar que `isOpen` sea `true`
 - Asegurarse de que el componente esté montado
 
 ### Las rutas no navegan
+
 - Verificar que `href` sea una ruta válida de Expo Router
 - Comprobar que `onRoutePress` esté conectado correctamente
 
 ### Los cambios de módulo no funcionan
+
 - Verificar que `switchToModule` esté configurado en la ruta
 - Asegurarse de que el módulo esté disponible
 
 ### Estado no se persiste
+
 - Verificar que `persistState` esté habilitado (default: true)
 - Comprobar permisos de AsyncStorage
 
 ## Testing
 
 ### Unit Tests
-```typescript
-import { renderHook } from '@testing-library/react-native';
-import { useDrawer } from '@/components/drawer';
 
-describe('useDrawer', () => {
-  it('should initialize with default values', () => {
+```typescript
+import { renderHook } from "@testing-library/react-native";
+import { useDrawer } from "@/components/drawer";
+
+describe("useDrawer", () => {
+  it("should initialize with default values", () => {
     const { result } = renderHook(() => useDrawer());
 
     expect(result.current.isOpen).toBe(false);
-    expect(result.current.currentModule).toBe('customer');
+    expect(result.current.currentModule).toBe("customer");
   });
 });
 ```

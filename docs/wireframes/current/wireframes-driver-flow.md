@@ -1,6 +1,7 @@
 # Uber-like App Wireframes: Driver Flow
 
 ## Overview
+
 This document contains ASCII wireframes for the driver journey in the Uber-like multi-modal application.
 
 ## 1. Driver Dashboard
@@ -41,6 +42,7 @@ This document contains ASCII wireframes for the driver journey in the Uber-like 
 ```
 
 **Actual Implementation Notes:**
+
 - Header with hamburger menu and online/offline toggle
 - Today's summary with earnings, trips, rating
 - Active ride card (when applicable)
@@ -241,29 +243,34 @@ Driver Dashboard
 ## Ride Request States
 
 ### New Request
+
 - Push notification received
 - 15-second acceptance window
 - Distance, fare, and destination displayed
 - Auto-decline if not accepted in time
 
 ### Accepted
+
 - Driver assigned to ride
 - Navigation to pickup location begins
 - Passenger contact information available
 - Chat feature activated
 
 ### Arrived at Pickup
+
 - "I'm Here" button becomes available
 - Passenger notified of arrival
 - Wait time tracking begins
 
 ### Trip in Progress
+
 - Navigation to destination
 - Real-time tracking active
 - Fare calculation ongoing
 - Emergency features available
 
 ### Trip Completed
+
 - Automatic fare calculation
 - Rating request sent to passenger
 - Earnings added to balance

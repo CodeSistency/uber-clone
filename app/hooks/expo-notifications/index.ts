@@ -1,5 +1,5 @@
 // Exportar el hook principal
-export { useExpoNotifications } from './useExpoNotifications';
+export { useExpoNotifications } from "./useExpoNotifications";
 
 // Exportar hooks especializados
 export {
@@ -9,9 +9,7 @@ export {
   useNotificationsByType,
   useNotificationPreferences,
   useNotificationSimulator,
-} from './useExpoNotifications';
+} from "./useExpoNotifications";
 
 // Re-exportar tipos para conveniencia
-export type { UseExpoNotificationsReturn } from '../../../types/expo-notifications';
-
-
+export type { UseExpoNotificationsReturn } from "../../../types/expo-notifications";

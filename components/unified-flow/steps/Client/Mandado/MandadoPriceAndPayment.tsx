@@ -10,7 +10,7 @@ import {
   mapPaymentMethodToAPI,
   validatePaymentMethod,
 } from "@/lib/paymentValidation";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -78,7 +78,7 @@ const MandadoPriceAndPayment: React.FC = () => {
                 loadingMessage: "Confirmando pago...",
               });
             }
-            goTo(FLOW_STEPS.CUSTOMER_MANDADO.BUSCANDO_CONDUCTOR);
+            goTo(FLOW_STEPS.CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR);
           }}
           disabled={!canPay}
           className="rounded-xl p-4"

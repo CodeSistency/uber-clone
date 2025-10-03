@@ -52,7 +52,10 @@ export class VehicleService {
   }
 
   // Update an existing vehicle
-  async updateVehicle(vehicleId: string, updates: UpdateVehicleRequest): Promise<Vehicle> {
+  async updateVehicle(
+    vehicleId: string,
+    updates: UpdateVehicleRequest,
+  ): Promise<Vehicle> {
     try {
       console.log("[VehicleService] Updating vehicle:", vehicleId, updates);
       const response = await fetchAPI(`driver/vehicles/${vehicleId}`, {
@@ -100,10 +103,13 @@ export class VehicleService {
   async deactivateVehicle(vehicleId: string): Promise<Vehicle> {
     try {
       console.log("[VehicleService] Deactivating vehicle:", vehicleId);
-      const response = await fetchAPI(`driver/vehicles/${vehicleId}/deactivate`, {
-        method: "POST",
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `driver/vehicles/${vehicleId}/deactivate`,
+        {
+          method: "POST",
+          requiresAuth: true,
+        },
+      );
       return response;
     } catch (error) {
       console.error("[VehicleService] Error deactivating vehicle:", error);
@@ -112,7 +118,10 @@ export class VehicleService {
   }
 
   // Upload vehicle photos
-  async uploadVehiclePhotos(vehicleId: string, photos: File[] | string[]): Promise<Vehicle> {
+  async uploadVehiclePhotos(
+    vehicleId: string,
+    photos: File[] | string[],
+  ): Promise<Vehicle> {
     try {
       console.log("[VehicleService] Uploading photos for vehicle:", vehicleId);
 
@@ -142,15 +151,26 @@ export class VehicleService {
   }
 
   // Get vehicle verification status
-  async getVehicleVerificationStatus(vehicleId: string): Promise<VehicleVerificationStatus> {
+  async getVehicleVerificationStatus(
+    vehicleId: string,
+  ): Promise<VehicleVerificationStatus> {
     try {
-      console.log("[VehicleService] Fetching verification status for vehicle:", vehicleId);
-      const response = await fetchAPI(`driver/vehicles/${vehicleId}/verification`, {
-        requiresAuth: true,
-      });
+      console.log(
+        "[VehicleService] Fetching verification status for vehicle:",
+        vehicleId,
+      );
+      const response = await fetchAPI(
+        `driver/vehicles/${vehicleId}/verification`,
+        {
+          requiresAuth: true,
+        },
+      );
       return response;
     } catch (error) {
-      console.error("[VehicleService] Error fetching verification status:", error);
+      console.error(
+        "[VehicleService] Error fetching verification status:",
+        error,
+      );
       throw error;
     }
   }
@@ -173,26 +193,42 @@ export class VehicleService {
   // Get vehicle maintenance history
   async getVehicleMaintenanceHistory(vehicleId: string): Promise<any[]> {
     try {
-      console.log("[VehicleService] Fetching maintenance history for vehicle:", vehicleId);
-      const response = await fetchAPI(`driver/vehicles/${vehicleId}/maintenance`, {
-        requiresAuth: true,
-      });
+      console.log(
+        "[VehicleService] Fetching maintenance history for vehicle:",
+        vehicleId,
+      );
+      const response = await fetchAPI(
+        `driver/vehicles/${vehicleId}/maintenance`,
+        {
+          requiresAuth: true,
+        },
+      );
       return response;
     } catch (error) {
-      console.error("[VehicleService] Error fetching maintenance history:", error);
+      console.error(
+        "[VehicleService] Error fetching maintenance history:",
+        error,
+      );
       throw error;
     }
   }
 
   // Report vehicle issue
-  async reportVehicleIssue(vehicleId: string, issue: {
-    type: "mechanical" | "accident" | "cleanliness" | "other";
-    description: string;
-    severity: "low" | "medium" | "high" | "critical";
-    photos?: string[];
-  }): Promise<void> {
+  async reportVehicleIssue(
+    vehicleId: string,
+    issue: {
+      type: "mechanical" | "accident" | "cleanliness" | "other";
+      description: string;
+      severity: "low" | "medium" | "high" | "critical";
+      photos?: string[];
+    },
+  ): Promise<void> {
     try {
-      console.log("[VehicleService] Reporting vehicle issue:", vehicleId, issue);
+      console.log(
+        "[VehicleService] Reporting vehicle issue:",
+        vehicleId,
+        issue,
+      );
       await fetchAPI(`driver/vehicles/${vehicleId}/issues`, {
         method: "POST",
         body: JSON.stringify(issue),

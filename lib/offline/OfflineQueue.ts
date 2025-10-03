@@ -1,16 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { fetchAPI } from '../fetch';
-import { connectivityManager } from '../connectivity';
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchAPI } from "../fetch";
+import { connectivityManager } from "../connectivity";
 
 export interface QueuedRequest {
   id: string;
   endpoint: string;
-  method: 'GET' | 'POST' | 'PUT' | 'DELETE';
+  method: "GET" | "POST" | "PUT" | "DELETE";
   data?: any;
   headers?: Record<string, string>;
   timestamp: number;
   retryCount: number;
-  priority: 'low' | 'medium' | 'high' | 'critical';
+  priority: "low" | "medium" | "high" | "critical";
   userId?: string;
   requiresAuth?: boolean;
 }
@@ -32,7 +32,7 @@ export class OfflineQueue {
   private static instance: OfflineQueue;
   private queue: QueuedRequest[] = [];
   private isProcessing = false;
-  private readonly STORAGE_KEY = '@offline_queue';
+  private readonly STORAGE_KEY = "@offline_queue";
   private readonly MAX_QUEUE_SIZE = 1000;
   private readonly BATCH_SIZE = 5;
   private readonly MAX_RETRY_ATTEMPTS = 3;
@@ -54,9 +54,11 @@ export class OfflineQueue {
   }
 
   async initialize(): Promise<void> {
-    console.log('[OfflineQueue] Initializing queue system...');
+    console.log("[OfflineQueue] Initializing queue system...");
     await this.loadQueueFromStorage();
-    console.log(`[OfflineQueue] ✅ Initialized with ${this.queue.length} queued requests`);
+    console.log(
+      `[OfflineQueue] ✅ Initialized with ${this.queue.length} queued requests`,
+    );
   }
 
   private async loadQueueFromStorage(): Promise<void> {
@@ -64,10 +66,12 @@ export class OfflineQueue {
       const stored = await AsyncStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         this.queue = JSON.parse(stored);
-        console.log(`[OfflineQueue] Loaded ${this.queue.length} requests from storage`);
+        console.log(
+          `[OfflineQueue] Loaded ${this.queue.length} requests from storage`,
+        );
       }
     } catch (error) {
-      console.error('[OfflineQueue] Failed to load queue from storage:', error);
+      console.error("[OfflineQueue] Failed to load queue from storage:", error);
       this.queue = [];
     }
   }
@@ -76,22 +80,24 @@ export class OfflineQueue {
     try {
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.queue));
     } catch (error) {
-      console.error('[OfflineQueue] Failed to persist queue:', error);
+      console.error("[OfflineQueue] Failed to persist queue:", error);
     }
   }
 
   private notifyListeners(): void {
-    this.listeners.forEach(listener => {
+    this.listeners.forEach((listener) => {
       try {
         listener([...this.queue]);
       } catch (error) {
-        console.error('[OfflineQueue] Error notifying listener:', error);
+        console.error("[OfflineQueue] Error notifying listener:", error);
       }
     });
   }
 
   // Public API methods
-  async add(request: Omit<QueuedRequest, 'id' | 'timestamp' | 'retryCount'>): Promise<string> {
+  async add(
+    request: Omit<QueuedRequest, "id" | "timestamp" | "retryCount">,
+  ): Promise<string> {
     const queuedRequest: QueuedRequest = {
       ...request,
       id: `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -101,7 +107,9 @@ export class OfflineQueue {
 
     // Remove old requests if queue is too large
     if (this.queue.length >= this.MAX_QUEUE_SIZE) {
-      console.log(`[OfflineQueue] Queue full (${this.MAX_QUEUE_SIZE}), removing oldest requests`);
+      console.log(
+        `[OfflineQueue] Queue full (${this.MAX_QUEUE_SIZE}), removing oldest requests`,
+      );
       this.queue = this.queue.slice(-this.MAX_QUEUE_SIZE + 1);
     }
 
@@ -109,13 +117,15 @@ export class OfflineQueue {
     await this.persistQueue();
     this.notifyListeners();
 
-    console.log(`[OfflineQueue] ✅ Added request to queue: ${queuedRequest.id} (priority: ${queuedRequest.priority})`);
+    console.log(
+      `[OfflineQueue] ✅ Added request to queue: ${queuedRequest.id} (priority: ${queuedRequest.priority})`,
+    );
     return queuedRequest.id;
   }
 
   async remove(id: string): Promise<boolean> {
     const initialLength = this.queue.length;
-    this.queue = this.queue.filter(req => req.id !== id);
+    this.queue = this.queue.filter((req) => req.id !== id);
 
     if (this.queue.length < initialLength) {
       await this.persistQueue();
@@ -131,7 +141,7 @@ export class OfflineQueue {
     this.queue = [];
     await this.persistQueue();
     this.notifyListeners();
-    console.log('[OfflineQueue] ✅ Queue cleared');
+    console.log("[OfflineQueue] ✅ Queue cleared");
   }
 
   getQueue(): QueuedRequest[] {
@@ -154,17 +164,18 @@ export class OfflineQueue {
     }
 
     const now = Date.now();
-    const timestamps = this.queue.map(req => req.timestamp);
+    const timestamps = this.queue.map((req) => req.timestamp);
     const oldestRequest = Math.min(...timestamps);
     const newestRequest = Math.max(...timestamps);
-    const averageAge = timestamps.reduce((sum, ts) => sum + (now - ts), 0) / timestamps.length;
+    const averageAge =
+      timestamps.reduce((sum, ts) => sum + (now - ts), 0) / timestamps.length;
 
     const byPriority = this.queue.reduce(
       (acc, req) => {
         acc[req.priority]++;
         return acc;
       },
-      { critical: 0, high: 0, medium: 0, low: 0 }
+      { critical: 0, high: 0, medium: 0, low: 0 },
     );
 
     return {
@@ -177,20 +188,26 @@ export class OfflineQueue {
   }
 
   // Priority-based queue management
-  private getPriorityWeight(priority: QueuedRequest['priority']): number {
+  private getPriorityWeight(priority: QueuedRequest["priority"]): number {
     switch (priority) {
-      case 'critical': return 4;
-      case 'high': return 3;
-      case 'medium': return 2;
-      case 'low': return 1;
-      default: return 2;
+      case "critical":
+        return 4;
+      case "high":
+        return 3;
+      case "medium":
+        return 2;
+      case "low":
+        return 1;
+      default:
+        return 2;
     }
   }
 
   private sortByPriority(): void {
     this.queue.sort((a, b) => {
       // First sort by priority weight
-      const priorityDiff = this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority);
+      const priorityDiff =
+        this.getPriorityWeight(b.priority) - this.getPriorityWeight(a.priority);
       if (priorityDiff !== 0) return priorityDiff;
 
       // Then by timestamp (older first)
@@ -200,18 +217,24 @@ export class OfflineQueue {
 
   async processQueue(): Promise<void> {
     if (this.isProcessing || this.queue.length === 0) {
-      console.log(`[OfflineQueue] Skipping processing - isProcessing: ${this.isProcessing}, queueSize: ${this.queue.length}`);
+      console.log(
+        `[OfflineQueue] Skipping processing - isProcessing: ${this.isProcessing}, queueSize: ${this.queue.length}`,
+      );
       return;
     }
 
     // Check if we should attempt network operations
     if (!connectivityManager.shouldAttemptNetworkOperation()) {
-      console.log('[OfflineQueue] Cannot process queue - no network connectivity');
+      console.log(
+        "[OfflineQueue] Cannot process queue - no network connectivity",
+      );
       return;
     }
 
     this.isProcessing = true;
-    console.log(`[OfflineQueue] 🔄 Processing ${this.queue.length} queued requests...`);
+    console.log(
+      `[OfflineQueue] 🔄 Processing ${this.queue.length} queued requests...`,
+    );
 
     // Sort queue by priority before processing
     this.sortByPriority();
@@ -226,13 +249,17 @@ export class OfflineQueue {
 
       const batchPromises = batch.map(async (request) => {
         try {
-          console.log(`[OfflineQueue] Processing request: ${request.id} (${request.method} ${request.endpoint})`);
+          console.log(
+            `[OfflineQueue] Processing request: ${request.id} (${request.method} ${request.endpoint})`,
+          );
 
           // Calculate delay based on retry count
           if (request.retryCount > 0) {
             const delay = this.calculateRetryDelay(request.retryCount - 1);
-            console.log(`[OfflineQueue] Waiting ${delay}ms before retry ${request.retryCount} for ${request.id}`);
-            await new Promise(resolve => setTimeout(resolve, delay));
+            console.log(
+              `[OfflineQueue] Waiting ${delay}ms before retry ${request.retryCount} for ${request.id}`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, delay));
           }
 
           // Execute the request
@@ -242,11 +269,15 @@ export class OfflineQueue {
           await this.remove(request.id);
           successCount++;
 
-          console.log(`[OfflineQueue] ✅ Successfully processed request: ${request.id}`);
+          console.log(
+            `[OfflineQueue] ✅ Successfully processed request: ${request.id}`,
+          );
           return { success: true, request };
-
         } catch (error) {
-          console.error(`[OfflineQueue] ❌ Failed to process request: ${request.id}`, error);
+          console.error(
+            `[OfflineQueue] ❌ Failed to process request: ${request.id}`,
+            error,
+          );
 
           // Check if we should retry
           if (this.shouldRetry(error, request)) {
@@ -254,14 +285,18 @@ export class OfflineQueue {
             request.retryCount++;
             request.timestamp = Date.now(); // Update timestamp for sorting
 
-            console.log(`[OfflineQueue] 🔄 Retrying request ${request.id} (attempt ${request.retryCount})`);
+            console.log(
+              `[OfflineQueue] 🔄 Retrying request ${request.id} (attempt ${request.retryCount})`,
+            );
             errorCount++;
             return { success: false, request, willRetry: true };
           } else {
             // Max retries reached or non-retryable error
             await this.remove(request.id);
             errorCount++;
-            console.log(`[OfflineQueue] 🗑️ Removed failed request: ${request.id} (max retries reached)`);
+            console.log(
+              `[OfflineQueue] 🗑️ Removed failed request: ${request.id} (max retries reached)`,
+            );
             return { success: false, request, willRetry: false };
           }
         }
@@ -275,7 +310,9 @@ export class OfflineQueue {
     await this.persistQueue();
     this.notifyListeners();
 
-    console.log(`[OfflineQueue] 📊 Processing complete: ${processedCount} processed, ${successCount} success, ${errorCount} errors`);
+    console.log(
+      `[OfflineQueue] 📊 Processing complete: ${processedCount} processed, ${successCount} success, ${errorCount} errors`,
+    );
     this.isProcessing = false;
   }
 
@@ -288,7 +325,7 @@ export class OfflineQueue {
     if (request.data) {
       options.body = JSON.stringify(request.data);
       options.headers = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
         ...request.headers,
       };
     }
@@ -303,7 +340,7 @@ export class OfflineQueue {
     }
 
     // Retry on network errors
-    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+    if (error.name === "TypeError" && error.message.includes("fetch")) {
       return true;
     }
 
@@ -338,34 +375,36 @@ export class OfflineQueue {
   }
 
   // Utility methods
-  getRequestsByPriority(priority: QueuedRequest['priority']): QueuedRequest[] {
-    return this.queue.filter(req => req.priority === priority);
+  getRequestsByPriority(priority: QueuedRequest["priority"]): QueuedRequest[] {
+    return this.queue.filter((req) => req.priority === priority);
   }
 
   getRequestsByEndpoint(endpoint: string): QueuedRequest[] {
-    return this.queue.filter(req => req.endpoint.includes(endpoint));
+    return this.queue.filter((req) => req.endpoint.includes(endpoint));
   }
 
   getOldestRequest(): QueuedRequest | null {
     if (this.queue.length === 0) return null;
     return this.queue.reduce((oldest, current) =>
-      current.timestamp < oldest.timestamp ? current : oldest
+      current.timestamp < oldest.timestamp ? current : oldest,
     );
   }
 
   getNewestRequest(): QueuedRequest | null {
     if (this.queue.length === 0) return null;
     return this.queue.reduce((newest, current) =>
-      current.timestamp > newest.timestamp ? current : newest
+      current.timestamp > newest.timestamp ? current : newest,
     );
   }
 
   // Cleanup old requests (older than 24 hours)
-  async cleanupOldRequests(maxAge: number = 24 * 60 * 60 * 1000): Promise<number> {
+  async cleanupOldRequests(
+    maxAge: number = 24 * 60 * 60 * 1000,
+  ): Promise<number> {
     const now = Date.now();
     const initialCount = this.queue.length;
 
-    this.queue = this.queue.filter(req => (now - req.timestamp) < maxAge);
+    this.queue = this.queue.filter((req) => now - req.timestamp < maxAge);
 
     const removedCount = initialCount - this.queue.length;
     if (removedCount > 0) {
@@ -378,15 +417,17 @@ export class OfflineQueue {
   }
 
   // Emergency cleanup - remove all requests of a specific priority
-  async clearByPriority(priority: QueuedRequest['priority']): Promise<number> {
+  async clearByPriority(priority: QueuedRequest["priority"]): Promise<number> {
     const initialCount = this.queue.length;
-    this.queue = this.queue.filter(req => req.priority !== priority);
+    this.queue = this.queue.filter((req) => req.priority !== priority);
 
     const removedCount = initialCount - this.queue.length;
     if (removedCount > 0) {
       await this.persistQueue();
       this.notifyListeners();
-      console.log(`[OfflineQueue] 🗑️ Cleared ${removedCount} requests with priority: ${priority}`);
+      console.log(
+        `[OfflineQueue] 🗑️ Cleared ${removedCount} requests with priority: ${priority}`,
+      );
     }
 
     return removedCount;

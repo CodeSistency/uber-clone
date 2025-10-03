@@ -22,7 +22,7 @@ const DriverMandadoManage: React.FC = () => {
       const id = (useRealtimeStore.getState().activeRide as any)?.id || 0;
       if (id) driverErrandService.updateShopping(id, parseFloat(itemsCost));
     } catch {}
-    goTo(FLOW_STEPS.DRIVER_MANDADO.EN_CAMINO_DESTINO);
+    goTo(FLOW_STEPS.DRIVER_MANDADO_EN_CAMINO_DESTINO);
   };
 
   return (

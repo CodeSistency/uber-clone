@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Platform } from "react-native";
 
 import {
   transportClient,
@@ -11,12 +11,18 @@ import Map, { MapHandle } from "@/components/Map";
 import InlineBottomSheet from "@/components/ui/InlineBottomSheet";
 import { useUI } from "@/components/UIWrapper";
 import { loadNearbyRestaurants, Restaurant } from "@/constants/dummyData";
+import {
+  DARK_MODERN_STYLE,
+  type MapConfiguration,
+} from "@/constants/mapStyles";
 import { MapFlowProvider } from "@/context/MapFlowContext";
 import { useMapController } from "@/hooks/useMapController";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useLocationStore } from "@/store";
 import { useDevStore } from "@/store/dev/dev";
 import { MapFlowStep } from "@/store/mapFlow/mapFlow";
+
+// 🎨 Importar configuración de mapas
 
 interface UnifiedFlowWrapperProps {
   role?: "customer" | "driver";
@@ -47,6 +53,26 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
   const transitionDuration = flow.transitionDuration;
   const snapPoints = flow.bottomSheetSnapPoints;
   const handleHeight = flow.bottomSheetHandleHeight;
+
+  // 🎨 Configuración del mapa con tema dark moderno
+  const mapConfig: Partial<MapConfiguration> = useMemo(
+    () => ({
+      theme: "dark",
+      customStyle: DARK_MODERN_STYLE,
+      userInterfaceStyle: "dark",
+      mapType: Platform.OS === "ios" ? "mutedStandard" : "standard",
+      showsPointsOfInterest: false,
+      showsTraffic: false,
+      showsCompass: true,
+      showsScale: false,
+      showsMyLocationButton: false,
+      tintColor: "#00FF88", // Verde neón para acentos
+      routeColor: "#4285F4", // Azul Google para rutas
+      trailColor: "#FFE014", // Amarillo neón para trails
+      predictionColor: "#00FF88", // Verde neón para predicciones
+    }),
+    [],
+  );
 
   const content = useMemo(() => {
     return renderStep(flow.step);
@@ -337,7 +363,31 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
           serviceType={(flow.service as any) || "transport"}
           restaurants={restaurants}
           isLoadingRestaurants={loadingRestaurants}
+          mapConfig={mapConfig}
         />
+
+        {/* Debug Info - Temporal para verificar estilos */}
+        <View
+          style={{
+            position: "absolute",
+            top: 100,
+            left: 10,
+            backgroundColor: "rgba(0,0,0,0.8)",
+            padding: 10,
+            borderRadius: 8,
+            zIndex: 1000,
+          }}
+        >
+          <Text style={{ color: "white", fontSize: 12 }}>
+            🎨 Map Style: {mapConfig.theme}
+          </Text>
+          <Text style={{ color: "white", fontSize: 12 }}>
+            🌙 Custom Style: {mapConfig.customStyle?.name || "None"}
+          </Text>
+          <Text style={{ color: "white", fontSize: 12 }}>
+            📱 UI Style: {mapConfig.userInterfaceStyle}
+          </Text>
+        </View>
 
         {/* Debug Info - Remove in production */}
         <View
@@ -373,6 +423,14 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
             className={className}
             // Gradient background like services-hub.tsx
             useGradient
+            useBlur
+            blurIntensity={50}
+            blurTint={ui.theme === "dark" ? "dark" : "light"}
+            blurFallbackColor={
+              ui.theme === "dark"
+                ? "rgba(0,0,0,0.35)"
+                : "rgba(255,255,255,0.25)"
+            }
             gradientColors={
               ui.theme === "dark"
                 ? ([

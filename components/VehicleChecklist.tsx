@@ -265,4 +265,3 @@ const VehicleChecklist: React.FC<VehicleChecklistProps> = ({
 };
 
 export default VehicleChecklist;
-

@@ -80,7 +80,9 @@ export const useAnimatedDrawerLayout = (
   const translateX = useSharedValue(resolvedOpen ? openTranslateX : 0);
   const borderRadiusValue = useSharedValue(resolvedOpen ? borderRadius : 0);
   const drawerOpacity = useSharedValue(resolvedOpen ? 1 : 0);
-  const drawerTranslateX = useSharedValue(resolvedOpen ? 0 : hiddenDrawerOffset);
+  const drawerTranslateX = useSharedValue(
+    resolvedOpen ? 0 : hiddenDrawerOffset,
+  );
   const secondaryScale = useSharedValue(
     enableSecondaryLayer ? (resolvedOpen ? secondaryScaleFactor : 1) : 1,
   );
@@ -141,10 +143,7 @@ export const useAnimatedDrawerLayout = (
         isDrawerOpen ? openTranslateX * secondaryTranslateMultiplier : 0,
         timingConfig,
       );
-      secondaryOpacity.value = withTiming(
-        isDrawerOpen ? 1 : 0,
-        timingConfig,
-      );
+      secondaryOpacity.value = withTiming(isDrawerOpen ? 1 : 0, timingConfig);
     } else {
       secondaryOpacity.value = 0;
       secondaryScale.value = 1;
@@ -190,5 +189,3 @@ export const useAnimatedDrawerLayout = (
     },
   };
 };
-
-

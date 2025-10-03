@@ -61,7 +61,7 @@ const DriverDeliveryToCustomer: React.FC = () => {
   };
 
   const handleDelivered = () => {
-    goTo(FLOW_STEPS.DRIVER_DELIVERY.ENTREGAR_PEDIDO);
+    goTo(FLOW_STEPS.DRIVER_DELIVERY_ENTREGAR_PEDIDO);
   };
 
   return (

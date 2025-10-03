@@ -12,7 +12,7 @@ import GoogleTextInput from "@/components/GoogleTextInput";
 import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { RideType } from "@/lib/unified-flow/constants";
+import { RideType, FLOW_STEPS } from "@/lib/unified-flow/constants";
 import { useLocationStore } from "@/store";
 
 import FlowHeader from "../../../FlowHeader";
@@ -27,6 +27,7 @@ const TransportDefinition: React.FC = () => {
   const {
     next,
     back,
+    goTo,
     setRideType,
     setPhoneNumber,
     setConfirmedOrigin,
@@ -38,6 +39,18 @@ const TransportDefinition: React.FC = () => {
   // Estado para el tipo de viaje y teléfono
   const [rideType, setRideTypeLocal] = useState<RideType>(RideType.NORMAL);
   const [phoneNumber, setPhoneNumberLocal] = useState("");
+
+  // Función de back personalizada que va a selección de servicio cuando no hay historial
+  const handleBack = () => {
+    // Intentar back normal primero
+    try {
+      back();
+    } catch (error) {
+      // Si falla (no hay historial), ir a selección de servicio
+      console.log("[TransportDefinition] No history available, going to service selection");
+      goTo(FLOW_STEPS.SELECCION_SERVICIO);
+    }
+  };
 
   // Estado para las ubicaciones seleccionadas
   const [originLocation, setOriginLocation] = useState<LocationData | null>(
@@ -132,7 +145,7 @@ const TransportDefinition: React.FC = () => {
 
   return (
     <View className="flex-1">
-      <FlowHeader title="Definir Viaje" onBack={back} />
+      <FlowHeader title="Definir Viaje" onBack={handleBack} />
 
       {/* Tabs para tipo de viaje */}
       <View className="flex-row mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg p-1 mx-5">
@@ -141,9 +154,7 @@ const TransportDefinition: React.FC = () => {
           title="Viajar"
           onPress={() => setRideTypeLocal(RideType.NORMAL)}
           className={`flex-1 py-3 px-4 rounded-md ${
-            rideType === RideType.NORMAL
-              ? ""
-              : "bg-transparent"
+            rideType === RideType.NORMAL ? "" : "bg-transparent"
           }`}
         />
         <Button
@@ -151,9 +162,7 @@ const TransportDefinition: React.FC = () => {
           title="Viajar otro"
           onPress={() => setRideTypeLocal(RideType.FOR_OTHER)}
           className={`flex-1 py-3 px-4 rounded-md ${
-            rideType === RideType.FOR_OTHER
-              ? ""
-              : "bg-transparent"
+            rideType === RideType.FOR_OTHER ? "" : "bg-transparent"
           }`}
         />
       </View>

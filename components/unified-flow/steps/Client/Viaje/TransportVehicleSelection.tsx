@@ -1,37 +1,18 @@
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 
 import { transportClient } from "@/app/services/flowClientService";
+import { calculateRouteDistance } from "@/app/services/googleMapsService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { RideType } from "@/lib/unified-flow/constants";
 import { useVehicleTiersStore } from "@/store";
 
 import FlowHeader from "../../../FlowHeader";
-
-const VEHICLE_TYPES = [
-  {
-    id: "car",
-    name: "Carro",
-    icon: "🚗",
-    options: [
-      { id: "basic", name: "Básico", price: "$5.000", time: "5 min" },
-      { id: "premium", name: "Premium", price: "$8.000", time: "3 min" },
-      { id: "xl", name: "XL", price: "$12.000", time: "4 min" },
-    ],
-  },
-  {
-    id: "motorcycle",
-    name: "Moto",
-    icon: "🏍️",
-    options: [
-      { id: "standard", name: "Estándar", price: "$3.000", time: "8 min" },
-      { id: "express", name: "Express", price: "$4.500", time: "5 min" },
-    ],
-  },
-];
+import SelectorHorizontalServicios from "@/components/unified-flow/transport/SelectorHorizontalServicios";
 
 const TransportVehicleSelection: React.FC = () => {
+  const mapFlow = useMapFlow() as any;
   const {
     next,
     back,
@@ -42,7 +23,10 @@ const TransportVehicleSelection: React.FC = () => {
     phoneNumber,
     setSelectedTierId,
     setSelectedVehicleTypeId,
-  } = useMapFlow() as any;
+    setEstimatedPrice,
+    setRouteInfo,
+    setPriceBreakdown,
+  } = mapFlow;
   const { withUI, showError } = useUI();
   const {
     tiers,
@@ -107,7 +91,33 @@ const TransportVehicleSelection: React.FC = () => {
         return;
       }
 
-      // Prepare data for API call (following the exact specification)
+      console.log("[TransportVehicleSelection] Selected tier:", selectedTier);
+      console.log("[TransportVehicleSelection] Store functions available:", {
+        setEstimatedPrice: !!setEstimatedPrice,
+        setRouteInfo: !!setRouteInfo,
+        setPriceBreakdown: !!setPriceBreakdown,
+      });
+
+      // 🆕 PASO 1: Calcular distancia y tiempo real con Google Maps
+      console.log("[TransportVehicleSelection] Calculating route with Google Maps...");
+      const routeCalculation = await calculateRouteDistance(
+        {
+          lat: confirmedOrigin.latitude,
+          lng: confirmedOrigin.longitude,
+        },
+        {
+          lat: confirmedDestination.latitude,
+          lng: confirmedDestination.longitude,
+        },
+      );
+
+      console.log("[TransportVehicleSelection] Route calculated:", routeCalculation);
+
+      // 🆕 PASO 2: Preparar datos para crear el ride
+      // El backend calculará el precio automáticamente
+      console.log("[TransportVehicleSelection] Preparing ride data for backend calculation...");
+
+      // Prepare data for API call
       const rideData = {
         originAddress: confirmedOrigin.address,
         originLat: confirmedOrigin.latitude,
@@ -115,16 +125,17 @@ const TransportVehicleSelection: React.FC = () => {
         destinationAddress: confirmedDestination.address,
         destinationLat: confirmedDestination.latitude,
         destinationLng: confirmedDestination.longitude,
-        minutes: 25, // TODO: Calculate based on actual distance/time
+        minutes: routeCalculation.durationMinutes, // ✅ Ahora usa tiempo real
         tierId: selectedTierId,
+        vehicleTypeId: selectedTier.vehicleTypeId,
       };
 
       console.log(
-        "[TransportVehicleSelection] Creating ride with data:",
+        "[TransportVehicleSelection] Creating ride with real data:",
         rideData,
       );
 
-      // Call API directly without withUI wrapper to handle response properly
+      // Call API to create ride (backend will calculate price)
       const result = await transportClient.defineRideFlow(rideData);
       console.log("[TransportVehicleSelection] API response:", result);
 
@@ -136,15 +147,33 @@ const TransportVehicleSelection: React.FC = () => {
           rideInfo,
         );
 
-        // Extract rideId from response (adjust based on actual structure)
+        // Extract rideId and farePrice from response
         const rideId = rideInfo.id || rideInfo.rideId || rideInfo._id;
+        const farePrice = parseFloat(rideInfo.farePrice) || 0;
+
         if (rideId) {
           setRideId(rideId);
           console.log("[TransportVehicleSelection] Ride ID set:", rideId);
+          console.log("[TransportVehicleSelection] Backend calculated farePrice:", farePrice);
 
-          // Guardar configuración del viaje en el store para el matching
+          // 🆕 PASO 3: Guardar el precio calculado por el backend
           setSelectedTierId(selectedTierId);
-          setSelectedVehicleTypeId(selectedTab === "car" ? 1 : 2); // 1=car, 2=motorcycle
+          setSelectedVehicleTypeId(selectedTier.vehicleTypeId);
+          setEstimatedPrice(farePrice);
+
+          // Guardar información de ruta
+          setRouteInfo({
+            distanceMiles: routeCalculation.distanceMiles,
+            durationMinutes: routeCalculation.durationMinutes,
+            originAddress: confirmedOrigin.address,
+            destinationAddress: confirmedDestination.address,
+          });
+
+          console.log("[TransportVehicleSelection] Store updated with backend data:", {
+            estimatedPrice: farePrice,
+            rideId: rideId,
+            selectedTierId: selectedTierId,
+          });
 
           console.log(
             "[TransportVehicleSelection] Saved tier and vehicle type for matching:",
@@ -157,7 +186,8 @@ const TransportVehicleSelection: React.FC = () => {
           console.log(
             "[TransportVehicleSelection] Navigating to payment methodology",
           );
-          next(); // Ahora irá a METODOLOGIA_PAGO según el SERVICE_FLOWS
+
+          next(); // Navegar a METODOLOGIA_PAGO
         } else {
           console.warn(
             "[TransportVehicleSelection] No rideId found in response",
@@ -265,56 +295,31 @@ const TransportVehicleSelection: React.FC = () => {
       </View>
 
       {/* Vehicle Options - Display tiers from API */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View className="px-5 pb-4">
-          {currentTiers.length > 0 ? (
-            currentTiers.map((tier) => (
-              <TouchableOpacity
-                key={tier.id}
-                onPress={() => setSelectedVehicle(tier.id.toString())}
-                className={`bg-white rounded-xl p-4 shadow-sm border-2 mb-3 ${
-                  selectedVehicle === tier.id.toString()
-                    ? "border-primary-500 bg-primary-50"
-                    : "border-gray-100"
-                }`}
-                activeOpacity={0.7}
-              >
-                <View className="flex-row items-center justify-between">
-                  <View className="flex-row items-center flex-1">
-                    <Text className="text-2xl mr-3">
-                      {tier.vehicleTypeIcon}
-                    </Text>
-                    <View className="flex-1">
-                      <Text className="font-JakartaBold text-lg text-gray-800">
-                        {tier.name}
-                      </Text>
-                      <Text className="font-Jakarta text-sm text-gray-600">
-                        Base: ${Number(tier.baseFare).toFixed(2)} • Minuto: $
-                        {Number(tier.perMinuteRate).toFixed(2)} • Km: $
-                        {Number(tier.perMileRate).toFixed(2)}
-                      </Text>
-                    </View>
-                  </View>
-                  <View className="items-end">
-                    <Text className="font-JakartaBold text-xl text-primary-600">
-                      ${Number(tier.baseFare).toFixed(2)}
-                    </Text>
-                    <Text className="font-Jakarta text-xs text-gray-500">
-                      Base
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))
-          ) : (
-            <View className="items-center justify-center py-10">
-              <Text className="text-gray-500 font-Jakarta text-center">
-                No hay opciones disponibles para este tipo de vehículo
-              </Text>
-            </View>
-          )}
+      {currentTiers.length > 0 ? (
+        <SelectorHorizontalServicios
+          data={currentTiers}
+          selectedId={selectedVehicle ? Number(selectedVehicle) : null}
+          onSelect={(id) => setSelectedVehicle(id.toString())}
+          renderName={(tier) => tier.name}
+          renderVehicleTypeName={(tier) => tier.vehicleTypeName}
+          renderIcon={(tier) =>
+            tier.vehicleTypeIcon || (selectedTab === "car" ? "🚗" : "🏍️")
+          }
+          renderBaseFare={(tier) => Number(tier.baseFare)}
+          renderPerMinuteRate={(tier) => Number(tier.perMinuteRate)}
+          renderPerMileRate={(tier) => Number(tier.perMileRate)}
+          renderRating={(tier) => {
+            const rating = (tier as any)?.rating;
+            return typeof rating === "number" ? rating : undefined;
+          }}
+        />
+      ) : (
+        <View className="items-center justify-center py-10">
+          <Text className="text-gray-500 font-Jakarta text-center">
+            No hay opciones disponibles para este tipo de vehículo
+          </Text>
         </View>
-      </ScrollView>
+      )}
 
       <TouchableOpacity
         onPress={handleContinue}

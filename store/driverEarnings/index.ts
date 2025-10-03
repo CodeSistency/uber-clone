@@ -1,2 +1,1 @@
-export { useDriverEarningsStore } from './driverEarnings';
-
+export { useDriverEarningsStore } from "./driverEarnings";

@@ -1,0 +1,551 @@
+{
+  "proyecto": "uber_onboarding_redesign",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Creación del Scaffold Base y Sistema de Ilustraciones",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "OnboardingScaffold Component",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Componente base que proporciona la estructura visual consistente para todos los pasos del onboarding, incluyendo layout de ilustración, área de contenido y botones de acción",
+          "dependencias": [
+            "components/ui/Button.tsx",
+            "components/ui/Text.tsx",
+            "@/store (para estado de onboarding)",
+            "react-native-safe-area-context",
+            "components/UIWrapper.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Definir interfaz y props del componente",
+              "descripcion": "Crear la interfaz TypeScript OnboardingScaffoldProps con todas las propiedades necesarias incluyendo illustration, children, botones de acción y callbacks",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Definir tipos de ilustración",
+                  "descripcion": "Crear tipo IllustrationComponent para componentes de ilustración SVG con props consistentes"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Definir props de navegación",
+                  "descripcion": "Especificar props para botones continuar, volver, saltar y sus respectivos callbacks"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Definir props de contenido",
+                  "descripcion": "Props para título, subtítulo, children y estados de loading"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Implementar layout base con posicionamiento absoluto",
+              "descripcion": "Crear la estructura de layout usando posicionamiento absoluto para ilustración al 70%, área de contenido y botones fijos",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Crear contenedor principal",
+                  "descripcion": "View principal con flex: 1 y fondo consistente"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Implementar posicionamiento de ilustración",
+                  "descripcion": "Contenedor absoluto con top: 10% y height: 70% para la ilustración"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Crear área de contenido dinámico",
+                  "descripcion": "Contenedor absoluto desde top: 70% hasta área de botones"
+                },
+                {
+                  "id": "ST1.1.2.4",
+                  "nombre": "Implementar área de botones fija",
+                  "descripcion": "Contenedor inferior fijo con height: 80px para botones de acción"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Implementar botón Skip en esquina superior derecha",
+              "descripcion": "Botón discreto con texto pequeño en la esquina superior derecha del scaffold",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Crear componente SkipButton",
+                  "descripcion": "Componente reutilizable con estilo discreto y texto 'Saltar'"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Implementar callback onSkip",
+                  "descripcion": "Integrar callback que permite saltar todo el flujo de onboarding"
+                },
+                {
+                  "id": "ST1.1.3.3",
+                  "nombre": "Posicionar botón en scaffold",
+                  "descripcion": "Ubicar botón en esquina superior derecha con padding adecuado"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.4",
+              "nombre": "Implementar botones de navegación inferior",
+              "descripcion": "Botones Continue y Back en la parte inferior del scaffold con diseño consistente",
+              "subtareas": [
+                {
+                  "id": "ST1.1.4.1",
+                  "nombre": "Crear layout de botones",
+                  "descripcion": "Flex row con botón Back a la izquierda y Continue a la derecha"
+                },
+                {
+                  "id": "ST1.1.4.2",
+                  "nombre": "Implementar lógica condicional",
+                  "descripcion": "Mostrar/ocultar botón Back basado en prop showBackButton"
+                },
+                {
+                  "id": "ST1.1.4.3",
+                  "nombre": "Agregar estados de loading",
+                  "descripcion": "Deshabilitar botones y mostrar indicador durante operaciones"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.5",
+              "nombre": "Integrar con sistema de temas",
+              "descripcion": "Asegurar compatibilidad con modo oscuro/claro y tema consistente de la app",
+              "subtareas": [
+                {
+                  "id": "ST1.1.5.1",
+                  "nombre": "Aplicar colores del tema",
+                  "descripcion": "Usar colores del onboardingTheme para fondo, texto y botones"
+                },
+                {
+                  "id": "ST1.1.5.2",
+                  "nombre": "Soporte responsive",
+                  "descripcion": "Asegurar funcionamiento en diferentes tamaños de pantalla"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Sistema de Ilustraciones SVG",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Conjunto de ilustraciones SVG minimalistas y consistentes para cada paso del onboarding",
+          "dependencias": [
+            "react-native-svg",
+            "react-native",
+            "components/onboarding/illustrations/",
+            "components/onboarding/illustrations/types.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear ilustración de ubicación (LocationIllustration)",
+              "descripcion": "Ilustración SVG minimalista que representa selección de ubicación geográfica",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Diseñar elementos visuales",
+                  "descripcion": "Marcador de mapa, líneas de ubicación, elementos geográficos simples",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar componente SVG",
+                  "descripcion": "Crear componente React con paths SVG optimizados",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Agregar escalabilidad responsive",
+                  "descripcion": "Asegurar que la ilustración se vea bien en diferentes tamaños",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Crear ilustración de viaje (TravelIllustration)",
+              "descripcion": "Ilustración SVG que representa preferencias de viaje y transporte",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Diseñar elementos de transporte",
+                  "descripcion": "Vehículos, rutas, elementos relacionados con viaje",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Implementar componente consistente",
+                  "descripcion": "Mantener estilo visual coherente con otras ilustraciones",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Crear ilustración de teléfono (PhoneIllustration)",
+              "descripcion": "Ilustración SVG para el paso de verificación telefónica",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Diseñar elementos de comunicación",
+                  "descripcion": "Teléfono, ondas, elementos de verificación",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Crear variantes para estados",
+                  "descripcion": "Estados antes/después de enviar código de verificación",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T1.2.4",
+              "nombre": "Crear ilustración de perfil (ProfileIllustration)",
+              "descripcion": "Ilustración SVG para completar perfil de usuario",
+              "subtareas": [
+                {
+                  "id": "ST1.2.4.1",
+                  "nombre": "Diseñar elementos de perfil",
+                  "descripcion": "Avatar, formulario, elementos de configuración",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.2.4.2",
+                  "nombre": "Implementar componente final",
+                  "descripcion": "Completar el conjunto de ilustraciones del sistema",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T1.2.5",
+              "nombre": "Crear sistema de gestión de ilustraciones",
+              "descripcion": "Utilidad para cargar y gestionar ilustraciones de manera centralizada",
+              "subtareas": [
+                {
+                  "id": "ST1.2.5.1",
+                  "nombre": "Crear archivo de index",
+                  "descripcion": "Exportar todas las ilustraciones desde un punto central",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.2.5.2",
+                  "nombre": "Implementar lazy loading",
+                  "descripcion": "Cargar ilustraciones bajo demanda para optimizar performance",
+                  "completado": false
+                }
+              ],
+              "completado": true
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Sequential Selector y Animaciones Paso 0",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Componente reutilizable para selecciones secuenciales con animación fade-in y estructura de datos flexible para los pasos del onboarding",
+          "dependencias": [
+            "components/ui/Select.tsx",
+            "components/onboarding/SequentialSelector.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Definir estructura de datos del selector",
+              "descripcion": "Modelar los pasos como un arreglo de objetos con id, options, value, onChange y placeholders",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Crear interfaz SequentialSelectorProps",
+                  "descripcion": "Incluir definición de steps, delays y clases personalizables",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Configurar valores animados",
+                  "descripcion": "Inicializar Animated.Value por cada paso para manejar opacidad y desplazamiento",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar animaciones secuenciales",
+              "descripcion": "Usar Animated.stagger con delays para revelar cada selector cuando el paso previo tenga valor",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Crear hook de animación",
+                  "descripcion": "Usar useEffect para iniciar animaciones en cascada basadas en las dependencias",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Configurar interpolaciones",
+                  "descripcion": "Interpolar translateY y opacity para cada paso",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Integración UI con Select",
+              "descripcion": "Conectar cada Animated.View con el componente Select adaptado con subtítulos y variantes",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Implementar gating por pasos",
+                  "descripcion": "Renderizar el siguiente selector solo cuando el anterior tenga value",
+                  "completado": true
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Pruebas de UX",
+                  "descripcion": "Verificar que las animaciones se sientan fluidas con diferentes cantidades de pasos",
+                  "completado": false
+                }
+              ],
+              "completado": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Rediseño de Pantallas",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Refactor de travel-preferences",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Migrar la pantalla de preferencias de viaje al scaffold y componentes actualizados",
+          "dependencias": [
+            "components/onboarding/OnboardingScaffold.tsx",
+            "components/onboarding/illustrations/TravelIllustration.tsx",
+            "components/onboarding/SequentialSelector.tsx",
+            "components/ui/Card.tsx",
+            "components/ui/Select.tsx",
+            "components/ui/Tabs.tsx",
+            "components/ui/RadioGroup.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Reemplazar layout con OnboardingScaffold",
+              "descripcion": "Eliminar SafeAreaView/ScrollView personalizados y usar el scaffold con ilustración de viaje",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Configurar props del scaffold",
+                  "descripcion": "Definir título, subtítulo, callbacks de navegación y botones",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Agregar ilustración",
+                  "descripcion": "Usar TravelIllustration para mantener coherencia visual",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Actualizar secciones con nuevos componentes UI",
+              "descripcion": "Reemplazar los layout existentes por Cards y Select actualizados",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Vehículos preferidos",
+                  "descripcion": "Configurar Tabs dentro de Card con nuevo estilo",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Nivel de servicio",
+                  "descripcion": "Actualizar RadioGroup y estilos asociadas",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.1.2.3",
+                  "nombre": "Idioma y moneda",
+                  "descripcion": "Usar Select actualizado con subtítulos y variantes",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Simplificar lógica de flujo y almacenamiento",
+              "descripcion": "Actualizar el manejo de preferencias usando updateUserData y navegación coherente",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Actualizar almacenamiento",
+                  "descripcion": "Guardar preferencias en el store y preparar datos para backend",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Ajustar navegación",
+                  "descripcion": "Usar completeStep y router.replace para pasar al siguiente paso",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Refactor de phone-verification",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Actualizar la pantalla de verificación telefónica con el nuevo scaffold y flujos opcionales",
+          "dependencias": [
+            "components/onboarding/OnboardingScaffold.tsx",
+            "components/onboarding/illustrations/PhoneIllustration.tsx",
+            "components/ui/Card.tsx",
+            "components/ui/Select.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Migrar layout y navegación",
+              "descripcion": "Reemplazar estructura anterior por OnboardingScaffold con botones saltar/continuar",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Configurar ilustración y textos",
+                  "descripcion": "Usar PhoneIllustration y copy actualizado",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Alinear callbacks",
+                  "descripcion": "Sincronizar con skip opcional y next step",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Diseño de envío/verificación",
+              "descripcion": "Crear layout limpio para número, botón enviar y mensajes de estado",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Mostrar número actual",
+                  "descripcion": "Crear card resumen con código de país y teléfono",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "Manejo de estados",
+                  "descripcion": "Loading, errores y confirmación",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            }
+          ]
+        },
+        {
+          "id": "M2.3",
+          "nombre": "Refactor de profile-completion",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Actualizar el paso final con scaffold, resumen y modal de contacto de emergencia",
+          "dependencias": [
+            "components/onboarding/OnboardingScaffold.tsx",
+            "components/onboarding/illustrations/ProfileIllustration.tsx",
+            "components/ui/Card.tsx",
+            "components/ui/TextField.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T2.3.1",
+              "nombre": "Migrar layout y componentes principales",
+              "descripcion": "Reemplazar SafeAreaView/ScrollView por scaffold y tarjetas limpias",
+              "subtareas": [
+                {
+                  "id": "ST2.3.1.1",
+                  "nombre": "Actualizar campos principales",
+                  "descripcion": "Rediseñar tarjeta de dirección y resumen",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.3.1.2",
+                  "nombre": "Resumen final",
+                  "descripcion": "Crear card con mensaje de cierre y botón principal",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T2.3.2",
+              "nombre": "Modal de contacto de emergencia",
+              "descripcion": "Configurar modal limpio para agregar/editar contacto",
+              "subtareas": [
+                {
+                  "id": "ST2.3.2.1",
+                  "nombre": "Crear componente EmergencyContactModal",
+                  "descripcion": "Formulario con validación y botones primarios",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.3.2.2",
+                  "nombre": "Integrar con store",
+                  "descripcion": "Guardar datos en updateUserData y API",
+                  "completado": false
+                }
+              ],
+              "completado": true
+            },
+            {
+              "id": "T2.3.3",
+              "nombre": "Flujo de finalización",
+              "descripcion": "Simplificar manejo de errores y navegación a pantalla final",
+              "subtareas": [
+                {
+                  "id": "ST2.3.3.1",
+                  "nombre": "Actualizar completeStep",
+                  "descripcion": "Marcar paso como completado con datos finales",
+                  "completado": true
+                },
+                {
+                  "id": "ST2.3.3.2",
+                  "nombre": "Navegación a success",
+                  "descripcion": "Usar router.replace hacia completion-success",
+                  "completado": true
+                }
+              ],
+              "completado": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -37,6 +37,7 @@ store/module/
 ## 🎯 **Transiciones Optimizadas**
 
 ### **Customer → Driver**
+
 ```
 Flujo: Splash → Carga Paralela → Completado
 Tiempo estimado: 1.8-2.2s
@@ -51,6 +52,7 @@ Datos cargados:
 ```
 
 ### **Customer → Business**
+
 ```
 Flujo: Splash → Carga Paralela → Completado
 Tiempo estimado: 1.6-2.0s
@@ -63,6 +65,7 @@ Datos cargados:
 ```
 
 ### **Driver/Business → Customer**
+
 ```
 Flujo: Limpieza → Splash → Carga Rápida → Completado
 Tiempo estimado: 1.0-1.4s
@@ -76,6 +79,7 @@ Datos cargados:
 ## ⚡ **Optimizaciones de Performance**
 
 ### **Sistema de Caché**
+
 ```typescript
 // Caché con TTL automático
 const cache = new Map<string, {
@@ -96,6 +100,7 @@ cleanup(): void {
 ```
 
 ### **Procesamiento Paralelo Inteligente**
+
 ```typescript
 // Procesamiento por grupos de prioridad
 private groupTasksByPriorityAndDependencies(): Map<DataPriority, DataTask[]> {
@@ -106,25 +111,28 @@ private groupTasksByPriorityAndDependencies(): Map<DataPriority, DataTask[]> {
 ```
 
 ### **Animaciones Optimizadas**
+
 ```typescript
 // Spring animations con useNativeDriver
 Animated.spring(scaleAnim, {
   toValue: 1,
-  tension: 100,      // Bouncier feel
-  friction: 8,       // Smooth damping
+  tension: 100, // Bouncier feel
+  friction: 8, // Smooth damping
   useNativeDriver: true,
-})
+});
 ```
 
 ## 🧪 **Sistema de Testing**
 
 ### **Cobertura de Tests**
+
 - ✅ **Unit Tests**: SplashStore, MiniSplash component
 - ✅ **Integration Tests**: Transiciones completas módulo
 - ✅ **Performance Tests**: Tiempos de carga, memoria
 - ✅ **Error Handling**: Fallbacks y recovery
 
 ### **Scripts de Testing**
+
 ```bash
 # Ejecutar todos los tests del sistema splash
 npm run test:splash
@@ -139,6 +147,7 @@ npm run lint:splash
 ## 📊 **Métricas de Monitoreo**
 
 ### **Métricas Principales**
+
 - **Tiempo de Transición**: Promedio < 2 segundos
 - **Tasa de Éxito**: > 95% de transiciones exitosas
 - **Hit Rate de Caché**: > 70% para datos recurrentes
@@ -146,20 +155,22 @@ npm run lint:splash
 - **Frame Drops**: < 5 durante animaciones
 
 ### **Sistema de Alertas**
+
 ```typescript
 // Alertas automáticas para métricas críticas
 if (avgTransitionTime > 2500) {
-  console.warn('⚠️ Transition time too high');
+  console.warn("⚠️ Transition time too high");
 }
 
 if (successRate < 0.95) {
-  console.error('❌ Low success rate detected');
+  console.error("❌ Low success rate detected");
 }
 ```
 
 ## 🔧 **API de Uso**
 
 ### **Hook Principal**
+
 ```typescript
 import { useModuleTransition } from '@/store/module';
 
@@ -183,32 +194,35 @@ const MyComponent = () => {
 ```
 
 ### **Splash Manual**
+
 ```typescript
-import { useSplashStore } from '@/store';
+import { useSplashStore } from "@/store";
 
 const splashStore = useSplashStore.getState();
 
 splashStore.showSplash({
-  id: 'custom-splash',
-  type: 'module_transition',
-  title: 'Cambiando módulo...',
+  id: "custom-splash",
+  type: "module_transition",
+  title: "Cambiando módulo...",
   progress: 0,
   moduleSpecific: {
-    fromModule: 'customer',
-    toModule: 'driver',
-  }
+    fromModule: "customer",
+    toModule: "driver",
+  },
 });
 ```
 
 ## 🚨 **Manejo de Errores**
 
 ### **Estrategias de Fallback**
+
 1. **Timeouts**: Máximo 10 segundos por operación
 2. **Reintentos**: Hasta 2 reintentos con backoff exponencial
 3. **Degradación**: Continuar con datos disponibles si algunos fallan
 4. **Rollback**: Revertir cambios si operaciones críticas fallan
 
 ### **Recuperación Automática**
+
 ```typescript
 // En caso de error crítico
 catch (error) {
@@ -226,12 +240,14 @@ catch (error) {
 ## 🔄 **Mantenimiento y Evolución**
 
 ### **Mejoras Futuras**
+
 - **Analytics Avanzado**: Seguimiento detallado de uso
 - **A/B Testing**: Pruebas de diferentes estrategias de carga
 - **Offline Support**: Carga inteligente cuando no hay conexión
 - **Personalización**: Splash personalizados por usuario
 
 ### **Monitoreo Continuo**
+
 - **Health Checks**: Verificación automática cada 5 minutos
 - **Performance Tracking**: Métricas en tiempo real
 - **Error Aggregation**: Agrupación inteligente de errores
@@ -240,12 +256,14 @@ catch (error) {
 ## 📈 **Resultados Esperados**
 
 ### **Métricas de Éxito**
+
 - ✅ **UX Mejorada**: Transiciones fluidas sin pantallas en blanco
 - ✅ **Performance**: Carga proactiva de datos críticos
 - ✅ **Confiabilidad**: >95% de transiciones exitosas
 - ✅ **Escalabilidad**: Sistema extensible para nuevos módulos
 
 ### **Impacto en el Usuario**
+
 - **Tiempo de Espera**: Reducido en ~60% vs carga tradicional
 - **Percepción de Velocidad**: App se siente más rápida y responsiva
 - **Confianza**: Transiciones confiables con feedback visual
@@ -256,6 +274,7 @@ catch (error) {
 **🎯 El sistema está completamente implementado y listo para producción.**
 
 Para más detalles técnicos, revisar:
+
 - `components/README-SplashSystem.md` - Guía de uso detallada
 - `store/splash/splash.ts` - Implementación del store
 - `app/services/moduleDataService.ts` - Servicio de carga de datos

@@ -1,26 +1,26 @@
-import { jest } from '@jest/globals';
-import { OfflineQueue, QueuedRequest } from '@/lib/offline/OfflineQueue';
+import { jest } from "@jest/globals";
+import { OfflineQueue, QueuedRequest } from "@/lib/offline/OfflineQueue";
 
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
+jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
 }));
 
 // Mock connectivity manager
-jest.mock('@/lib/connectivity', () => ({
+jest.mock("@/lib/connectivity", () => ({
   connectivityManager: {
     shouldAttemptNetworkOperation: jest.fn(() => true),
   },
 }));
 
 // Mock fetchAPI
-jest.mock('@/lib/fetch', () => ({
+jest.mock("@/lib/fetch", () => ({
   fetchAPI: jest.fn(),
 }));
 
-describe('OfflineQueue', () => {
+describe("OfflineQueue", () => {
   let offlineQueue: OfflineQueue;
   let mockAsyncStorage: any;
 
@@ -31,15 +31,15 @@ describe('OfflineQueue', () => {
     // Reset singleton instance
     (OfflineQueue as any).instance = null;
 
-    mockAsyncStorage = require('@react-native-async-storage/async-storage');
+    mockAsyncStorage = require("@react-native-async-storage/async-storage");
   });
 
   afterEach(() => {
     offlineQueue.clear();
   });
 
-  describe('Singleton Pattern', () => {
-    it('should return the same instance', () => {
+  describe("Singleton Pattern", () => {
+    it("should return the same instance", () => {
       const instance1 = OfflineQueue.getInstance();
       const instance2 = OfflineQueue.getInstance();
 
@@ -47,14 +47,14 @@ describe('OfflineQueue', () => {
     });
   });
 
-  describe('Initialization', () => {
-    it('should initialize successfully', async () => {
+  describe("Initialization", () => {
+    it("should initialize successfully", async () => {
       const mockQueue = [
         {
-          id: 'test_1',
-          endpoint: '/api/test',
-          method: 'POST' as const,
-          priority: 'medium' as const,
+          id: "test_1",
+          endpoint: "/api/test",
+          method: "POST" as const,
+          priority: "medium" as const,
           timestamp: Date.now(),
           retryCount: 0,
         },
@@ -64,11 +64,11 @@ describe('OfflineQueue', () => {
 
       await offlineQueue.initialize();
 
-      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith('@offline_queue');
+      expect(mockAsyncStorage.getItem).toHaveBeenCalledWith("@offline_queue");
       expect(offlineQueue.getQueueSize()).toBe(1);
     });
 
-    it('should handle initialization without existing queue', async () => {
+    it("should handle initialization without existing queue", async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
 
       await offlineQueue.initialize();
@@ -76,8 +76,8 @@ describe('OfflineQueue', () => {
       expect(offlineQueue.getQueueSize()).toBe(0);
     });
 
-    it('should handle initialization errors gracefully', async () => {
-      mockAsyncStorage.getItem.mockRejectedValue(new Error('Storage error'));
+    it("should handle initialization errors gracefully", async () => {
+      mockAsyncStorage.getItem.mockRejectedValue(new Error("Storage error"));
 
       await offlineQueue.initialize();
 
@@ -85,18 +85,18 @@ describe('OfflineQueue', () => {
     });
   });
 
-  describe('Request Management', () => {
+  describe("Request Management", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await offlineQueue.initialize();
     });
 
-    it('should add requests to queue', async () => {
+    it("should add requests to queue", async () => {
       const request = {
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        data: { test: 'data' },
-        priority: 'high' as const,
+        endpoint: "/api/test",
+        method: "POST" as const,
+        data: { test: "data" },
+        priority: "high" as const,
         requiresAuth: true,
       };
 
@@ -106,18 +106,18 @@ describe('OfflineQueue', () => {
       expect(offlineQueue.getQueueSize()).toBe(1);
 
       const queue = offlineQueue.getQueue();
-      expect(queue[0].endpoint).toBe('/api/test');
-      expect(queue[0].priority).toBe('high');
+      expect(queue[0].endpoint).toBe("/api/test");
+      expect(queue[0].priority).toBe("high");
       expect(queue[0].retryCount).toBe(0);
     });
 
-    it('should respect maximum queue size', async () => {
+    it("should respect maximum queue size", async () => {
       // Mock a full queue
       const existingQueue = Array.from({ length: 1000 }, (_, i) => ({
         id: `req_${i}`,
         endpoint: `/api/test${i}`,
-        method: 'POST' as const,
-        priority: 'medium' as const,
+        method: "POST" as const,
+        priority: "medium" as const,
         timestamp: Date.now() - i,
         retryCount: 0,
       }));
@@ -128,20 +128,20 @@ describe('OfflineQueue', () => {
 
       // Add one more request (should remove oldest)
       await offlineQueue.add({
-        endpoint: '/api/new',
-        method: 'POST' as const,
-        priority: 'high' as const,
+        endpoint: "/api/new",
+        method: "POST" as const,
+        priority: "high" as const,
       });
 
       expect(offlineQueue.getQueueSize()).toBe(1000);
-      expect(offlineQueue.getQueue()[999].endpoint).toBe('/api/new');
+      expect(offlineQueue.getQueue()[999].endpoint).toBe("/api/new");
     });
 
-    it('should remove requests by ID', async () => {
+    it("should remove requests by ID", async () => {
       await offlineQueue.add({
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        priority: 'medium' as const,
+        endpoint: "/api/test",
+        method: "POST" as const,
+        priority: "medium" as const,
       });
 
       const queue = offlineQueue.getQueue();
@@ -152,22 +152,22 @@ describe('OfflineQueue', () => {
       expect(offlineQueue.getQueueSize()).toBe(0);
     });
 
-    it('should return false when removing non-existent request', async () => {
-      const removed = await offlineQueue.remove('non_existent_id');
+    it("should return false when removing non-existent request", async () => {
+      const removed = await offlineQueue.remove("non_existent_id");
       expect(removed).toBe(false);
     });
 
-    it('should clear all requests', async () => {
+    it("should clear all requests", async () => {
       await offlineQueue.add({
-        endpoint: '/api/test1',
-        method: 'POST' as const,
-        priority: 'high' as const,
+        endpoint: "/api/test1",
+        method: "POST" as const,
+        priority: "high" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/test2',
-        method: 'GET' as const,
-        priority: 'low' as const,
+        endpoint: "/api/test2",
+        method: "GET" as const,
+        priority: "low" as const,
       });
 
       expect(offlineQueue.getQueueSize()).toBe(2);
@@ -178,105 +178,105 @@ describe('OfflineQueue', () => {
     });
   });
 
-  describe('Priority System', () => {
+  describe("Priority System", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await offlineQueue.initialize();
     });
 
-    it('should sort requests by priority', async () => {
+    it("should sort requests by priority", async () => {
       await offlineQueue.add({
-        endpoint: '/api/low',
-        method: 'GET' as const,
-        data: { test: 'data' },
-        priority: 'low' as const,
+        endpoint: "/api/low",
+        method: "GET" as const,
+        data: { test: "data" },
+        priority: "low" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/critical',
-        method: 'POST' as const,
-        data: { test: 'data' },
-        priority: 'critical' as const,
+        endpoint: "/api/critical",
+        method: "POST" as const,
+        data: { test: "data" },
+        priority: "critical" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/high',
-        method: 'PUT' as const,
-        data: { test: 'data' },
-        priority: 'high' as const,
+        endpoint: "/api/high",
+        method: "PUT" as const,
+        data: { test: "data" },
+        priority: "high" as const,
       });
 
       const queue = offlineQueue.getQueue();
 
-      expect(queue[0].priority).toBe('critical');
-      expect(queue[1].priority).toBe('high');
-      expect(queue[2].priority).toBe('low');
+      expect(queue[0].priority).toBe("critical");
+      expect(queue[1].priority).toBe("high");
+      expect(queue[2].priority).toBe("low");
     });
 
-    it('should get requests by priority', async () => {
+    it("should get requests by priority", async () => {
       await offlineQueue.add({
-        endpoint: '/api/test1',
-        method: 'POST' as const,
-        priority: 'high' as const,
+        endpoint: "/api/test1",
+        method: "POST" as const,
+        priority: "high" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/test2',
-        method: 'POST' as const,
-        priority: 'low' as const,
+        endpoint: "/api/test2",
+        method: "POST" as const,
+        priority: "low" as const,
       });
 
-      const highPriority = offlineQueue.getRequestsByPriority('high');
-      const lowPriority = offlineQueue.getRequestsByPriority('low');
+      const highPriority = offlineQueue.getRequestsByPriority("high");
+      const lowPriority = offlineQueue.getRequestsByPriority("low");
 
       expect(highPriority).toHaveLength(1);
       expect(lowPriority).toHaveLength(1);
-      expect(highPriority[0].endpoint).toBe('/api/test1');
-      expect(lowPriority[0].endpoint).toBe('/api/test2');
+      expect(highPriority[0].endpoint).toBe("/api/test1");
+      expect(lowPriority[0].endpoint).toBe("/api/test2");
     });
 
-    it('should filter requests by endpoint', async () => {
+    it("should filter requests by endpoint", async () => {
       await offlineQueue.add({
-        endpoint: '/api/rides/123',
-        method: 'GET' as const,
-        priority: 'medium' as const,
+        endpoint: "/api/rides/123",
+        method: "GET" as const,
+        priority: "medium" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/users/456',
-        method: 'POST' as const,
-        priority: 'medium' as const,
+        endpoint: "/api/users/456",
+        method: "POST" as const,
+        priority: "medium" as const,
       });
 
-      const ridesRequests = offlineQueue.getRequestsByEndpoint('/api/rides');
-      const userRequests = offlineQueue.getRequestsByEndpoint('/api/users');
+      const ridesRequests = offlineQueue.getRequestsByEndpoint("/api/rides");
+      const userRequests = offlineQueue.getRequestsByEndpoint("/api/users");
 
       expect(ridesRequests).toHaveLength(1);
       expect(userRequests).toHaveLength(1);
     });
   });
 
-  describe('Statistics', () => {
+  describe("Statistics", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await offlineQueue.initialize();
     });
 
-    it('should calculate correct statistics', async () => {
+    it("should calculate correct statistics", async () => {
       const now = Date.now();
 
       await offlineQueue.add({
-        endpoint: '/api/test1',
-        method: 'POST' as const,
-        data: { test: 'data' },
-        priority: 'critical' as const,
+        endpoint: "/api/test1",
+        method: "POST" as const,
+        data: { test: "data" },
+        priority: "critical" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/test2',
-        method: 'GET' as const,
-        data: { test: 'data' },
-        priority: 'low' as const,
+        endpoint: "/api/test2",
+        method: "GET" as const,
+        data: { test: "data" },
+        priority: "low" as const,
       });
 
       const stats = offlineQueue.getStats();
@@ -287,7 +287,7 @@ describe('OfflineQueue', () => {
       expect(stats.oldestRequest).toBeLessThan(stats.newestRequest!);
     });
 
-    it('should return empty stats for empty queue', () => {
+    it("should return empty stats for empty queue", () => {
       const stats = offlineQueue.getStats();
 
       expect(stats.total).toBe(0);
@@ -297,53 +297,56 @@ describe('OfflineQueue', () => {
     });
   });
 
-  describe('Persistence', () => {
-    it('should persist queue to storage', async () => {
+  describe("Persistence", () => {
+    it("should persist queue to storage", async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await offlineQueue.initialize();
 
       await offlineQueue.add({
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        priority: 'medium' as const,
+        endpoint: "/api/test",
+        method: "POST" as const,
+        priority: "medium" as const,
       });
 
       expect(mockAsyncStorage.setItem).toHaveBeenCalledWith(
-        '@offline_queue',
-        expect.stringContaining('/api/test')
+        "@offline_queue",
+        expect.stringContaining("/api/test"),
       );
     });
 
-    it('should handle storage errors gracefully', async () => {
-      mockAsyncStorage.setItem.mockRejectedValue(new Error('Storage full'));
+    it("should handle storage errors gracefully", async () => {
+      mockAsyncStorage.setItem.mockRejectedValue(new Error("Storage full"));
 
       // Should not throw
-      await expect(offlineQueue.add({
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        priority: 'medium' as const,
-      })).resolves.toBeDefined();
+      await expect(
+        offlineQueue.add({
+          endpoint: "/api/test",
+          method: "POST" as const,
+          priority: "medium" as const,
+        }),
+      ).resolves.toBeDefined();
     });
   });
 
-  describe('Queue Processing', () => {
+  describe("Queue Processing", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await offlineQueue.initialize();
     });
 
-    it('should not process when no connectivity', async () => {
-      const mockConnectivity = require('@/lib/connectivity').connectivityManager;
+    it("should not process when no connectivity", async () => {
+      const mockConnectivity =
+        require("@/lib/connectivity").connectivityManager;
       mockConnectivity.shouldAttemptNetworkOperation.mockReturnValue(false);
 
       await offlineQueue.add({
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        priority: 'high' as const,
+        endpoint: "/api/test",
+        method: "POST" as const,
+        priority: "high" as const,
       });
 
       // Mock successful processing
-      const mockFetchAPI = require('@/lib/fetch').fetchAPI;
+      const mockFetchAPI = require("@/lib/fetch").fetchAPI;
       mockFetchAPI.mockResolvedValue({ success: true });
 
       await offlineQueue.processQueue();
@@ -352,37 +355,40 @@ describe('OfflineQueue', () => {
       expect(mockFetchAPI).not.toHaveBeenCalled();
     });
 
-    it('should process requests in priority order', async () => {
-      const mockFetchAPI = require('@/lib/fetch').fetchAPI;
+    it("should process requests in priority order", async () => {
+      const mockFetchAPI = require("@/lib/fetch").fetchAPI;
       mockFetchAPI.mockResolvedValue({ success: true });
 
       // Add requests in reverse priority order
       await offlineQueue.add({
-        endpoint: '/api/low',
-        method: 'GET' as const,
-        priority: 'low' as const,
+        endpoint: "/api/low",
+        method: "GET" as const,
+        priority: "low" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/critical',
-        method: 'POST' as const,
-        priority: 'critical' as const,
+        endpoint: "/api/critical",
+        method: "POST" as const,
+        priority: "critical" as const,
       });
 
       await offlineQueue.processQueue();
 
       // Critical request should be processed first
-      expect(mockFetchAPI).toHaveBeenCalledWith('/api/critical', expect.any(Object));
+      expect(mockFetchAPI).toHaveBeenCalledWith(
+        "/api/critical",
+        expect.any(Object),
+      );
     });
 
-    it('should handle processing errors and retry', async () => {
-      const mockFetchAPI = require('@/lib/fetch').fetchAPI;
-      mockFetchAPI.mockRejectedValue(new Error('Network error'));
+    it("should handle processing errors and retry", async () => {
+      const mockFetchAPI = require("@/lib/fetch").fetchAPI;
+      mockFetchAPI.mockRejectedValue(new Error("Network error"));
 
       await offlineQueue.add({
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        priority: 'high' as const,
+        endpoint: "/api/test",
+        method: "POST" as const,
+        priority: "high" as const,
       });
 
       await offlineQueue.processQueue();
@@ -392,14 +398,14 @@ describe('OfflineQueue', () => {
       expect(offlineQueue.getQueue()[0].retryCount).toBe(1);
     });
 
-    it('should remove requests after max retries', async () => {
-      const mockFetchAPI = require('@/lib/fetch').fetchAPI;
-      mockFetchAPI.mockRejectedValue(new Error('Network error'));
+    it("should remove requests after max retries", async () => {
+      const mockFetchAPI = require("@/lib/fetch").fetchAPI;
+      mockFetchAPI.mockRejectedValue(new Error("Network error"));
 
       await offlineQueue.add({
-        endpoint: '/api/test',
-        method: 'POST' as const,
-        priority: 'medium' as const,
+        endpoint: "/api/test",
+        method: "POST" as const,
+        priority: "medium" as const,
       });
 
       // Process multiple times to exceed retry limit
@@ -412,64 +418,66 @@ describe('OfflineQueue', () => {
     });
   });
 
-  describe('Utility Methods', () => {
+  describe("Utility Methods", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await offlineQueue.initialize();
     });
 
-    it('should get oldest and newest requests', async () => {
+    it("should get oldest and newest requests", async () => {
       const now = Date.now();
 
       await offlineQueue.add({
-        endpoint: '/api/old',
-        method: 'GET' as const,
-        data: { test: 'data' },
-        priority: 'low' as const,
+        endpoint: "/api/old",
+        method: "GET" as const,
+        data: { test: "data" },
+        priority: "low" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/new',
-        method: 'POST' as const,
-        data: { test: 'data' },
-        priority: 'high' as const,
+        endpoint: "/api/new",
+        method: "POST" as const,
+        data: { test: "data" },
+        priority: "high" as const,
       });
 
       const oldest = offlineQueue.getOldestRequest();
       const newest = offlineQueue.getNewestRequest();
 
-      expect(oldest?.endpoint).toBe('/api/old');
-      expect(newest?.endpoint).toBe('/api/new');
+      expect(oldest?.endpoint).toBe("/api/old");
+      expect(newest?.endpoint).toBe("/api/new");
     });
 
-    it('should return null for empty queue', () => {
+    it("should return null for empty queue", () => {
       expect(offlineQueue.getOldestRequest()).toBeNull();
       expect(offlineQueue.getNewestRequest()).toBeNull();
     });
 
-    it('should cleanup old requests', async () => {
+    it("should cleanup old requests", async () => {
       const now = Date.now();
-      const oldTime = now - (25 * 60 * 60 * 1000); // 25 hours ago
+      const oldTime = now - 25 * 60 * 60 * 1000; // 25 hours ago
 
       await offlineQueue.add({
-        endpoint: '/api/old',
-        method: 'GET' as const,
-        data: { test: 'data' },
-        priority: 'low' as const,
+        endpoint: "/api/old",
+        method: "GET" as const,
+        data: { test: "data" },
+        priority: "low" as const,
       });
 
       await offlineQueue.add({
-        endpoint: '/api/new',
-        method: 'POST' as const,
-        data: { test: 'data' },
-        priority: 'high' as const,
+        endpoint: "/api/new",
+        method: "POST" as const,
+        data: { test: "data" },
+        priority: "high" as const,
       });
 
-      const removedCount = await offlineQueue.cleanupOldRequests(24 * 60 * 60 * 1000); // 24 hours
+      const removedCount = await offlineQueue.cleanupOldRequests(
+        24 * 60 * 60 * 1000,
+      ); // 24 hours
 
       expect(removedCount).toBe(1);
       expect(offlineQueue.getQueueSize()).toBe(1);
-      expect(offlineQueue.getQueue()[0].endpoint).toBe('/api/new');
+      expect(offlineQueue.getQueue()[0].endpoint).toBe("/api/new");
     });
   });
 });

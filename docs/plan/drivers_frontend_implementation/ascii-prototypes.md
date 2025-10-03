@@ -7,6 +7,7 @@ Este documento contiene **prototipos visuales de referencia** en arte ASCII para
 **🔴 NO IMPLEMENTAR CON DUMMY DATA**: Todas las vistas deben integrarse con los endpoints reales del backend según el plan de desarrollo principal.
 
 Los prototipos sirven como:
+
 - **Guía visual** para layouts y componentes `@ui/`
 - **Referencia de UX/UI** durante el desarrollo
 - **Validación visual** contra implementaciones reales
@@ -416,5 +417,5 @@ Gráficos simples:
 
 ---
 
-*Última actualización: $(date)*
-*Versión: 1.0*
+_Última actualización: $(date)_
+_Versión: 1.0_

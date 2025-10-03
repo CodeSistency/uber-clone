@@ -19,8 +19,12 @@ import MapView, {
 } from "react-native-maps";
 
 import { icons } from "@/constants";
+import { useRoutePrediction } from "@/hooks/useRoutePrediction";
 import { calculateRegion } from "@/lib/map";
 import { useLocationStore } from "@/store";
+
+import DriverTrail from "./DriverTrail";
+import RoutePredictionOverlay from "./RoutePredictionOverlay";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
@@ -74,6 +78,12 @@ const MapViewWithBottomSheet: React.FC<MapViewWithBottomSheetProps> = ({
   mapStyle,
   bottomSheetStyle,
 }) => {
+  // Route prediction hook - only enable for driver mode
+  const { prediction: routePrediction } = useRoutePrediction({
+    enabled: true, // Could be made configurable based on user mode
+    updateInterval: 2000,
+    minSpeedThreshold: 5,
+  });
   const {
     userLatitude,
     userLongitude,
@@ -178,6 +188,20 @@ const MapViewWithBottomSheet: React.FC<MapViewWithBottomSheetProps> = ({
               lineDashPattern={[0]}
             />
           )}
+
+          {/* Driver trail - automatically included */}
+          <DriverTrail />
+
+          {/* Route prediction overlay - shows predicted path */}
+          <RoutePredictionOverlay
+            prediction={routePrediction}
+            color="#00FF88"
+            width={3}
+            opacity={0.7}
+            dashPattern={[10, 10]}
+            animated={true}
+            showConfidenceIndicators={false}
+          />
         </MapView>
       </View>
 

@@ -5,63 +5,65 @@
  * This script runs before every build to prepare the environment
  */
 
-const fs = require('fs');
-const path = require('path');
-const { execSync } = require('child_process');
+const fs = require("fs");
+const path = require("path");
+const { execSync } = require("child_process");
 
 // Parse command line arguments
 const args = process.argv.slice(2);
-const env = args.find(arg => arg.startsWith('--env='))?.split('=')[1] || 'development';
-const isProduction = env === 'production';
-const isDevelopment = env === 'development';
+const env =
+  args.find((arg) => arg.startsWith("--env="))?.split("=")[1] || "development";
+const isProduction = env === "production";
+const isDevelopment = env === "development";
 
 console.log(`🚀 Starting prebuild process for ${env} environment...`);
 
 try {
   // 1. Environment Configuration
-  console.log('📝 Configuring environment...');
+  console.log("📝 Configuring environment...");
   configureEnvironment();
 
   // 2. Asset Preparation
-  console.log('🎨 Preparing assets...');
+  console.log("🎨 Preparing assets...");
   prepareAssets();
 
   // 3. Configuration Files
-  console.log('⚙️  Generating configuration files...');
+  console.log("⚙️  Generating configuration files...");
   generateConfigFiles();
 
   // 4. Firebase Configuration
-  console.log('🔥 Setting up Firebase...');
+  console.log("🔥 Setting up Firebase...");
   setupFirebase();
 
   // 5. Build Optimization
   if (isProduction) {
-    console.log('⚡ Optimizing for production...');
+    console.log("⚡ Optimizing for production...");
     optimizeForProduction();
   }
 
   // 6. Version Management
-  console.log('📦 Managing version...');
+  console.log("📦 Managing version...");
   manageVersion();
 
   console.log(`✅ Prebuild completed successfully for ${env} environment!`);
-
 } catch (error) {
-  console.error('❌ Prebuild failed:', error.message);
+  console.error("❌ Prebuild failed:", error.message);
   process.exit(1);
 }
 
 function configureEnvironment() {
-  const envFile = isProduction ? '.env.production' : '.env.development';
+  const envFile = isProduction ? ".env.production" : ".env.development";
   const envPath = path.join(process.cwd(), envFile);
 
   if (!fs.existsSync(envPath)) {
-    console.warn(`⚠️  Environment file ${envFile} not found. Creating template...`);
+    console.warn(
+      `⚠️  Environment file ${envFile} not found. Creating template...`,
+    );
     createEnvTemplate(envPath);
   }
 
   // Copy environment file to .env for Expo
-  const targetEnvPath = path.join(process.cwd(), '.env');
+  const targetEnvPath = path.join(process.cwd(), ".env");
   if (fs.existsSync(envPath)) {
     fs.copyFileSync(envPath, targetEnvPath);
     console.log(`✅ Environment configured from ${envFile}`);
@@ -70,12 +72,12 @@ function configureEnvironment() {
 
 function createEnvTemplate(envPath) {
   const template = `# Environment Configuration Template
-EXPO_PUBLIC_SERVER_URL=${isProduction ? 'https://api.uber-app.com' : 'http://localhost:3000'}
-EXPO_PUBLIC_WS_URL=${isProduction ? 'wss://ws.uber-app.com' : 'ws://localhost:3001'}
+EXPO_PUBLIC_SERVER_URL=${isProduction ? "https://api.uber-app.com" : "http://localhost:3000"}
+EXPO_PUBLIC_WS_URL=${isProduction ? "wss://ws.uber-app.com" : "ws://localhost:3001"}
 EXPO_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
 EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
-EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=${isProduction ? 'pk_live_...' : 'pk_test_...'}
+EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY=${isProduction ? "pk_live_..." : "pk_test_..."}
 EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 `;
 
@@ -83,8 +85,8 @@ EXPO_PUBLIC_GOOGLE_MAPS_API_KEY=your_google_maps_api_key
 }
 
 function prepareAssets() {
-  const assetsDir = path.join(process.cwd(), 'assets');
-  const buildAssetsDir = path.join(process.cwd(), 'build-assets');
+  const assetsDir = path.join(process.cwd(), "assets");
+  const buildAssetsDir = path.join(process.cwd(), "build-assets");
 
   // Create build assets directory if it doesn't exist
   if (!fs.existsSync(buildAssetsDir)) {
@@ -96,13 +98,13 @@ function prepareAssets() {
     copyAssets(assetsDir, buildAssetsDir);
   }
 
-  console.log('✅ Assets prepared');
+  console.log("✅ Assets prepared");
 }
 
 function copyAssets(source, target) {
   const items = fs.readdirSync(source);
 
-  items.forEach(item => {
+  items.forEach((item) => {
     const sourcePath = path.join(source, item);
     const targetPath = path.join(target, item);
     const stat = fs.statSync(sourcePath);
@@ -121,7 +123,7 @@ function copyAssets(source, target) {
 
 function generateConfigFiles() {
   // Generate app.json/app.config.js dynamic configuration
-  const appConfigPath = path.join(process.cwd(), 'app.config.js');
+  const appConfigPath = path.join(process.cwd(), "app.config.js");
 
   if (!fs.existsSync(appConfigPath)) {
     const configContent = `import 'dotenv/config';
@@ -161,9 +163,9 @@ export default {
       'expo-build-properties',
       {
         android: {
-          compileSdkVersion: 34,
-          targetSdkVersion: 34,
-          buildToolsVersion: '34.0.0',
+          compileSdkVersion: 35,
+          targetSdkVersion: 35,
+          buildToolsVersion: '35.0.0',
         },
         ios: {
           deploymentTarget: '13.4',
@@ -185,24 +187,31 @@ export default {
 `;
 
     fs.writeFileSync(appConfigPath, configContent);
-    console.log('✅ Dynamic app.config.js generated');
+    console.log("✅ Dynamic app.config.js generated");
   }
 }
 
 function setupFirebase() {
-  const googleServicesPath = path.join(process.cwd(), 'google-services.json');
-  const googleServicesBackup = path.join(process.cwd(), 'google-services.backup.json');
+  const googleServicesPath = path.join(process.cwd(), "google-services.json");
+  const googleServicesBackup = path.join(
+    process.cwd(),
+    "google-services.backup.json",
+  );
 
   if (fs.existsSync(googleServicesBackup)) {
     // Use different config based on environment
-    const configFile = isProduction ? 'google-services.prod.json' : 'google-services.dev.json';
+    const configFile = isProduction
+      ? "google-services.prod.json"
+      : "google-services.dev.json";
     const configPath = path.join(process.cwd(), configFile);
 
     if (fs.existsSync(configPath)) {
       fs.copyFileSync(configPath, googleServicesPath);
       console.log(`✅ Firebase config updated for ${env}`);
     } else {
-      console.warn(`⚠️  Firebase config ${configFile} not found, using default`);
+      console.warn(
+        `⚠️  Firebase config ${configFile} not found, using default`,
+      );
     }
   }
 }
@@ -210,12 +219,12 @@ function setupFirebase() {
 function optimizeForProduction() {
   // Remove development-only files
   const devFiles = [
-    'app/(onboarding)/debug-screen.tsx',
-    'components/LoggerDebugger.tsx',
-    'components/BackendConnectivityTest.tsx',
+    "app/(onboarding)/debug-screen.tsx",
+    "components/LoggerDebugger.tsx",
+    "components/BackendConnectivityTest.tsx",
   ];
 
-  devFiles.forEach(file => {
+  devFiles.forEach((file) => {
     const filePath = path.join(process.cwd(), file);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
@@ -224,13 +233,13 @@ function optimizeForProduction() {
   });
 
   // Minify/optimize bundle
-  console.log('📦 Bundle optimization completed');
+  console.log("📦 Bundle optimization completed");
 }
 
 function manageVersion() {
   try {
     // Get current version from package.json
-    const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+    const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
     const version = packageJson.version;
 
     // Update version in native projects
@@ -239,30 +248,30 @@ function manageVersion() {
 
     console.log(`✅ Version ${version} synchronized across platforms`);
   } catch (error) {
-    console.warn('⚠️  Version management failed:', error.message);
+    console.warn("⚠️  Version management failed:", error.message);
   }
 }
 
 function updateAndroidVersion(version) {
-  const gradlePath = path.join(process.cwd(), 'android', 'app', 'build.gradle');
+  const gradlePath = path.join(process.cwd(), "android", "app", "build.gradle");
 
   if (fs.existsSync(gradlePath)) {
-    let gradleContent = fs.readFileSync(gradlePath, 'utf8');
+    let gradleContent = fs.readFileSync(gradlePath, "utf8");
 
     // Update versionName
     gradleContent = gradleContent.replace(
       /versionName "[^"]*"/,
-      `versionName "${version}"`
+      `versionName "${version}"`,
     );
 
     // Update versionCode (simple increment based on version)
-    const versionCode = version.split('.').reduce((acc, part, index) => {
+    const versionCode = version.split(".").reduce((acc, part, index) => {
       return acc + parseInt(part) * Math.pow(100, 2 - index);
     }, 0);
 
     gradleContent = gradleContent.replace(
       /versionCode \d+/,
-      `versionCode ${versionCode}`
+      `versionCode ${versionCode}`,
     );
 
     fs.writeFileSync(gradlePath, gradleContent);
@@ -270,22 +279,22 @@ function updateAndroidVersion(version) {
 }
 
 function updateIOSVersion(version) {
-  const plistPath = path.join(process.cwd(), 'ios', 'uber', 'Info.plist');
+  const plistPath = path.join(process.cwd(), "ios", "uber", "Info.plist");
 
   if (fs.existsSync(plistPath)) {
-    let plistContent = fs.readFileSync(plistPath, 'utf8');
+    let plistContent = fs.readFileSync(plistPath, "utf8");
 
     // Update CFBundleVersion and CFBundleShortVersionString
     plistContent = plistContent.replace(
       /<key>CFBundleShortVersionString<\/key>\s*<string>[^<]*<\/string>/,
       `<key>CFBundleShortVersionString</key>
-\t<string>${version}</string>`
+\t<string>${version}</string>`,
     );
 
     plistContent = plistContent.replace(
       /<key>CFBundleVersion<\/key>\s*<string>[^<]*<\/string>/,
       `<key>CFBundleVersion</key>
-\t<string>${version}</string>`
+\t<string>${version}</string>`,
     );
 
     fs.writeFileSync(plistPath, plistContent);

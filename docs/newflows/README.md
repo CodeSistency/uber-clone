@@ -32,6 +32,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 ## 🎯 Mejoras Implementadas
 
 ### ✅ Customer Flow Enhancements:
+
 - ✅ **Paso de selección de vehículo** (antes de elegir driver)
 - ✅ **Opciones de servicio** (Economy, Premium, etc.)
 - ✅ **Flujo de llegada del conductor** detallado
@@ -42,6 +43,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - ✅ **MAPA SIEMPRE VISIBLE** con bottom sheets variables (30%-75%)
 
 ### ✅ Driver Flow Enhancements:
+
 - ✅ **Sistema de notificaciones** de nuevos rides
 - ✅ **Temporizador de aceptación** visual
 - ✅ **Navegación GPS integrada**
@@ -51,6 +53,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - ✅ **MAPA SIEMPRE VISIBLE** con bottom sheets variables (25%-70%)
 
 ### ✅ Business Flow Enhancements:
+
 - ✅ **Gestión de menú** completa
 - ✅ **Aceptación de pedidos** con tiempos
 - ✅ **Asignación de drivers** automática/manual
@@ -61,7 +64,9 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 ## 📱 Flujos Detallados
 
 ### 0. Onboarding Journey (7 pasos)
+
 📄 [Enhanced Onboarding Flow](./onboarding-enhanced-flow.md)
+
 - 0.1 Post-Login Check
 - 1.1 Country Selection
 - 1.2 State Selection
@@ -72,7 +77,9 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - 5.1 Profile Completion
 
 ### 1. Customer Journey (9 pasos)
+
 📄 [Enhanced Customer Flow](./customer-enhanced-flow.md)
+
 - 1.1 Home & Location Selection (Mapa 70%)
 - 1.2 Destination Input (Mapa 50%)
 - 1.3 Vehicle Type Selection (Mapa 75%)
@@ -84,7 +91,9 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - 1.9 Rating & Feedback
 
 ### 2. Driver Journey (8 pasos)
+
 📄 [Enhanced Driver Flow](./driver-enhanced-flow.md)
+
 - 2.1 Dashboard & Online Status (Mapa 50%)
 - 2.2 Ride Notifications
 - 2.3 Ride Acceptance Flow
@@ -95,7 +104,9 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - 2.8 Performance Analytics
 
 ### 3. Business Journey (7 pasos)
+
 📄 [Enhanced Business Flow](./business-enhanced-flow.md)
+
 - 3.1 Business Dashboard (Mapa 40%)
 - 3.2 Menu Management
 - 3.3 Order Management
@@ -132,22 +143,23 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 
 ### Before vs After:
 
-| Aspecto | Antes | Después |
-|---------|-------|---------|
-| Onboarding Steps | 0 | 7 (+∞) |
-| Customer Steps | 5 | 9 (+80%) |
-| Driver Steps | 4 | 8 (+100%) |
-| Business Steps | 4 | 7 (+75%) |
-| **Total Steps** | **13** | **31 (+138%)** |
-| UX Touchpoints | 12 | 32 (+167%) |
-| Error States | 3 | 10 (+233%) |
-| Success Flows | 2 | 8 (+300%) |
-| **Map Visibility** | **20%** | **100% (+400%)** |
-| **Bottom Sheet Usage** | **0%** | **100% (∞)** |
+| Aspecto                | Antes   | Después          |
+| ---------------------- | ------- | ---------------- |
+| Onboarding Steps       | 0       | 7 (+∞)           |
+| Customer Steps         | 5       | 9 (+80%)         |
+| Driver Steps           | 4       | 8 (+100%)        |
+| Business Steps         | 4       | 7 (+75%)         |
+| **Total Steps**        | **13**  | **31 (+138%)**   |
+| UX Touchpoints         | 12      | 32 (+167%)       |
+| Error States           | 3       | 10 (+233%)       |
+| Success Flows          | 2       | 8 (+300%)        |
+| **Map Visibility**     | **20%** | **100% (+400%)** |
+| **Bottom Sheet Usage** | **0%**  | **100% (∞)**     |
 
 ## 🔧 Technical Implementation
 
 ### Nuevos Componentes:
+
 - `OnboardingContainer` - Contenedor principal del flujo de onboarding
 - `ProgressBar` - Barra de progreso con porcentaje
 - `LocationSelector` - Selector de país/estado/ciudad
@@ -165,6 +177,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - `useMapCenter` - Hook personalizado para cálculo inteligente del centro del mapa
 
 ### Enhanced States:
+
 - `OnboardingState` con progreso y pasos completados
 - `LocationState` con validación de países/estados/ciudades
 - `VerificationState` para códigos SMS/email
@@ -207,6 +220,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 ## 📋 Checklist de Implementación
 
 ### 🎯 Onboarding Flow
+
 - [ ] OnboardingContainer con progress tracking
 - [ ] LocationSelector (país/estado/ciudad)
 - [ ] PersonalInfoForm con validación
@@ -216,6 +230,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - [ ] API integration completa con todos los endpoints
 
 ### 🗺️ Mapa + Bottom Sheet Architecture
+
 - [ ] Crear componente base `MapViewWithBottomSheet`
 - [ ] Implementar `useMapCenter` hook para cálculo inteligente del centro
 - [ ] Centro dinámico considerando elementos flotantes (20% input area)
@@ -224,6 +239,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - [ ] Integrar con navegación existente
 
 ### 👤 Customer Flow Enhancements
+
 - [ ] Vehicle Type Selection con mapa
 - [ ] Service Options con bottom sheet 40%
 - [ ] Driver Selection con mapa 40%
@@ -232,6 +248,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - [ ] Estados de ride con mapa siempre visible
 
 ### 👨‍💼 Driver Flow Enhancements
+
 - [ ] Dashboard con mapa 50%
 - [ ] GPS Navigation con mapa 70%
 - [ ] Ride Acceptance con notificaciones
@@ -240,6 +257,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - [ ] Performance Analytics
 
 ### 🏪 Business Flow Enhancements
+
 - [ ] Dashboard con mapa 40%
 - [ ] Menu Management con bottom sheet 60%
 - [ ] Order Tracking con mapa 50%
@@ -248,6 +266,7 @@ Esta documentación contiene los **flujos de usuario mejorados y completamente d
 - [ ] Analytics con insights avanzados
 
 ### 🎨 UX/UI Improvements
+
 - [ ] Error States & Recovery Flows
 - [ ] Loading States & Skeletons
 - [ ] Accessibility Improvements

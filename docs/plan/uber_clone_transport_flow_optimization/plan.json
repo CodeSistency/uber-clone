@@ -1,0 +1,197 @@
+{
+  "proyecto": "uber_clone_transport_flow_optimization",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Trigger WebSocket Inteligente",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "WebSocket Event Manager",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Optimizar el WebSocketEventManager para manejar eventos ride:requested de manera más eficiente, separando notificaciones de carga de datos completos",
+          "dependencias": [
+            "lib/websocketEventManager.ts",
+            "app/services/websocketService.ts",
+            "components/unified-flow/steps/Driver/DriverIncomingRequest.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Modificar Evento ride:requested",
+              "descripcion": "Actualizar el evento ride:requested para enviar solo datos de notificación básicos (rideId, área aproximada, timestamp) sin datos calculados específicos del conductor",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Actualizar emisión del evento en WebSocketService",
+                  "descripcion": "Modificar WebSocketService para emitir ride:requested con datos mínimos de notificación"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Actualizar listener en DriverIncomingRequest",
+                  "descripcion": "Cambiar DriverIncomingRequest para manejar notificaciones preview sin llamar inmediatamente a API"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Implementar Estado de Notificación",
+              "descripcion": "Crear estados visuales para mostrar 'nueva solicitud disponible' sin cargar datos completos",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Agregar estado hasNewRequest en DriverIncomingRequest",
+                  "descripcion": "Implementar estado local para mostrar badge de notificación sin datos completos"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Crear componente NotificationBadge",
+                  "descripcion": "Desarrollar componente visual para mostrar notificaciones pendientes de manera no intrusiva"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "API Call Diferido",
+              "descripcion": "Implementar carga de datos completos solo cuando el conductor interactúa con la notificación",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Modificar handleRideRequested",
+                  "descripcion": "Cambiar la función para mostrar preview y esperar interacción del usuario"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Implementar onPress handler",
+                  "descripcion": "Crear handler que llame a API /pending-requests solo al tocar la notificación"
+                }
+              ],
+              "progreso": 100
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Sistema de Cache Inteligente",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar cache para datos de /pending-requests con invalidación inteligente por ubicación",
+          "dependencias": [
+            "app/services/driverTransportService.ts",
+            "components/unified-flow/steps/Driver/DriverIncomingRequest.tsx",
+            "lib/utils.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear PendingRequestsCache",
+              "descripcion": "Desarrollar utilidad de cache con TTL para almacenar respuestas de /pending-requests",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Implementar estructura de cache básica",
+                  "descripcion": "Crear clase o utilidad con Map para almacenar datos por ubicación"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Agregar TTL (Time To Live)",
+                  "descripcion": "Implementar expiración automática de cache después de 30 segundos"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Invalidación por Ubicación",
+              "descripcion": "Implementar lógica para invalidar cache cuando el conductor se mueve significativamente",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Calcular distancia entre ubicaciones",
+                  "descripcion": "Usar fórmula de haversine para determinar si el conductor se movió lo suficiente"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Threshold de distancia configurable",
+                  "descripcion": "Definir distancia mínima (ej: 100 metros) para invalidar cache"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Integración con DriverIncomingRequest",
+              "descripcion": "Modificar DriverIncomingRequest para usar el cache inteligente",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Actualizar llamadas a getPendingRequests",
+                  "descripcion": "Reemplazar llamadas directas con llamadas via cache"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Manejar estados de carga desde cache",
+                  "descripcion": "Diferenciar entre carga desde cache (instantánea) y carga desde API (con indicador)"
+                }
+              ],
+              "progreso": 100
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Estados de UX Mejorados",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Implementar estados visuales claros para el flujo de notificación → carga → datos completos",
+          "dependencias": [
+            "components/unified-flow/steps/Driver/DriverIncomingRequest.tsx",
+            "components/ui/"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Estados de Request Manager",
+              "descripcion": "Crear enum y lógica para manejar estados: IDLE → NOTIFIED → LOADING → LOADED",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Definir RequestStates enum",
+                  "descripcion": "Crear enumeración con todos los estados posibles del flujo"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Implementar SmartRequestManager",
+                  "descripcion": "Crear utilidad para manejar transiciones de estado inteligentes"
+                }
+              ],
+              "progreso": 100
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Feedback Visual Mejorado",
+              "descripcion": "Implementar indicadores visuales para cada estado del flujo",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Badge de notificación",
+                  "descripcion": "Crear indicador visual para 'nueva solicitud disponible'"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Estados de carga diferenciados",
+                  "descripcion": "Mostrar diferentes indicadores para carga desde cache vs API"
+                }
+              ],
+              "progreso": 100
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

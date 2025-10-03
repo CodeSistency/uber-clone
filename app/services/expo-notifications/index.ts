@@ -1,5 +1,8 @@
 // Exportar el servicio principal de notificaciones Expo
-export { expoNotificationService, ExpoNotificationService } from './expoNotificationService';
+export {
+  expoNotificationService,
+  ExpoNotificationService,
+} from "./expoNotificationService";
 
 // Re-exportar tipos para conveniencia
 export type {
@@ -10,6 +13,4 @@ export type {
   ExpoNotificationType,
   ExpoNotificationEventType,
   ExpoNotificationEventMap,
-} from '../../../types/expo-notifications';
-
-
+} from "../../../types/expo-notifications";

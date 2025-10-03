@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -52,7 +47,7 @@ const DriverOnboarding = () => {
       // Validate current step
       const validation = validateCurrentStep(currentStep, currentViewData);
       if (!validation.isValid) {
-        showError("Validation Error", validation.errors.join('\n'));
+        showError("Validation Error", validation.errors.join("\n"));
         return;
       }
 
@@ -89,7 +84,10 @@ const DriverOnboarding = () => {
         router.replace("/(root)/driver-unified-flow-demo");
       }, 2000);
     } catch (error: any) {
-      showError("Submission Failed", error.message || "Failed to complete onboarding");
+      showError(
+        "Submission Failed",
+        error.message || "Failed to complete onboarding",
+      );
     }
   };
 
@@ -180,14 +178,16 @@ const DriverOnboarding = () => {
       "Documents",
       "Vehicle",
       "Agreements",
-      "Review"
+      "Review",
     ];
 
     return (
       <View className="flex-row justify-between mb-6 px-2">
         {steps.map((step, index) => {
           const stepNumber = index + 1;
-          const isCompleted = (onboardingData.completedSteps || []).includes(stepNumber);
+          const isCompleted = (onboardingData.completedSteps || []).includes(
+            stepNumber,
+          );
           const isCurrent = stepNumber === currentStep;
 
           return (
@@ -197,13 +197,15 @@ const DriverOnboarding = () => {
                   isCompleted
                     ? "bg-green-500"
                     : isCurrent
-                    ? "bg-primary-500"
-                    : "bg-secondary-300"
+                      ? "bg-primary-500"
+                      : "bg-secondary-300"
                 }`}
               >
                 <Text
                   className={`text-xs font-JakartaBold ${
-                    isCompleted || isCurrent ? "text-white" : "text-secondary-600"
+                    isCompleted || isCurrent
+                      ? "text-white"
+                      : "text-secondary-600"
                   }`}
                 >
                   {stepNumber}
@@ -228,7 +230,8 @@ const DriverOnboarding = () => {
     <Card className="mb-6">
       <Text className="text-lg font-JakartaBold mb-4">Prerequisites Check</Text>
       <Text className="text-secondary-600 mb-6">
-        Before we begin, please confirm you meet the basic requirements to be a driver.
+        Before we begin, please confirm you meet the basic requirements to be a
+        driver.
       </Text>
 
       <View className="space-y-4">
@@ -239,27 +242,34 @@ const DriverOnboarding = () => {
             value={currentViewData.age?.toString() || ""}
             onChangeText={(text) => {
               const age = parseInt(text);
-              setCurrentViewData((prev: any) => ({ ...prev, age: isNaN(age) ? "" : age }));
+              setCurrentViewData((prev: any) => ({
+                ...prev,
+                age: isNaN(age) ? "" : age,
+              }));
             }}
             keyboardType="numeric"
           />
         </View>
 
         <View>
-          <Text className="text-sm font-JakartaMedium mb-2">Driving Experience</Text>
+          <Text className="text-sm font-JakartaMedium mb-2">
+            Driving Experience
+          </Text>
           <View className="space-y-2">
             {[
               "Less than 1 year",
               "1-3 years",
               "3-5 years",
               "5-10 years",
-              "More than 10 years"
+              "More than 10 years",
             ].map((experience) => (
               <RadioButton
                 key={experience}
                 label={experience}
                 selected={currentViewData.experience === experience}
-                onPress={() => setCurrentViewData((prev: any) => ({ ...prev, experience }))}
+                onPress={() =>
+                  setCurrentViewData((prev: any) => ({ ...prev, experience }))
+                }
               />
             ))}
           </View>
@@ -268,38 +278,45 @@ const DriverOnboarding = () => {
         <View>
           <Text className="text-sm font-JakartaMedium mb-2">Vehicle Type</Text>
           <View className="space-y-2">
-            {[
-              "Sedan",
-              "SUV",
-              "Hatchback",
-              "Pickup Truck",
-              "Van",
-              "Other"
-            ].map((type) => (
-              <RadioButton
-                key={type}
-                label={type}
-                selected={currentViewData.vehicleType === type}
-                onPress={() => setCurrentViewData((prev: any) => ({ ...prev, vehicleType: type }))}
-              />
-            ))}
+            {["Sedan", "SUV", "Hatchback", "Pickup Truck", "Van", "Other"].map(
+              (type) => (
+                <RadioButton
+                  key={type}
+                  label={type}
+                  selected={currentViewData.vehicleType === type}
+                  onPress={() =>
+                    setCurrentViewData((prev: any) => ({
+                      ...prev,
+                      vehicleType: type,
+                    }))
+                  }
+                />
+              ),
+            )}
           </View>
         </View>
 
         <View>
-          <Text className="text-sm font-JakartaMedium mb-2">Available Hours per Week</Text>
+          <Text className="text-sm font-JakartaMedium mb-2">
+            Available Hours per Week
+          </Text>
           <View className="space-y-2">
             {[
               "Part-time (10-20 hours)",
               "Full-time (30-40 hours)",
               "Flexible",
-              "Weekends only"
+              "Weekends only",
             ].map((hours) => (
               <RadioButton
                 key={hours}
                 label={hours}
                 selected={currentViewData.availableHours === hours}
-                onPress={() => setCurrentViewData((prev: any) => ({ ...prev, availableHours: hours }))}
+                onPress={() =>
+                  setCurrentViewData((prev: any) => ({
+                    ...prev,
+                    availableHours: hours,
+                  }))
+                }
               />
             ))}
           </View>
@@ -340,9 +357,7 @@ const DriverOnboarding = () => {
       {/* Header */}
       <View className="bg-white p-5">
         <Text className="text-xl font-JakartaBold">Driver Onboarding</Text>
-        <Text className="text-secondary-600 mt-1">
-          Step {currentStep} of 6
-        </Text>
+        <Text className="text-secondary-600 mt-1">Step {currentStep} of 6</Text>
       </View>
 
       <ScrollView className="flex-1 px-5" showsVerticalScrollIndicator={false}>

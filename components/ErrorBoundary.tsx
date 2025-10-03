@@ -79,7 +79,10 @@ export class ErrorBoundary extends Component<
           "Error in onError callback",
           {
             errorId,
-            callbackError: callbackError instanceof Error ? callbackError.message : String(callbackError),
+            callbackError:
+              callbackError instanceof Error
+                ? callbackError.message
+                : String(callbackError),
           },
           callbackError instanceof Error ? callbackError : undefined,
         );

@@ -269,14 +269,8 @@ const CustomerChatScreen = () => {
                 <View className="bg-white border border-general-500 rounded-2xl px-4 py-2 self-start">
                   <View className="flex-row space-x-1">
                     <View className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse" />
-                    <View
-                      className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse"
-                      style={{ animationDelay: "0.2s" }}
-                    />
-                    <View
-                      className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse"
-                      style={{ animationDelay: "0.4s" }}
-                    />
+                    <View className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse" />
+                    <View className="w-2 h-2 bg-secondary-400 rounded-full animate-pulse" />
                   </View>
                 </View>
                 <View className="flex-1" />
@@ -333,4 +327,3 @@ const CustomerChatScreen = () => {
 };
 
 export default CustomerChatScreen;
-

@@ -44,6 +44,7 @@ Flujo completamente mejorado del cliente con **9 pasos detallados**, selección 
 ```
 
 **Mejoras:**
+
 - ✅ **Mapa completo** ocupando toda la pantalla (100%)
 - ✅ **Service Type Tabs** - Selección entre 🚗 Transport y 🛵 Delivery
 - ✅ **Input flotante** posicionado sobre el Bottom Navigation (20% inferior)
@@ -59,6 +60,7 @@ Flujo completamente mejorado del cliente con **9 pasos detallados**, selección 
 ### 🎯 Map Center Calculation Logic:
 
 #### **Visible Map Area Calculation:**
+
 ```
 Screen Height: 100%
 Bottom Navigation: ~10% (fixed)
@@ -67,15 +69,16 @@ Available Map Space: ~70%
 ```
 
 #### **Center Point Calculation:**
+
 ```javascript
 // El centro del mapa se calcula considerando:
 // 1. Área visible del mapa (~70% superior)
 // 2. Espacio ocupado por elementos flotantes (~30% inferior)
 // 3. Centro óptico = (Screen Height - Floating Elements) / 2
 
-const screenHeight = Dimensions.get('window').height;
+const screenHeight = Dimensions.get("window").height;
 const bottomNavHeight = 80; // ~10%
-const inputAreaHeight = screenHeight * 0.20; // 20%
+const inputAreaHeight = screenHeight * 0.2; // 20%
 
 const visibleMapHeight = screenHeight - bottomNavHeight - inputAreaHeight;
 const mapCenterY = visibleMapHeight / 2;
@@ -84,12 +87,14 @@ const mapCenterY = visibleMapHeight / 2;
 ```
 
 #### **Dynamic Center Adjustment:**
+
 - **Sin input expandido**: Centro en ~35% de la pantalla
 - **Con input expandido**: Centro ajustado dinámicamente
 - **Con keyboard visible**: Centro recalculado automáticamente
 - **Orientation changes**: Recálculo inmediato del centro
 
 #### **Technical Implementation (React Native Maps):**
+
 ```typescript
 // Hook personalizado para calcular el centro del mapa
 const useMapCenter = () => {
@@ -128,12 +133,14 @@ const useMapCenter = () => {
 ### Service Type Tabs - Funcionalidad:
 
 #### 🚗 Transport Mode (Predeterminado):
+
 - Muestra conductores disponibles en el mapa
 - Enfocado en viajes personales
 - Sugerencias de lugares: Home, Work, Mall
 - Estimaciones de tarifa por viaje
 
 #### 🛵 Delivery Mode:
+
 - Muestra repartidores disponibles
 - Enfocado en entregas de productos
 - Sugerencias de lugares: Restaurantes, Tiendas, Direcciones
@@ -177,6 +184,7 @@ const useMapCenter = () => {
 ```
 
 **Mejoras:**
+
 - ✅ Estimación automática de distancia/tiempo
 - ✅ Sugerencias basadas en ubicación actual
 - ✅ Validación de direcciones en tiempo real
@@ -208,6 +216,7 @@ const useMapCenter = () => {
 ```
 
 **Nuevas Características:**
+
 - ✅ Selección visual de tipo de vehículo
 - ✅ Información detallada de capacidad
 - ✅ Recomendaciones basadas en distancia
@@ -260,6 +269,7 @@ const useMapCenter = () => {
 ```
 
 **Mejoras:**
+
 - ✅ Información detallada de precios
 - ✅ Ratings promedio por servicio
 - ✅ Estimación de tiempo de llegada
@@ -314,6 +324,7 @@ const useMapCenter = () => {
 ```
 
 **Nuevas Características:**
+
 - ✅ Información detallada del conductor
 - ✅ Modelo y año del vehículo
 - ✅ Tasa de respuesta al chat
@@ -353,6 +364,7 @@ const useMapCenter = () => {
 ```
 
 **Mejoras:**
+
 - ✅ Resumen completo del viaje
 - ✅ Información de contacto del conductor
 - ✅ Método de pago seleccionado
@@ -457,6 +469,7 @@ const useMapCenter = () => {
 ```
 
 **Nuevas Características:**
+
 - ✅ Barra de progreso visual
 - ✅ Chat integrado en el flujo
 - ✅ Información de progreso en tiempo real
@@ -531,6 +544,7 @@ const useMapCenter = () => {
 ```
 
 **Mejoras:**
+
 - ✅ Múltiples métodos de pago
 - ✅ Confirmación con ID de transacción
 - ✅ Recibo automático por email
@@ -573,6 +587,7 @@ const useMapCenter = () => {
 ```
 
 **Nuevas Características:**
+
 - ✅ Sistema de rating visual
 - ✅ Campo de comentarios opcional
 - ✅ Tips sugeridos con opción custom
@@ -583,6 +598,7 @@ const useMapCenter = () => {
 ## 🎯 Key Improvements Summary
 
 ### ✅ Added Steps:
+
 1. **Vehicle Type Selection** - Antes de elegir servicio
 2. **Service Level Selection** - Economy, Comfort, Premium
 3. **Payment Method Selection** - Múltiples opciones
@@ -590,6 +606,7 @@ const useMapCenter = () => {
 5. **Detailed Rating System** - Con tips y feedback
 
 ### ✅ Enhanced Home Screen:
+
 1. **Full-Screen Map** - 100% de la pantalla
 2. **Service Type Tabs** - 🚗 Transport vs 🛵 Delivery
 3. **Floating Input (20%)** - Input flotante con cálculo inteligente del centro
@@ -598,6 +615,7 @@ const useMapCenter = () => {
 6. **Dynamic Markers** - Transport y Delivery zones según modo
 
 ### ✅ Enhanced Features:
+
 - **Progress Indicators** - Barras visuales de progreso
 - **Real-time Chat** - Integrado en todos los estados
 - **Emergency System** - Botón SOS siempre accesible
@@ -605,6 +623,7 @@ const useMapCenter = () => {
 - **Receipt System** - Digital y por email
 
 ### ✅ UX Improvements:
+
 - **Visual Feedback** - Estados claros y atractivos
 - **Intuitive Flow** - Pasos lógicos y naturales
 - **Error Recovery** - Manejo elegante de errores
@@ -619,16 +638,19 @@ const useMapCenter = () => {
 **El cálculo inteligente del centro del mapa es CRÍTICO** para la experiencia de usuario:
 
 #### **Problema Solucionado:**
+
 - **Antes**: Mapa centrado en el centro absoluto de la pantalla
 - **Después**: Mapa centrado en el área VISIBLE considerando elementos flotantes
 
 #### **Impacto en UX:**
+
 - ✅ **Mejor aprovechamiento** del espacio visible
 - ✅ **Navegación más intuitiva** sin elementos flotantes bloqueando el centro
 - ✅ **Experiencia inmersiva** manteniendo funcionalidad
 - ✅ **Adaptabilidad perfecta** a diferentes tamaños de pantalla
 
 #### **Implementación Key Points:**
+
 ```typescript
 // El centro óptico se calcula como:
 // Centro = (Altura Pantalla - Elementos Flotantes) / 2

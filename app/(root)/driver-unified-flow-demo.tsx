@@ -29,7 +29,8 @@ import DriverTransportInProgress from "@/components/unified-flow/steps/Driver/Vi
 import DriverTransportNavigateToOrigin from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportNavigateToOrigin";
 import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
+import { MapFlowStep } from "@/store/mapFlow/mapFlow";
 
 const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
   const { back } = useMapFlow();
@@ -68,67 +69,65 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   [FLOW_STEPS.DRIVER_DISPONIBILIDAD]: () => <DriverAvailability />,
 
   // Transport
-  [FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD]: () => (
+  [FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD]: () => (
     <DriverIncomingRequest />
   ),
-  [FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN]: () => (
+  [FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN]: () => (
     <DriverTransportNavigateToOrigin />
   ),
-  [FLOW_STEPS.DRIVER_TRANSPORT.EN_ORIGEN]: () => (
+  [FLOW_STEPS.DRIVER_TRANSPORT_EN_ORIGEN]: () => (
     <DriverTransportArrivedAtOrigin />
   ),
-  [FLOW_STEPS.DRIVER_TRANSPORT.INICIAR_VIAJE]: () => (
+  [FLOW_STEPS.DRIVER_TRANSPORT_INICIAR_VIAJE]: () => (
     <DriverTransportInProgress />
   ),
-  [FLOW_STEPS.DRIVER_TRANSPORT.EN_VIAJE]: () => <DriverTransportInProgress />,
-  [FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE]: () => (
+  [FLOW_STEPS.DRIVER_TRANSPORT_EN_VIAJE]: () => <DriverTransportInProgress />,
+  [FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE]: () => (
     <DriverTransportEndPayment />
   ),
   // Rating step for transport rides
-  [FLOW_STEPS.DRIVER_FINALIZACION_RATING]: () => (
-    <DriverTransportRating />
-  ),
+  [FLOW_STEPS.DRIVER_FINALIZACION_RATING]: () => <DriverTransportRating />,
 
   // Delivery
-  [FLOW_STEPS.DRIVER_DELIVERY.RECIBIR_SOLICITUD]: () => (
+  [FLOW_STEPS.DRIVER_DELIVERY_RECIBIR_SOLICITUD]: () => (
     <DriverIncomingRequest />
   ),
-  [FLOW_STEPS.DRIVER_DELIVERY.PREPARAR_PEDIDO]: () => (
+  [FLOW_STEPS.DRIVER_DELIVERY_PREPARAR_PEDIDO]: () => (
     <DriverDeliveryNavigateToBusiness />
   ),
-  [FLOW_STEPS.DRIVER_DELIVERY.RECOGER_PEDIDO]: () => (
+  [FLOW_STEPS.DRIVER_DELIVERY_RECOGER_PEDIDO]: () => (
     <DriverDeliveryPickupOrder />
   ),
-  [FLOW_STEPS.DRIVER_DELIVERY.EN_CAMINO_ENTREGA]: () => (
+  [FLOW_STEPS.DRIVER_DELIVERY_EN_CAMINO_ENTREGA]: () => (
     <DriverDeliveryToCustomer />
   ),
-  [FLOW_STEPS.DRIVER_DELIVERY.ENTREGAR_PEDIDO]: () => (
+  [FLOW_STEPS.DRIVER_DELIVERY_ENTREGAR_PEDIDO]: () => (
     <DriverDeliveryConfirmFinish />
   ),
 
   // Mandado
-  [FLOW_STEPS.DRIVER_MANDADO.RECIBIR_SOLICITUD]: () => (
+  [FLOW_STEPS.DRIVER_MANDADO_RECIBIR_SOLICITUD]: () => (
     <DriverIncomingRequest />
   ),
-  [FLOW_STEPS.DRIVER_MANDADO.EN_CAMINO_ORIGEN]: () => (
+  [FLOW_STEPS.DRIVER_MANDADO_EN_CAMINO_ORIGEN]: () => (
     <DriverMandadoNavigateToOriginChat />
   ),
-  [FLOW_STEPS.DRIVER_MANDADO.RECOGER_PRODUCTOS]: () => <DriverMandadoManage />,
-  [FLOW_STEPS.DRIVER_MANDADO.EN_CAMINO_DESTINO]: () => (
+  [FLOW_STEPS.DRIVER_MANDADO_RECOGER_PRODUCTOS]: () => <DriverMandadoManage />,
+  [FLOW_STEPS.DRIVER_MANDADO_EN_CAMINO_DESTINO]: () => (
     <DriverMandadoNavigateToDestination />
   ),
-  [FLOW_STEPS.DRIVER_MANDADO.ENTREGAR_MANDADO]: () => <DriverMandadoFinish />,
+  [FLOW_STEPS.DRIVER_MANDADO_ENTREGAR_MANDADO]: () => <DriverMandadoFinish />,
 
   // Envío
-  [FLOW_STEPS.DRIVER_ENVIO.RECIBIR_SOLICITUD]: () => <DriverIncomingRequest />,
-  [FLOW_STEPS.DRIVER_ENVIO.EN_CAMINO_ORIGEN]: () => (
+  [FLOW_STEPS.DRIVER_ENVIO_RECIBIR_SOLICITUD]: () => <DriverIncomingRequest />,
+  [FLOW_STEPS.DRIVER_ENVIO_EN_CAMINO_ORIGEN]: () => (
     <DriverEnvioNavigateToOrigin />
   ),
-  [FLOW_STEPS.DRIVER_ENVIO.RECOGER_PAQUETE]: () => <DriverEnvioPickupPackage />,
-  [FLOW_STEPS.DRIVER_ENVIO.EN_CAMINO_DESTINO]: () => (
+  [FLOW_STEPS.DRIVER_ENVIO_RECOGER_PAQUETE]: () => <DriverEnvioPickupPackage />,
+  [FLOW_STEPS.DRIVER_ENVIO_EN_CAMINO_DESTINO]: () => (
     <DriverEnvioNavigateToDestination />
   ),
-  [FLOW_STEPS.DRIVER_ENVIO.ENTREGAR_PAQUETE]: () => (
+  [FLOW_STEPS.DRIVER_ENVIO_ENTREGAR_PAQUETE]: () => (
     <DriverEnvioDeliveryConfirm />
   ),
 };
@@ -167,7 +166,6 @@ const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({
         </Text>
         <View className="w-10" />
       </View>
-
 
       <UnifiedFlowWrapper role="driver" renderStep={renderStep} />
     </>

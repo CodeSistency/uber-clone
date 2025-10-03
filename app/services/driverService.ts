@@ -41,18 +41,22 @@ export class DriverService {
   }
 
   // Status Management
-  async getStatus(): Promise<DriverStatusData & { isDriver: boolean; driverRole?: string }> {
+  async getStatus(): Promise<
+    DriverStatusData & { isDriver: boolean; driverRole?: string }
+  > {
     try {
       console.log("[DriverService] Fetching driver status");
       const response = await fetchAPI("driver/status", {
         requiresAuth: true,
       });
       // Add isDriver field based on response (assuming backend returns driver info if user is a driver)
-      const isDriver = response && (response.id || response.driverId || response.status === 'active');
+      const isDriver =
+        response &&
+        (response.id || response.driverId || response.status === "active");
       return {
         ...response,
         isDriver: !!isDriver,
-        driverRole: isDriver ? 'driver' : 'customer'
+        driverRole: isDriver ? "driver" : "customer",
       };
     } catch (error) {
       console.error("[DriverService] Error fetching status:", error);
@@ -60,12 +64,12 @@ export class DriverService {
       return {
         isOnline: false,
         isAvailable: false,
-        status: 'offline',
+        status: "offline",
         lastOnlineTime: null,
         totalOnlineTime: 0,
         connectionHistory: [],
         isDriver: false,
-        driverRole: 'customer'
+        driverRole: "customer",
       };
     }
   }

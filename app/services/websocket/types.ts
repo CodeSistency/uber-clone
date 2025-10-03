@@ -61,7 +61,7 @@ export interface QueuedMessage {
   event: string;
   data: any;
   timestamp: number;
-  priority: 'low' | 'normal' | 'high' | 'critical';
+  priority: "low" | "normal" | "high" | "critical";
   retryCount: number;
   maxRetries: number;
 }
@@ -102,7 +102,7 @@ export interface EventListener {
 // Default configurations
 export const DEFAULT_CONFIG: WebSocketConfig = {
   connection: {
-    url: '',
+    url: "",
     timeout: 10000,
     maxRetries: 5,
     reconnectDelay: 1000,
@@ -128,43 +128,46 @@ export const DEFAULT_CONFIG: WebSocketConfig = {
 
 // Connection events
 export type ConnectionEvent =
-  | 'connecting'
-  | 'connected'
-  | 'disconnected'
-  | 'reconnecting'
-  | 'reconnected'
-  | 'connect_error'
-  | 'auth_error'
-  | 'timeout';
+  | "connecting"
+  | "connected"
+  | "disconnected"
+  | "reconnecting"
+  | "reconnected"
+  | "connect_error"
+  | "auth_error"
+  | "timeout";
 
 // Message events
 export type MessageEvent =
-  | 'message'
-  | 'message_sent'
-  | 'message_failed'
-  | 'queue_full'
-  | 'rate_limited';
+  | "message"
+  | "message_sent"
+  | "message_failed"
+  | "queue_full"
+  | "rate_limited";
 
 // Room events
 export type RoomEvent =
-  | 'room_joined'
-  | 'room_left'
-  | 'room_error'
-  | 'member_joined'
-  | 'member_left';
+  | "room_joined"
+  | "room_left"
+  | "room_error"
+  | "member_joined"
+  | "member_left";
 
 // Business events (from original service)
 export type BusinessEvent =
-  | 'rideStatusUpdate'
-  | 'driverLocationUpdate'
-  | 'newMessage'
-  | 'typingStart'
-  | 'typingStop'
-  | 'earningsUpdate'
-  | 'performanceUpdate'
-  | 'rideNotification'
-  | 'emergencyTriggered'
-  | 'vehicleUpdate';
+  | "rideStatusUpdate"
+  | "driverLocationUpdate"
+  | "newMessage"
+  | "typingStart"
+  | "typingStop"
+  | "earningsUpdate"
+  | "performanceUpdate"
+  | "rideNotification"
+  | "emergencyTriggered"
+  | "vehicleUpdate";
 
-export type WebSocketEventType = ConnectionEvent | MessageEvent | RoomEvent | BusinessEvent;
-
+export type WebSocketEventType =
+  | ConnectionEvent
+  | MessageEvent
+  | RoomEvent
+  | BusinessEvent;

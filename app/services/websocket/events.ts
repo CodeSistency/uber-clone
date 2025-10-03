@@ -1,4 +1,10 @@
-import { BaseModule, EventConfig, HealthStatus, EventListener, WebSocketEventType } from './types';
+import {
+  BaseModule,
+  EventConfig,
+  HealthStatus,
+  EventListener,
+  WebSocketEventType,
+} from "./types";
 
 export class EventManager implements BaseModule {
   private config: EventConfig;
@@ -12,24 +18,30 @@ export class EventManager implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log('[EventManager] Initializing event system');
+    console.log("[EventManager] Initializing event system");
     // Event system is ready to use
   }
 
   async destroy(): Promise<void> {
-    console.log('[EventManager] Destroying event system');
+    console.log("[EventManager] Destroying event system");
     this.listeners.clear();
     this.eventHistory.length = 0;
     this.eventEmitters.clear();
   }
 
   getHealthStatus(): HealthStatus {
-    const totalListeners = Array.from(this.listeners.values()).reduce((sum, listeners) => sum + listeners.length, 0);
+    const totalListeners = Array.from(this.listeners.values()).reduce(
+      (sum, listeners) => sum + listeners.length,
+      0,
+    );
 
     return {
       healthy: totalListeners <= this.config.maxListeners,
       lastCheck: new Date(),
-      error: totalListeners > this.config.maxListeners ? 'Too many listeners' : undefined,
+      error:
+        totalListeners > this.config.maxListeners
+          ? "Too many listeners"
+          : undefined,
       details: {
         totalListeners,
         maxListeners: this.config.maxListeners,
@@ -43,13 +55,15 @@ export class EventManager implements BaseModule {
   addListener(
     event: string,
     callback: (data: any) => void,
-    options: { once?: boolean; priority?: number } = {}
+    options: { once?: boolean; priority?: number } = {},
   ): string {
     const { once = false, priority = 0 } = options;
 
     if (this.listeners.size >= this.config.maxListeners) {
-      console.warn(`[EventManager] Max listeners limit reached (${this.config.maxListeners})`);
-      throw new Error('Max listeners limit reached');
+      console.warn(
+        `[EventManager] Max listeners limit reached (${this.config.maxListeners})`,
+      );
+      throw new Error("Max listeners limit reached");
     }
 
     const listenerId = `listener_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -69,14 +83,16 @@ export class EventManager implements BaseModule {
     const eventListeners = this.listeners.get(event)!;
 
     // Insert by priority (higher priority first)
-    const insertIndex = eventListeners.findIndex(l => l.priority < priority);
+    const insertIndex = eventListeners.findIndex((l) => l.priority < priority);
     if (insertIndex === -1) {
       eventListeners.push(listener);
     } else {
       eventListeners.splice(insertIndex, 0, listener);
     }
 
-    console.log(`[EventManager] Added listener for event: ${event} (id: ${listenerId})`);
+    console.log(
+      `[EventManager] Added listener for event: ${event} (id: ${listenerId})`,
+    );
     return listenerId;
   }
 
@@ -85,7 +101,7 @@ export class EventManager implements BaseModule {
     const eventListeners = this.listeners.get(event);
     if (!eventListeners) return false;
 
-    const index = eventListeners.findIndex(l => l.id === listenerId);
+    const index = eventListeners.findIndex((l) => l.id === listenerId);
     if (index === -1) return false;
 
     eventListeners.splice(index, 1);
@@ -95,7 +111,9 @@ export class EventManager implements BaseModule {
       this.listeners.delete(event);
     }
 
-    console.log(`[EventManager] Removed listener for event: ${event} (id: ${listenerId})`);
+    console.log(
+      `[EventManager] Removed listener for event: ${event} (id: ${listenerId})`,
+    );
     return true;
   }
 
@@ -104,11 +122,18 @@ export class EventManager implements BaseModule {
     if (event) {
       const removed = this.listeners.get(event)?.length || 0;
       this.listeners.delete(event);
-      console.log(`[EventManager] Removed all listeners for event: ${event} (${removed} listeners)`);
+      console.log(
+        `[EventManager] Removed all listeners for event: ${event} (${removed} listeners)`,
+      );
     } else {
-      const totalRemoved = Array.from(this.listeners.values()).reduce((sum, listeners) => sum + listeners.length, 0);
+      const totalRemoved = Array.from(this.listeners.values()).reduce(
+        (sum, listeners) => sum + listeners.length,
+        0,
+      );
       this.listeners.clear();
-      console.log(`[EventManager] Removed all listeners (${totalRemoved} total)`);
+      console.log(
+        `[EventManager] Removed all listeners (${totalRemoved} total)`,
+      );
     }
   }
 
@@ -120,7 +145,9 @@ export class EventManager implements BaseModule {
       return true;
     }
 
-    console.log(`[EventManager] Emitting event: ${event} to ${eventListeners.length} listeners`);
+    console.log(
+      `[EventManager] Emitting event: ${event} to ${eventListeners.length} listeners`,
+    );
 
     // Add to history
     this.addToHistory(event as WebSocketEventType);
@@ -137,18 +164,24 @@ export class EventManager implements BaseModule {
               listener.callback(data);
               resolve();
             } catch (error) {
-              console.error(`[EventManager] Error in listener for event ${event}:`, error);
+              console.error(
+                `[EventManager] Error in listener for event ${event}:`,
+                error,
+              );
               resolve(); // Don't fail the whole emit
             }
           }),
           new Promise<void>((_, reject) =>
-            setTimeout(() => reject(new Error('Listener timeout')), this.config.emitTimeout)
-          )
+            setTimeout(
+              () => reject(new Error("Listener timeout")),
+              this.config.emitTimeout,
+            ),
+          ),
         ]).then(() => {
           if (listener.once) {
             listenersToRemove.push(listener);
           }
-        })
+        }),
       );
     }
 
@@ -170,7 +203,9 @@ export class EventManager implements BaseModule {
   // Register an event emitter (for external event sources like WebSocket)
   registerEmitter(event: string, emitter: (data: any) => void): void {
     if (this.eventEmitters.has(event)) {
-      console.warn(`[EventManager] Emitter for event ${event} already registered, replacing`);
+      console.warn(
+        `[EventManager] Emitter for event ${event} already registered, replacing`,
+      );
     }
 
     this.eventEmitters.set(event, emitter);
@@ -199,7 +234,10 @@ export class EventManager implements BaseModule {
       console.log(`[EventManager] Emitted external event: ${event}`);
       return true;
     } catch (error) {
-      console.error(`[EventManager] Error emitting external event ${event}:`, error);
+      console.error(
+        `[EventManager] Error emitting external event ${event}:`,
+        error,
+      );
       return false;
     }
   }
@@ -221,7 +259,10 @@ export class EventManager implements BaseModule {
     historySize: number;
     emittersCount: number;
   } {
-    const totalListeners = Array.from(this.listeners.values()).reduce((sum, listeners) => sum + listeners.length, 0);
+    const totalListeners = Array.from(this.listeners.values()).reduce(
+      (sum, listeners) => sum + listeners.length,
+      0,
+    );
 
     return {
       totalListeners,
@@ -239,7 +280,7 @@ export class EventManager implements BaseModule {
   // Clear event history
   clearHistory(): void {
     this.eventHistory.length = 0;
-    console.log('[EventManager] Event history cleared');
+    console.log("[EventManager] Event history cleared");
   }
 
   private addToHistory(event: WebSocketEventType): void {

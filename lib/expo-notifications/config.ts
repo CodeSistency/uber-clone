@@ -3,7 +3,12 @@ import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 
 import { log } from "@/lib/logger";
-// Types are available globally via expo-notifications.d.ts
+
+import {
+  ExpoNotificationConfig,
+  ExpoNotificationChannel,
+  ExpoNotificationChannelGroup,
+} from "../../types/expo-notifications";
 
 /**
  * Configuración centralizada para Expo Notifications
@@ -15,7 +20,8 @@ class ExpoNotificationConfigManager {
 
   static getInstance(): ExpoNotificationConfigManager {
     if (!ExpoNotificationConfigManager.instance) {
-      ExpoNotificationConfigManager.instance = new ExpoNotificationConfigManager();
+      ExpoNotificationConfigManager.instance =
+        new ExpoNotificationConfigManager();
     }
     return ExpoNotificationConfigManager.instance;
   }
@@ -38,34 +44,56 @@ class ExpoNotificationConfigManager {
 
     const config: ExpoNotificationConfig = {
       // App configuration
-      projectId: expoConfig?.extra?.eas?.projectId || Constants.expoConfig?.slug,
+      projectId:
+        expoConfig?.extra?.eas?.projectId || Constants.expoConfig?.slug,
       appName: expoConfig?.name || "Uber Clone",
       appVersion: expoConfig?.version || "1.0.0",
 
       // Platform specific settings
-      ios: Platform.OS === "ios" ? {
-        iconBadgeNumber: 0,
-        criticalSoundEnabled: false,
-      } : undefined,
+      ios:
+        Platform.OS === "ios"
+          ? {
+              iconBadgeNumber: 0,
+              criticalSoundEnabled: false,
+            }
+          : undefined,
 
-      android: Platform.OS === "android" ? {
-        channelGroups: this.getDefaultChannelGroups(),
-        defaultChannelId: "default",
-        iconResource: "@mipmap/ic_launcher",
-        smallIconResource: "@mipmap/ic_notification",
-      } : undefined,
+      android:
+        Platform.OS === "android"
+          ? {
+              channelGroups: this.getDefaultChannelGroups(),
+              defaultChannelId: "default",
+              iconResource: "@mipmap/ic_launcher",
+              smallIconResource: "@mipmap/ic_notification",
+            }
+          : undefined,
 
       // Behavior settings from environment or defaults
-      autoDismiss: this.getEnvBoolean("EXPO_PUBLIC_NOTIFICATIONS_AUTO_DISMISS", true),
-      showInForeground: this.getEnvBoolean("EXPO_PUBLIC_NOTIFICATIONS_FOREGROUND", true),
+      autoDismiss: this.getEnvBoolean(
+        "EXPO_PUBLIC_NOTIFICATIONS_AUTO_DISMISS",
+        true,
+      ),
+      showInForeground: this.getEnvBoolean(
+        "EXPO_PUBLIC_NOTIFICATIONS_FOREGROUND",
+        true,
+      ),
       playSound: this.getEnvBoolean("EXPO_PUBLIC_NOTIFICATIONS_SOUND", true),
       vibrate: this.getEnvBoolean("EXPO_PUBLIC_NOTIFICATIONS_VIBRATE", true),
       showBadge: this.getEnvBoolean("EXPO_PUBLIC_NOTIFICATIONS_BADGE", true),
 
       // Retry and timeout settings
-      retryAttempts: this.getEnvNumber("EXPO_PUBLIC_NOTIFICATIONS_RETRY_ATTEMPTS", 3),
-      retryDelay: this.getEnvNumber("EXPO_PUBLIC_NOTIFICATIONS_RETRY_DELAY", 1000),
-      requestTimeout: this.getEnvNumber("EXPO_PUBLIC_NOTIFICATIONS_TIMEOUT", 30000),
+      retryAttempts: this.getEnvNumber(
+        "EXPO_PUBLIC_NOTIFICATIONS_RETRY_ATTEMPTS",
+        3,
+      ),
+      retryDelay: this.getEnvNumber(
+        "EXPO_PUBLIC_NOTIFICATIONS_RETRY_DELAY",
+        1000,
+      ),
+      requestTimeout: this.getEnvNumber(
+        "EXPO_PUBLIC_NOTIFICATIONS_TIMEOUT",
+        30000,
+      ),
     };
 
     log.info("ExpoNotificationConfig", "Configuration built", {
@@ -217,7 +245,7 @@ class ExpoNotificationConfigManager {
     }
 
     try {
-        // Crear canales individuales
+      // Crear canales individuales
       for (const group of this.config.android!.channelGroups) {
         for (const channel of group.channels) {
           await Notifications.setNotificationChannelAsync(channel.id, {
@@ -238,17 +266,26 @@ class ExpoNotificationConfigManager {
         }
       }
 
-      log.info("ExpoNotificationConfig", "Android notification channels setup complete", {
-        channelGroupsCount: this.config.android.channelGroups.length,
-        totalChannels: this.config.android.channelGroups.reduce(
-          (sum, group) => sum + group.channels.length,
-          0
-        ),
-      });
+      log.info(
+        "ExpoNotificationConfig",
+        "Android notification channels setup complete",
+        {
+          channelGroupsCount: this.config.android.channelGroups.length,
+          totalChannels: this.config.android.channelGroups.reduce(
+            (sum, group) => sum + group.channels.length,
+            0,
+          ),
+        },
+      );
     } catch (error) {
-      log.error("ExpoNotificationConfig", "Failed to setup Android channels", {
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "ExpoNotificationConfig",
+        "Failed to setup Android channels",
+        {
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -257,7 +294,7 @@ class ExpoNotificationConfigManager {
    * Mapear importancia de canal a valores de Android
    */
   private mapImportanceToAndroid(
-    importance: "default" | "high" | "low" | "min"
+    importance: "default" | "high" | "low" | "min",
   ): Notifications.AndroidImportance {
     switch (importance) {
       case "min":
@@ -299,7 +336,9 @@ class ExpoNotificationConfigManager {
     if (!this.config?.android) return null;
 
     for (const group of this.config.android.channelGroups) {
-      const channel = group.channels.find((c: ExpoNotificationChannel) => c.id === channelId);
+      const channel = group.channels.find(
+        (c: ExpoNotificationChannel) => c.id === channelId,
+      );
       if (channel) return channel;
     }
 
@@ -329,11 +368,17 @@ class ExpoNotificationConfigManager {
 }
 
 // Exportar instancia singleton
-export const expoNotificationConfig = ExpoNotificationConfigManager.getInstance();
+export const expoNotificationConfig =
+  ExpoNotificationConfigManager.getInstance();
 
 // Exportar funciones de utilidad
-export const getExpoNotificationConfig = () => expoNotificationConfig.getConfig();
-export const setupExpoNotificationHandler = () => expoNotificationConfig.setupNotificationHandler();
-export const setupExpoAndroidChannels = () => expoNotificationConfig.setupAndroidChannels();
-export const getExpoChannelById = (id: string) => expoNotificationConfig.getChannelById(id);
-export const getExpoRecommendedChannel = (type: string) => expoNotificationConfig.getRecommendedChannelForType(type);
+export const getExpoNotificationConfig = () =>
+  expoNotificationConfig.getConfig();
+export const setupExpoNotificationHandler = () =>
+  expoNotificationConfig.setupNotificationHandler();
+export const setupExpoAndroidChannels = () =>
+  expoNotificationConfig.setupAndroidChannels();
+export const getExpoChannelById = (id: string) =>
+  expoNotificationConfig.getChannelById(id);
+export const getExpoRecommendedChannel = (type: string) =>
+  expoNotificationConfig.getRecommendedChannelForType(type);

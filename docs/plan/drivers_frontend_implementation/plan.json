@@ -91,11 +91,7 @@
           "progreso": 100,
           "prioridad": "Alta",
           "descripcion": "Crear servicios de API para consumir todos los endpoints de backend de drivers",
-          "dependencias": [
-            "lib/fetch.ts",
-            "lib/auth.ts",
-            "types/driver.ts"
-          ],
+          "dependencias": ["lib/fetch.ts", "lib/auth.ts", "types/driver.ts"],
           "tareas": [
             {
               "id": "T1.2.1",
@@ -176,9 +172,7 @@
           "progreso": 100,
           "prioridad": "Media",
           "descripcion": "Crear definiciones TypeScript basadas en los DTOs del backend",
-          "dependencias": [
-            "types/type.d.ts"
-          ],
+          "dependencias": ["types/type.d.ts"],
           "tareas": [
             {
               "id": "T1.3.1",
@@ -820,18 +814,18 @@
                   "descripcion": "Completar la función updateProfile en driverProfile store usando driverService",
                   "progreso": 100,
                   "subtareas": [
-                {
-                  "id": "ST2.1.1.1",
-                  "nombre": "Conectar con PUT /api/driver/profile/:id",
-                  "descripcion": "Implementar llamada real a la API de actualización de perfil",
-                  "progreso": 100
-                },
-                {
-                  "id": "ST2.1.1.2",
-                  "nombre": "Manejo de errores y validación",
-                  "descripcion": "Implementar manejo de errores apropiado y validación de respuesta",
-                  "progreso": 100
-                }
+                    {
+                      "id": "ST2.1.1.1",
+                      "nombre": "Conectar con PUT /api/driver/profile/:id",
+                      "descripcion": "Implementar llamada real a la API de actualización de perfil",
+                      "progreso": 100
+                    },
+                    {
+                      "id": "ST2.1.1.2",
+                      "nombre": "Manejo de errores y validación",
+                      "descripcion": "Implementar manejo de errores apropiado y validación de respuesta",
+                      "progreso": 100
+                    }
                   ]
                 },
                 {

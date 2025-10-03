@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router, useLocalSearchParams } from "expo-router";
 
@@ -23,7 +18,7 @@ const DriverVehicleDetails = () => {
     error,
     fetchVehicles,
     updateVehicle,
-    deleteVehicle
+    deleteVehicle,
   } = useDriverProfileStore();
 
   const { showError, showSuccess } = useUI();
@@ -47,14 +42,14 @@ const DriverVehicleDetails = () => {
     registrationExpiry: "",
   });
 
-  const vehicle = vehicles.find(v => v.id === vehicleId);
+  const vehicle = vehicles.find((v) => v.id === vehicleId);
 
   useEffect(() => {
     // Check if user has active ride
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot modify vehicle details while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot modify vehicle details while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       router.back();
       return;
@@ -64,7 +59,13 @@ const DriverVehicleDetails = () => {
     if (vehicles.length === 0) {
       fetchVehicles();
     }
-  }, [hasActiveRide, currentServiceType, vehicles.length, fetchVehicles, showError]);
+  }, [
+    hasActiveRide,
+    currentServiceType,
+    vehicles.length,
+    fetchVehicles,
+    showError,
+  ]);
 
   useEffect(() => {
     // Populate form with vehicle data
@@ -78,9 +79,15 @@ const DriverVehicleDetails = () => {
         seats: vehicle.seats?.toString() || "",
         insurancePolicyNumber: vehicle.insurancePolicyNumber || "",
         insuranceProvider: vehicle.insuranceProvider || "",
-        insuranceExpiry: vehicle.insuranceExpiry instanceof Date ? vehicle.insuranceExpiry.toISOString().split('T')[0] : vehicle.insuranceExpiry || "",
+        insuranceExpiry:
+          vehicle.insuranceExpiry instanceof Date
+            ? vehicle.insuranceExpiry.toISOString().split("T")[0]
+            : vehicle.insuranceExpiry || "",
         registrationNumber: vehicle.registrationNumber || "",
-        registrationExpiry: vehicle.registrationExpiry instanceof Date ? vehicle.registrationExpiry.toISOString().split('T')[0] : vehicle.registrationExpiry || "",
+        registrationExpiry:
+          vehicle.registrationExpiry instanceof Date
+            ? vehicle.registrationExpiry.toISOString().split("T")[0]
+            : vehicle.registrationExpiry || "",
       });
     }
   }, [vehicle]);
@@ -93,21 +100,31 @@ const DriverVehicleDetails = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "active": return "text-success-600";
-      case "inactive": return "text-secondary-600";
-      case "pending": return "text-warning-600";
-      case "suspended": return "text-danger-600";
-      default: return "text-secondary-600";
+      case "active":
+        return "text-success-600";
+      case "inactive":
+        return "text-secondary-600";
+      case "pending":
+        return "text-warning-600";
+      case "suspended":
+        return "text-danger-600";
+      default:
+        return "text-secondary-600";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "active": return "✅";
-      case "inactive": return "⏸️";
-      case "pending": return "⏳";
-      case "suspended": return "🚫";
-      default: return "❓";
+      case "active":
+        return "✅";
+      case "inactive":
+        return "⏸️";
+      case "pending":
+        return "⏳";
+      case "suspended":
+        return "🚫";
+      default:
+        return "❓";
     }
   };
 
@@ -128,9 +145,15 @@ const DriverVehicleDetails = () => {
         seats: vehicle.seats?.toString() || "",
         insurancePolicyNumber: vehicle.insurancePolicyNumber || "",
         insuranceProvider: vehicle.insuranceProvider || "",
-        insuranceExpiry: vehicle.insuranceExpiry instanceof Date ? vehicle.insuranceExpiry.toISOString().split('T')[0] : vehicle.insuranceExpiry || "",
+        insuranceExpiry:
+          vehicle.insuranceExpiry instanceof Date
+            ? vehicle.insuranceExpiry.toISOString().split("T")[0]
+            : vehicle.insuranceExpiry || "",
         registrationNumber: vehicle.registrationNumber || "",
-        registrationExpiry: vehicle.registrationExpiry instanceof Date ? vehicle.registrationExpiry.toISOString().split('T')[0] : vehicle.registrationExpiry || "",
+        registrationExpiry:
+          vehicle.registrationExpiry instanceof Date
+            ? vehicle.registrationExpiry.toISOString().split("T")[0]
+            : vehicle.registrationExpiry || "",
       });
     }
   };
@@ -139,14 +162,21 @@ const DriverVehicleDetails = () => {
     if (!vehicle) return;
 
     // Validate required fields
-    if (!editData.make.trim() || !editData.model.trim() || !editData.year.trim()) {
+    if (
+      !editData.make.trim() ||
+      !editData.model.trim() ||
+      !editData.year.trim()
+    ) {
       showError("Validation Error", "Make, model, and year are required");
       return;
     }
 
     const seatsNum = parseInt(editData.seats);
     if (isNaN(seatsNum) || seatsNum < 1 || seatsNum > 20) {
-      showError("Validation Error", "Please enter a valid number of seats (1-20)");
+      showError(
+        "Validation Error",
+        "Please enter a valid number of seats (1-20)",
+      );
       return;
     }
 
@@ -161,14 +191,21 @@ const DriverVehicleDetails = () => {
         seats: seatsNum,
         insurancePolicyNumber: editData.insurancePolicyNumber,
         insuranceProvider: editData.insuranceProvider,
-        insuranceExpiry: editData.insuranceExpiry ? new Date(editData.insuranceExpiry) : new Date(),
+        insuranceExpiry: editData.insuranceExpiry
+          ? new Date(editData.insuranceExpiry)
+          : new Date(),
         registrationNumber: editData.registrationNumber,
-        registrationExpiry: editData.registrationExpiry ? new Date(editData.registrationExpiry) : new Date(),
+        registrationExpiry: editData.registrationExpiry
+          ? new Date(editData.registrationExpiry)
+          : new Date(),
       };
 
       await updateVehicle(vehicle.id, updateData);
 
-      showSuccess("Vehicle Updated", "Vehicle details have been updated successfully");
+      showSuccess(
+        "Vehicle Updated",
+        "Vehicle details have been updated successfully",
+      );
       setIsEditing(false);
     } catch (error) {
       // Error is handled by the store
@@ -184,8 +221,8 @@ const DriverVehicleDetails = () => {
       "Are you sure you want to delete this vehicle? This action cannot be undone.",
       [
         { text: "Cancel", style: "cancel" },
-        { text: "Delete", style: "destructive", onPress: handleConfirmDelete }
-      ]
+        { text: "Delete", style: "destructive", onPress: handleConfirmDelete },
+      ],
     );
   };
 
@@ -216,9 +253,9 @@ const DriverVehicleDetails = () => {
         {
           text: actionText.charAt(0).toUpperCase() + actionText.slice(1),
           style: newStatus === "active" ? "default" : "destructive",
-          onPress: () => performStatusToggle(newStatus)
-        }
-      ]
+          onPress: () => performStatusToggle(newStatus),
+        },
+      ],
     );
   };
 
@@ -229,7 +266,7 @@ const DriverVehicleDetails = () => {
       await updateVehicle(vehicle.id, { status: newStatus as any });
       showSuccess(
         "Status Updated",
-        `Vehicle has been ${newStatus === "active" ? "activated" : "deactivated"} successfully`
+        `Vehicle has been ${newStatus === "active" ? "activated" : "deactivated"} successfully`,
       );
     } catch (error) {
       console.error("Status update failed:", error);
@@ -295,10 +332,14 @@ const DriverVehicleDetails = () => {
           <Card className="mb-4">
             <View className="flex-row items-center justify-between">
               <View className="flex-row items-center">
-                <Text className="text-2xl mr-3">{getStatusIcon(vehicle.status)}</Text>
+                <Text className="text-2xl mr-3">
+                  {getStatusIcon(vehicle.status)}
+                </Text>
                 <View>
                   <Text className="font-JakartaBold text-lg">Status</Text>
-                  <Text className={`font-JakartaMedium ${getStatusColor(vehicle.status)}`}>
+                  <Text
+                    className={`font-JakartaMedium ${getStatusColor(vehicle.status)}`}
+                  >
                     {vehicle.status.toUpperCase()}
                   </Text>
                 </View>
@@ -315,7 +356,9 @@ const DriverVehicleDetails = () => {
 
           {/* Vehicle Information */}
           <Card className="mb-4">
-            <Text className="text-lg font-JakartaBold mb-4">Vehicle Information</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Vehicle Information
+            </Text>
 
             {isEditing ? (
               <View className="space-y-4">
@@ -324,7 +367,9 @@ const DriverVehicleDetails = () => {
                     <TextField
                       label="Make"
                       value={editData.make}
-                      onChangeText={(text) => setEditData(prev => ({ ...prev, make: text }))}
+                      onChangeText={(text) =>
+                        setEditData((prev) => ({ ...prev, make: text }))
+                      }
                       placeholder="Vehicle make"
                     />
                   </View>
@@ -332,7 +377,9 @@ const DriverVehicleDetails = () => {
                     <TextField
                       label="Model"
                       value={editData.model}
-                      onChangeText={(text) => setEditData(prev => ({ ...prev, model: text }))}
+                      onChangeText={(text) =>
+                        setEditData((prev) => ({ ...prev, model: text }))
+                      }
                       placeholder="Vehicle model"
                     />
                   </View>
@@ -343,7 +390,9 @@ const DriverVehicleDetails = () => {
                     <TextField
                       label="Year"
                       value={editData.year}
-                      onChangeText={(text) => setEditData(prev => ({ ...prev, year: text }))}
+                      onChangeText={(text) =>
+                        setEditData((prev) => ({ ...prev, year: text }))
+                      }
                       placeholder="Vehicle year"
                       keyboardType="numeric"
                     />
@@ -352,7 +401,9 @@ const DriverVehicleDetails = () => {
                     <TextField
                       label="Seats"
                       value={editData.seats}
-                      onChangeText={(text) => setEditData(prev => ({ ...prev, seats: text }))}
+                      onChangeText={(text) =>
+                        setEditData((prev) => ({ ...prev, seats: text }))
+                      }
                       placeholder="Number of seats"
                       keyboardType="numeric"
                     />
@@ -362,7 +413,12 @@ const DriverVehicleDetails = () => {
                 <TextField
                   label="License Plate"
                   value={editData.licensePlate}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, licensePlate: text.toUpperCase() }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      licensePlate: text.toUpperCase(),
+                    }))
+                  }
                   placeholder="License plate"
                   autoCapitalize="characters"
                 />
@@ -370,7 +426,9 @@ const DriverVehicleDetails = () => {
                 <TextField
                   label="Color"
                   value={editData.color}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, color: text }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({ ...prev, color: text }))
+                  }
                   placeholder="Vehicle color"
                 />
               </View>
@@ -378,7 +436,9 @@ const DriverVehicleDetails = () => {
               <View className="space-y-3">
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Make & Model:</Text>
-                  <Text className="font-JakartaMedium">{vehicle.make} {vehicle.model}</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.make} {vehicle.model}
+                  </Text>
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Year:</Text>
@@ -386,7 +446,9 @@ const DriverVehicleDetails = () => {
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">License Plate:</Text>
-                  <Text className="font-JakartaMedium">{vehicle.licensePlate}</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.licensePlate}
+                  </Text>
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Color:</Text>
@@ -402,42 +464,66 @@ const DriverVehicleDetails = () => {
 
           {/* Insurance Information */}
           <Card className="mb-4">
-            <Text className="text-lg font-JakartaBold mb-4">Insurance & Registration</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Insurance & Registration
+            </Text>
 
             {isEditing ? (
               <View className="space-y-4">
                 <TextField
                   label="Insurance Policy Number"
                   value={editData.insurancePolicyNumber}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, insurancePolicyNumber: text }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      insurancePolicyNumber: text,
+                    }))
+                  }
                   placeholder="Policy number"
                 />
 
                 <TextField
                   label="Insurance Provider"
                   value={editData.insuranceProvider}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, insuranceProvider: text }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      insuranceProvider: text,
+                    }))
+                  }
                   placeholder="Insurance company"
                 />
 
                 <TextField
                   label="Insurance Expiry Date"
                   value={editData.insuranceExpiry}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, insuranceExpiry: text }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({ ...prev, insuranceExpiry: text }))
+                  }
                   placeholder="YYYY-MM-DD"
                 />
 
                 <TextField
                   label="Registration Number"
                   value={editData.registrationNumber}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, registrationNumber: text }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      registrationNumber: text,
+                    }))
+                  }
                   placeholder="Registration number"
                 />
 
                 <TextField
                   label="Registration Expiry Date"
                   value={editData.registrationExpiry}
-                  onChangeText={(text) => setEditData(prev => ({ ...prev, registrationExpiry: text }))}
+                  onChangeText={(text) =>
+                    setEditData((prev) => ({
+                      ...prev,
+                      registrationExpiry: text,
+                    }))
+                  }
                   placeholder="YYYY-MM-DD"
                 />
               </View>
@@ -445,26 +531,40 @@ const DriverVehicleDetails = () => {
               <View className="space-y-3">
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Policy Number:</Text>
-                  <Text className="font-JakartaMedium">{vehicle.insurancePolicyNumber || 'Not provided'}</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.insurancePolicyNumber || "Not provided"}
+                  </Text>
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Provider:</Text>
-                  <Text className="font-JakartaMedium">{vehicle.insuranceProvider || 'Not provided'}</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.insuranceProvider || "Not provided"}
+                  </Text>
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Insurance Expiry:</Text>
                   <Text className="font-JakartaMedium">
-                    {vehicle.insuranceExpiry ? new Date(vehicle.insuranceExpiry).toLocaleDateString() : 'Not provided'}
+                    {vehicle.insuranceExpiry
+                      ? new Date(vehicle.insuranceExpiry).toLocaleDateString()
+                      : "Not provided"}
                   </Text>
                 </View>
                 <View className="flex-row justify-between">
                   <Text className="text-secondary-600">Registration:</Text>
-                  <Text className="font-JakartaMedium">{vehicle.registrationNumber || 'Not provided'}</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.registrationNumber || "Not provided"}
+                  </Text>
                 </View>
                 <View className="flex-row justify-between">
-                  <Text className="text-secondary-600">Registration Expiry:</Text>
+                  <Text className="text-secondary-600">
+                    Registration Expiry:
+                  </Text>
                   <Text className="font-JakartaMedium">
-                    {vehicle.registrationExpiry ? new Date(vehicle.registrationExpiry).toLocaleDateString() : 'Not provided'}
+                    {vehicle.registrationExpiry
+                      ? new Date(
+                          vehicle.registrationExpiry,
+                        ).toLocaleDateString()
+                      : "Not provided"}
                   </Text>
                 </View>
               </View>

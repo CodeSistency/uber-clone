@@ -1,60 +1,60 @@
-import 'react-native-gesture-handler/jestSetup';
+import "react-native-gesture-handler/jestSetup";
 
 // Fix for React Native window redefinition issue
-Object.defineProperty(global, 'window', {
+Object.defineProperty(global, "window", {
   writable: true,
   value: global.window,
 });
 
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () =>
-  require('@react-native-async-storage/async-storage/jest/async-storage-mock')
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
 // Mock Expo modules
-jest.mock('expo-constants', () => ({
+jest.mock("expo-constants", () => ({
   expoConfig: {
     extra: {
-      serverUrl: 'http://localhost:3000',
-      wsUrl: 'ws://localhost:3000',
-      clerkPublishableKey: 'test-clerk-key',
-      placesApiKey: 'test-places-key',
-      directionsApiKey: 'test-directions-key',
-      geoapifyApiKey: 'test-geoapify-key',
-      stripePublishableKey: 'pk_test_123',
-      firebaseApiKey: 'test-firebase-key',
-      firebaseAuthDomain: 'test.firebaseapp.com',
-      firebaseProjectId: 'test-project',
-      firebaseStorageBucket: 'test.appspot.com',
-      firebaseMessagingSenderId: '123456789',
-      firebaseAppId: '1:123456789:web:abcdef123456',
+      serverUrl: "http://localhost:3000",
+      wsUrl: "ws://localhost:3000",
+      clerkPublishableKey: "test-clerk-key",
+      placesApiKey: "test-places-key",
+      directionsApiKey: "test-directions-key",
+      geoapifyApiKey: "test-geoapify-key",
+      stripePublishableKey: "pk_test_123",
+      firebaseApiKey: "test-firebase-key",
+      firebaseAuthDomain: "test.firebaseapp.com",
+      firebaseProjectId: "test-project",
+      firebaseStorageBucket: "test.appspot.com",
+      firebaseMessagingSenderId: "123456789",
+      firebaseAppId: "1:123456789:web:abcdef123456",
     },
   },
 }));
 
-jest.mock('expo-font');
-jest.mock('expo-linear-gradient', () => 'LinearGradient');
-jest.mock('expo-router', () => ({
+jest.mock("expo-font");
+jest.mock("expo-linear-gradient", () => "LinearGradient");
+jest.mock("expo-router", () => ({
   useRouter: () => ({
     push: jest.fn(),
     replace: jest.fn(),
     back: jest.fn(),
   }),
-  usePathname: () => '/',
+  usePathname: () => "/",
   useSearchParams: () => new Map(),
-  Link: 'Link',
+  Link: "Link",
   Stack: {
-    Screen: 'Stack.Screen',
+    Screen: "Stack.Screen",
   },
 }));
 
-jest.mock('expo-location');
-jest.mock('expo-notifications');
-jest.mock('expo-haptics');
+jest.mock("expo-location");
+jest.mock("expo-notifications");
+jest.mock("expo-haptics");
 
 // Mock react-native-reanimated
-jest.mock('react-native-reanimated', () => ({
-  ...jest.requireActual('react-native-reanimated/mock'),
+jest.mock("react-native-reanimated", () => ({
+  ...jest.requireActual("react-native-reanimated/mock"),
   useSharedValue: (value) => ({ value }),
   useAnimatedStyle: (callback) => callback(),
   withTiming: (value) => value,
@@ -62,9 +62,9 @@ jest.mock('react-native-reanimated', () => ({
 }));
 
 // Mock @gorhom/bottom-sheet
-jest.mock('@gorhom/bottom-sheet', () => ({
-  BottomSheetModal: 'BottomSheetModal',
-  BottomSheetModalProvider: 'BottomSheetModalProvider',
+jest.mock("@gorhom/bottom-sheet", () => ({
+  BottomSheetModal: "BottomSheetModal",
+  BottomSheetModalProvider: "BottomSheetModalProvider",
   useBottomSheetModal: () => ({
     present: jest.fn(),
     dismiss: jest.fn(),
@@ -72,7 +72,7 @@ jest.mock('@gorhom/bottom-sheet', () => ({
 }));
 
 // Mock socket.io-client
-jest.mock('socket.io-client', () => ({
+jest.mock("socket.io-client", () => ({
   io: jest.fn(() => ({
     connect: jest.fn(),
     disconnect: jest.fn(),
@@ -81,29 +81,29 @@ jest.mock('socket.io-client', () => ({
     off: jest.fn(),
     once: jest.fn(),
     connected: true,
-    id: 'mock-socket-id',
+    id: "mock-socket-id",
   })),
 }));
 
 // Mock react-native-maps
-jest.mock('react-native-maps', () => ({
+jest.mock("react-native-maps", () => ({
   __esModule: true,
-  default: 'MapView',
-  MapView: 'MapView',
-  Marker: 'Marker',
-  Polyline: 'Polyline',
-  PROVIDER_DEFAULT: 'PROVIDER_DEFAULT',
+  default: "MapView",
+  MapView: "MapView",
+  Marker: "Marker",
+  Polyline: "Polyline",
+  PROVIDER_DEFAULT: "PROVIDER_DEFAULT",
   LatLng: jest.fn(),
   Region: jest.fn(),
 }));
 
 // Mock expo modules
-jest.mock('expo-device');
-jest.mock('expo-local-authentication');
-jest.mock('expo-linking');
+jest.mock("expo-device");
+jest.mock("expo-local-authentication");
+jest.mock("expo-linking");
 
 // Mock zustand stores
-jest.mock('@/store', () => ({
+jest.mock("@/store", () => ({
   useUserStore: jest.fn(() => ({
     user: null,
     isAuthenticated: false,

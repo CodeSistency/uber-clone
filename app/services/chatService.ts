@@ -93,10 +93,15 @@ export class ChatService {
       // TODO: Send to server to mark as read
       // This would typically be an API call or WebSocket message
     } catch (error) {
-      log.error("ChatService", "Failed to mark messages as read", {
-        rideId,
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "ChatService",
+        "Failed to mark messages as read",
+        {
+          rideId,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -289,11 +294,16 @@ export class ChatService {
       // Update local state
       useChatStore.getState().setTyping(isTyping);
     } catch (error) {
-      log.error("ChatService", "Failed to send typing indicator", {
-        rideId,
-        isTyping,
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "ChatService",
+        "Failed to send typing indicator",
+        {
+          rideId,
+          isTyping,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -442,7 +452,8 @@ export class ChatService {
   }
 
   // Typing indicator management
-  private typingTimeouts: Map<number, number> = new Map();
+  private typingTimeouts: Map<number, ReturnType<typeof setTimeout>> =
+    new Map();
 
   handleUserTyping(rideId: number): void {
     // Clear existing timeout

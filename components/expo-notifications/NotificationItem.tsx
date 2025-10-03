@@ -1,7 +1,12 @@
-import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { formatTime, getRelativeTime, getNotificationIcon, getNotificationColor } from '@/lib/expo-notifications/utils';
-import { ExpoNotificationData } from '../../types/expo-notifications';
+import React from "react";
+import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+  formatTime,
+  getRelativeTime,
+  getNotificationIcon,
+  getNotificationColor,
+} from "@/lib/expo-notifications/utils";
+import { ExpoNotificationData } from "../../types/expo-notifications";
 
 interface NotificationItemProps {
   notification: ExpoNotificationData;
@@ -46,10 +51,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
     !notification.isRead && styles.titleUnread,
   ];
 
-  const messageStyle = [
-    styles.message,
-    compact && styles.messageCompact,
-  ];
+  const messageStyle = [styles.message, compact && styles.messageCompact];
 
   return (
     <TouchableOpacity
@@ -81,7 +83,7 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
             </Text>
 
             {/* Indicador de prioridad para notificaciones críticas */}
-            {notification.priority === 'critical' && (
+            {notification.priority === "critical" && (
               <View style={[styles.priorityBadge, { backgroundColor: color }]}>
                 <Text style={styles.priorityText}>!</Text>
               </View>
@@ -100,16 +102,16 @@ const NotificationItem: React.FC<NotificationItemProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    flexDirection: "row",
+    alignItems: "flex-start",
     padding: 16,
     marginHorizontal: 16,
     marginVertical: 4,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderRadius: 12,
     borderLeftWidth: 4,
-    borderLeftColor: '#0286FF',
-    shadowColor: '#000',
+    borderLeftColor: "#0286FF",
+    shadowColor: "#000",
     shadowOffset: {
       width: 0,
       height: 1,
@@ -125,7 +127,7 @@ const styles = StyleSheet.create({
   },
 
   unreadContainer: {
-    backgroundColor: '#F8F9FF',
+    backgroundColor: "#F8F9FF",
     borderLeftWidth: 5,
   },
 
@@ -133,15 +135,15 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     marginRight: 12,
   },
 
   iconText: {
     fontSize: 18,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 
   contentContainer: {
@@ -150,27 +152,27 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 16,
-    fontWeight: '600',
-    color: '#1F2937',
+    fontWeight: "600",
+    color: "#1F2937",
     marginBottom: 4,
     lineHeight: 20,
   },
 
   titleCompact: {
     fontSize: 14,
-    fontWeight: '500',
+    fontWeight: "500",
     marginBottom: 2,
     lineHeight: 18,
   },
 
   titleUnread: {
-    fontWeight: '700',
-    color: '#111827',
+    fontWeight: "700",
+    color: "#111827",
   },
 
   message: {
     fontSize: 14,
-    color: '#6B7280',
+    color: "#6B7280",
     lineHeight: 18,
     marginBottom: 8,
   },
@@ -182,40 +184,38 @@ const styles = StyleSheet.create({
   },
 
   footerContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
 
   timestamp: {
     fontSize: 12,
-    color: '#9CA3AF',
+    color: "#9CA3AF",
   },
 
   priorityBadge: {
     width: 16,
     height: 16,
     borderRadius: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 
   priorityText: {
     fontSize: 10,
-    color: '#FFFFFF',
-    fontWeight: 'bold',
+    color: "#FFFFFF",
+    fontWeight: "bold",
   },
 
   unreadIndicator: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    position: 'absolute',
+    position: "absolute",
     top: 12,
     right: 12,
   },
 });
 
 export default NotificationItem;
-
-

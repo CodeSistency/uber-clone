@@ -215,10 +215,7 @@
           "progreso": 100,
           "prioridad": "Alta",
           "descripcion": "Refactorizar el componente principal del flujo unificado del conductor",
-          "dependencias": [
-            "@/components/ui/Button",
-            "@/components/ui/Card"
-          ],
+          "dependencias": ["@/components/ui/Button", "@/components/ui/Card"],
           "tareas": [
             {
               "id": "T2.2.1",
@@ -509,10 +506,7 @@
           "progreso": 0,
           "prioridad": "Baja",
           "descripcion": "Optimizar el rendimiento de los componentes refactorizados",
-          "dependencias": [
-            "react",
-            "react-native"
-          ],
+          "dependencias": ["react", "react-native"],
           "tareas": [
             {
               "id": "T4.2.1",

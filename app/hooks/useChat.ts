@@ -78,10 +78,15 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
           await chatStorage.saveChatHistory(chatRideId, freshMessages, "ride");
         }
       } catch (error) {
-        log.error("useChat", "Failed to load chat history", {
-          rideId,
-          error: error instanceof Error ? error.message : "Unknown error",
-        }, error instanceof Error ? error : undefined);
+        log.error(
+          "useChat",
+          "Failed to load chat history",
+          {
+            rideId,
+            error: error instanceof Error ? error.message : "Unknown error",
+          },
+          error instanceof Error ? error : undefined,
+        );
         setError(
           error instanceof Error ? error.message : "Failed to load messages",
         );
@@ -203,10 +208,18 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         setError(null);
         await chatService.shareLocation(rideId, location);
       } catch (error) {
-        log.error("useChat", "Failed to share location", {
-          rideId,
-          error: error instanceof Error ? error.message : "Failed to share location",
-        }, error instanceof Error ? error : undefined);
+        log.error(
+          "useChat",
+          "Failed to share location",
+          {
+            rideId,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to share location",
+          },
+          error instanceof Error ? error : undefined,
+        );
         setError(
           error instanceof Error ? error.message : "Failed to share location",
         );
@@ -223,10 +236,18 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
     try {
       await chatService.markMessagesRead(rideId);
     } catch (error) {
-      log.error("useChat", "Failed to mark messages as read", {
-        rideId,
-        error: error instanceof Error ? error.message : "Failed to mark messages as read",
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "useChat",
+        "Failed to mark messages as read",
+        {
+          rideId,
+          error:
+            error instanceof Error
+              ? error.message
+              : "Failed to mark messages as read",
+        },
+        error instanceof Error ? error : undefined,
+      );
       setError(
         error instanceof Error
           ? error.message
@@ -263,7 +284,7 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         {
           chatId,
           chatType,
-            error: (error as Error)?.message,
+          error: (error as Error)?.message,
         },
         error instanceof Error ? error : undefined,
       );

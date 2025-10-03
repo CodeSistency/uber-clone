@@ -30,6 +30,10 @@ import {
   useRatingsStore,
   useDriverConfigStore,
 } from "@/store";
+import {
+  DARK_MODERN_STYLE,
+  type MapConfiguration,
+} from "@/constants/mapStyles";
 
 // Lightweight bottom sheet implemented locally for this screen
 const clamp = (value: number, min: number, max: number) =>
@@ -372,6 +376,29 @@ const DriverDashboard = () => {
     </View>
   );
 
+  // 🎨 Configuración del mapa con tema dark moderno
+  const mapConfig: Partial<MapConfiguration> = {
+    theme: "dark",
+    customStyle: DARK_MODERN_STYLE,
+    userInterfaceStyle: "dark",
+    mapType: "standard",
+    showsUserLocation: true,
+    showsPointsOfInterest: false,
+    showsBuildings: true,
+    showsTraffic: false,
+    showsCompass: true,
+    showsScale: false,
+    showsMyLocationButton: false,
+    zoomEnabled: true,
+    scrollEnabled: true,
+    rotateEnabled: true,
+    pitchEnabled: true,
+    tintColor: "#00FF88",
+    routeColor: "#4285F4",
+    trailColor: "#FFE014",
+    predictionColor: "#00FF88",
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       <View className="flex-1">
@@ -395,7 +422,7 @@ const DriverDashboard = () => {
 
         {/* Map background */}
         <View className="flex-1">
-          <Map serviceType="transport" />
+          <Map serviceType="transport" mapConfig={mapConfig} />
 
           {/* Floating Icons */}
           <FloatingIcons onIconPress={handleIconPress} />

@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -21,13 +16,8 @@ interface ProfileFormData {
 }
 
 const DriverProfileEdit = () => {
-  const {
-    profile,
-    isLoading,
-    error,
-    fetchProfile,
-    updateProfile
-  } = useDriverProfileStore();
+  const { profile, isLoading, error, fetchProfile, updateProfile } =
+    useDriverProfileStore();
 
   const { showError, showSuccess } = useUI();
   const { hasActiveRide, currentServiceType } = useDriverNavigation();
@@ -46,7 +36,7 @@ const DriverProfileEdit = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot edit your profile while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot edit your profile while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       router.back();
       return;
@@ -108,7 +98,10 @@ const DriverProfileEdit = () => {
     setIsSubmitting(true);
     try {
       await updateProfile(formData);
-      showSuccess("Profile Updated", "Your profile has been updated successfully");
+      showSuccess(
+        "Profile Updated",
+        "Your profile has been updated successfully",
+      );
 
       // Navigate back after successful update
       setTimeout(() => {
@@ -128,8 +121,8 @@ const DriverProfileEdit = () => {
       "Are you sure you want to discard your changes?",
       [
         { text: "Keep Editing", style: "cancel" },
-        { text: "Discard", style: "destructive", onPress: () => router.back() }
-      ]
+        { text: "Discard", style: "destructive", onPress: () => router.back() },
+      ],
     );
   };
 
@@ -145,11 +138,7 @@ const DriverProfileEdit = () => {
     return (
       <SafeAreaView className="flex-1 bg-general-500 justify-center items-center">
         <Text className="text-lg text-danger-500">Failed to load profile</Text>
-        <Button
-          title="Retry"
-          onPress={fetchProfile}
-          className="mt-4"
-        />
+        <Button title="Retry" onPress={fetchProfile} className="mt-4" />
       </SafeAreaView>
     );
   }
@@ -176,7 +165,10 @@ const DriverProfileEdit = () => {
               <Button
                 title="Change Photo"
                 onPress={() => {
-                  Alert.alert("Coming Soon", "Photo upload functionality will be available soon");
+                  Alert.alert(
+                    "Coming Soon",
+                    "Photo upload functionality will be available soon",
+                  );
                 }}
                 variant="outline"
                 className="px-6"
@@ -186,27 +178,35 @@ const DriverProfileEdit = () => {
 
           {/* Personal Information Form - Using MultiStepForm */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-4">Personal Information</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Personal Information
+            </Text>
 
             <View className="space-y-4">
               <TextField
                 label="First Name"
                 value={formData.firstName}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, firstName: text }))}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, firstName: text }))
+                }
                 placeholder="Enter your first name"
               />
 
               <TextField
                 label="Last Name"
                 value={formData.lastName}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, lastName: text }))}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, lastName: text }))
+                }
                 placeholder="Enter your last name"
               />
 
               <TextField
                 label="Email Address"
                 value={formData.email}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, email: text }))}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, email: text }))
+                }
                 placeholder="Enter your email"
                 keyboardType="email-address"
                 autoCapitalize="none"
@@ -215,7 +215,9 @@ const DriverProfileEdit = () => {
               <TextField
                 label="Phone Number"
                 value={formData.phone}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, phone: text }))}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, phone: text }))
+                }
                 placeholder="Enter your phone number"
                 keyboardType="phone-pad"
               />

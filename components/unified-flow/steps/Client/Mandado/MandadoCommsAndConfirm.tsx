@@ -17,7 +17,7 @@ const MandadoCommsAndConfirm: React.FC = () => {
 
   const handleConfirm = () => {
     showSuccess("Mandado confirmado", "El conductor irá por los productos");
-    goTo(FLOW_STEPS.CUSTOMER_MANDADO.FINALIZACION);
+    goTo(FLOW_STEPS.CUSTOMER_MANDADO_FINALIZACION);
   };
 
   return (

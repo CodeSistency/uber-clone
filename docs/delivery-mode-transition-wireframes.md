@@ -127,6 +127,7 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ### 1. Map Markers Transformation
 
 #### Before (Transport):
+
 ```
 🚗 Driver markers
 📍 User location
@@ -135,6 +136,7 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ```
 
 #### After (Delivery):
+
 ```
 🍕 Restaurant markers
 🥗 Food category markers
@@ -147,12 +149,14 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ### 2. Search Input Adaptation
 
 #### Transport Mode:
+
 ```
 🔍 Where to go?
 [📍 Current Location]
 ```
 
 #### Delivery Mode:
+
 ```
 🔍 Search restaurants, cuisines...
 [📍 Current Location]
@@ -161,6 +165,7 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ### 3. Quick Access Changes
 
 #### Transport Quick Access:
+
 ```
 🏠 Home
 💼 Work
@@ -168,6 +173,7 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ```
 
 #### Delivery Quick Access:
+
 ```
 🍕 Pizza Places
 🍔 Burger Joints
@@ -178,12 +184,14 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ### 4. Smart Suggestions
 
 #### Transport Suggestions:
+
 ```
 "Need a ride home?"
 "Headed to work?"
 ```
 
 #### Delivery Suggestions:
+
 ```
 "Craving pizza? Mario's is 2 min away"
 "Healthy lunch: Green Cafe - 15 min"
@@ -253,24 +261,24 @@ Esta documentación muestra específicamente cómo cambia la interfaz cuando el 
 ```typescript
 // Enhanced state for delivery mode
 const [deliveryState, setDeliveryState] = useState({
-  mode: 'transport', // 'transport' | 'delivery'
+  mode: "transport", // 'transport' | 'delivery'
   nearbyRestaurants: [],
-  categories: ['pizza', 'burgers', 'healthy', 'drinks'],
-  selectedCategory: 'all',
-  searchQuery: '',
-  quickAccess: []
+  categories: ["pizza", "burgers", "healthy", "drinks"],
+  selectedCategory: "all",
+  searchQuery: "",
+  quickAccess: [],
 });
 
 // Update when service type changes
 useEffect(() => {
-  if (serviceType === 'delivery') {
+  if (serviceType === "delivery") {
     loadNearbyRestaurants();
-    updateMapMarkers('restaurants');
-    updateQuickAccess('delivery');
+    updateMapMarkers("restaurants");
+    updateQuickAccess("delivery");
   } else {
     loadNearbyDrivers();
-    updateMapMarkers('drivers');
-    updateQuickAccess('transport');
+    updateMapMarkers("drivers");
+    updateQuickAccess("transport");
   }
 }, [serviceType]);
 ```
@@ -449,11 +457,13 @@ const QuickAccess = ({ serviceType }) => {
 ### Color Scheme Adaptation
 
 #### Transport Mode:
+
 - Primary: Blue (#0286FF)
 - Markers: Car icons
 - Accent: Transportation focused
 
 #### Delivery Mode:
+
 - Primary: Orange (#FF6B35)
 - Markers: Food icons
 - Accent: Restaurant focused
@@ -461,6 +471,7 @@ const QuickAccess = ({ serviceType }) => {
 ### Typography Updates
 
 #### Transport:
+
 ```
 "Where to go?"
 "Find a ride"
@@ -468,6 +479,7 @@ const QuickAccess = ({ serviceType }) => {
 ```
 
 #### Delivery:
+
 ```
 "Search restaurants"
 "Find food nearby"
@@ -477,6 +489,7 @@ const QuickAccess = ({ serviceType }) => {
 ### Animation Transitions
 
 #### Mode Switch Animation:
+
 ```
 1. Button press feedback
 2. Loading spinner (0.5s)
@@ -490,6 +503,7 @@ const QuickAccess = ({ serviceType }) => {
 ## 📱 Mobile-Specific Adaptations
 
 ### Small Screens (< 375px)
+
 ```
 ┌───────────────────┐
 │   🗺️ MAP (65%)    │
@@ -507,6 +521,7 @@ const QuickAccess = ({ serviceType }) => {
 ```
 
 ### Large Screens (> 414px)
+
 ```
 ┌─────────────────────────────────────┐
 │        🗺️ MAP VIEW (75%)            │
@@ -530,16 +545,19 @@ const QuickAccess = ({ serviceType }) => {
 ## 🎯 Success Metrics
 
 ### User Engagement
+
 - **Mode Switch Rate:** % of users who try delivery mode
 - **Search Conversion:** % of searches that lead to restaurant selection
 - **Category Usage:** Which categories are most popular
 
 ### Performance Metrics
+
 - **Load Time:** Time to switch modes and load data
 - **Map Responsiveness:** Smooth marker transitions
 - **Search Speed:** Query response time
 
 ### Business Metrics
+
 - **Restaurant Discovery:** Number of restaurants viewed
 - **Order Initiation:** % of sessions that lead to cart creation
 - **Cross-service Usage:** Users who use both transport and delivery
@@ -549,6 +567,7 @@ const QuickAccess = ({ serviceType }) => {
 ## 🔄 Fallback & Error States
 
 ### Network Issues
+
 ```
 ┌─────────────────────────────────────┐
 │   ⚠️ Unable to load restaurants   │
@@ -563,6 +582,7 @@ const QuickAccess = ({ serviceType }) => {
 ```
 
 ### No Restaurants Available
+
 ```
 ┌─────────────────────────────────────┐
 │   📍 No restaurants nearby         │
@@ -605,18 +625,21 @@ const QuickAccess = ({ serviceType }) => {
 ## 📋 Implementation Checklist
 
 ### ✅ Completed
+
 - [x] Wireframe design for delivery mode
 - [x] Component change specifications
 - [x] State management updates
 - [x] Performance considerations
 
 ### 🔄 In Progress
+
 - [ ] Core delivery mode implementation
 - [ ] Restaurant data integration
 - [ ] Map marker system
 - [ ] Search adaptation
 
 ### 📋 Pending
+
 - [ ] Category filtering system
 - [ ] AI suggestions engine
 - [ ] Performance optimization
@@ -624,4 +647,4 @@ const QuickAccess = ({ serviceType }) => {
 
 ---
 
-*Esta documentación proporciona la base completa para implementar el modo Delivery con cambios visuales y funcionales significativos basados en la implementación actual.*
+_Esta documentación proporciona la base completa para implementar el modo Delivery con cambios visuales y funcionales significativos basados en la implementación actual._

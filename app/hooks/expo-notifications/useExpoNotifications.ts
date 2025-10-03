@@ -1,7 +1,10 @@
 import { useCallback, useEffect } from "react";
 
 import { expoNotificationService } from "@/app/services/expo-notifications";
-import { useExpoNotificationStore, useNotificationActions } from "@/store/expo-notifications/expoNotificationStore";
+import {
+  useExpoNotificationStore,
+  useNotificationActions,
+} from "@/store/expo-notifications/expoNotificationStore";
 
 import {
   UseExpoNotificationsReturn,
@@ -38,7 +41,10 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
       try {
         await expoNotificationService.initialize();
       } catch (error) {
-        console.error("[useExpoNotifications] Failed to initialize service:", error);
+        console.error(
+          "[useExpoNotifications] Failed to initialize service:",
+          error,
+        );
       }
     };
 
@@ -54,18 +60,22 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
   const sendLocalNotification = useCallback(
     async (title: string, body: string, data?: any) => {
       try {
-        const notificationId = await expoNotificationService.sendLocalNotification(
-          title,
-          body,
-          data
-        );
+        const notificationId =
+          await expoNotificationService.sendLocalNotification(
+            title,
+            body,
+            data,
+          );
         return notificationId;
       } catch (error) {
-        console.error("[useExpoNotifications] Failed to send local notification:", error);
+        console.error(
+          "[useExpoNotifications] Failed to send local notification:",
+          error,
+        );
         throw error;
       }
     },
-    []
+    [],
   );
 
   // Función para programar notificación
@@ -73,19 +83,23 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
     async (title: string, body: string, delayInSeconds: number, data?: any) => {
       try {
         const trigger = { seconds: delayInSeconds };
-        const notificationId = await expoNotificationService.scheduleNotification(
-          title,
-          body,
-          trigger,
-          data
-        );
+        const notificationId =
+          await expoNotificationService.scheduleNotification(
+            title,
+            body,
+            trigger,
+            data,
+          );
         return notificationId;
       } catch (error) {
-        console.error("[useExpoNotifications] Failed to schedule notification:", error);
+        console.error(
+          "[useExpoNotifications] Failed to schedule notification:",
+          error,
+        );
         throw error;
       }
     },
-    []
+    [],
   );
 
   // Función para cancelar notificación
@@ -93,7 +107,10 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
     try {
       await expoNotificationService.cancelNotification(id);
     } catch (error) {
-      console.error("[useExpoNotifications] Failed to cancel notification:", error);
+      console.error(
+        "[useExpoNotifications] Failed to cancel notification:",
+        error,
+      );
       throw error;
     }
   }, []);
@@ -103,31 +120,42 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
     try {
       await expoNotificationService.cancelAllNotifications();
     } catch (error) {
-      console.error("[useExpoNotifications] Failed to cancel all notifications:", error);
+      console.error(
+        "[useExpoNotifications] Failed to cancel all notifications:",
+        error,
+      );
       throw error;
     }
   }, []);
 
   // Función para obtener token del dispositivo
-  const getDeviceToken = useCallback(async (): Promise<ExpoPushToken | null> => {
-    try {
-      return await expoNotificationService.getPushToken();
-    } catch (error) {
-      console.error("[useExpoNotifications] Failed to get device token:", error);
-      throw error;
-    }
-  }, []);
+  const getDeviceToken =
+    useCallback(async (): Promise<ExpoPushToken | null> => {
+      try {
+        return await expoNotificationService.getPushToken();
+      } catch (error) {
+        console.error(
+          "[useExpoNotifications] Failed to get device token:",
+          error,
+        );
+        throw error;
+      }
+    }, []);
 
   // Función para solicitar permisos
-  const requestPermissions = useCallback(async (): Promise<ExpoNotificationPermissions> => {
-    try {
-      const permissions = await expoNotificationService.requestPermissions();
-      return permissions;
-    } catch (error) {
-      console.error("[useExpoNotifications] Failed to request permissions:", error);
-      throw error;
-    }
-  }, []);
+  const requestPermissions =
+    useCallback(async (): Promise<ExpoNotificationPermissions> => {
+      try {
+        const permissions = await expoNotificationService.requestPermissions();
+        return permissions;
+      } catch (error) {
+        console.error(
+          "[useExpoNotifications] Failed to request permissions:",
+          error,
+        );
+        throw error;
+      }
+    }, []);
 
   // Función para establecer contador del badge
   const setBadgeCount = useCallback(async (count: number) => {
@@ -214,7 +242,7 @@ export const useAppBadge = () => {
 
   // Actualizar badge automáticamente cuando cambie el contador
   useEffect(() => {
-    setBadgeCount(unreadCount).catch(error => {
+    setBadgeCount(unreadCount).catch((error) => {
       console.error("[useAppBadge] Failed to update badge:", error);
     });
   }, [unreadCount, setBadgeCount]);
@@ -241,8 +269,8 @@ export const useAppBadge = () => {
 export const useNotificationsByType = (type: string) => {
   const { notifications } = useExpoNotifications();
 
-  const filteredNotifications = notifications.filter(n => n.type === type);
-  const unreadCount = filteredNotifications.filter(n => !n.isRead).length;
+  const filteredNotifications = notifications.filter((n) => n.type === type);
+  const unreadCount = filteredNotifications.filter((n) => !n.isRead).length;
 
   return {
     notifications: filteredNotifications,
@@ -262,17 +290,18 @@ export const useNotificationPreferences = () => {
       const updatedPreferences = { ...preferences, [key]: value };
       updatePreferences(updatedPreferences);
     },
-    [preferences, updatePreferences]
+    [preferences, updatePreferences],
   );
 
   const togglePreference = useCallback(
     (key: keyof ExpoNotificationPreferences) => {
-      const currentValue = preferences[key as keyof ExpoNotificationPreferences];
+      const currentValue =
+        preferences[key as keyof ExpoNotificationPreferences];
       if (typeof currentValue === "boolean") {
         updatePreference(key, !currentValue);
       }
     },
-    [preferences, updatePreference]
+    [preferences, updatePreference],
   );
 
   return {
@@ -288,7 +317,12 @@ export const useNotificationPreferences = () => {
  */
 export const useNotificationSimulator = () => {
   const simulateNotification = useCallback(
-    (title: string, body: string, data?: any, type?: "foreground" | "background") => {
+    (
+      title: string,
+      body: string,
+      data?: any,
+      type?: "foreground" | "background",
+    ) => {
       expoNotificationService.simulateNotification({
         title,
         body,
@@ -296,7 +330,7 @@ export const useNotificationSimulator = () => {
         type,
       });
     },
-    []
+    [],
   );
 
   const simulateRideRequest = useCallback(() => {
@@ -308,9 +342,9 @@ export const useNotificationSimulator = () => {
         rideId: `simulated_${Date.now()}`,
         pickupAddress: "123 Main St",
         dropoffAddress: "456 Oak Ave",
-        fare: 25.50,
+        fare: 25.5,
       },
-      "foreground"
+      "foreground",
     );
   }, [simulateNotification]);
 
@@ -323,7 +357,7 @@ export const useNotificationSimulator = () => {
         rideId: `simulated_${Date.now()}`,
         driverName: "John",
       },
-      "foreground"
+      "foreground",
     );
   }, [simulateNotification]);
 
@@ -333,5 +367,3 @@ export const useNotificationSimulator = () => {
     simulateRideAccepted,
   };
 };
-
-

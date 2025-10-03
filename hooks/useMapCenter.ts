@@ -1,7 +1,7 @@
-import { useMemo } from 'react';
-import { Dimensions } from 'react-native';
+import { useMemo } from "react";
+import { Dimensions } from "react-native";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 interface UseMapCenterOptions {
   bottomSheetHeight?: number; // Percentage of screen height
@@ -9,7 +9,7 @@ interface UseMapCenterOptions {
   sideOffset?: number; // Side margin in pixels
   floatingElements?: Array<{
     height: number;
-    position: 'top' | 'bottom';
+    position: "top" | "bottom";
   }>;
 }
 
@@ -25,7 +25,7 @@ export const useMapCenter = (
   userLongitude: number | null,
   destinationLatitude?: number | null,
   destinationLongitude?: number | null,
-  options: UseMapCenterOptions = {}
+  options: UseMapCenterOptions = {},
 ): MapCenterResult | null => {
   const {
     bottomSheetHeight = 40, // Default 40% bottom sheet
@@ -72,8 +72,14 @@ export const useMapCenter = (
     const effectiveHeight = availableHeight - totalFloatingHeight - topOffset;
 
     // Calculate zoom level based on available space
-    const latitudeDelta = Math.max(0.01, (SCREEN_HEIGHT / effectiveHeight) * 0.01);
-    const longitudeDelta = Math.max(0.01, (SCREEN_WIDTH / (SCREEN_WIDTH - sideOffset * 2)) * latitudeDelta);
+    const latitudeDelta = Math.max(
+      0.01,
+      (SCREEN_HEIGHT / effectiveHeight) * 0.01,
+    );
+    const longitudeDelta = Math.max(
+      0.01,
+      (SCREEN_WIDTH / (SCREEN_WIDTH - sideOffset * 2)) * latitudeDelta,
+    );
 
     return {
       latitude: userLatitude,
@@ -98,7 +104,7 @@ export const useBusinessMapCenter = (
   businessLatitude: number | null,
   businessLongitude: number | null,
   deliveryLatitude?: number | null,
-  deliveryLongitude?: number | null
+  deliveryLongitude?: number | null,
 ) => {
   return useMapCenter(
     businessLatitude,
@@ -109,9 +115,9 @@ export const useBusinessMapCenter = (
       bottomSheetHeight: 60, // Business typically uses more bottom sheet space
       topOffset: 120, // More top space for business headers
       floatingElements: [
-        { height: 60, position: 'top' }, // Header height
+        { height: 60, position: "top" }, // Header height
       ],
-    }
+    },
   );
 };
 
@@ -122,7 +128,7 @@ export const useDriverMapCenter = (
   pickupLatitude?: number | null,
   pickupLongitude?: number | null,
   deliveryLatitude?: number | null,
-  deliveryLongitude?: number | null
+  deliveryLongitude?: number | null,
 ) => {
   // Calculate center considering both pickup and delivery if available
   const primaryLat = pickupLatitude || driverLatitude;
@@ -137,8 +143,8 @@ export const useDriverMapCenter = (
       bottomSheetHeight: 50, // Driver uses medium bottom sheet
       topOffset: 80,
       floatingElements: [
-        { height: 40, position: 'top' }, // Status bar
+        { height: 40, position: "top" }, // Status bar
       ],
-    }
+    },
   );
 };

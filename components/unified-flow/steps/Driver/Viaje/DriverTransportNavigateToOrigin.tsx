@@ -6,7 +6,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 const DriverTransportNavigateToOrigin: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -40,7 +40,7 @@ const DriverTransportNavigateToOrigin: React.FC = () => {
 
   const handleArrived = () => {
     console.log("[DriverTransportNavigateToOrigin] Driver arrived at origin");
-    goTo(FLOW_STEPS.DRIVER_TRANSPORT.EN_ORIGEN);
+    goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_ORIGEN);
   };
 
   return (

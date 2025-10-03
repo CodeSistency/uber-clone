@@ -65,7 +65,6 @@ const Home = () => {
   const [nearbyRestaurants, setNearbyRestaurants] = useState<Restaurant[]>([]);
   const [isLoadingRestaurants, setIsLoadingRestaurants] = useState(false);
 
-
   // Load restaurants when delivery mode is selected
   useEffect(() => {
     if (serviceType === "delivery") {

@@ -7,7 +7,9 @@ import { websocketService } from "../services/websocketService";
 
 export const useWebSocket = (userId: string, token: string) => {
   const isConnectedRef = useRef(false);
-  const reconnectTimeoutRef = useRef<number | null>(null);
+  const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   const {
     connectionStatus,

@@ -1,9 +1,11 @@
 # Plan de Refactorización UI - Flujo Unificado
 
 ## 🎯 **Objetivo del Proyecto**
+
 Refactorizar el sistema de flujo unificado (`unified-flow/`) para utilizar los componentes reutilizables del sistema UI (`components/ui/`), mejorando la consistencia, mantenibilidad y experiencia de desarrollo.
 
 ## 📋 **Contexto**
+
 El flujo unificado actualmente utiliza componentes nativos de React Native (TouchableOpacity, View, Text, etc.) de manera directa. Esta refactorización busca:
 
 - **Consistencia Visual**: Unificar el aspecto y comportamiento de todos los componentes
@@ -14,24 +16,28 @@ El flujo unificado actualmente utiliza componentes nativos de React Native (Touc
 ## 🏗️ **Estructura del Plan**
 
 ### **Etapa 1: Componentes Base y Utilitarios** 🔧
+
 **Prioridad: Alta** - Refactorizar componentes fundamentales que afectan múltiples partes del sistema.
 
 - **BaseComponents.tsx**: Reemplazar TouchableOpacity → Button, View → Card, indicadores → Badge
 - **SimulationControls**: Panel de control de simulación con componentes UI modernos
 
 ### **Etapa 2: Componentes de Flujo Principal** 🎯
+
 **Prioridad: Alta** - Actualizar los componentes principales de navegación del flujo.
 
 - **unified-flow-demo.tsx**: Modal de selección de modo, header del drawer
 - **driver-unified-flow-demo.tsx**: Header del drawer conductor, indicadores de estado
 
 ### **Etapa 3: Pasos del Flujo** 📝
+
 **Prioridad: Media** - Refactorizar cada paso individual del flujo de usuario.
 
 - **Pasos del Cliente**: Viaje, Delivery, Mandado, Envío
 - **Pasos del Conductor**: Disponibilidad, Viajes, Deliveries
 
 ### **Etapa 4: Optimización y Testing** ✅
+
 **Prioridad: Media/Baja** - Asegurar calidad y performance del código refactorizado.
 
 - **Testing**: Actualizar tests para nueva API de componentes
@@ -60,18 +66,20 @@ El flujo unificado actualmente utiliza componentes nativos de React Native (Touc
 ## 🛠️ **Dependencias Técnicas**
 
 ### **Componentes UI Disponibles**
+
 ```typescript
 import {
-  Button,      // Reemplaza TouchableOpacity
-  Card,        // Reemplaza View con estilos de tarjeta
-  Badge,       // Indicadores de estado
-  TextField,   // Inputs de texto
-  Modal,       // Modales consistentes
-  Glass        // Efectos visuales
-} from '@/components/ui';
+  Button, // Reemplaza TouchableOpacity
+  Card, // Reemplaza View con estilos de tarjeta
+  Badge, // Indicadores de estado
+  TextField, // Inputs de texto
+  Modal, // Modales consistentes
+  Glass, // Efectos visuales
+} from "@/components/ui";
 ```
 
 ### **Patrones de Migración**
+
 ```typescript
 // ❌ Antes
 <TouchableOpacity onPress={handlePress} className="bg-blue-500 px-4 py-2 rounded">
@@ -96,7 +104,7 @@ Para comenzar con la implementación:
 ## 📞 **Soporte**
 
 Si encuentras problemas durante la refactorización:
+
 - Revisar la documentación de componentes UI en `components/ui/`
 - Verificar ejemplos de uso en componentes existentes
 - Consultar tests para entender la API esperada
-

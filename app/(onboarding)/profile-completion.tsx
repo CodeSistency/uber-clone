@@ -1,265 +1,159 @@
 import { router } from "expo-router";
 import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Alert, Text, View } from "react-native";
 
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { TextField, Button, Glass, Card } from "@/components/ui";
+import { ProfileIllustration } from "@/components/onboarding/illustrations";
+import {
+  OnboardingScaffold,
+  EmergencyContactModal,
+} from "@/components/onboarding/OnboardingScaffold";
+import { Card, TextField, Button } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
 export default function ProfileCompletion() {
-  console.log("[ProfileCompletion] Rendering profile completion");
-
   const {
     currentStep,
-    progress,
     userData,
     updateUserData,
     completeOnboarding,
-    previousStep,
     setLoading,
     setError,
     isLoading,
   } = useOnboardingStore();
 
-  const [form, setForm] = useState({
-    address: userData.address || "",
-    emergencyContactName: "",
-    emergencyContactPhone: "",
-    emergencyContactRelationship: "",
-  });
+  const [address, setAddress] = useState(userData.address || "");
+  const [emergencyContact, setEmergencyContact] = useState(
+    userData.emergencyContact || null,
+  );
+  const [modalOpen, setModalOpen] = useState(false);
 
-  const handleInputChange = (field: string, value: string) => {
-    console.log(`[ProfileCompletion] Input change - ${field}:`, value);
-    setForm((prev) => ({ ...prev, [field]: value }));
-  };
-
-  const handleCompleteSetup = async () => {
+  const handleSave = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log("[ProfileCompletion] Completing profile setup");
-
-      // Validate emergency contact data if partially filled
-      if (
-        form.emergencyContactName ||
-        form.emergencyContactPhone ||
-        form.emergencyContactRelationship
-      ) {
-        if (
-          !form.emergencyContactName ||
-          !form.emergencyContactPhone ||
-          !form.emergencyContactRelationship
-        ) {
-          Alert.alert(
-            "Error",
-            "Please complete all emergency contact fields or leave them all empty",
-          );
-          return;
-        }
-      }
-
-      // Prepare emergency contact data
-      const emergencyContact = form.emergencyContactName
-        ? {
-            name: form.emergencyContactName,
-            phone: form.emergencyContactPhone,
-            relationship: form.emergencyContactRelationship,
-          }
-        : undefined;
-
-      // Update local state
       updateUserData({
-        emergencyContact,
+        address: address || undefined,
+        emergencyContact: emergencyContact || undefined,
       });
 
-      // TODO: Backend doesn't support preferences in complete endpoint yet
-      // Preferences are stored locally in userData but not sent to backend
-      console.log("[ProfileCompletion] Preferences stored locally:", {
-        preferredVehicleType: userData.preferredVehicleType,
-        preferredServiceLevel: userData.preferredServiceLevel,
-        preferredLanguage: userData.preferredLanguage,
-        timezone: userData.timezone,
-        currency: userData.currency,
-      });
-
-      // API call to complete onboarding (only profile data)
-      const response = await fetchAPI("onboarding/complete", {
+      await fetchAPI("onboarding/complete", {
         method: "POST",
         requiresAuth: true,
         body: JSON.stringify({
-          address: form.address || undefined,
-          profileImage: undefined, // Would be handled by image upload
-          emergencyContact,
+          address: address || undefined,
+          emergencyContact: emergencyContact || undefined,
         }),
       });
 
-      console.log("[ProfileCompletion] Complete response:", response);
-
-      const isSuccess =
-        (response &&
-          (response.success === true ||
-            response.statusCode === 200 ||
-            response.statusCode === 201)) ||
-        (!("success" in (response || {})) &&
-          !("statusCode" in (response || {})));
-
-      if (isSuccess) {
-        console.log("[ProfileCompletion] Onboarding completed successfully");
-        completeOnboarding();
-        router.replace("/(onboarding)/completion-success" as any);
-      } else {
-        throw new Error(response.message || "Failed to complete setup");
-      }
+      completeOnboarding();
+      router.replace("/(onboarding)/completion-success" as any);
     } catch (error: any) {
-      console.error("[ProfileCompletion] Error completing setup:", error);
-
-      // Handle authentication errors specially
-      if (
-        error.message?.includes("Authentication expired") ||
-        error.message?.includes("Token inválido") ||
-        error.statusCode === 401
-      ) {
-        setError("Your session has expired. Please log in again.");
-        Alert.alert(
-          "Session Expired",
-          "Your session has expired. Please log in again.",
-          [
-            {
-              text: "OK",
-              onPress: () => router.replace("/(auth)/sign-in"),
-            },
-          ],
-        );
-        return;
-      }
-
-      setError(error.message || "Failed to complete profile setup");
-      Alert.alert("Error", error.message || "Failed to complete profile setup");
+      setError(error.message || "No pudimos completar tu perfil");
+      Alert.alert("Error", error.message || "No pudimos completar tu perfil");
     } finally {
       setLoading(false);
     }
   };
 
+  const handleRemoveEmergencyContact = () => {
+    setEmergencyContact(null);
+  };
+
+  if (currentStep !== 3) {
+    return null;
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <View className="flex-row items-center justify-between p-5">
-        <TouchableOpacity
-          onPress={() => {
-            previousStep();
-            router.back();
-          }}
-          className="p-2"
+    <OnboardingScaffold
+      illustration={ProfileIllustration}
+      title="Estás listo para comenzar"
+      subtitle="Agrega información final opcional para mejorar tu experiencia"
+      onContinue={handleSave}
+      onBack={() => router.replace("./phone-verification")}
+      showBackButton
+      continueButtonText="Finalizar configuración"
+      isLoading={isLoading}
+    >
+      <View className="space-y-6">
+        <Card
+          header={
+            <Text className="text-lg font-Jakarta-Bold text-gray-900 dark:text-white">
+              Dirección principal (opcional)
+            </Text>
+          }
         >
-          <Text className="text-xl text-gray-600">←</Text>
-        </TouchableOpacity>
-        <Text className="text-lg font-Jakarta-Bold text-gray-800">
-          Complete Your Profile
-        </Text>
-        <View className="w-10" /> {/* Spacer for centering */}
+          <TextField
+            placeholder="Ej. Calle 123, Centro, Caracas"
+            value={address}
+            onChangeText={setAddress}
+          />
+        </Card>
+
+        <Card
+          header={
+            <Text className="text-lg font-Jakarta-Bold text-gray-900 dark:text-white">
+              Contacto de emergencia (opcional)
+            </Text>
+          }
+          footer={
+            <View className="flex-row justify-end space-x-3">
+              {emergencyContact ? (
+                <Button
+                  title="Eliminar"
+                  variant="ghost"
+                  onPress={() => setEmergencyContact(null)}
+                />
+              ) : null}
+              <Button
+                title={emergencyContact ? "Editar" : "Agregar"}
+                onPress={() => setModalOpen(true)}
+              />
+            </View>
+          }
+        >
+          {emergencyContact ? (
+            <View className="space-y-2">
+              <Text className="text-base text-gray-800 dark:text-gray-200">
+                {emergencyContact.name}
+              </Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-300">
+                {emergencyContact.phone}
+              </Text>
+              <Text className="text-sm text-gray-600 dark:text-gray-300">
+                {emergencyContact.relationship}
+              </Text>
+            </View>
+          ) : (
+            <Text className="text-sm text-gray-500 dark:text-gray-300">
+              Agrega un contacto de confianza para situaciones de emergencia.
+            </Text>
+          )}
+        </Card>
+
+        <Card
+          header={
+            <Text className="text-lg font-Jakarta-Bold text-gray-900 dark:text-white">
+              ¡Todo listo!
+            </Text>
+          }
+        >
+          <Text className="text-sm text-gray-600 dark:text-gray-300">
+            Con esta información estarás listo para disfrutar de la experiencia
+            completa de Uber. Puedes actualizar tus datos en cualquier momento
+            desde tu perfil.
+          </Text>
+        </Card>
       </View>
 
-      {/* Progress Bar */}
-      <ProgressBar
-        progress={progress}
-        currentStep={currentStep}
-        totalSteps={4}
+      <EmergencyContactModal
+        visible={modalOpen}
+        onClose={() => setModalOpen(false)}
+        onSave={(contact) => setEmergencyContact(contact)}
+        onRemove={handleRemoveEmergencyContact}
+        initialContact={emergencyContact}
       />
-
-      <ScrollView className="flex-1 px-5">
-        {/* Title */}
-        <View className="mb-8">
-          <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-            🎉 You're Almost Done!
-          </Text>
-          <Text className="text-base font-Jakarta-Medium text-center text-gray-600">
-            Complete your profile to start enjoying Uber
-          </Text>
-        </View>
-
-        {/* Home Address Card */}
-        <Card title="🏠 Home Address" className="mb-6">
-          <TextField
-            label="Address"
-            placeholder="Calle 123, Centro, Caracas"
-            value={form.address}
-            onChangeText={(value) => handleInputChange("address", value)}
-          />
-          <Text className="text-xs text-gray-500 mt-2">Optional</Text>
-        </Card>
-
-        {/* Profile Picture Card */}
-        <Card title="📸 Profile Picture" subtitle="Optional" className="mb-6">
-          <View className="flex-row justify-center space-x-4">
-            <Glass className="p-4 mr-2">
-              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">
-                📷 Take Photo
-              </Text>
-            </Glass>
-            <Glass className="p-4">
-              <Text className="text-center font-Jakarta-Medium text-black dark:text-white">
-                🖼️ Choose from Gallery
-              </Text>
-            </Glass>
-          </View>
-        </Card>
-
-        {/* Emergency Contact Card */}
-        <Card title="🚨 Emergency Contact" subtitle="Optional - Leave all fields empty to skip" className="mb-8">
-          <TextField
-            label="Contact Name"
-            placeholder="Maria Perez"
-            value={form.emergencyContactName}
-            onChangeText={(value) =>
-              handleInputChange("emergencyContactName", value)
-            }
-            className="mb-4"
-          />
-
-          <TextField
-            label="Contact Phone"
-            placeholder="+58 414-123-4568"
-            value={form.emergencyContactPhone}
-            onChangeText={(value) =>
-              handleInputChange("emergencyContactPhone", value)
-            }
-            keyboardType="phone-pad"
-            className="mb-4"
-          />
-
-          <TextField
-            label="Relationship"
-            placeholder="Sister, Brother, Friend..."
-            value={form.emergencyContactRelationship}
-            onChangeText={(value) =>
-              handleInputChange("emergencyContactRelationship", value)
-            }
-          />
-        </Card>
-
-        {/* Complete Setup Button */}
-        <View className="mb-6">
-          <Button
-            title="🚀 Complete Setup & Start Riding"
-            onPress={handleCompleteSetup}
-            loading={isLoading}
-            className="w-full"
-          />
-        </View>
-
-        {/* Final Step Note */}
-        <View className="items-center mb-4">
-          <Text className="text-sm text-center text-primary font-Jakarta-Bold mb-1">
-            🎯 Final Step
-          </Text>
-          <Text className="text-xs text-center text-gray-500">
-            Your Uber experience awaits!
-          </Text>
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+    </OnboardingScaffold>
   );
 }

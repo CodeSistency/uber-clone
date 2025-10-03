@@ -14,6 +14,7 @@ import {
   PendingRequest,
 } from "@/app/services/driverTransportService";
 import { websocketService } from "@/app/services/websocketService";
+import { websocketEventManager } from "@/lib/websocketEventManager";
 import { Button, Card, Badge } from "@/components/ui";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
@@ -21,9 +22,10 @@ import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore } from "@/store";
 import { useDriverStateStore } from "@/store/driverState/driverState";
 import { useLocationStore } from "@/store/location/location";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
-const POLLING_INTERVAL = 5000; // 5 segundos
+const POLLING_INTERVAL = 5000; // 5 segundos (legacy - to be removed)
+const MAX_DISTANCE_KM = 5; // Radio máximo para solicitudes de viaje
 
 const DriverAvailability: React.FC = () => {
   const { startWithDriverStep } = useMapFlow();
@@ -35,10 +37,112 @@ const DriverAvailability: React.FC = () => {
   const [isToggling, setIsToggling] = useState(false);
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [isPolling, setIsPolling] = useState(false);
-  const pollingIntervalRef = useRef<number | null>(null);
+  const pollingIntervalRef = useRef<ReturnType<typeof setInterval> | null>(
+    null,
+  );
   const [processingRequest, setProcessingRequest] = useState<number | null>(
     null,
   );
+
+  // 🚀 NUEVO: Estado para temporizadores de expiración de solicitudes
+  const [requestTimers, setRequestTimers] = useState<
+    Map<number, { expiresAt: Date; intervalId: NodeJS.Timeout }>
+  >(new Map());
+
+  // 🚀 NUEVO: Estado para forzar re-render cada segundo (para countdown visual)
+  const [forceUpdate, setForceUpdate] = useState(0);
+
+  // 🚀 NUEVO: Funciones para manejar temporizadores de expiración (2 minutos)
+  const createRequestTimer = (requestId: number, expiresAt: Date) => {
+    // Limpiar temporizador existente si hay
+    clearRequestTimer(requestId);
+
+    const now = new Date();
+    const timeLeft = expiresAt.getTime() - now.getTime();
+
+    if (timeLeft <= 0) {
+      console.log(`[DriverAvailability] Request ${requestId} already expired`);
+      removeExpiredRequest(requestId);
+      return;
+    }
+
+    console.log(
+      `[DriverAvailability] Creating timer for request ${requestId}, expires in ${Math.round(timeLeft / 1000)}s`,
+    );
+
+    // Crear interval para actualizar UI cada segundo
+    const intervalId = setInterval(() => {
+      const currentTime = new Date();
+      const remaining = expiresAt.getTime() - currentTime.getTime();
+
+      if (remaining <= 0) {
+        console.log(`[DriverAvailability] Request ${requestId} expired`);
+        clearRequestTimer(requestId);
+        removeExpiredRequest(requestId);
+      }
+    }, 1000);
+
+    setRequestTimers(
+      (prev) => new Map(prev.set(requestId, { expiresAt, intervalId })),
+    );
+  };
+
+  const clearRequestTimer = (requestId: number) => {
+    setRequestTimers((prev) => {
+      const timer = prev.get(requestId);
+      if (timer) {
+        clearInterval(timer.intervalId);
+        const newMap = new Map(prev);
+        newMap.delete(requestId);
+        return newMap;
+      }
+      return prev;
+    });
+  };
+
+  const removeExpiredRequest = (requestId: number) => {
+    setPendingRequests((prev) => prev.filter((req) => req.id !== requestId));
+    clearRequestTimer(requestId);
+
+    // Feedback visual de expiración
+    showError("Solicitud expirada", "La solicitud de viaje ha expirado");
+
+    console.log(`[DriverAvailability] Removed expired request ${requestId}`);
+  };
+
+  const getTimeRemaining = (requestId: number): number => {
+    const timer = requestTimers.get(requestId);
+    if (!timer) return 0;
+
+    const remaining = timer.expiresAt.getTime() - Date.now();
+    return Math.max(0, Math.round(remaining / 1000)); // segundos
+  };
+
+  const formatTimeRemaining = (seconds: number): string => {
+    if (seconds <= 0) return "00:00";
+
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  // Limpiar todos los temporizadores al desmontar
+  useEffect(() => {
+    return () => {
+      requestTimers.forEach((timer) => {
+        clearInterval(timer.intervalId);
+      });
+    };
+  }, []);
+
+  // 🚀 NUEVO: Forzar re-render cada segundo para actualizar countdown visual
+  useEffect(() => {
+    const countdownInterval = setInterval(() => {
+      setForceUpdate((prev) => prev + 1);
+    }, 1000);
+
+    return () => clearInterval(countdownInterval);
+  }, []);
 
   // Polling function for pending requests
   const pollPendingRequests = async () => {
@@ -233,6 +337,16 @@ const DriverAvailability: React.FC = () => {
       setIsPolling(false);
       setPendingRequests([]);
 
+      // 🚀 NUEVO: Limpiar todos los temporizadores activos cuando se detiene el polling
+      console.log("[DriverAvailability] 🧹 Clearing all request timers");
+      requestTimers.forEach((timer, requestId) => {
+        clearInterval(timer.intervalId);
+        console.log(
+          `[DriverAvailability] Cleared timer for request ${requestId}`,
+        );
+      });
+      setRequestTimers(new Map());
+
       if (pollingIntervalRef.current) {
         console.log(
           "[DriverAvailability] 🕒 Clearing interval:",
@@ -243,7 +357,9 @@ const DriverAvailability: React.FC = () => {
         console.log("[DriverAvailability] ✅ Interval cleared");
       }
 
-      console.log("[DriverAvailability] ✅ Polling stopped successfully");
+      console.log(
+        "[DriverAvailability] ✅ Polling and timers stopped successfully",
+      );
     }
   };
 
@@ -257,6 +373,9 @@ const DriverAvailability: React.FC = () => {
         "[DriverAvailability] Accepting pending request:",
         request.rideId,
       );
+
+      // 🚀 NUEVO: Limpiar temporizador antes de aceptar
+      clearRequestTimer(request.id);
 
       await driverTransportService.accept(request.rideId);
       websocketService.joinRideRoom(request.rideId);
@@ -277,7 +396,7 @@ const DriverAvailability: React.FC = () => {
       showSuccess("Solicitud aceptada", "Transporte aceptado exitosamente");
 
       // Navigate to next step
-      startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN);
+      startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
     } catch (error) {
       console.error("[DriverAvailability] Error accepting request:", error);
       showError("No se pudo aceptar", "Intenta de nuevo");
@@ -296,6 +415,10 @@ const DriverAvailability: React.FC = () => {
         "[DriverAvailability] Rejecting pending request:",
         request.rideId,
       );
+
+      // 🚀 NUEVO: Limpiar temporizador antes de rechazar
+      clearRequestTimer(request.id);
+
       // For now, just remove from local state
       // In a real implementation, you might want to call a reject endpoint
       setPendingRequests((prev) =>
@@ -411,6 +534,124 @@ const DriverAvailability: React.FC = () => {
 
     handleStatusChange();
   }, [driverState.status]); // Only depend on driverState.status
+
+  // 🚀 NUEVO: WebSocket listener para ride:requested (reemplaza polling)
+  useEffect(() => {
+    const handleRideRequested = async (data: any) => {
+      console.log(
+        "[DriverAvailability] 🚨 WebSocket: ride:requested received",
+        data,
+      );
+
+      // Solo procesar si el conductor está online
+      if (driverState.status !== "online") {
+        console.log(
+          "[DriverAvailability] ❌ Ignoring ride request - driver not online",
+        );
+        return;
+      }
+
+      try {
+        const driverLat = locationState.userLatitude;
+        const driverLng = locationState.userLongitude;
+
+        if (!driverLat || !driverLng) {
+          console.log(
+            "[DriverAvailability] ❌ Ignoring ride request - no driver location",
+          );
+          return;
+        }
+
+        // Calcular distancia desde la ubicación del conductor al origen del viaje
+        const distance = calculateDistance(
+          driverLat,
+          driverLng,
+          data.originLat || data.origin?.latitude,
+          data.originLng || data.origin?.longitude,
+        );
+
+        console.log(
+          `[DriverAvailability] 📏 Distance to ride: ${distance.toFixed(2)}km (max: ${MAX_DISTANCE_KM}km)`,
+        );
+
+        // Solo mostrar solicitudes dentro del radio de 5km
+        if (distance <= MAX_DISTANCE_KM) {
+          console.log(
+            "[DriverAvailability] ✅ Ride within range, fetching pending requests...",
+          );
+
+          // Fetch único para obtener detalles completos de las solicitudes
+          const response = await driverTransportService.getPendingRequests(
+            driverLat,
+            driverLng,
+          );
+
+          if (response?.success && response?.data) {
+            const requests = response.data;
+            console.log(
+              `[DriverAvailability] 📋 Found ${requests.length} pending requests`,
+            );
+
+            setPendingRequests(requests);
+            setIsPolling(true); // Mantener compatibilidad con UI existente
+
+            // 🚀 NUEVO: Crear temporizadores para cada solicitud
+            requests.forEach((request: PendingRequest) => {
+              if (request.expiresAt) {
+                const expiresAt = new Date(request.expiresAt);
+                createRequestTimer(request.id, expiresAt);
+              } else {
+                // Si no tiene expiresAt, asumir 2 minutos desde ahora
+                const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
+                createRequestTimer(request.id, expiresAt);
+                console.log(
+                  `[DriverAvailability] No expiresAt for request ${request.id}, setting 2min timer`,
+                );
+              }
+            });
+
+            // Feedback al conductor
+            showSuccess(
+              "Nueva solicitud",
+              "Tienes una nueva solicitud de viaje cercana",
+            );
+
+            // Feedback háptico (si está disponible)
+            try {
+              const { Haptics } = require("expo-haptics");
+              Haptics.notificationAsync(
+                Haptics.NotificationFeedbackType.Success,
+              );
+            } catch (error) {
+              // Haptics no disponible, ignorar
+            }
+          } else {
+            console.log("[DriverAvailability] ❌ No pending requests found");
+          }
+        } else {
+          console.log("[DriverAvailability] ❌ Ride too far, ignoring");
+        }
+      } catch (error) {
+        console.error(
+          "[DriverAvailability] ❌ Error processing ride request:",
+          error,
+        );
+        showError("Error", "No se pudo procesar la solicitud de viaje");
+      }
+    };
+
+    // Suscribirse al evento ride:requested
+    websocketEventManager.on("ride:requested", handleRideRequested);
+
+    // Cleanup al desmontar
+    return () => {
+      websocketEventManager.off("ride:requested", handleRideRequested);
+    };
+  }, [
+    driverState.status,
+    locationState.userLatitude,
+    locationState.userLongitude,
+  ]);
 
   // Function to ensure user is registered as driver
   const ensureDriverRegistration = async () => {
@@ -549,7 +790,7 @@ const DriverAvailability: React.FC = () => {
         showSuccess("¡Solicitud simulada!", "Nueva solicitud de viaje creada");
 
         // Navigate to incoming request step
-        startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD);
+        startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD);
       } else {
         throw new Error("Respuesta inválida del servidor");
       }
@@ -616,6 +857,23 @@ const DriverAvailability: React.FC = () => {
     <View className="flex-1">
       <FlowHeader title="Disponibilidad del Conductor" />
 
+      {/* 🚀 NUEVO: Indicador de estado en tiempo real */}
+      <View className="bg-green-50 border border-green-200 rounded-lg p-3 mx-6 mb-4">
+        <View className="flex-row items-center justify-between">
+          <View className="flex-row items-center">
+            <View className="w-2 h-2 bg-green-500 rounded-full mr-2"></View>
+            <Text className="font-JakartaMedium text-sm text-green-800">
+              🟢 Conectado en tiempo real
+            </Text>
+          </View>
+          <Text className="font-Jakarta text-xs text-green-600">
+            {pendingRequests.length} solicitud
+            {pendingRequests.length !== 1 ? "es" : ""} activa
+            {pendingRequests.length !== 1 ? "s" : ""}
+          </Text>
+        </View>
+      </View>
+
       <View className="flex-1 p-6">
         {/* Estado actual */}
         <View className="bg-white rounded-lg p-4 mb-6 shadow-sm">
@@ -676,7 +934,7 @@ const DriverAvailability: React.FC = () => {
 
             <FlatList
               data={pendingRequests}
-              keyExtractor={(item) => item.rideId.toString()}
+              keyExtractor={(item) => `request_${item.id}_${forceUpdate}`} // 🚀 NUEVO: Incluir forceUpdate para re-render
               renderItem={({ item }) => (
                 <View className="bg-gray-50 rounded-lg p-3 mb-3 border border-orange-200">
                   {/* Header con pasajero y tiempo */}
@@ -697,9 +955,25 @@ const DriverAvailability: React.FC = () => {
                         📞 {item.passenger.phone}
                       </Text>
                     </View>
-                    <View className="bg-orange-100 px-2 py-1 rounded">
-                      <Text className="font-Jakarta text-xs text-orange-800">
-                        ⏰ {item.timeRemainingSeconds}s
+                    <View
+                      className={`px-2 py-1 rounded ${
+                        getTimeRemaining(item.id) <= 30
+                          ? "bg-red-100"
+                          : getTimeRemaining(item.id) <= 60
+                            ? "bg-orange-100"
+                            : "bg-green-100"
+                      }`}
+                    >
+                      <Text
+                        className={`font-Jakarta text-xs ${
+                          getTimeRemaining(item.id) <= 30
+                            ? "text-red-800"
+                            : getTimeRemaining(item.id) <= 60
+                              ? "text-orange-800"
+                              : "text-green-800"
+                        }`}
+                      >
+                        ⏰ {formatTimeRemaining(getTimeRemaining(item.id))}
                       </Text>
                     </View>
                   </View>
@@ -763,6 +1037,16 @@ const DriverAvailability: React.FC = () => {
               )}
               showsVerticalScrollIndicator={false}
               nestedScrollEnabled={true}
+              // 🚀 NUEVO: Optimizaciones de performance
+              initialNumToRender={5}
+              maxToRenderPerBatch={3}
+              windowSize={10}
+              removeClippedSubviews={true}
+              getItemLayout={(data, index) => ({
+                length: 180, // Altura aproximada de cada item
+                offset: 180 * index,
+                index,
+              })}
             />
           </View>
         )}
@@ -842,3 +1126,25 @@ const DriverAvailability: React.FC = () => {
 };
 
 export default DriverAvailability;
+
+/**
+ * Calcular distancia entre dos puntos usando fórmula de Haversine
+ */
+const calculateDistance = (
+  lat1: number,
+  lng1: number,
+  lat2: number,
+  lng2: number,
+): number => {
+  const R = 6371; // Radio de la Tierra en km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLng = ((lng2 - lng1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};

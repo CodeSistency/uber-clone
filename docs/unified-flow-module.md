@@ -37,6 +37,7 @@ app/(root)/
 ## 🎯 Servicios Implementados
 
 ### 1. **Transporte** (`CLIENTE_TRANSPORT_*`)
+
 - ✅ Definición de viaje
 - ✅ Selección de vehículo (Carro/Moto)
 - 🔄 Elección de conductor
@@ -44,12 +45,14 @@ app/(root)/
 - 🔄 Durante y finalización
 
 ### 2. **Delivery** (`CLIENTE_DELIVERY_*`)
+
 - ✅ Búsqueda de negocio
 - 🔄 Armado del pedido
 - 🔄 Checkout y confirmación
 - 🔄 Seguimiento del delivery
 
 ### 3. **Mandado** (`CLIENTE_MANDADO_*`)
+
 - ✅ Detalles del mandado
 - 🔄 Precio y pago
 - 🔄 Buscando conductor
@@ -57,6 +60,7 @@ app/(root)/
 - 🔄 Finalización
 
 ### 4. **Envío de Paquete** (`CLIENTE_ENVIO_*`)
+
 - 🔄 Detalles del envío
 - 🔄 Cálculo de precio
 - 🔄 Seguimiento del paquete
@@ -67,25 +71,25 @@ app/(root)/
 ### Store (Zustand)
 
 ```typescript
-import { useUnifiedFlowStore } from '@/store/unified-flow/unifiedFlow';
+import { useUnifiedFlowStore } from "@/store/unified-flow/unifiedFlow";
 
 const {
-  service,           // Servicio actual
-  step,             // Paso actual
-  isActive,         // Estado del flujo
-  startService,     // Iniciar servicio específico
-  next,             // Siguiente paso
-  back,             // Paso anterior
-  goTo,             // Ir a paso específico
-  stop,             // Detener flujo
-  reset             // Reiniciar flujo
+  service, // Servicio actual
+  step, // Paso actual
+  isActive, // Estado del flujo
+  startService, // Iniciar servicio específico
+  next, // Siguiente paso
+  back, // Paso anterior
+  goTo, // Ir a paso específico
+  stop, // Detener flujo
+  reset, // Reiniciar flujo
 } = useUnifiedFlowStore();
 ```
 
 ### Hook Personalizado
 
 ```typescript
-import { useUnifiedFlow } from '@/hooks/useUnifiedFlow';
+import { useUnifiedFlow } from "@/hooks/useUnifiedFlow";
 
 const flow = useUnifiedFlow();
 // Retorna todas las propiedades y acciones del store
@@ -106,6 +110,7 @@ export default function UnifiedFlowDemo() {
 ### Navegación desde Drawer
 
 Ya está configurado en `DrawerContent.tsx`:
+
 - **Título**: "Flujo Unificado Demo"
 - **Ícono**: 🔄
 - **Ruta**: `/(root)/unified-flow-demo`
@@ -113,12 +118,14 @@ Ya está configurado en `DrawerContent.tsx`:
 ## 🎨 Características de UI/UX
 
 ### BottomSheet Adaptativo
+
 - **Alturas dinámicas** por paso
 - **Drag habilitado/deshabilitado** según contexto
 - **Animaciones suaves** entre transiciones
 - **Responsive** a diferentes tamaños de pantalla
 
 ### Estados de Interacción
+
 - **Map Interaction**: `none`, `pan_to_confirm`, `follow_driver`, `follow_route`
 - **Transiciones**: `fade`, `slide`, `none`
 - **Snap Points**: Puntos de anclaje personalizables
@@ -138,26 +145,31 @@ Servicio Específico:
 ## 📱 Componentes Implementados
 
 ### ServiceSelection
+
 - **Función**: Pantalla inicial de selección de servicios
 - **Características**: Grid de servicios con iconos y descripciones
 - **Interacción**: Touch para seleccionar servicio
 
 ### TransportDefinition
+
 - **Función**: Definir origen y destino del viaje
 - **Características**: Campos de origen/destino, sugerencias
 - **Interacción**: Touch para seleccionar ubicaciones
 
 ### TransportVehicleSelection
+
 - **Función**: Seleccionar tipo de vehículo
 - **Características**: Tabs Carro/Moto, lista de opciones con precios
 - **Interacción**: Selección de vehículo y continuación
 
 ### DeliveryBusinessSearch
+
 - **Función**: Buscar y seleccionar restaurante
 - **Características**: Barra de búsqueda, categorías, lista de negocios
 - **Interacción**: Búsqueda, filtrado por categoría
 
 ### MandadoDetails
+
 - **Función**: Especificar detalles del mandado
 - **Características**: Formulario completo, tipos de producto
 - **Interacción**: Formulario con validación
@@ -165,6 +177,7 @@ Servicio Específico:
 ## 🔮 Próximos Pasos
 
 ### Componentes Pendientes
+
 - [ ] Elección de conductor (Transporte)
 - [ ] Gestión de confirmación (Transporte)
 - [ ] Durante y finalización (Transporte)
@@ -181,6 +194,7 @@ Servicio Específico:
 - [ ] Confirmación de entrega (Envío)
 
 ### Mejoras Futuras
+
 - [ ] Integración con Google Places API
 - [ ] Sistema de pagos integrado
 - [ ] Notificaciones push

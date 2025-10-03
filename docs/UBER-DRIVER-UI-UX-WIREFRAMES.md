@@ -7,6 +7,7 @@
 ## 🗺️ **1. Pantalla Principal - Dashboard del Conductor**
 
 ### **Estado: Offline (Colapsado)**
+
 ```
 ┌─────────────────────────────────────┐
 │ ☰  12 RIDES | $144.50 Today   👤  │ ← Header con estadísticas
@@ -37,6 +38,7 @@
 ```
 
 ### **Estado: Online (Parcialmente Expandido)**
+
 ```
 ┌─────────────────────────────────────┐
 │ ☰  12 RIDES | $144.50 Today   👤  │
@@ -63,6 +65,7 @@
 ```
 
 ### **Estado: Expandido (Drawer Completo)**
+
 ```
 ┌─────────────────────────────────────┐
 │ ☰  12 RIDES | $144.50 Today   👤  │
@@ -97,6 +100,7 @@
 ## 🎯 **1.1 Iconos Flotantes - Acceso Rápido**
 
 ### **Iconos en la Vista Principal**
+
 Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom sheets con opciones específicas:
 
 ```
@@ -105,6 +109,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **🚨 Bottom Sheet de Seguridad**
+
 ```
 ┌─────────────────────────────────────┐
 │ ← Seguridad                    ✕   │
@@ -133,6 +138,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **💰 Bottom Sheet de Ganancias**
+
 ```
 ┌─────────────────────────────────────┐
 │ ← Ganancias                   ✕   │
@@ -161,6 +167,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **⭐ Bottom Sheet de Calificaciones**
+
 ```
 ┌─────────────────────────────────────┐
 │ ← Calificaciones              ✕   │
@@ -189,6 +196,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **⚙️ Bottom Sheet de Configuración**
+
 ```
 ┌─────────────────────────────────────┐
 │ ← Configuración               ✕   │
@@ -217,6 +225,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **📍 Bottom Sheet de Destino**
+
 ```
 ┌─────────────────────────────────────┐
 │ ← Modo Destino                 ✕   │
@@ -246,6 +255,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **🎯 Bottom Sheet de Promociones**
+
 ```
 ┌─────────────────────────────────────┐
 │ ← Promociones                 ✕   │
@@ -447,6 +457,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ## 🔄 **6. Flujos de Navegación con Iconos Flotantes**
 
 ### **Flujo de Acceso Rápido**
+
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │ Vista       │───▶│ Click Icono │───▶│ Bottom      │
@@ -463,6 +474,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ### **Ejemplos de Flujos Específicos**
 
 #### **Flujo de Seguridad**
+
 ```
 🚨 Icono Seguridad → Bottom Sheet → 🆘 Emergencia → Pantalla Emergencia
                    → 📍 Compartir → Modal Compartir
@@ -471,6 +483,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 #### **Flujo de Ganancias**
+
 ```
 💰 Icono Ganancias → Bottom Sheet → 📊 Ver Detalles → Dashboard Ganancias
                    → 💳 Pago → Modal Pago Instantáneo
@@ -479,6 +492,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 #### **Flujo de Destino**
+
 ```
 📍 Icono Destino → Bottom Sheet → 🏠 Casa → Activar Filtro Casa
                  → 🏢 Trabajo → Activar Filtro Trabajo
@@ -490,6 +504,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ## 🔄 **7. Flujos de Navegación Principales**
 
 ### **Flujo Principal del Conductor**
+
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │   Login     │───▶│  Dashboard  │───▶│   Online    │
@@ -510,6 +525,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **Flujo de Emergencia**
+
 ```
 ┌─────────────┐    ┌─────────────┐    ┌─────────────┐
 │ Viaje       │───▶│ Botón       │───▶│ Servicios   │
@@ -528,6 +544,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ## 🎨 **7. Sistema de Colores y Estados**
 
 ### **Paleta de Colores**
+
 ```
 🟡 Amarillo (#FFD700) - Estados activos, botones principales
 🔴 Rojo (#FF4444)     - Emergencias, errores, offline
@@ -538,6 +555,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ```
 
 ### **Estados Visuales**
+
 ```
 🟢 Online    - Punto verde + "En linea"
 🔴 Offline   - Punto rojo + "Fuera de linea"
@@ -550,6 +568,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ## 📱 **8. Responsive Design**
 
 ### **Breakpoints**
+
 ```
 📱 Mobile (320px - 768px)
    - Navegación inferior
@@ -572,6 +591,7 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ## 🎯 **9. Principios de UX**
 
 ### **Usabilidad**
+
 - **Acceso rápido** a funciones críticas mediante iconos flotantes
 - **Bottom sheets** para opciones sin salir del contexto
 - **Feedback visual** inmediato en todas las interacciones
@@ -580,12 +600,14 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 - **Navegación contextual** desde la vista principal
 
 ### **Accesibilidad**
+
 - **Contraste alto** para legibilidad
 - **Tamaños de toque** apropiados (44px mínimo)
 - **Navegación por teclado** en desktop
 - **Lector de pantalla** compatible
 
 ### **Performance**
+
 - **Carga rápida** de pantallas principales
 - **Animaciones suaves** (60fps)
 - **Caché inteligente** de datos
@@ -596,24 +618,28 @@ Los iconos flotantes aparecen en la esquina superior del mapa y abren bottom she
 ## 🚀 **10. Próximos Pasos de Implementación**
 
 ### **Fase 1: Iconos Flotantes**
+
 1. **Crear componente `FloatingIcons`** con los 6 iconos principales
 2. **Implementar bottom sheets** para cada categoría
 3. **Configurar navegación** desde bottom sheets a pantallas completas
 4. **Añadir animaciones** de entrada/salida de bottom sheets
 
 ### **Fase 2: Componentes Base**
+
 1. **Crear componentes base** siguiendo los wireframes
 2. **Implementar navegación** entre pantallas
 3. **Integrar stores** con componentes UI
 4. **Añadir animaciones** y transiciones
 
 ### **Fase 3: Testing y Optimización**
+
 1. **Testing de usabilidad** con usuarios reales
 2. **Optimización de performance** de bottom sheets
 3. **Refinamiento de UX** basado en feedback
 4. **Documentación de componentes**
 
 ### **Componentes a Crear**
+
 ```typescript
 // Componentes principales
 <FloatingIcons />           // Iconos flotantes en el mapa

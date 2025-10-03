@@ -10,7 +10,7 @@ import {
 import { deliveryClient } from "@/app/services/flowClientService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../FlowHeader";
 
@@ -112,7 +112,7 @@ const OrderBuilder: React.FC = () => {
             );
             const orderId = res?.data?.orderId || res?.orderId;
             if (orderId) setOrderId(orderId);
-            goTo(FLOW_STEPS.CUSTOMER_DELIVERY.CHECKOUT_CONFIRMACION);
+            goTo(FLOW_STEPS.CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION);
           }}
           className={`rounded-xl p-4 ${total > 0 ? "bg-primary-500" : "bg-gray-300"}`}
         >

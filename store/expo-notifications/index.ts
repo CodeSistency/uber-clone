@@ -1,5 +1,5 @@
 // Exportar el store principal
-export { useExpoNotificationStore } from './expoNotificationStore';
+export { useExpoNotificationStore } from "./expoNotificationStore";
 
 // Exportar selectores optimizados
 export {
@@ -13,7 +13,7 @@ export {
   useNotificationSummary,
   useNotificationStatus,
   useNotificationActions,
-} from './expoNotificationStore';
+} from "./expoNotificationStore";
 
 // Re-exportar tipos para conveniencia
 export type {
@@ -22,6 +22,4 @@ export type {
   ExpoNotificationPreferences,
   ExpoPushToken,
   ExpoNotificationPermissions,
-} from '../../types/expo-notifications';
-
-
+} from "../../types/expo-notifications";

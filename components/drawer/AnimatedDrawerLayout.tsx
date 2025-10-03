@@ -13,7 +13,10 @@ import {
 } from "./useAnimatedDrawerLayout";
 
 interface AnimatedDrawerLayoutProps
-  extends Omit<UseAnimatedDrawerLayoutParams, "openTranslateX" | "hiddenDrawerOffset"> {
+  extends Omit<
+    UseAnimatedDrawerLayoutParams,
+    "openTranslateX" | "hiddenDrawerOffset"
+  > {
   width: number;
   screenWidth: number;
   renderDrawer: (params: DrawerRenderParams) => ReactNode;
@@ -53,16 +56,25 @@ export const AnimatedDrawerLayout: React.FC<AnimatedDrawerLayoutProps> = (
     ...hookParams
   } = props;
 
-  const openTranslateX = useMemo(() => width + overflowMargin, [width, overflowMargin]);
+  const openTranslateX = useMemo(
+    () => width + overflowMargin,
+    [width, overflowMargin],
+  );
   const hiddenDrawerOffset = useMemo(() => -width * 0.45, [width]);
 
-  const { sharedValues, isOpen, openDrawer, closeDrawer, toggleDrawer, setOpenState } =
-    useAnimatedDrawerLayout({
-      ...hookParams,
-      openTranslateX,
-      hiddenDrawerOffset,
-      enableSecondaryLayer,
-    });
+  const {
+    sharedValues,
+    isOpen,
+    openDrawer,
+    closeDrawer,
+    toggleDrawer,
+    setOpenState,
+  } = useAnimatedDrawerLayout({
+    ...hookParams,
+    openTranslateX,
+    hiddenDrawerOffset,
+    enableSecondaryLayer,
+  });
 
   const drawerAnimatedStyle = useAnimatedStyle(() => ({
     opacity: sharedValues.drawerOpacity.value,
@@ -86,7 +98,12 @@ export const AnimatedDrawerLayout: React.FC<AnimatedDrawerLayoutProps> = (
   }));
 
   const backdropAnimatedStyle = useAnimatedStyle(() => ({
-    opacity: interpolate(sharedValues.progress.value, [0, 1], [0, 1], Extrapolate.CLAMP),
+    opacity: interpolate(
+      sharedValues.progress.value,
+      [0, 1],
+      [0, 1],
+      Extrapolate.CLAMP,
+    ),
   }));
 
   const renderParams: DrawerRenderParams = {
@@ -99,8 +116,11 @@ export const AnimatedDrawerLayout: React.FC<AnimatedDrawerLayoutProps> = (
 
   return (
     <View style={styles.container}>
-      <Animated.View pointerEvents={isOpen ? "auto" : "none"} style={[styles.backdrop, backdropAnimatedStyle]}>
-      {renderBackdrop ? renderBackdrop(renderParams) : null}
+      <Animated.View
+        pointerEvents={isOpen ? "auto" : "none"}
+        style={[styles.backdrop, backdropAnimatedStyle]}
+      >
+        {renderBackdrop ? renderBackdrop(renderParams) : null}
       </Animated.View>
 
       <Animated.View
@@ -113,13 +133,23 @@ export const AnimatedDrawerLayout: React.FC<AnimatedDrawerLayoutProps> = (
       {enableSecondaryLayer && (
         <Animated.View
           pointerEvents="none"
-          style={[styles.secondaryLayer, secondaryLayerStyle, secondaryLayerAnimatedStyle]}
+          style={[
+            styles.secondaryLayer,
+            secondaryLayerStyle,
+            secondaryLayerAnimatedStyle,
+          ]}
         >
           <View style={styles.secondaryInner} />
         </Animated.View>
       )}
 
-      <Animated.View style={[styles.contentContainer, contentContainerStyle, contentAnimatedStyle]}>
+      <Animated.View
+        style={[
+          styles.contentContainer,
+          contentContainerStyle,
+          contentAnimatedStyle,
+        ]}
+      >
         {renderContent(renderParams)}
       </Animated.View>
     </View>
@@ -177,4 +207,3 @@ const styles = StyleSheet.create({
 });
 
 export default AnimatedDrawerLayout;
-

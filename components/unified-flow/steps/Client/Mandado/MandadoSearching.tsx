@@ -3,7 +3,7 @@ import { View, Text } from "react-native";
 
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -17,7 +17,7 @@ const MandadoSearching: React.FC = () => {
         "Conductor asignado",
         "Se encontró un conductor para tu mandado",
       );
-      goTo(FLOW_STEPS.CUSTOMER_MANDADO.COMUNICACION_CONFIRMACION);
+      goTo(FLOW_STEPS.CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION);
     }, 1800);
     return () => clearTimeout(t);
   }, []);

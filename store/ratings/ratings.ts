@@ -16,7 +16,7 @@ export interface PassengerComment {
   rating: number;
   comment: string;
   timestamp: Date;
-  category: 'excellent' | 'good' | 'average' | 'poor' | 'terrible';
+  category: "excellent" | "good" | "average" | "poor" | "terrible";
   tags: string[];
 }
 
@@ -35,11 +35,16 @@ export interface PerformanceMetrics {
 
 export interface SupportTicket {
   id: string;
-  type: 'ride_issue' | 'payment_issue' | 'app_issue' | 'safety_concern' | 'general';
+  type:
+    | "ride_issue"
+    | "payment_issue"
+    | "app_issue"
+    | "safety_concern"
+    | "general";
   subject: string;
   description: string;
-  status: 'open' | 'in_progress' | 'resolved' | 'closed';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  status: "open" | "in_progress" | "resolved" | "closed";
+  priority: "low" | "medium" | "high" | "urgent";
   createdAt: Date;
   updatedAt: Date;
   rideId?: string;
@@ -60,7 +65,7 @@ export interface HelpArticle {
   id: string;
   title: string;
   content: string;
-  category: 'earnings' | 'safety' | 'app' | 'payments' | 'rides' | 'account';
+  category: "earnings" | "safety" | "app" | "payments" | "rides" | "account";
   tags: string[];
   lastUpdated: Date;
   helpful: number;
@@ -77,7 +82,7 @@ interface RatingsStore {
   performanceMetrics: PerformanceMetrics | null;
   supportTickets: SupportTicket[];
   helpArticles: HelpArticle[];
-  
+
   // Loading and Error States
   isLoading: boolean;
   error: string | null;
@@ -87,18 +92,26 @@ interface RatingsStore {
   fetchRatingBreakdown: () => Promise<void>;
   fetchRecentComments: (limit?: number) => Promise<void>;
   fetchPerformanceMetrics: () => Promise<void>;
-  
+
   // Support Functions
-  createSupportTicket: (ticket: Omit<SupportTicket, 'id' | 'createdAt' | 'updatedAt' | 'responses'>) => Promise<void>;
+  createSupportTicket: (
+    ticket: Omit<SupportTicket, "id" | "createdAt" | "updatedAt" | "responses">,
+  ) => Promise<void>;
   fetchSupportTickets: () => Promise<void>;
-  updateSupportTicket: (ticketId: string, updates: Partial<SupportTicket>) => Promise<void>;
-  addSupportResponse: (ticketId: string, response: Omit<SupportResponse, 'id' | 'timestamp'>) => Promise<void>;
-  
+  updateSupportTicket: (
+    ticketId: string,
+    updates: Partial<SupportTicket>,
+  ) => Promise<void>;
+  addSupportResponse: (
+    ticketId: string,
+    response: Omit<SupportResponse, "id" | "timestamp">,
+  ) => Promise<void>;
+
   // Help Functions
   searchHelpArticles: (query: string) => Promise<HelpArticle[]>;
   fetchHelpArticles: (category?: string) => Promise<void>;
   rateHelpArticle: (articleId: string, helpful: boolean) => Promise<void>;
-  
+
   // Utility Functions
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -120,16 +133,16 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   performanceMetrics: null,
   supportTickets: [],
   helpArticles: [],
-  
+
   // Loading and Error States
   isLoading: false,
   error: null,
 
   // Actions
   fetchRatings: async () => {
-    console.log('[RatingsStore] Fetching ratings');
+    console.log("[RatingsStore] Fetching ratings");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -145,19 +158,19 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
         totalRatings: mockRatings.totalRatings,
       }));
 
-      console.log('[RatingsStore] Ratings fetched successfully');
+      console.log("[RatingsStore] Ratings fetched successfully");
     } catch (error) {
-      console.error('[RatingsStore] Error fetching ratings:', error);
-      state.setError((error as Error).message || 'Failed to fetch ratings');
+      console.error("[RatingsStore] Error fetching ratings:", error);
+      state.setError((error as Error).message || "Failed to fetch ratings");
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchRatingBreakdown: async () => {
-    console.log('[RatingsStore] Fetching rating breakdown');
+    console.log("[RatingsStore] Fetching rating breakdown");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -173,17 +186,19 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ ratingBreakdown: mockBreakdown }));
     } catch (error) {
-      console.error('[RatingsStore] Error fetching rating breakdown:', error);
-      state.setError((error as Error).message || 'Failed to fetch rating breakdown');
+      console.error("[RatingsStore] Error fetching rating breakdown:", error);
+      state.setError(
+        (error as Error).message || "Failed to fetch rating breakdown",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchRecentComments: async (limit = 10) => {
-    console.log('[RatingsStore] Fetching recent comments, limit:', limit);
+    console.log("[RatingsStore] Fetching recent comments, limit:", limit);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -191,50 +206,52 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockComments: PassengerComment[] = [
         {
-          id: 'comment_001',
-          rideId: 'ride_001',
-          passengerName: 'John D.',
+          id: "comment_001",
+          rideId: "ride_001",
+          passengerName: "John D.",
           rating: 5,
-          comment: 'Excellent driver! Very professional and friendly.',
+          comment: "Excellent driver! Very professional and friendly.",
           timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          category: 'excellent',
-          tags: ['professional', 'friendly', 'on-time'],
+          category: "excellent",
+          tags: ["professional", "friendly", "on-time"],
         },
         {
-          id: 'comment_002',
-          rideId: 'ride_002',
-          passengerName: 'Sarah M.',
+          id: "comment_002",
+          rideId: "ride_002",
+          passengerName: "Sarah M.",
           rating: 5,
-          comment: 'Great ride, clean car and safe driving.',
+          comment: "Great ride, clean car and safe driving.",
           timestamp: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-          category: 'excellent',
-          tags: ['clean', 'safe', 'comfortable'],
+          category: "excellent",
+          tags: ["clean", "safe", "comfortable"],
         },
         {
-          id: 'comment_003',
-          rideId: 'ride_003',
-          passengerName: 'Mike R.',
+          id: "comment_003",
+          rideId: "ride_003",
+          passengerName: "Mike R.",
           rating: 4,
-          comment: 'Good driver, arrived on time.',
+          comment: "Good driver, arrived on time.",
           timestamp: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
-          category: 'good',
-          tags: ['on-time', 'reliable'],
+          category: "good",
+          tags: ["on-time", "reliable"],
         },
       ];
 
       set(() => ({ recentComments: mockComments.slice(0, limit) }));
     } catch (error) {
-      console.error('[RatingsStore] Error fetching recent comments:', error);
-      state.setError((error as Error).message || 'Failed to fetch recent comments');
+      console.error("[RatingsStore] Error fetching recent comments:", error);
+      state.setError(
+        (error as Error).message || "Failed to fetch recent comments",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchPerformanceMetrics: async () => {
-    console.log('[RatingsStore] Fetching performance metrics');
+    console.log("[RatingsStore] Fetching performance metrics");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -255,17 +272,24 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ performanceMetrics: mockMetrics }));
     } catch (error) {
-      console.error('[RatingsStore] Error fetching performance metrics:', error);
-      state.setError((error as Error).message || 'Failed to fetch performance metrics');
+      console.error(
+        "[RatingsStore] Error fetching performance metrics:",
+        error,
+      );
+      state.setError(
+        (error as Error).message || "Failed to fetch performance metrics",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
-  createSupportTicket: async (ticket: Omit<SupportTicket, 'id' | 'createdAt' | 'updatedAt' | 'responses'>) => {
-    console.log('[RatingsStore] Creating support ticket:', ticket);
+  createSupportTicket: async (
+    ticket: Omit<SupportTicket, "id" | "createdAt" | "updatedAt" | "responses">,
+  ) => {
+    console.log("[RatingsStore] Creating support ticket:", ticket);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -284,19 +308,21 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       }));
 
       // TODO: Send to backend
-      console.log('[RatingsStore] Support ticket created:', ticketId);
+      console.log("[RatingsStore] Support ticket created:", ticketId);
     } catch (error) {
-      console.error('[RatingsStore] Error creating support ticket:', error);
-      state.setError((error as Error).message || 'Failed to create support ticket');
+      console.error("[RatingsStore] Error creating support ticket:", error);
+      state.setError(
+        (error as Error).message || "Failed to create support ticket",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchSupportTickets: async () => {
-    console.log('[RatingsStore] Fetching support tickets');
+    console.log("[RatingsStore] Fetching support tickets");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -304,32 +330,35 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockTickets: SupportTicket[] = [
         {
-          id: 'ticket_001',
-          type: 'ride_issue',
-          subject: 'Passenger was rude',
-          description: 'The passenger was very rude and made inappropriate comments during the ride.',
-          status: 'open',
-          priority: 'medium',
+          id: "ticket_001",
+          type: "ride_issue",
+          subject: "Passenger was rude",
+          description:
+            "The passenger was very rude and made inappropriate comments during the ride.",
+          status: "open",
+          priority: "medium",
           createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
           updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-          rideId: 'ride_001',
+          rideId: "ride_001",
           responses: [],
         },
         {
-          id: 'ticket_002',
-          type: 'payment_issue',
-          subject: 'Payment not received',
-          description: 'I completed a ride but the payment is not showing in my earnings.',
-          status: 'in_progress',
-          priority: 'high',
+          id: "ticket_002",
+          type: "payment_issue",
+          subject: "Payment not received",
+          description:
+            "I completed a ride but the payment is not showing in my earnings.",
+          status: "in_progress",
+          priority: "high",
           createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
           updatedAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-          rideId: 'ride_002',
+          rideId: "ride_002",
           responses: [
             {
-              id: 'response_001',
-              ticketId: 'ticket_002',
-              message: 'We are looking into this payment issue and will resolve it within 24 hours.',
+              id: "response_001",
+              ticketId: "ticket_002",
+              message:
+                "We are looking into this payment issue and will resolve it within 24 hours.",
               isFromSupport: true,
               timestamp: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
             },
@@ -339,43 +368,53 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ supportTickets: mockTickets }));
     } catch (error) {
-      console.error('[RatingsStore] Error fetching support tickets:', error);
-      state.setError((error as Error).message || 'Failed to fetch support tickets');
+      console.error("[RatingsStore] Error fetching support tickets:", error);
+      state.setError(
+        (error as Error).message || "Failed to fetch support tickets",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
-  updateSupportTicket: async (ticketId: string, updates: Partial<SupportTicket>) => {
-    console.log('[RatingsStore] Updating support ticket:', ticketId, updates);
+  updateSupportTicket: async (
+    ticketId: string,
+    updates: Partial<SupportTicket>,
+  ) => {
+    console.log("[RatingsStore] Updating support ticket:", ticketId, updates);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        supportTickets: state.supportTickets.map(ticket =>
+        supportTickets: state.supportTickets.map((ticket) =>
           ticket.id === ticketId
             ? { ...ticket, ...updates, updatedAt: new Date() }
-            : ticket
+            : ticket,
         ),
       }));
 
       // TODO: Update in backend
-      console.log('[RatingsStore] Support ticket updated:', ticketId);
+      console.log("[RatingsStore] Support ticket updated:", ticketId);
     } catch (error) {
-      console.error('[RatingsStore] Error updating support ticket:', error);
-      state.setError((error as Error).message || 'Failed to update support ticket');
+      console.error("[RatingsStore] Error updating support ticket:", error);
+      state.setError(
+        (error as Error).message || "Failed to update support ticket",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
-  addSupportResponse: async (ticketId: string, response: Omit<SupportResponse, 'id' | 'timestamp'>) => {
-    console.log('[RatingsStore] Adding support response:', ticketId, response);
+  addSupportResponse: async (
+    ticketId: string,
+    response: Omit<SupportResponse, "id" | "timestamp">,
+  ) => {
+    console.log("[RatingsStore] Adding support response:", ticketId, response);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -388,31 +427,33 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       };
 
       set((state) => ({
-        supportTickets: state.supportTickets.map(ticket =>
+        supportTickets: state.supportTickets.map((ticket) =>
           ticket.id === ticketId
-            ? { 
-                ...ticket, 
+            ? {
+                ...ticket,
                 responses: [...ticket.responses, newResponse],
                 updatedAt: new Date(),
               }
-            : ticket
+            : ticket,
         ),
       }));
 
       // TODO: Send to backend
-      console.log('[RatingsStore] Support response added:', responseId);
+      console.log("[RatingsStore] Support response added:", responseId);
     } catch (error) {
-      console.error('[RatingsStore] Error adding support response:', error);
-      state.setError((error as Error).message || 'Failed to add support response');
+      console.error("[RatingsStore] Error adding support response:", error);
+      state.setError(
+        (error as Error).message || "Failed to add support response",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   searchHelpArticles: async (query: string) => {
-    console.log('[RatingsStore] Searching help articles:', query);
+    console.log("[RatingsStore] Searching help articles:", query);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -420,21 +461,23 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockArticles: HelpArticle[] = [
         {
-          id: 'article_001',
-          title: 'How to view your earnings',
-          content: 'You can view your earnings in the Earnings section of the app...',
-          category: 'earnings',
-          tags: ['earnings', 'payments', 'dashboard'],
+          id: "article_001",
+          title: "How to view your earnings",
+          content:
+            "You can view your earnings in the Earnings section of the app...",
+          category: "earnings",
+          tags: ["earnings", "payments", "dashboard"],
           lastUpdated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
           helpful: 45,
           notHelpful: 2,
         },
         {
-          id: 'article_002',
-          title: 'Safety features and emergency contacts',
-          content: 'The app includes several safety features to help keep you safe...',
-          category: 'safety',
-          tags: ['safety', 'emergency', 'contacts'],
+          id: "article_002",
+          title: "Safety features and emergency contacts",
+          content:
+            "The app includes several safety features to help keep you safe...",
+          category: "safety",
+          tags: ["safety", "emergency", "contacts"],
           lastUpdated: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
           helpful: 78,
           notHelpful: 5,
@@ -442,17 +485,22 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       ];
 
       // Filter articles based on query
-      const filteredArticles = mockArticles.filter(article =>
-        article.title.toLowerCase().includes(query.toLowerCase()) ||
-        article.content.toLowerCase().includes(query.toLowerCase()) ||
-        article.tags.some(tag => tag.toLowerCase().includes(query.toLowerCase()))
+      const filteredArticles = mockArticles.filter(
+        (article) =>
+          article.title.toLowerCase().includes(query.toLowerCase()) ||
+          article.content.toLowerCase().includes(query.toLowerCase()) ||
+          article.tags.some((tag) =>
+            tag.toLowerCase().includes(query.toLowerCase()),
+          ),
       );
 
       set(() => ({ helpArticles: filteredArticles }));
       return filteredArticles;
     } catch (error) {
-      console.error('[RatingsStore] Error searching help articles:', error);
-      state.setError((error as Error).message || 'Failed to search help articles');
+      console.error("[RatingsStore] Error searching help articles:", error);
+      state.setError(
+        (error as Error).message || "Failed to search help articles",
+      );
       return [];
     } finally {
       state.setLoading(false);
@@ -460,9 +508,9 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   fetchHelpArticles: async (category?: string) => {
-    console.log('[RatingsStore] Fetching help articles, category:', category);
+    console.log("[RatingsStore] Fetching help articles, category:", category);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -470,75 +518,81 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockArticles: HelpArticle[] = [
         {
-          id: 'article_001',
-          title: 'How to view your earnings',
-          content: 'You can view your earnings in the Earnings section of the app...',
-          category: 'earnings',
-          tags: ['earnings', 'payments', 'dashboard'],
+          id: "article_001",
+          title: "How to view your earnings",
+          content:
+            "You can view your earnings in the Earnings section of the app...",
+          category: "earnings",
+          tags: ["earnings", "payments", "dashboard"],
           lastUpdated: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000),
           helpful: 45,
           notHelpful: 2,
         },
         {
-          id: 'article_002',
-          title: 'Safety features and emergency contacts',
-          content: 'The app includes several safety features to help keep you safe...',
-          category: 'safety',
-          tags: ['safety', 'emergency', 'contacts'],
+          id: "article_002",
+          title: "Safety features and emergency contacts",
+          content:
+            "The app includes several safety features to help keep you safe...",
+          category: "safety",
+          tags: ["safety", "emergency", "contacts"],
           lastUpdated: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000),
           helpful: 78,
           notHelpful: 5,
         },
         {
-          id: 'article_003',
-          title: 'App troubleshooting guide',
-          content: 'If you are experiencing issues with the app...',
-          category: 'app',
-          tags: ['app', 'troubleshooting', 'technical'],
+          id: "article_003",
+          title: "App troubleshooting guide",
+          content: "If you are experiencing issues with the app...",
+          category: "app",
+          tags: ["app", "troubleshooting", "technical"],
           lastUpdated: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000),
           helpful: 32,
           notHelpful: 8,
         },
       ];
 
-      const filteredArticles = category 
-        ? mockArticles.filter(article => article.category === category)
+      const filteredArticles = category
+        ? mockArticles.filter((article) => article.category === category)
         : mockArticles;
 
       set(() => ({ helpArticles: filteredArticles }));
     } catch (error) {
-      console.error('[RatingsStore] Error fetching help articles:', error);
-      state.setError((error as Error).message || 'Failed to fetch help articles');
+      console.error("[RatingsStore] Error fetching help articles:", error);
+      state.setError(
+        (error as Error).message || "Failed to fetch help articles",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   rateHelpArticle: async (articleId: string, helpful: boolean) => {
-    console.log('[RatingsStore] Rating help article:', articleId, helpful);
+    console.log("[RatingsStore] Rating help article:", articleId, helpful);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        helpArticles: state.helpArticles.map(article =>
+        helpArticles: state.helpArticles.map((article) =>
           article.id === articleId
             ? {
                 ...article,
                 helpful: helpful ? article.helpful + 1 : article.helpful,
-                notHelpful: !helpful ? article.notHelpful + 1 : article.notHelpful,
+                notHelpful: !helpful
+                  ? article.notHelpful + 1
+                  : article.notHelpful,
               }
-            : article
+            : article,
         ),
       }));
 
       // TODO: Send rating to backend
-      console.log('[RatingsStore] Help article rated:', articleId, helpful);
+      console.log("[RatingsStore] Help article rated:", articleId, helpful);
     } catch (error) {
-      console.error('[RatingsStore] Error rating help article:', error);
-      state.setError((error as Error).message || 'Failed to rate help article');
+      console.error("[RatingsStore] Error rating help article:", error);
+      state.setError((error as Error).message || "Failed to rate help article");
     } finally {
       state.setLoading(false);
     }
@@ -546,17 +600,17 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
   // Utility Functions
   setLoading: (loading: boolean) => {
-    console.log('[RatingsStore] Setting loading:', loading);
+    console.log("[RatingsStore] Setting loading:", loading);
     set(() => ({ isLoading: loading }));
   },
 
   setError: (error: string | null) => {
-    console.log('[RatingsStore] Setting error:', error);
+    console.log("[RatingsStore] Setting error:", error);
     set(() => ({ error }));
   },
 
   clearError: () => {
-    console.log('[RatingsStore] Clearing error');
+    console.log("[RatingsStore] Clearing error");
     set(() => ({ error: null }));
   },
 }));

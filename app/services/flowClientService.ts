@@ -137,14 +137,46 @@ export const transportClient = {
     );
   },
 
+  // 🆕 NEW: Get price estimate
+  async getPriceEstimate(
+    tierId: number,
+    minutes: number,
+    miles: number,
+  ): Promise<{
+    tier: string;
+    baseFare: number;
+    perMinuteRate: number;
+    perMileRate: number;
+    estimatedMinutes: number;
+    estimatedMiles: number;
+    totalFare: number;
+  }> {
+    console.log(
+      "[TransportClient] Getting price estimate:",
+      { tierId, minutes, miles },
+    );
+
+    const queryParams = new URLSearchParams({
+      tierId: tierId.toString(),
+      minutes: Math.ceil(minutes).toString(),
+      miles: miles.toFixed(1),
+    });
+
+    console.log("[TransportClient] Calling fetchAPI with URL:", `ride/estimate?${queryParams.toString()}`);
+    const response = await fetchAPI(`ride/estimate?${queryParams.toString()}`);
+    console.log("[TransportClient] Price estimate response:", response);
+    // Backend returns { data: { data: {...} } } - need to access nested data
+    return response.data.data;
+  },
+
   // 🆕 NEW: Pay with multiple methods
   async payWithMultipleMethods(
     rideId: number,
     data: {
-      totalAmount: number;
+      totalAmount: number | string;
       payments: {
-        method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
-        amount: number;
+        method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash" | "wallet";
+        amount: number | string;
         bankCode?: string;
       }[];
     },

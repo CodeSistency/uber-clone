@@ -15,6 +15,7 @@
 ## 🏗️ **Análisis del Proyecto Completo**
 
 ### **Arquitectura General**
+
 ```
 Uber Clone NestJS/
 ├── 📁 src/
@@ -33,6 +34,7 @@ Uber Clone NestJS/
 ```
 
 ### **Tecnologías Principales**
+
 - **Framework**: NestJS + TypeScript
 - **Base de Datos**: PostgreSQL + Prisma ORM
 - **Autenticación**: Clerk JWT
@@ -46,6 +48,7 @@ Uber Clone NestJS/
 ## 🚕 **Módulo de Rides - Arquitectura**
 
 ### **Estructura de Archivos**
+
 ```
 src/rides/
 ├── 📄 rides.controller.ts      # 6 endpoints principales
@@ -60,6 +63,7 @@ src/rides/
 ```
 
 ### **Modelos de Base de Datos Relacionados**
+
 ```sql
 -- Tabla principal de Rides
 CREATE TABLE rides (
@@ -91,14 +95,17 @@ CREATE TABLE chat_messages (...);
 ## 🔗 **Endpoints de Rides**
 
 ### **1. POST `/api/ride/create` - Crear Ride**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Cuando un usuario solicita un ride inmediato
 - Después de obtener coordenadas GPS del usuario
 - Antes de mostrar estimación de tarifa al usuario
 
 #### **Flujo de uso:**
+
 ```mermaid
 graph TD
     A[Usuario abre app] --> B[Ingresa origen/destino]
@@ -109,6 +116,7 @@ graph TD
 ```
 
 #### **Request Body:**
+
 ```json
 {
   "origin_address": "123 Main St, New York, NY",
@@ -126,6 +134,7 @@ graph TD
 ```
 
 #### **Response (201):**
+
 ```json
 {
   "rideId": 1,
@@ -140,6 +149,7 @@ graph TD
 ```
 
 #### **Validaciones:**
+
 - ✅ `origin_address`: Requerido, string, max 255 chars
 - ✅ `destination_address`: Requerido, string, max 255 chars
 - ✅ `origin_latitude/longitude`: Requeridos, números decimales
@@ -147,6 +157,7 @@ graph TD
 - ✅ `user_id`: Requerido, formato Clerk ID
 
 #### **Funcionalidad Automática:**
+
 - 🔄 **Notificación a conductores**: Se ejecuta automáticamente
 - 🔄 **Logging**: Registra creación del ride
 - 🔄 **Relaciones**: Crea enlaces con usuario y tier
@@ -154,14 +165,17 @@ graph TD
 ---
 
 ### **2. GET `/api/ride/:id` - Historial de Rides**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Para mostrar historial de viajes al usuario
 - En pantalla de perfil/actividad del usuario
 - Para estadísticas de uso
 
 #### **Flujo de uso:**
+
 ```
 Usuario → Pantalla de perfil → GET /api/ride/user_123
                       ↓
@@ -171,11 +185,13 @@ Usuario → Pantalla de perfil → GET /api/ride/user_123
 ```
 
 #### **Request:**
+
 ```bash
 GET /api/ride/user_2abc123def456
 ```
 
 #### **Response (200):**
+
 ```json
 [
   {
@@ -203,6 +219,7 @@ GET /api/ride/user_2abc123def456
 ```
 
 #### **Incluye relaciones:**
+
 - ✅ Driver information
 - ✅ Ride tier details
 - ✅ User ratings
@@ -212,14 +229,17 @@ GET /api/ride/user_2abc123def456
 ---
 
 ### **3. POST `/api/ride/schedule` - Programar Ride Futuro**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Usuario quiere programar ride para más tarde
 - Reserva anticipada de viaje
 - Viajes programados recurrentes
 
 #### **Flujo de uso:**
+
 ```mermaid
 graph TD
     A[Usuario selecciona fecha/hora] --> B[Calcula tarifa estimada]
@@ -230,6 +250,7 @@ graph TD
 ```
 
 #### **Request Body:**
+
 ```json
 {
   "origin_address": "555 5th Ave, New York, NY",
@@ -246,6 +267,7 @@ graph TD
 ```
 
 #### **Response (201):**
+
 ```json
 {
   "rideId": 2,
@@ -258,6 +280,7 @@ graph TD
 ```
 
 #### **Características especiales:**
+
 - 🔄 `fare_price` inicia en 0 (se calcula después)
 - 🔄 `scheduled_for` debe ser fecha futura
 - 🔄 Sin asignación inmediata de conductor
@@ -266,14 +289,17 @@ graph TD
 ---
 
 ### **4. GET `/api/ride/estimate` - Estimar Tarifa**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Antes de crear el ride real
 - Para mostrar precio estimado al usuario
 - En calculadoras de tarifa
 
 #### **Flujo de uso:**
+
 ```
 Usuario ingresa ruta → Calcula distancia/tiempo
                         ↓
@@ -285,11 +311,13 @@ Usuario ingresa ruta → Calcula distancia/tiempo
 ```
 
 #### **Request:**
+
 ```bash
 GET /api/ride/estimate?tierId=1&minutes=25&miles=5
 ```
 
 #### **Response (200):**
+
 ```json
 {
   "data": {
@@ -305,6 +333,7 @@ GET /api/ride/estimate?tierId=1&minutes=25&miles=5
 ```
 
 #### **Cálculo de tarifa:**
+
 ```javascript
 totalFare = baseFare + (minutes × perMinuteRate) + (miles × perMileRate)
 // Ejemplo: 2.5 + (25 × 0.25) + (5 × 1.25) = 13.75
@@ -313,14 +342,17 @@ totalFare = baseFare + (minutes × perMinuteRate) + (miles × perMileRate)
 ---
 
 ### **5. POST `/api/ride/:rideId/accept` - Conductor Acepta Ride**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Conductor disponible acepta solicitud
 - Sistema de matching automático
 - Conductor manualmente selecciona ride
 
 #### **Flujo de uso:**
+
 ```mermaid
 graph TD
     A[Conductor recibe notificación] --> B[Revisa detalles del ride]
@@ -333,6 +365,7 @@ graph TD
 ```
 
 #### **Request Body:**
+
 ```json
 {
   "driverId": 1
@@ -340,11 +373,13 @@ graph TD
 ```
 
 #### **Request:**
+
 ```bash
 POST /api/ride/123/accept
 ```
 
 #### **Response (200):**
+
 ```json
 {
   "rideId": 123,
@@ -361,11 +396,13 @@ POST /api/ride/123/accept
 ```
 
 #### **Validaciones críticas:**
+
 - 🚫 **Ride no existe**: 404 Not Found
 - 🚫 **Ya aceptado**: 409 Conflict
 - 🚫 **Driver inválido**: 400 Bad Request
 
 #### **Funcionalidad automática:**
+
 - 🔄 **Notificación al pasajero**: Información del conductor
 - 🔄 **Actualización de estado**: De "requested" a "accepted"
 - 🔄 **Logging**: Registra aceptación
@@ -373,14 +410,17 @@ POST /api/ride/123/accept
 ---
 
 ### **6. POST `/api/ride/:rideId/rate` - Calificar Ride**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Después de completar el ride
 - Usuario quiere calificar experiencia
 - Sistema de retroalimentación
 
 #### **Flujo de uso:**
+
 ```
 Ride completado → Usuario abre pantalla de calificación
                     ↓
@@ -392,6 +432,7 @@ Ride completado → Usuario abre pantalla de calificación
 ```
 
 #### **Request Body:**
+
 ```json
 {
   "ratedByClerkId": "user_2abc123def456",
@@ -402,11 +443,13 @@ Ride completado → Usuario abre pantalla de calificación
 ```
 
 #### **Request:**
+
 ```bash
 POST /api/ride/123/rate
 ```
 
 #### **Response (201):**
+
 ```json
 {
   "id": 1,
@@ -420,6 +463,7 @@ POST /api/ride/123/rate
 ```
 
 #### **Validaciones:**
+
 - ✅ `ratingValue`: 1-5 (requerido)
 - ✅ `ratedByClerkId`: Usuario que califica (requerido)
 - ✅ `ratedClerkId`: Usuario calificado (requerido)
@@ -430,24 +474,29 @@ POST /api/ride/123/rate
 ## 🔗 **Endpoints Adicionales Implementados**
 
 ### **7. GET `/api/ride/requests` - Solicitudes de Ride para Conductores**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Conductor busca rides disponibles en su área
 - Aplicación de conductor muestra rides cercanos
 - Sistema de matching de conductores
 
 #### **Request:**
+
 ```bash
 GET /api/ride/requests?driverLat=40.7128&driverLng=-74.006&radius=5
 ```
 
 #### **Parámetros de Query:**
+
 - `driverLat`: Latitud del conductor (requerido)
 - `driverLng`: Longitud del conductor (requerido)
 - `radius`: Radio de búsqueda en km (opcional, default: 5)
 
 #### **Response (200):**
+
 ```json
 {
   "data": [
@@ -473,19 +522,23 @@ GET /api/ride/requests?driverLat=40.7128&driverLng=-74.006&radius=5
 ```
 
 ### **8. GET `/api/driver` - Lista de Conductores**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Obtener lista de conductores disponibles
 - Mostrar conductores en mapa
 - Sistema de selección de conductor por pasajero
 
 #### **Request:**
+
 ```bash
 GET /api/driver?status=online&verified=true&lat=40.7128&lng=-74.006&radius=10
 ```
 
 #### **Parámetros de Query:**
+
 - `status`: Estado del conductor (opcional, default: 'online')
 - `verified`: Solo conductores verificados (opcional)
 - `lat`: Latitud para filtro de ubicación (opcional)
@@ -493,6 +546,7 @@ GET /api/driver?status=online&verified=true&lat=40.7128&lng=-74.006&radius=10
 - `radius`: Radio de búsqueda en km (opcional, default: 10)
 
 #### **Response (200):**
+
 ```json
 {
   "data": [
@@ -524,25 +578,31 @@ GET /api/driver?status=online&verified=true&lat=40.7128&lng=-74.006&radius=10
 ```
 
 ### **9. POST `/api/ride/:rideId/start` - Iniciar Ride**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Conductor llega al punto de recogida
 - Inicia el viaje oficialmente
 - Actualiza estado del ride
 
 ### **10. POST `/api/ride/:rideId/complete` - Completar Ride**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Conductor llega al destino
 - Finaliza el viaje
 - Actualiza estado y procesa pago
 
 ### **11. POST `/api/ride/:rideId/cancel` - Cancelar Ride**
+
 **Estado:** ✅ Implementado | **Autenticación:** No requerida
 
 #### **¿Cuándo usar?**
+
 - Usuario o conductor cancela el ride
 - Emergencia durante el viaje
 - Problemas técnicos
@@ -603,6 +663,7 @@ sequenceDiagram
 ```
 
 ### **Métodos Internos Adicionales:**
+
 ```typescript
 // En rides.service.ts - NO expuestos como endpoints
 startRide(rideId): Inicia viaje cuando conductor recoge pasajero
@@ -615,21 +676,22 @@ cancelRide(rideId, reason): Cancela ride con motivo
 
 ## 📊 **Estados del Ride**
 
-| Estado | Descripción | Transiciones Permitidas |
-|--------|-------------|------------------------|
-| `requested` | Ride creado, esperando conductor | → `accepted`, `cancelled` |
-| `scheduled` | Ride programado para futuro | → `accepted` (en fecha programada) |
-| `accepted` | Conductor asignado | → `in_progress`, `cancelled` |
-| `in_progress` | Viaje en curso | → `completed`, `cancelled` |
-| `completed` | Viaje terminado | → `rated` |
-| `rated` | Usuario calificó | Estado final |
-| `cancelled` | Ride cancelado | Estado final |
+| Estado        | Descripción                      | Transiciones Permitidas            |
+| ------------- | -------------------------------- | ---------------------------------- |
+| `requested`   | Ride creado, esperando conductor | → `accepted`, `cancelled`          |
+| `scheduled`   | Ride programado para futuro      | → `accepted` (en fecha programada) |
+| `accepted`    | Conductor asignado               | → `in_progress`, `cancelled`       |
+| `in_progress` | Viaje en curso                   | → `completed`, `cancelled`         |
+| `completed`   | Viaje terminado                  | → `rated`                          |
+| `rated`       | Usuario calificó                 | Estado final                       |
+| `cancelled`   | Ride cancelado                   | Estado final                       |
 
 ---
 
 ## 🎯 **Casos de Uso**
 
 ### **Caso 1: Ride Inmediato Estándar**
+
 ```mermaid
 graph TD
     A[Usuario abre app] --> B[Ingresa origen/destino]
@@ -646,6 +708,7 @@ graph TD
 ```
 
 ### **Caso 2: Ride Programado**
+
 ```mermaid
 graph TD
     A[Usuario selecciona fecha/hora futura] --> B[POST /api/ride/schedule]
@@ -658,6 +721,7 @@ graph TD
 ```
 
 ### **Caso 3: Sistema de Matching de Conductores**
+
 ```mermaid
 graph TD
     A[Ride creado] --> B[Sistema calcula ubicación]
@@ -679,6 +743,7 @@ graph TD
 ### **Validaciones de DTOs:**
 
 #### **CreateRideDto:**
+
 ```typescript
 @ApiProperty({ example: '123 Main St, New York, NY' })
 @IsNotEmpty()
@@ -695,6 +760,7 @@ origin_latitude: number;
 ```
 
 #### **RateRideDto:**
+
 ```typescript
 @ApiProperty({ example: 5, minimum: 1, maximum: 5 })
 @IsNotEmpty()
@@ -708,57 +774,69 @@ ratingValue: number;
 ### **Manejo de Errores:**
 
 #### **Códigos HTTP y Mensajes:**
+
 ```typescript
 // 400 Bad Request
-throw new BadRequestException('Missing required fields');
+throw new BadRequestException("Missing required fields");
 
 // 404 Not Found
-throw new NotFoundException('Ride not found');
+throw new NotFoundException("Ride not found");
 
 // 409 Conflict
-throw new ConflictException('Ride was already accepted by another driver');
+throw new ConflictException("Ride was already accepted by another driver");
 
 // 500 Internal Server Error
-throw new InternalServerErrorException('Database error');
+throw new InternalServerErrorException("Database error");
 ```
 
 ### **Integración con Notificaciones:**
 
 #### **Eventos Automáticos:**
+
 ```typescript
 // Después de crear ride
 await this.notificationsService.notifyNearbyDrivers(ride.rideId, location);
 
 // Después de aceptar ride
 await this.notificationsService.notifyRideStatusUpdate(
-  rideId, userId, driverId, 'accepted', driverInfo
+  rideId,
+  userId,
+  driverId,
+  "accepted",
+  driverInfo,
 );
 
 // Después de completar ride
 await this.notificationsService.notifyRideStatusUpdate(
-  rideId, userId, driverId, 'completed', { fare: ride.farePrice }
+  rideId,
+  userId,
+  driverId,
+  "completed",
+  { fare: ride.farePrice },
 );
 ```
 
 ### **Consideraciones de Performance:**
 
 #### **Queries Optimizadas:**
+
 ```typescript
 // Incluye solo relaciones necesarias
 return this.prisma.ride.findMany({
   where: { userId },
   include: {
-    driver: true,    // Para mostrar info del conductor
-    tier: true,      // Para mostrar tipo de servicio
-    ratings: true,   // Para mostrar calificaciones
+    driver: true, // Para mostrar info del conductor
+    tier: true, // Para mostrar tipo de servicio
+    ratings: true, // Para mostrar calificaciones
     // NO incluye messages para performance
   },
-  orderBy: { createdAt: 'desc' },
-  take: 50  // Limita resultados
+  orderBy: { createdAt: "desc" },
+  take: 50, // Limita resultados
 });
 ```
 
 #### **Caché para Estimaciones:**
+
 ```typescript
 // Las estimaciones podrían cachearse por ruta/tier
 // para evitar cálculos repetitivos
@@ -768,14 +846,16 @@ const cacheKey = `${tierId}_${minutes}_${miles}`;
 ### **Consideraciones de Seguridad:**
 
 #### **Validación de Usuarios:**
+
 ```typescript
 // Verificar que el usuario que califica es el que realizó el ride
 if (rateRideDto.ratedByClerkId !== ride.userId) {
-  throw new ForbiddenException('User not authorized to rate this ride');
+  throw new ForbiddenException("User not authorized to rate this ride");
 }
 ```
 
 #### **Rate Limiting:**
+
 ```typescript
 // Implementar límites de requests por usuario
 // - Máximo 10 rides por hora
@@ -789,6 +869,7 @@ if (rateRideDto.ratedByClerkId !== ride.userId) {
 ### **Endpoints a Testear:**
 
 #### **1. Crear Ride:**
+
 ```bash
 # Test exitoso
 curl -X POST http://localhost:3000/api/ride/create \
@@ -802,6 +883,7 @@ curl -X POST http://localhost:3000/api/ride/create \
 ```
 
 #### **2. Aceptar Ride:**
+
 ```bash
 # Test conflicto (ride ya aceptado)
 curl -X POST http://localhost:3000/api/ride/123/accept \
@@ -811,6 +893,7 @@ curl -X POST http://localhost:3000/api/ride/123/accept \
 ```
 
 #### **3. Estimación de Tarifa:**
+
 ```bash
 # Test cálculo correcto
 curl "http://localhost:3000/api/ride/estimate?tierId=1&minutes=30&miles=10"
@@ -818,6 +901,7 @@ curl "http://localhost:3000/api/ride/estimate?tierId=1&minutes=30&miles=10"
 ```
 
 ### **Casos de Error Comunes:**
+
 - ✅ **Ride no encontrado**: 404
 - ✅ **Ride ya aceptado**: 409
 - ✅ **Campos faltantes**: 400
@@ -829,6 +913,7 @@ curl "http://localhost:3000/api/ride/estimate?tierId=1&minutes=30&miles=10"
 ## 🚀 **Próximos Pasos y Mejoras**
 
 ### **Funcionalidades Futuras:**
+
 1. **WebSocket Integration** para actualizaciones en tiempo real
 2. **Ride Status Updates** con coordenadas GPS en vivo
 3. **Dynamic Pricing** basado en demanda
@@ -838,6 +923,7 @@ curl "http://localhost:3000/api/ride/estimate?tierId=1&minutes=30&miles=10"
 7. **Analytics Dashboard** para admins
 
 ### **Mejoras Técnicas:**
+
 1. **Caching Layer** para estimaciones frecuentes
 2. **Background Jobs** para notificaciones
 3. **Rate Limiting** por usuario/IP
@@ -863,6 +949,7 @@ La arquitectura es **escalable**, **bien estructurada** y **completamente funcio
 **Documentación completa y actualizada al 100%** ✅
 
 **Endpoints adicionales documentados:**
+
 - ✅ `/api/ride/requests` - Solicitudes de ride para conductores
 - ✅ `/api/driver` - Lista de conductores disponibles
 - ✅ `/api/ride/:rideId/start` - Iniciar ride

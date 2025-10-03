@@ -1,17 +1,17 @@
-import { useSplashStore } from '../../store/splash';
-import { moduleDataService } from '../../app/services/moduleDataService';
+import { useSplashStore } from "../../store/splash";
+import { moduleDataService } from "../../app/services/moduleDataService";
 
 // Mock performance API
 const mockPerformance = {
   now: jest.fn(),
 };
 
-Object.defineProperty(window, 'performance', {
+Object.defineProperty(window, "performance", {
   value: mockPerformance,
   writable: true,
 });
 
-describe('Splash System Performance', () => {
+describe("Splash System Performance", () => {
   beforeEach(() => {
     mockPerformance.now.mockClear();
     mockPerformance.now
@@ -25,16 +25,16 @@ describe('Splash System Performance', () => {
     splashStore.hideSplash();
   });
 
-  describe('Splash Store Operations', () => {
-    it('should complete showSplash operation within performance budget', () => {
+  describe("Splash Store Operations", () => {
+    it("should complete showSplash operation within performance budget", () => {
       const splashStore = useSplashStore.getState();
 
       const startTime = performance.now();
 
       splashStore.showSplash({
-        id: 'perf-test',
-        type: 'module_transition',
-        title: 'Performance Test',
+        id: "perf-test",
+        type: "module_transition",
+        title: "Performance Test",
       });
 
       const endTime = performance.now();
@@ -44,7 +44,7 @@ describe('Splash System Performance', () => {
       expect(duration).toBeLessThan(16);
     });
 
-    it('should handle rapid splash operations efficiently', () => {
+    it("should handle rapid splash operations efficiently", () => {
       const splashStore = useSplashStore.getState();
 
       const startTime = performance.now();
@@ -53,7 +53,7 @@ describe('Splash System Performance', () => {
       for (let i = 0; i < 10; i++) {
         splashStore.showSplash({
           id: `rapid-test-${i}`,
-          type: 'data_loading',
+          type: "data_loading",
           title: `Test ${i}`,
         });
         splashStore.hideSplash(`rapid-test-${i}`);
@@ -67,14 +67,14 @@ describe('Splash System Performance', () => {
       expect(avgDuration).toBeLessThan(5);
     });
 
-    it('should not create memory leaks with queue operations', () => {
+    it("should not create memory leaks with queue operations", () => {
       const splashStore = useSplashStore.getState();
 
       // Create many queued operations
       for (let i = 0; i < 50; i++) {
         splashStore.showSplash({
           id: `memory-test-${i}`,
-          type: 'data_loading',
+          type: "data_loading",
           title: `Memory Test ${i}`,
         });
       }
@@ -88,8 +88,8 @@ describe('Splash System Performance', () => {
     });
   });
 
-  describe('Data Loading Performance', () => {
-    it('should load driver data within acceptable time', async () => {
+  describe("Data Loading Performance", () => {
+    it("should load driver data within acceptable time", async () => {
       const startTime = performance.now();
 
       const result = await moduleDataService.loadDriverData();
@@ -102,7 +102,7 @@ describe('Splash System Performance', () => {
       expect(duration).toBeLessThan(3000);
     });
 
-    it('should load business data efficiently', async () => {
+    it("should load business data efficiently", async () => {
       const startTime = performance.now();
 
       const result = await moduleDataService.loadBusinessData();
@@ -114,7 +114,7 @@ describe('Splash System Performance', () => {
       expect(duration).toBeLessThan(2500);
     });
 
-    it('should load customer data quickly', async () => {
+    it("should load customer data quickly", async () => {
       const startTime = performance.now();
 
       const result = await moduleDataService.loadCustomerData();
@@ -128,8 +128,8 @@ describe('Splash System Performance', () => {
     });
   });
 
-  describe('Concurrent Operations', () => {
-    it('should handle concurrent data loading operations', async () => {
+  describe("Concurrent Operations", () => {
+    it("should handle concurrent data loading operations", async () => {
       const startTime = performance.now();
 
       const [driverResult, businessResult, customerResult] = await Promise.all([
@@ -149,12 +149,12 @@ describe('Splash System Performance', () => {
       expect(totalDuration).toBeLessThan(4000);
     });
 
-    it('should handle concurrent splash operations', async () => {
+    it("should handle concurrent splash operations", async () => {
       const splashStore = useSplashStore.getState();
 
       const operations = Array.from({ length: 10 }, (_, i) => ({
         id: `concurrent-test-${i}`,
-        type: 'data_loading' as const,
+        type: "data_loading" as const,
         title: `Concurrent Test ${i}`,
       }));
 
@@ -162,15 +162,16 @@ describe('Splash System Performance', () => {
 
       // Execute operations concurrently
       await Promise.all(
-        operations.map(op =>
-          new Promise(resolve => {
-            splashStore.showSplash(op);
-            setTimeout(() => {
-              splashStore.hideSplash(op.id);
-              resolve(void 0);
-            }, 50);
-          })
-        )
+        operations.map(
+          (op) =>
+            new Promise((resolve) => {
+              splashStore.showSplash(op);
+              setTimeout(() => {
+                splashStore.hideSplash(op.id);
+                resolve(void 0);
+              }, 50);
+            }),
+        ),
       );
 
       const endTime = performance.now();
@@ -181,24 +182,24 @@ describe('Splash System Performance', () => {
     });
   });
 
-  describe('Memory and Cleanup', () => {
-    it('should clean up expired cache entries', () => {
+  describe("Memory and Cleanup", () => {
+    it("should clean up expired cache entries", () => {
       // This would test the cache cleanup functionality
       // For now, just ensure the cache exists and has cleanup method
       const splashStore = useSplashStore.getState();
 
       // The cache should exist (internal to DataLoadingQueue)
-      expect(typeof splashStore.clearQueue).toBe('function');
+      expect(typeof splashStore.clearQueue).toBe("function");
     });
 
-    it('should handle cleanup after many operations', () => {
+    it("should handle cleanup after many operations", () => {
       const splashStore = useSplashStore.getState();
 
       // Perform many operations
       for (let i = 0; i < 100; i++) {
         splashStore.showSplash({
           id: `cleanup-test-${i}`,
-          type: 'data_loading',
+          type: "data_loading",
           title: `Cleanup Test ${i}`,
         });
       }
@@ -213,16 +214,16 @@ describe('Splash System Performance', () => {
     });
   });
 
-  describe('Animation Performance', () => {
-    it('should not cause layout thrashing during animations', () => {
+  describe("Animation Performance", () => {
+    it("should not cause layout thrashing during animations", () => {
       // This test would ideally check for layout thrashing
       // For now, we ensure animations use native driver
       const splashStore = useSplashStore.getState();
 
       splashStore.showSplash({
-        id: 'animation-test',
-        type: 'module_transition',
-        title: 'Animation Test',
+        id: "animation-test",
+        type: "module_transition",
+        title: "Animation Test",
       });
 
       const state = useSplashStore.getState();

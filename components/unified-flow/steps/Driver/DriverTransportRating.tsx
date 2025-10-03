@@ -7,7 +7,7 @@ import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 const DriverTransportRating: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -43,7 +43,7 @@ const DriverTransportRating: React.FC = () => {
       );
 
       // Go to earnings summary
-      goTo(FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE);
+      goTo(FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE);
     } catch (error) {
       console.error(
         "[DriverTransportRating] Error submitting passenger rating:",
@@ -57,7 +57,7 @@ const DriverTransportRating: React.FC = () => {
 
   const handleSkip = () => {
     console.log("[DriverTransportRating] Skipping rating");
-    goTo(FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE);
+    goTo(FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE);
   };
 
   const passengerName = activeRide?.passenger?.name || "el cliente";

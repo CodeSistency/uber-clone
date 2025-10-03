@@ -29,9 +29,7 @@ const RadioButton: React.FC<RadioButtonProps> = ({
             : "border-secondary-300"
         } ${disabled ? "opacity-50" : ""}`}
       >
-        {selected && (
-          <View className="w-2 h-2 rounded-full bg-white" />
-        )}
+        {selected && <View className="w-2 h-2 rounded-full bg-white" />}
       </View>
       <Text
         className={`flex-1 font-JakartaMedium ${

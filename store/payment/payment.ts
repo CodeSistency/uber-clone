@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { paymentService, type GroupStatusResponse, type MultiplePaymentRequest, type MultiplePaymentResponse } from "@/app/services/paymentService";
+import {
+  paymentService,
+  type GroupStatusResponse,
+  type MultiplePaymentRequest,
+  type MultiplePaymentResponse,
+} from "@/app/services/paymentService";
 import { transportClient } from "@/app/services/flowClientService";
 
 // Types for Payment Store
@@ -26,7 +31,12 @@ export interface Payment {
   percentage: number;
   bankCode?: string;
   description: string;
-  status: "pending" | "pending_reference" | "confirmed" | "cancelled" | "expired";
+  status:
+    | "pending"
+    | "pending_reference"
+    | "confirmed"
+    | "cancelled"
+    | "expired";
   reference?: string;
   confirmedAt?: string;
   expiresAt?: string;
@@ -51,45 +61,70 @@ interface PaymentStore {
 
   // Actions
   // Group Management
-  createPaymentGroup: (request: MultiplePaymentRequest) => Promise<MultiplePaymentResponse>;
+  createPaymentGroup: (
+    request: MultiplePaymentRequest,
+  ) => Promise<MultiplePaymentResponse>;
   updateGroupStatus: (groupId: string, status: GroupStatusResponse) => void;
   cancelPaymentGroup: (groupId: string, reason?: string) => Promise<boolean>;
   refreshGroupStatus: (groupId: string) => Promise<void>;
 
   // Payment Management
-  confirmPayment: (referenceNumber: string, bankCode: string) => Promise<boolean>;
-  updatePaymentStatus: (groupId: string, paymentId: string, status: Payment["status"], additionalData?: Partial<Payment>) => void;
+  confirmPayment: (
+    referenceNumber: string,
+    bankCode: string,
+  ) => Promise<boolean>;
+  updatePaymentStatus: (
+    groupId: string,
+    paymentId: string,
+    status: Payment["status"],
+    additionalData?: Partial<Payment>,
+  ) => void;
 
   // Utility Actions
-  getActiveGroup: (serviceId: number, serviceType: string) => PaymentGroup | null;
+  getActiveGroup: (
+    serviceId: number,
+    serviceType: string,
+  ) => PaymentGroup | null;
   getGroupById: (groupId: string) => PaymentGroup | null;
   clearCompletedGroups: () => void;
   calculateStats: () => void;
 
   // 🆕 NEW: Real Transport Payment Methods
-  payRideWithMultipleMethods: (rideId: number, paymentData: {
-    totalAmount: number;
-    payments: Array<{
-      method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
-      amount: number;
+  payRideWithMultipleMethods: (
+    rideId: number,
+    paymentData: {
+      totalAmount: string | number;
+      payments: Array<{
+        method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash" | "wallet";
+        amount: string | number;
+        bankCode?: string;
+      }>;
+    },
+  ) => Promise<any>;
+
+  generateRidePaymentReference: (
+    rideId: number,
+    referenceData: {
+      method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
       bankCode?: string;
-    }>;
-  }) => Promise<any>;
+    },
+  ) => Promise<any>;
 
-  generateRidePaymentReference: (rideId: number, referenceData: {
-    method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
-    bankCode?: string;
-  }) => Promise<any>;
+  confirmRidePaymentWithReference: (
+    rideId: number,
+    confirmationData: {
+      referenceNumber: string;
+      bankCode?: string;
+    },
+  ) => Promise<any>;
 
-  confirmRidePaymentWithReference: (rideId: number, confirmationData: {
-    referenceNumber: string;
-    bankCode?: string;
-  }) => Promise<any>;
-
-  confirmRidePartialPayment: (rideId: number, confirmationData: {
-    referenceNumber: string;
-    bankCode?: string;
-  }) => Promise<any>;
+  confirmRidePartialPayment: (
+    rideId: number,
+    confirmationData: {
+      referenceNumber: string;
+      bankCode?: string;
+    },
+  ) => Promise<any>;
 
   getRidePaymentStatus: (rideId: number) => Promise<any>;
 
@@ -102,14 +137,23 @@ interface PaymentStore {
 }
 
 // Helper functions
-const calculateGroupProgress = (payments: Payment[]): { confirmedAmount: number; remainingAmount: number; progress: number } => {
+const calculateGroupProgress = (
+  payments: Payment[],
+): { confirmedAmount: number; remainingAmount: number; progress: number } => {
+  // Validate payments array
+  if (!Array.isArray(payments)) {
+    console.error("[PaymentStore] calculateGroupProgress: payments is not an array:", payments);
+    return { confirmedAmount: 0, remainingAmount: 0, progress: 0 };
+  }
+
   const confirmedAmount = payments
-    .filter(p => p.status === "confirmed")
+    .filter((p) => p.status === "confirmed")
     .reduce((sum, p) => sum + p.amount, 0);
 
   const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
   const remainingAmount = totalAmount - confirmedAmount;
-  const progress = totalAmount > 0 ? Math.round((confirmedAmount / totalAmount) * 100) : 0;
+  const progress =
+    totalAmount > 0 ? Math.round((confirmedAmount / totalAmount) * 100) : 0;
 
   return { confirmedAmount, remainingAmount, progress };
 };
@@ -136,7 +180,9 @@ export const usePaymentStore = create<PaymentStore>()(
       error: null,
 
       // Create payment group
-      createPaymentGroup: async (request: MultiplePaymentRequest): Promise<MultiplePaymentResponse> => {
+      createPaymentGroup: async (
+        request: MultiplePaymentRequest,
+      ): Promise<MultiplePaymentResponse> => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
@@ -148,20 +194,25 @@ export const usePaymentStore = create<PaymentStore>()(
 
           if (response.success) {
             // Convert response to PaymentGroup format
-            const payments: Payment[] = response.payments.map(p => ({
+            const payments: Payment[] = response.payments.map((p) => ({
               id: p.id,
               method: p.method as "cash" | "card" | "wallet",
               amount: p.amount,
               percentage: Math.round((p.amount / response.totalAmount) * 100),
               bankCode: p.bankCode,
-              description: p.method === "cash" ? "Pago en efectivo" :
-                         p.method === "card" ? "Transferencia bancaria" : "Pago digital",
+              description:
+                p.method === "cash"
+                  ? "Pago en efectivo"
+                  : p.method === "card"
+                    ? "Transferencia bancaria"
+                    : "Pago digital",
               status: p.status as Payment["status"],
               reference: p.reference,
               expiresAt: p.expiresAt,
             }));
 
-            const { confirmedAmount, remainingAmount, progress } = calculateGroupProgress(payments);
+            const { confirmedAmount, remainingAmount, progress } =
+              calculateGroupProgress(payments);
 
             const paymentGroup: PaymentGroup = {
               groupId: response.groupId,
@@ -189,12 +240,16 @@ export const usePaymentStore = create<PaymentStore>()(
             // Recalculate stats
             get().calculateStats();
 
-            console.log("[PaymentStore] Payment group created successfully:", response.groupId);
+            console.log(
+              "[PaymentStore] Payment group created successfully:",
+              response.groupId,
+            );
           }
 
           return response;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al crear grupo de pagos";
+          const errorMessage =
+            error?.message || "Error al crear grupo de pagos";
           console.error("[PaymentStore] Error creating payment group:", error);
           store.setError(errorMessage);
           throw error;
@@ -205,27 +260,46 @@ export const usePaymentStore = create<PaymentStore>()(
 
       // Update group status
       updateGroupStatus: (groupId: string, statusData: GroupStatusResponse) => {
-        console.log("[PaymentStore] Updating group status:", groupId, statusData);
+        console.log(
+          "[PaymentStore] Updating group status:",
+          groupId,
+          statusData,
+        );
 
-        const payments: Payment[] = statusData.payments.map(p => ({
+        // Validate statusData structure
+        if (!statusData || !Array.isArray(statusData.payments)) {
+          console.error("[PaymentStore] Invalid statusData structure:", statusData);
+          return;
+        }
+
+        const payments: Payment[] = statusData.payments.map((p) => ({
           id: p.id,
           method: p.method as "cash" | "card" | "wallet",
           amount: p.amount,
           percentage: Math.round((p.amount / statusData.totalAmount) * 100),
           bankCode: p.bankCode,
-          description: p.method === "cash" ? "Pago en efectivo" :
-                     p.method === "card" ? "Transferencia bancaria" : "Pago digital",
+          description:
+            p.method === "cash"
+              ? "Pago en efectivo"
+              : p.method === "card"
+                ? "Transferencia bancaria"
+                : "Pago digital",
           status: p.status as Payment["status"],
           reference: p.reference,
           confirmedAt: p.confirmedAt,
           expiresAt: p.expiresAt,
         }));
 
-        const { confirmedAmount, remainingAmount, progress } = calculateGroupProgress(payments);
+        const { confirmedAmount, remainingAmount, progress } =
+          calculateGroupProgress(payments);
 
         const updatedGroup: PaymentGroup = {
           groupId: statusData.groupId,
-          serviceType: statusData.serviceType as "ride" | "delivery" | "errand" | "parcel",
+          serviceType: statusData.serviceType as
+            | "ride"
+            | "delivery"
+            | "errand"
+            | "parcel",
           serviceId: statusData.serviceId,
           totalAmount: statusData.totalAmount,
           status: statusData.status,
@@ -241,12 +315,18 @@ export const usePaymentStore = create<PaymentStore>()(
         set((state) => {
           const newActiveGroups = { ...state.activeGroups };
 
-          if (statusData.status === "completed" || statusData.status === "cancelled") {
+          if (
+            statusData.status === "completed" ||
+            statusData.status === "cancelled"
+          ) {
             // Move to completed groups
             delete newActiveGroups[groupId];
             return {
               activeGroups: newActiveGroups,
-              completedGroups: [updatedGroup, ...state.completedGroups].slice(0, 50), // Keep last 50
+              completedGroups: [updatedGroup, ...state.completedGroups].slice(
+                0,
+                50,
+              ), // Keep last 50
             };
           } else {
             // Update active group
@@ -262,7 +342,10 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // Cancel payment group
-      cancelPaymentGroup: async (groupId: string, reason?: string): Promise<boolean> => {
+      cancelPaymentGroup: async (
+        groupId: string,
+        reason?: string,
+      ): Promise<boolean> => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
@@ -280,7 +363,7 @@ export const usePaymentStore = create<PaymentStore>()(
                 ...group,
                 status: "cancelled",
                 updatedAt: new Date().toISOString(),
-                payments: group.payments.map(p => ({
+                payments: group.payments.map((p) => ({
                   ...p,
                   status: "cancelled" as const,
                 })),
@@ -291,7 +374,10 @@ export const usePaymentStore = create<PaymentStore>()(
 
               return {
                 activeGroups: newActiveGroups,
-                completedGroups: [cancelledGroup, ...state.completedGroups].slice(0, 50),
+                completedGroups: [
+                  cancelledGroup,
+                  ...state.completedGroups,
+                ].slice(0, 50),
               };
             }
             return state;
@@ -300,11 +386,18 @@ export const usePaymentStore = create<PaymentStore>()(
           // Recalculate stats
           get().calculateStats();
 
-          console.log("[PaymentStore] Payment group cancelled successfully:", groupId);
+          console.log(
+            "[PaymentStore] Payment group cancelled successfully:",
+            groupId,
+          );
           return true;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al cancelar grupo de pagos";
-          console.error("[PaymentStore] Error cancelling payment group:", error);
+          const errorMessage =
+            error?.message || "Error al cancelar grupo de pagos";
+          console.error(
+            "[PaymentStore] Error cancelling payment group:",
+            error,
+          );
           store.setError(errorMessage);
           return false;
         } finally {
@@ -326,14 +419,19 @@ export const usePaymentStore = create<PaymentStore>()(
           console.log("[PaymentStore] Group status refreshed:", groupId);
         } catch (error: any) {
           console.error("[PaymentStore] Error refreshing group status:", error);
-          store.setError(error?.message || "Error al actualizar estado del grupo");
+          store.setError(
+            error?.message || "Error al actualizar estado del grupo",
+          );
         } finally {
           store.setLoading(false);
         }
       },
 
       // Confirm payment
-      confirmPayment: async (referenceNumber: string, bankCode: string): Promise<boolean> => {
+      confirmPayment: async (
+        referenceNumber: string,
+        bankCode: string,
+      ): Promise<boolean> => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
@@ -353,7 +451,9 @@ export const usePaymentStore = create<PaymentStore>()(
             let paymentId: string | null = null;
 
             for (const [gid, group] of Object.entries(activeGroups)) {
-              const payment = group.payments.find(p => p.reference === referenceNumber);
+              const payment = group.payments.find(
+                (p) => p.reference === referenceNumber,
+              );
               if (payment) {
                 groupId = gid;
                 paymentId = payment.id;
@@ -367,7 +467,10 @@ export const usePaymentStore = create<PaymentStore>()(
                 confirmedAt: response.confirmedAt,
               });
 
-              console.log("[PaymentStore] Payment confirmed successfully:", referenceNumber);
+              console.log(
+                "[PaymentStore] Payment confirmed successfully:",
+                referenceNumber,
+              );
               return true;
             }
           }
@@ -384,25 +487,39 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // Update payment status
-      updatePaymentStatus: (groupId: string, paymentId: string, status: Payment["status"], additionalData?: Partial<Payment>) => {
-        console.log("[PaymentStore] Updating payment status:", { groupId, paymentId, status });
+      updatePaymentStatus: (
+        groupId: string,
+        paymentId: string,
+        status: Payment["status"],
+        additionalData?: Partial<Payment>,
+      ) => {
+        console.log("[PaymentStore] Updating payment status:", {
+          groupId,
+          paymentId,
+          status,
+        });
 
         set((state) => {
           const group = state.activeGroups[groupId];
           if (!group) return state;
 
-          const updatedPayments = group.payments.map(p =>
-            p.id === paymentId
-              ? { ...p, status, ...additionalData }
-              : p
+          const updatedPayments = group.payments.map((p) =>
+            p.id === paymentId ? { ...p, status, ...additionalData } : p,
           );
 
-          const { confirmedAmount, remainingAmount, progress } = calculateGroupProgress(updatedPayments);
+          const { confirmedAmount, remainingAmount, progress } =
+            calculateGroupProgress(updatedPayments);
 
           // Check if group is completed
-          const allConfirmed = updatedPayments.every(p => p.status === "confirmed");
-          const hasCancelled = updatedPayments.some(p => p.status === "cancelled");
-          const hasExpired = updatedPayments.some(p => p.expiresAt && isGroupExpired(p.expiresAt));
+          const allConfirmed = updatedPayments.every(
+            (p) => p.status === "confirmed",
+          );
+          const hasCancelled = updatedPayments.some(
+            (p) => p.status === "cancelled",
+          );
+          const hasExpired = updatedPayments.some(
+            (p) => p.expiresAt && isGroupExpired(p.expiresAt),
+          );
 
           let groupStatus = group.status;
           if (allConfirmed) {
@@ -425,12 +542,19 @@ export const usePaymentStore = create<PaymentStore>()(
 
           const newActiveGroups = { ...state.activeGroups };
 
-          if (groupStatus === "completed" || groupStatus === "cancelled" || groupStatus === "expired") {
+          if (
+            groupStatus === "completed" ||
+            groupStatus === "cancelled" ||
+            groupStatus === "expired"
+          ) {
             // Move to completed groups
             delete newActiveGroups[groupId];
             return {
               activeGroups: newActiveGroups,
-              completedGroups: [updatedGroup, ...state.completedGroups].slice(0, 50),
+              completedGroups: [updatedGroup, ...state.completedGroups].slice(
+                0,
+                50,
+              ),
             };
           } else {
             // Update active group
@@ -446,10 +570,16 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // Get active group for service
-      getActiveGroup: (serviceId: number, serviceType: string): PaymentGroup | null => {
+      getActiveGroup: (
+        serviceId: number,
+        serviceType: string,
+      ): PaymentGroup | null => {
         const activeGroups = get().activeGroups;
         for (const group of Object.values(activeGroups)) {
-          if (group.serviceId === serviceId && group.serviceType === serviceType) {
+          if (
+            group.serviceId === serviceId &&
+            group.serviceType === serviceType
+          ) {
             return group;
           }
         }
@@ -464,7 +594,7 @@ export const usePaymentStore = create<PaymentStore>()(
         }
 
         const completedGroups = get().completedGroups;
-        return completedGroups.find(g => g.groupId === groupId) || null;
+        return completedGroups.find((g) => g.groupId === groupId) || null;
       },
 
       // Clear completed groups
@@ -486,9 +616,17 @@ export const usePaymentStore = create<PaymentStore>()(
 
         const totalGroups = allGroups.length;
         const activeGroups = Object.keys(state.activeGroups).length;
-        const completedGroups = allGroups.filter(g => g.status === "completed").length;
-        const totalAmount = allGroups.reduce((sum, g) => sum + g.totalAmount, 0);
-        const successRate = totalGroups > 0 ? Math.round((completedGroups / totalGroups) * 100) : 0;
+        const completedGroups = allGroups.filter(
+          (g) => g.status === "completed",
+        ).length;
+        const totalAmount = allGroups.reduce(
+          (sum, g) => sum + g.totalAmount,
+          0,
+        );
+        const successRate =
+          totalGroups > 0
+            ? Math.round((completedGroups / totalGroups) * 100)
+            : 0;
 
         const stats: PaymentStats = {
           totalGroups,
@@ -503,29 +641,43 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // 🆕 NEW: Pay ride with multiple methods using real endpoints
-      payRideWithMultipleMethods: async (rideId: number, paymentData: {
-        totalAmount: number;
-        payments: Array<{
-          method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash";
-          amount: number;
-          bankCode?: string;
-        }>;
-      }) => {
+      payRideWithMultipleMethods: async (
+        rideId: number,
+        paymentData: {
+          totalAmount: string | number; // Accept both string and number
+          payments: Array<{
+            method: "transfer" | "pago_movil" | "zelle" | "bitcoin" | "cash" | "wallet";
+            amount: string | number; // Accept both string and number
+            bankCode?: string;
+          }>;
+        },
+      ) => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
 
         try {
-          console.log("[PaymentStore] Paying ride with multiple methods:", { rideId, paymentData });
+          console.log("[PaymentStore] Paying ride with multiple methods:", {
+            rideId,
+            paymentData,
+          });
 
-          const result = await transportClient.payWithMultipleMethods(rideId, paymentData);
+          const result = await transportClient.payWithMultipleMethods(
+            rideId,
+            paymentData,
+          );
 
           // Handle response based on new API structure
-          if (result.data.groupId) {
+          if (result?.data?.groupId) {
             // Multiple payments - update group status
-            const statusData = await transportClient.getPaymentStatus(rideId);
-            if (statusData.data.hasPaymentGroup && statusData.data.groupId) {
-              store.updateGroupStatus(statusData.data.groupId, statusData.data);
+            try {
+              const statusData = await transportClient.getPaymentStatus(rideId);
+              if (statusData?.data?.hasPaymentGroup && statusData?.data?.groupId) {
+                store.updateGroupStatus(statusData.data.groupId, statusData.data);
+              }
+            } catch (statusError) {
+              console.warn("[PaymentStore] Could not update group status:", statusError);
+              // Don't fail the payment if status update fails
             }
           }
           // For cash payments, result.data.status will be "complete"
@@ -533,8 +685,17 @@ export const usePaymentStore = create<PaymentStore>()(
           console.log("[PaymentStore] Ride payment completed:", result);
           return result;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al procesar pago múltiple";
-          console.error("[PaymentStore] Error paying ride with multiple methods:", error);
+          const errorMessage =
+            error?.message || "Error al procesar pago múltiple";
+          console.error(
+            "[PaymentStore] Error paying ride with multiple methods:",
+            error,
+          );
+          console.error("[PaymentStore] Error details:", {
+            error,
+            stack: error?.stack,
+            response: error?.response,
+          });
           store.setError(errorMessage);
           throw error;
         } finally {
@@ -543,24 +704,37 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // 🆕 NEW: Generate payment reference for ride
-      generateRidePaymentReference: async (rideId: number, referenceData: {
-        method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
-        bankCode?: string;
-      }) => {
+      generateRidePaymentReference: async (
+        rideId: number,
+        referenceData: {
+          method: "transfer" | "pago_movil" | "zelle" | "bitcoin";
+          bankCode?: string;
+        },
+      ) => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
 
         try {
-          console.log("[PaymentStore] Generating ride payment reference:", { rideId, referenceData });
+          console.log("[PaymentStore] Generating ride payment reference:", {
+            rideId,
+            referenceData,
+          });
 
-          const result = await transportClient.generatePaymentReference(rideId, referenceData);
+          const result = await transportClient.generatePaymentReference(
+            rideId,
+            referenceData,
+          );
 
           console.log("[PaymentStore] Payment reference generated:", result);
           return result;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al generar referencia de pago";
-          console.error("[PaymentStore] Error generating payment reference:", error);
+          const errorMessage =
+            error?.message || "Error al generar referencia de pago";
+          console.error(
+            "[PaymentStore] Error generating payment reference:",
+            error,
+          );
           store.setError(errorMessage);
           throw error;
         } finally {
@@ -569,18 +743,27 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // 🆕 NEW: Confirm ride payment with reference
-      confirmRidePaymentWithReference: async (rideId: number, confirmationData: {
-        referenceNumber: string;
-        bankCode?: string;
-      }) => {
+      confirmRidePaymentWithReference: async (
+        rideId: number,
+        confirmationData: {
+          referenceNumber: string;
+          bankCode?: string;
+        },
+      ) => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
 
         try {
-          console.log("[PaymentStore] Confirming ride payment with reference:", { rideId, confirmationData });
+          console.log(
+            "[PaymentStore] Confirming ride payment with reference:",
+            { rideId, confirmationData },
+          );
 
-          const result = await transportClient.confirmPaymentWithReference(rideId, confirmationData);
+          const result = await transportClient.confirmPaymentWithReference(
+            rideId,
+            confirmationData,
+          );
 
           // Update group status if payment was successful
           if (result.data.success && result.data.groupId) {
@@ -590,11 +773,18 @@ export const usePaymentStore = create<PaymentStore>()(
             }
           }
 
-          console.log("[PaymentStore] Payment confirmed with reference:", result);
+          console.log(
+            "[PaymentStore] Payment confirmed with reference:",
+            result,
+          );
           return result;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al confirmar pago con referencia";
-          console.error("[PaymentStore] Error confirming payment with reference:", error);
+          const errorMessage =
+            error?.message || "Error al confirmar pago con referencia";
+          console.error(
+            "[PaymentStore] Error confirming payment with reference:",
+            error,
+          );
           store.setError(errorMessage);
           throw error;
         } finally {
@@ -603,18 +793,27 @@ export const usePaymentStore = create<PaymentStore>()(
       },
 
       // 🆕 NEW: Confirm partial payment in ride
-      confirmRidePartialPayment: async (rideId: number, confirmationData: {
-        referenceNumber: string;
-        bankCode?: string;
-      }) => {
+      confirmRidePartialPayment: async (
+        rideId: number,
+        confirmationData: {
+          referenceNumber: string;
+          bankCode?: string;
+        },
+      ) => {
         const store = get();
         store.setLoading(true);
         store.setError(null);
 
         try {
-          console.log("[PaymentStore] Confirming ride partial payment:", { rideId, confirmationData });
+          console.log("[PaymentStore] Confirming ride partial payment:", {
+            rideId,
+            confirmationData,
+          });
 
-          const result = await transportClient.confirmPartialPayment(rideId, confirmationData);
+          const result = await transportClient.confirmPartialPayment(
+            rideId,
+            confirmationData,
+          );
 
           // Update group status
           if (result.data.groupId) {
@@ -627,8 +826,12 @@ export const usePaymentStore = create<PaymentStore>()(
           console.log("[PaymentStore] Partial payment confirmed:", result);
           return result;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al confirmar pago parcial";
-          console.error("[PaymentStore] Error confirming partial payment:", error);
+          const errorMessage =
+            error?.message || "Error al confirmar pago parcial";
+          console.error(
+            "[PaymentStore] Error confirming partial payment:",
+            error,
+          );
           store.setError(errorMessage);
           throw error;
         } finally {
@@ -654,8 +857,12 @@ export const usePaymentStore = create<PaymentStore>()(
           console.log("[PaymentStore] Ride payment status retrieved:", result);
           return result;
         } catch (error: any) {
-          const errorMessage = error?.message || "Error al obtener estado de pagos";
-          console.error("[PaymentStore] Error getting ride payment status:", error);
+          const errorMessage =
+            error?.message || "Error al obtener estado de pagos";
+          console.error(
+            "[PaymentStore] Error getting ride payment status:",
+            error,
+          );
           store.setError(errorMessage);
           throw error;
         } finally {
@@ -699,8 +906,8 @@ export const usePaymentStore = create<PaymentStore>()(
         completedGroups: state.completedGroups.slice(0, 20), // Keep only last 20 completed
         stats: state.stats,
       }),
-    }
-  )
+    },
+  ),
 );
 
 // Types are already exported as interfaces above

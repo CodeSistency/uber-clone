@@ -1,4 +1,7 @@
-import { ExpoNotificationType, ExpoNotificationPreferences } from "../../types/expo-notifications";
+import {
+  ExpoNotificationType,
+  ExpoNotificationPreferences,
+} from "../../types/expo-notifications";
 
 /**
  * Utilidades para el sistema de notificaciones Expo
@@ -26,8 +29,18 @@ export const formatDate = (dateString: string): string => {
   const date = new Date(dateString);
   const day = date.getDate();
   const monthNames = [
-    "January", "February", "March", "April", "May", "June",
-    "July", "August", "September", "October", "November", "December",
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
   ];
   const month = monthNames[date.getMonth()];
   const year = date.getFullYear();
@@ -38,8 +51,13 @@ export const formatDate = (dateString: string): string => {
 /**
  * Obtener prioridad de notificación basada en el tipo
  */
-export const getPriorityFromType = (type: ExpoNotificationType): "low" | "normal" | "high" | "critical" => {
-  const priorityMap: Record<ExpoNotificationType, "low" | "normal" | "high" | "critical"> = {
+export const getPriorityFromType = (
+  type: ExpoNotificationType,
+): "low" | "normal" | "high" | "critical" => {
+  const priorityMap: Record<
+    ExpoNotificationType,
+    "low" | "normal" | "high" | "critical"
+  > = {
     EMERGENCY_ALERT: "critical",
     RIDE_REQUEST: "high",
     DRIVER_ARRIVED: "high",
@@ -63,10 +81,10 @@ export const getPriorityFromType = (type: ExpoNotificationType): "low" | "normal
 export const shouldShowNotification = (
   preferences: ExpoNotificationPreferences,
   type: ExpoNotificationType,
-  currentTime: Date = new Date()
+  currentTime: Date = new Date(),
 ): boolean => {
   // Emergency alerts siempre se muestran, sin importar otras configuraciones
-  if (type === 'EMERGENCY_ALERT') {
+  if (type === "EMERGENCY_ALERT") {
     return true;
   }
 
@@ -76,7 +94,10 @@ export const shouldShowNotification = (
   }
 
   // Verificar preferencias específicas por tipo
-  const typePreferenceMap: Record<ExpoNotificationType, keyof ExpoNotificationPreferences> = {
+  const typePreferenceMap: Record<
+    ExpoNotificationType,
+    keyof ExpoNotificationPreferences
+  > = {
     RIDE_REQUEST: "rideUpdates",
     RIDE_ACCEPTED: "rideUpdates",
     RIDE_CANCELLED: "rideUpdates",
@@ -110,18 +131,23 @@ export const shouldShowNotification = (
  */
 export const isQuietHours = (
   preferences: ExpoNotificationPreferences,
-  currentTime: Date = new Date()
+  currentTime: Date = new Date(),
 ): boolean => {
   if (!preferences.quietHoursEnabled) {
     return false;
   }
 
-  const [startHour, startMinute] = preferences.quietHoursStart!.split(':').map(Number);
-  const [endHour, endMinute] = preferences.quietHoursEnd!.split(':').map(Number);
+  const [startHour, startMinute] = preferences
+    .quietHoursStart!.split(":")
+    .map(Number);
+  const [endHour, endMinute] = preferences
+    .quietHoursEnd!.split(":")
+    .map(Number);
 
   const startTime = startHour * 60 + startMinute;
   const endTime = endHour * 60 + endMinute;
-  const currentTimeMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
+  const currentTimeMinutes =
+    currentTime.getHours() * 60 + currentTime.getMinutes();
 
   if (startTime <= endTime) {
     // Misma día (ej: 22:00 a 08:00 del día siguiente no aplica aquí)
@@ -135,7 +161,10 @@ export const isQuietHours = (
 /**
  * Obtener mensaje de preview para notificaciones de chat
  */
-export const getChatPreview = (message: string, maxLength: number = 50): string => {
+export const getChatPreview = (
+  message: string,
+  maxLength: number = 50,
+): string => {
   if (message.length <= maxLength) {
     return message;
   }
@@ -145,7 +174,9 @@ export const getChatPreview = (message: string, maxLength: number = 50): string 
 /**
  * Generar ID único para notificaciones
  */
-export const generateNotificationId = (prefix: string = "notification"): string => {
+export const generateNotificationId = (
+  prefix: string = "notification",
+): string => {
   return `${prefix}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 };
 
@@ -164,9 +195,9 @@ export const getRelativeTime = (date: Date): string => {
   } else if (diffMins < 60) {
     return `${diffMins} min ago`;
   } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`;
+    return `${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
   } else {
-    return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`;
+    return `${diffDays} day${diffDays > 1 ? "s" : ""} ago`;
   }
 };
 
@@ -174,11 +205,11 @@ export const getRelativeTime = (date: Date): string => {
  * Agrupar notificaciones por fecha
  */
 export const groupNotificationsByDate = <T extends { timestamp: Date }>(
-  notifications: T[]
+  notifications: T[],
 ): Record<string, T[]> => {
   const groups: Record<string, T[]> = {};
 
-  notifications.forEach(notification => {
+  notifications.forEach((notification) => {
     const date = new Date(notification.timestamp);
     const dateKey = date.toDateString(); // Agrupa por día
 
@@ -195,15 +226,20 @@ export const groupNotificationsByDate = <T extends { timestamp: Date }>(
 /**
  * Obtener estadísticas de notificaciones
  */
-export const getNotificationStats = (notifications: Array<{ isRead: boolean; type: ExpoNotificationType }>) => {
+export const getNotificationStats = (
+  notifications: Array<{ isRead: boolean; type: ExpoNotificationType }>,
+) => {
   const total = notifications.length;
-  const unread = notifications.filter(n => !n.isRead).length;
+  const unread = notifications.filter((n) => !n.isRead).length;
   const read = total - unread;
 
   // Conteo por tipo
-  const byType: Record<ExpoNotificationType, number> = {} as Record<ExpoNotificationType, number>;
+  const byType: Record<ExpoNotificationType, number> = {} as Record<
+    ExpoNotificationType,
+    number
+  >;
 
-  notifications.forEach(notification => {
+  notifications.forEach((notification) => {
     byType[notification.type] = (byType[notification.type] || 0) + 1;
   });
 
@@ -219,7 +255,9 @@ export const getNotificationStats = (notifications: Array<{ isRead: boolean; typ
 /**
  * Validar configuración de notificaciones
  */
-export const validateNotificationConfig = (config: any): { isValid: boolean; errors: string[] } => {
+export const validateNotificationConfig = (
+  config: any,
+): { isValid: boolean; errors: string[] } => {
   const errors: string[] = [];
 
   if (!config) {
@@ -227,18 +265,26 @@ export const validateNotificationConfig = (config: any): { isValid: boolean; err
     return { isValid: false, errors };
   }
 
-  if (typeof config.appName !== "string" || config.appName.trim().length === 0) {
+  if (
+    typeof config.appName !== "string" ||
+    config.appName.trim().length === 0
+  ) {
     errors.push("appName must be a non-empty string");
   }
 
-  if (typeof config.appVersion !== "string" || config.appVersion.trim().length === 0) {
+  if (
+    typeof config.appVersion !== "string" ||
+    config.appVersion.trim().length === 0
+  ) {
     errors.push("appVersion must be a non-empty string");
   }
 
   // Validar configuración de horas de silencio
   if (config.quietHoursEnabled) {
     if (!config.quietHoursStart || !config.quietHoursEnd) {
-      errors.push("quietHoursStart and quietHoursEnd are required when quietHoursEnabled is true");
+      errors.push(
+        "quietHoursStart and quietHoursEnd are required when quietHoursEnabled is true",
+      );
     } else {
       const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
       if (!timeRegex.test(config.quietHoursStart)) {
@@ -279,7 +325,7 @@ export const createDefaultNotificationConfig = () => ({
  */
 export const areNotificationPreferencesEqual = (
   prefs1: ExpoNotificationPreferences,
-  prefs2: ExpoNotificationPreferences
+  prefs2: ExpoNotificationPreferences,
 ): boolean => {
   const keys = Object.keys(prefs1) as Array<keyof ExpoNotificationPreferences>;
 

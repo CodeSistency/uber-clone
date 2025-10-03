@@ -24,7 +24,7 @@ const DriverEnvioNavigateToDestination: React.FC = () => {
   };
 
   const handleArrived = () => {
-    goTo(FLOW_STEPS.DRIVER_ENVIO.ENTREGAR_PAQUETE);
+    goTo(FLOW_STEPS.DRIVER_ENVIO_ENTREGAR_PAQUETE);
   };
 
   return (

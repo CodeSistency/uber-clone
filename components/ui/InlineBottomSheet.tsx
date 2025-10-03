@@ -1,3 +1,4 @@
+import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import React, {
   useEffect,
@@ -197,6 +198,10 @@ interface InlineBottomSheetProps extends ViewProps {
   // Gradient background props
   useGradient?: boolean;
   gradientColors?: readonly [ColorValue, ColorValue, ...ColorValue[]];
+  useBlur?: boolean;
+  blurIntensity?: number;
+  blurTint?: "light" | "dark" | "default";
+  blurFallbackColor?: string;
   // Bottom bar props
   bottomBar?: React.ReactNode;
   bottomBarHeight?: number;
@@ -226,6 +231,10 @@ const InlineBottomSheet = forwardRef<
         "rgba(0,0,0,0.05)",
         "rgba(0,0,0,0)",
       ] as const,
+      useBlur = true,
+      blurIntensity = 45,
+      blurTint = "default",
+      blurFallbackColor = "rgba(0,0,0,0.25)",
       // Bottom bar props
       bottomBar,
       bottomBarHeight = 64,
@@ -235,19 +244,6 @@ const InlineBottomSheet = forwardRef<
     },
     ref,
   ) => {
-    console.log("[InlineBottomSheet] ===== COMPONENT MOUNTED =====");
-    console.log("[InlineBottomSheet] Received props:", {
-      visible,
-      minHeight,
-      maxHeight,
-      initialHeight,
-      allowDrag,
-      showHandle,
-      snapPoints,
-      className,
-      hasChildren: !!children,
-      extraProps: Object.keys(props).length > 0 ? props : "none",
-    });
 
     // Usar hook si se proporciona ref, sino usar lógica interna
     const useHook = !!ref;
@@ -323,7 +319,14 @@ const InlineBottomSheet = forwardRef<
           speed: SPRING_SPEED,
         }).start();
       }
-    }, [computeTargetHeight, visible, useHook, hookData.methods, heightAnim, initialHeight]);
+    }, [
+      computeTargetHeight,
+      visible,
+      useHook,
+      hookData.methods,
+      heightAnim,
+      initialHeight,
+    ]);
 
     const clamp = (value: number, min: number, max: number) =>
       Math.min(Math.max(value, min), max);
@@ -423,15 +426,7 @@ const InlineBottomSheet = forwardRef<
       extrapolate: "clamp",
     });
 
-    console.log("[InlineBottomSheet] ===== RENDERING =====");
-    console.log("[InlineBottomSheet] visible:", visible);
-    console.log(
-      "[InlineBottomSheet] currentHeightRef.current:",
-      currentHeightRef.current,
-    );
-
     if (!visible) {
-      console.log("[InlineBottomSheet] NOT RENDERING - visible is false");
       return null;
     }
 
@@ -442,12 +437,28 @@ const InlineBottomSheet = forwardRef<
           className="rounded-t-3xl overflow-hidden shadow-2xl"
         >
           {useGradient ? (
-            <LinearGradient
-              colors={gradientColors}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 0, y: 0 }}
-              style={{ ...StyleSheet.absoluteFillObject }}
-            />
+            <View style={StyleSheet.absoluteFillObject}>
+              {useBlur ? (
+                <BlurView
+                  intensity={blurIntensity}
+                  tint={blurTint}
+                  style={StyleSheet.absoluteFillObject}
+                />
+              ) : (
+                <View
+                  style={{
+                    ...StyleSheet.absoluteFillObject,
+                    backgroundColor: blurFallbackColor,
+                  }}
+                />
+              )}
+              <LinearGradient
+                colors={gradientColors}
+                start={{ x: 0, y: 1 }}
+                end={{ x: 0, y: 0 }}
+                style={StyleSheet.absoluteFillObject}
+              />
+            </View>
           ) : (
             <View className="absolute inset-0 bg-white dark:bg-brand-primary" />
           )}

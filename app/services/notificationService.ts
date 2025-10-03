@@ -50,11 +50,19 @@ export class NotificationService {
       // Set up notification listeners
       this.setupNotificationListeners();
 
-      log.info("NotificationService", "Notification service initialized successfully");
+      log.info(
+        "NotificationService",
+        "Notification service initialized successfully",
+      );
     } catch (error) {
-      log.error("NotificationService", "Failed to initialize notification service", {
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "NotificationService",
+        "Failed to initialize notification service",
+        {
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -172,11 +180,16 @@ export class NotificationService {
         );
       }
     } catch (error) {
-      log.error("NotificationService", "Failed to send local notification", {
-        title,
-        body,
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "NotificationService",
+        "Failed to send local notification",
+        {
+          title,
+          body,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
       throw error;
     }
   }
@@ -213,6 +226,7 @@ export class NotificationService {
             autoDismiss: true,
           },
           trigger: {
+            type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
             seconds: delayInSeconds,
           },
         });
@@ -311,10 +325,14 @@ export class NotificationService {
       );
 
       // Don't throw - cancellation failures shouldn't break the app
-      log.warn("NotificationService", "Continuing despite cancellation failure", {
-        notificationId,
-        reason: "Non-critical operation",
-      });
+      log.warn(
+        "NotificationService",
+        "Continuing despite cancellation failure",
+        {
+          notificationId,
+          reason: "Non-critical operation",
+        },
+      );
     }
   }
 
@@ -449,7 +467,11 @@ export class NotificationService {
         data: data || {},
         timestamp: new Date(),
         type: "SYSTEM_UPDATE" as const,
-        priority: (options?.priority === "high" ? "high" : "normal") as "high" | "normal" | "low" | "critical",
+        priority: (options?.priority === "high" ? "high" : "normal") as
+          | "high"
+          | "normal"
+          | "low"
+          | "critical",
         isRead: false,
       };
 
@@ -550,7 +572,10 @@ export class NotificationService {
     useNotificationStore.getState().addNotification(notificationData);
 
     // TODO: Trigger haptic feedback when expo-haptics is available
-    log.debug("NotificationService", "Would trigger haptic feedback for notification");
+    log.debug(
+      "NotificationService",
+      "Would trigger haptic feedback for notification",
+    );
 
     // // Original implementation (commented until expo-notifications/haptics is available)
     // // Trigger haptic feedback for high priority notifications
@@ -715,9 +740,14 @@ export class NotificationService {
       await this.cancelAllNotifications();
       log.info("NotificationService", "Cleanup completed");
     } catch (error) {
-      log.error("NotificationService", "Cleanup failed", {
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "NotificationService",
+        "Cleanup failed",
+        {
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
     }
   }
 }

@@ -166,7 +166,8 @@ export const FLOW_STEPS = {
     INICIAR_VIAJE: "DRIVER_TRANSPORT_INICIAR_VIAJE" as DriverTransportStep,
     EN_VIAJE: "DRIVER_TRANSPORT_EN_VIAJE" as DriverTransportStep,
     COMPLETAR_VIAJE: "DRIVER_TRANSPORT_COMPLETAR_VIAJE" as DriverTransportStep,
-    VIAJE_COMPLETADO: "DRIVER_TRANSPORT_VIAJE_COMPLETADO" as DriverTransportStep,
+    VIAJE_COMPLETADO:
+      "DRIVER_TRANSPORT_VIAJE_COMPLETADO" as DriverTransportStep,
     VIAJE_CANCELADO: "DRIVER_TRANSPORT_VIAJE_CANCELADO" as DriverTransportStep,
   } as const,
 
@@ -231,6 +232,64 @@ export const FLOW_STEPS = {
     EN_CAMINO_DESTINO: "DRIVER_ENVIO_EN_CAMINO_DESTINO" as DriverEnvioStep,
     ENTREGAR_PAQUETE: "DRIVER_ENVIO_ENTREGAR_PAQUETE" as DriverEnvioStep,
   } as const,
+
+  // Flat constants for compatibility with components that import from constants
+  CUSTOMER_TRANSPORT_DEFINICION_VIAJE: "CUSTOMER_TRANSPORT_DEFINICION_VIAJE" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_CONFIRM_ORIGIN: "CUSTOMER_TRANSPORT_CONFIRM_ORIGIN" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_CONFIRM_DESTINATION: "CUSTOMER_TRANSPORT_CONFIRM_DESTINATION" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_SELECCION_VEHICULO: "CUSTOMER_TRANSPORT_SELECCION_VEHICULO" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_METODOLOGIA_PAGO: "CUSTOMER_TRANSPORT_METODOLOGIA_PAGO" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_BUSCANDO_CONDUCTOR: "CUSTOMER_TRANSPORT_BUSCANDO_CONDUCTOR" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_CONFIRMAR_CONDUCTOR: "CUSTOMER_TRANSPORT_CONFIRMAR_CONDUCTOR" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION: "CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_GESTION_CONFIRMACION: "CUSTOMER_TRANSPORT_GESTION_CONFIRMACION" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_DURANTE_FINALIZACION: "CUSTOMER_TRANSPORT_DURANTE_FINALIZACION" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_CONDUCTOR_LLEGO: "CUSTOMER_TRANSPORT_CONDUCTOR_LLEGO" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_VIAJE_EN_CURSO: "CUSTOMER_TRANSPORT_VIAJE_EN_CURSO" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_VIAJE_COMPLETADO: "CUSTOMER_TRANSPORT_VIAJE_COMPLETADO" as CustomerTransportStep,
+  CUSTOMER_TRANSPORT_VIAJE_CANCELADO: "CUSTOMER_TRANSPORT_VIAJE_CANCELADO" as CustomerTransportStep,
+
+  DRIVER_TRANSPORT_RECIBIR_SOLICITUD: "DRIVER_TRANSPORT_RECIBIR_SOLICITUD" as DriverTransportStep,
+  DRIVER_TRANSPORT_ACEPTAR_RECHAZAR: "DRIVER_TRANSPORT_ACEPTAR_RECHAZAR" as DriverTransportStep,
+  DRIVER_TRANSPORT_EN_CAMINO_ORIGEN: "DRIVER_TRANSPORT_EN_CAMINO_ORIGEN" as DriverTransportStep,
+  DRIVER_TRANSPORT_EN_ORIGEN: "DRIVER_TRANSPORT_EN_ORIGEN" as DriverTransportStep,
+  DRIVER_TRANSPORT_INICIAR_VIAJE: "DRIVER_TRANSPORT_INICIAR_VIAJE" as DriverTransportStep,
+  DRIVER_TRANSPORT_EN_VIAJE: "DRIVER_TRANSPORT_EN_VIAJE" as DriverTransportStep,
+  DRIVER_TRANSPORT_COMPLETAR_VIAJE: "DRIVER_TRANSPORT_COMPLETAR_VIAJE" as DriverTransportStep,
+
+  CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO: "CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO" as CustomerDeliveryStep,
+  CUSTOMER_DELIVERY_ARMADO_PEDIDO: "CUSTOMER_DELIVERY_ARMADO_PEDIDO" as CustomerDeliveryStep,
+  CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION: "CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION" as CustomerDeliveryStep,
+  CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY: "CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY" as CustomerDeliveryStep,
+
+  DRIVER_DELIVERY_RECIBIR_SOLICITUD: "DRIVER_DELIVERY_RECIBIR_SOLICITUD" as DriverDeliveryStep,
+  DRIVER_DELIVERY_PREPARAR_PEDIDO: "DRIVER_DELIVERY_PREPARAR_PEDIDO" as DriverDeliveryStep,
+  DRIVER_DELIVERY_RECOGER_PEDIDO: "DRIVER_DELIVERY_RECOGER_PEDIDO" as DriverDeliveryStep,
+  DRIVER_DELIVERY_EN_CAMINO_ENTREGA: "DRIVER_DELIVERY_EN_CAMINO_ENTREGA" as DriverDeliveryStep,
+  DRIVER_DELIVERY_ENTREGAR_PEDIDO: "DRIVER_DELIVERY_ENTREGAR_PEDIDO" as DriverDeliveryStep,
+
+  CUSTOMER_MANDADO_DETALLES_MANDADO: "CUSTOMER_MANDADO_DETALLES_MANDADO" as CustomerMandadoStep,
+  CUSTOMER_MANDADO_PRECIO_PAGO: "CUSTOMER_MANDADO_PRECIO_PAGO" as CustomerMandadoStep,
+  CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR: "CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR" as CustomerMandadoStep,
+  CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION: "CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION" as CustomerMandadoStep,
+  CUSTOMER_MANDADO_FINALIZACION: "CUSTOMER_MANDADO_FINALIZACION" as CustomerMandadoStep,
+
+  DRIVER_MANDADO_RECIBIR_SOLICITUD: "DRIVER_MANDADO_RECIBIR_SOLICITUD" as DriverMandadoStep,
+  DRIVER_MANDADO_EN_CAMINO_ORIGEN: "DRIVER_MANDADO_EN_CAMINO_ORIGEN" as DriverMandadoStep,
+  DRIVER_MANDADO_RECOGER_PRODUCTOS: "DRIVER_MANDADO_RECOGER_PRODUCTOS" as DriverMandadoStep,
+  DRIVER_MANDADO_EN_CAMINO_DESTINO: "DRIVER_MANDADO_EN_CAMINO_DESTINO" as DriverMandadoStep,
+  DRIVER_MANDADO_ENTREGAR_MANDADO: "DRIVER_MANDADO_ENTREGAR_MANDADO" as DriverMandadoStep,
+
+  CUSTOMER_ENVIO_DETALLES_ENVIO: "CUSTOMER_ENVIO_DETALLES_ENVIO" as CustomerEnvioStep,
+  CUSTOMER_ENVIO_CALCULAR_PRECIO: "CUSTOMER_ENVIO_CALCULAR_PRECIO" as CustomerEnvioStep,
+  CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE: "CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE" as CustomerEnvioStep,
+  CUSTOMER_ENVIO_CONFIRMACION_ENTREGA: "CUSTOMER_ENVIO_CONFIRMACION_ENTREGA" as CustomerEnvioStep,
+
+  DRIVER_ENVIO_RECIBIR_SOLICITUD: "DRIVER_ENVIO_RECIBIR_SOLICITUD" as DriverEnvioStep,
+  DRIVER_ENVIO_EN_CAMINO_ORIGEN: "DRIVER_ENVIO_EN_CAMINO_ORIGEN" as DriverEnvioStep,
+  DRIVER_ENVIO_RECOGER_PAQUETE: "DRIVER_ENVIO_RECOGER_PAQUETE" as DriverEnvioStep,
+  DRIVER_ENVIO_EN_CAMINO_DESTINO: "DRIVER_ENVIO_EN_CAMINO_DESTINO" as DriverEnvioStep,
+  DRIVER_ENVIO_ENTREGAR_PAQUETE: "DRIVER_ENVIO_ENTREGAR_PAQUETE" as DriverEnvioStep,
 } as const;
 
 export type MapFlowStep =
@@ -294,6 +353,30 @@ export interface MapFlowState {
   selectedTierId?: number;
   selectedVehicleTypeId?: number;
 
+  // Price calculation state
+  estimatedPrice?: number;
+  routeInfo?: {
+    distanceMiles: number;
+    durationMinutes: number;
+    originAddress: string;
+    destinationAddress: string;
+  };
+  priceBreakdown?: {
+    baseFare: number;
+    distanceCost: number;
+    timeCost: number;
+  };
+
+  // Async driver search state
+  asyncSearch: {
+    searchId: string | null;
+    status: 'idle' | 'searching' | 'found' | 'timeout' | 'cancelled';
+    matchedDriver?: any;
+    timeRemaining: number;
+    error: string | null;
+    startTime?: Date;
+  };
+
   // Derived UI state
   bottomSheetVisible: boolean;
   bottomSheetMinHeight: number;
@@ -353,7 +436,28 @@ export interface MapFlowState {
   setSelectedTierId: (tierId: number) => void;
   setSelectedVehicleTypeId: (vehicleTypeId: number) => void;
 
+  // Price calculation actions
+  setEstimatedPrice: (price: number) => void;
+  setRouteInfo: (routeInfo: {
+    distanceMiles: number;
+    durationMinutes: number;
+    originAddress: string;
+    destinationAddress: string;
+  }) => void;
+  setPriceBreakdown: (breakdown: {
+    baseFare: number;
+    distanceCost: number;
+    timeCost: number;
+  }) => void;
+
+  // Async driver search actions
+  startAsyncSearch: (searchId: string, timeRemaining: number) => void;
+  updateAsyncSearchStatus: (status: string, data?: any) => void;
+  cancelAsyncSearch: () => void;
+  confirmAsyncDriver: (driverId: number) => void;
+
   // Helper methods
+  calculateTimeRemaining: () => number;
   getInitialStepConfig: (
     step: MapFlowStep,
   ) => ReturnType<typeof getInitialStepConfig>;
@@ -394,10 +498,13 @@ const SERVICE_FLOWS: Record<FlowRole, Record<ServiceType, FlowStep[]>> = {
     transport: [
       "CUSTOMER_TRANSPORT_DEFINICION_VIAJE",
       "CUSTOMER_TRANSPORT_SELECCION_VEHICULO",
-      "CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR",
-      "CUSTOMER_TRANSPORT_GESTION_CONFIRMACION",
+      "CUSTOMER_TRANSPORT_METODOLOGIA_PAGO",
+      "CUSTOMER_TRANSPORT_BUSCANDO_CONDUCTOR",
+      "CUSTOMER_TRANSPORT_CONFIRMAR_CONDUCTOR",
+      "CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION",
       "CUSTOMER_TRANSPORT_DURANTE_FINALIZACION",
     ],
+    // Note: CONFIRM_DESTINATION and CONFIRM_ORIGIN are handled conditionally in the next() function
     delivery: [
       "CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO",
       "CUSTOMER_DELIVERY_ARMADO_PEDIDO",
@@ -659,9 +766,9 @@ const DEFAULT_CONFIG: Record<MapFlowStep, StepConfig> = {
     id: "CUSTOMER_TRANSPORT_BUSCANDO_CONDUCTOR",
     bottomSheet: {
       visible: true,
-      minHeight: 120,
-      maxHeight: 280,
-      initialHeight: 150,
+      minHeight: 300,
+      maxHeight: 700,
+      initialHeight: 500,
       showHandle: false,
       allowDrag: false,
     },
@@ -1330,6 +1437,16 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   selectedTierId: undefined,
   selectedVehicleTypeId: undefined,
 
+  // Async driver search state
+  asyncSearch: {
+    searchId: null,
+    status: 'idle' as const,
+    matchedDriver: undefined,
+    timeRemaining: 0,
+    error: null,
+    startTime: undefined,
+  },
+
   // Initialize with correct config for SELECCION_SERVICIO
   ...getInitialStepConfig("SELECCION_SERVICIO"),
 
@@ -1480,33 +1597,33 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
       if (state.role === "customer") {
         const currentStep = state.step;
 
-        if (currentStep === FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE) {
+        if (currentStep === FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE) {
           // Navigate based on rideType
           if (state.rideType === RideType.FOR_OTHER) {
-            get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_ORIGIN);
+            get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_ORIGIN);
           } else {
-            get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_DESTINATION);
+            get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_DESTINATION);
           }
           return;
         }
 
-        if (currentStep === FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_ORIGIN) {
+        if (currentStep === FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_ORIGIN) {
           // Always go to CONFIRM_DESTINATION after confirming origin
-          get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_DESTINATION);
+          get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_DESTINATION);
           return;
         }
 
-        if (currentStep === FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_DESTINATION) {
+        if (currentStep === FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_DESTINATION) {
           // Go to vehicle selection after confirming destination
-          get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.SELECCION_VEHICULO);
+          get().goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_SELECCION_VEHICULO);
           return;
         }
       } else if (state.role === "driver") {
         const currentStep = state.step;
 
-        if (currentStep === FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD) {
+        if (currentStep === FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD) {
           // After receiving request, go to accept/reject step
-          get().goTo(FLOW_STEPS.DRIVER_TRANSPORT.ACEPTAR_RECHAZAR);
+          get().goTo(FLOW_STEPS.DRIVER_TRANSPORT_ACEPTAR_RECHAZAR);
           return;
         }
       }
@@ -1615,6 +1732,143 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   setSelectedTierId: (tierId) => set(() => ({ selectedTierId: tierId })),
   setSelectedVehicleTypeId: (vehicleTypeId) =>
     set(() => ({ selectedVehicleTypeId: vehicleTypeId })),
+
+  // Price calculation actions
+  setEstimatedPrice: (price) => {
+    console.log("[MapFlowStore] setEstimatedPrice called with:", price);
+    set(() => ({ estimatedPrice: price }));
+    console.log("[MapFlowStore] setEstimatedPrice completed");
+  },
+  setRouteInfo: (routeInfo) => {
+    console.log("[MapFlowStore] setRouteInfo called with:", routeInfo);
+    set(() => ({ routeInfo }));
+  },
+  setPriceBreakdown: (breakdown) => {
+    console.log("[MapFlowStore] setPriceBreakdown called with:", breakdown);
+    set(() => ({ priceBreakdown: breakdown }));
+  },
+
+  // Async driver search actions
+  startAsyncSearch: (searchId, timeRemaining) => {
+    console.log("[MapFlowStore] startAsyncSearch called with:", { searchId, timeRemaining });
+    set((state) => ({
+      asyncSearch: {
+        ...state.asyncSearch,
+        searchId,
+        status: 'searching' as const,
+        timeRemaining,
+        error: null,
+        startTime: new Date(),
+      },
+    }));
+  },
+
+  updateAsyncSearchStatus: (status, data) => {
+    console.log("[MapFlowStore] updateAsyncSearchStatus called with:", { status, data });
+    set((state) => ({
+      asyncSearch: {
+        ...state.asyncSearch,
+        status: status as 'idle' | 'searching' | 'found' | 'timeout' | 'cancelled',
+        ...(data?.matchedDriver && { matchedDriver: data.matchedDriver }),
+        ...(data?.timeRemaining !== undefined && { timeRemaining: data.timeRemaining }),
+        ...(data?.error && { error: data.error }),
+      },
+    }));
+  },
+
+  cancelAsyncSearch: () => {
+    console.log("[MapFlowStore] cancelAsyncSearch called");
+    set((state) => ({
+      asyncSearch: {
+        ...state.asyncSearch,
+        status: 'cancelled' as const,
+        timeRemaining: 0,
+        error: null,
+      },
+    }));
+  },
+
+  confirmAsyncDriver: (driverId) => {
+    console.log("[MapFlowStore] confirmAsyncDriver called with:", driverId);
+    // Aquí podríamos actualizar el estado del conductor confirmado
+    // o simplemente resetear la búsqueda
+    set((state) => ({
+      asyncSearch: {
+        ...state.asyncSearch,
+        status: 'idle' as const,
+        timeRemaining: 0,
+        error: null,
+      },
+    }));
+  },
+
+  // Helper method to calculate time remaining
+  calculateTimeRemaining: () => {
+    const state = get();
+    if (!state.asyncSearch.startTime || state.asyncSearch.status !== 'searching') {
+      return 0;
+    }
+
+    const elapsed = Math.floor((Date.now() - state.asyncSearch.startTime.getTime()) / 1000);
+    const maxWaitTime = 300; // Default max wait time in seconds
+    const remaining = Math.max(0, maxWaitTime - elapsed);
+
+    return remaining;
+  },
+
+  // Helper method to start countdown timer for async search
+  startAsyncSearchTimer: () => {
+    const state = get();
+    if (state.asyncSearch.status !== 'searching' || !state.asyncSearch.startTime) {
+      console.log("[MapFlowStore] Cannot start timer: search not active");
+      return;
+    }
+
+    const maxWaitTime = 300; // 5 minutes default
+    console.log("[MapFlowStore] Starting async search timer with maxWaitTime:", maxWaitTime);
+
+    // Clear any existing timer
+    if ((state as any).asyncSearchTimer) {
+      clearInterval((state as any).asyncSearchTimer);
+    }
+
+    // Start new timer
+    const timer = setInterval(() => {
+      const currentState = get();
+      if (currentState.asyncSearch.status !== 'searching') {
+        clearInterval(timer);
+        return;
+      }
+
+      const remaining = currentState.calculateTimeRemaining();
+
+      // Update time remaining
+      set((state) => ({
+        asyncSearch: {
+          ...state.asyncSearch,
+          timeRemaining: remaining,
+        },
+      }));
+
+      // Check if time is up
+      if (remaining === 0) {
+        console.log("[MapFlowStore] Async search timeout reached");
+        clearInterval(timer);
+
+        // Update status to timeout
+        set((state) => ({
+          asyncSearch: {
+            ...state.asyncSearch,
+            status: 'timeout' as const,
+            error: 'Tiempo de búsqueda agotado',
+          },
+        }));
+      }
+    }, 1000); // Update every second
+
+    // Store timer reference (using any to avoid TypeScript issues)
+    (state as any).asyncSearchTimer = timer;
+  },
 
   updateStepBottomSheet: (step, cfg) => {
     set((state) => {

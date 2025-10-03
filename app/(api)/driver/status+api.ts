@@ -1,8 +1,10 @@
-import { neon } from "@neondatabase/serverless";
-import { NextRequest } from "next/server";
-import jwt from "jsonwebtoken";
+// Note: This file is commented out because it's a Next.js API route
+// but this is a React Native project. Uncomment if using Next.js backend.
+// import { neon } from "@neondatabase/serverless";
+// import { NextRequest } from "next/server";
+// import jwt from "jsonwebtoken";
 
-export async function GET(request: NextRequest) {
+/*
   try {
     // Get authorization header
     const authHeader = request.headers.get("authorization");
@@ -114,4 +116,4 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
-}
+*/

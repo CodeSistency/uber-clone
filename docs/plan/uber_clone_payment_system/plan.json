@@ -1,0 +1,361 @@
+{
+  "proyecto": "uber_clone_payment_system",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Correcciones Básicas de UX",
+      "estado": "completada",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Remoción de Elementos Innecesarios",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Eliminar componentes que no aportan valor al usuario y mejoran la experiencia",
+          "dependencias": [
+            "components/unified-flow/steps/Client/Viaje/PaymentMethodology.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Quitar Card de Pago Seguro",
+              "descripcion": "Remover la card azul que informa sobre pago seguro ya que no aporta valor real al usuario",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Localizar componente Card",
+                  "descripcion": "Encontrar la card con texto 'Pago seguro' en PaymentMethodology.tsx"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Eliminar JSX de la card",
+                  "descripcion": "Remover completamente el bloque JSX que contiene la información de pago seguro"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Validación Mejorada por Método",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar validaciones específicas según el método de pago seleccionado",
+          "dependencias": [
+            "lib/paymentValidation.ts",
+            "components/unified-flow/steps/Client/Viaje/PaymentMethodology.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear Función de Validación Específica",
+              "descripcion": "Desarrollar función que valide datos adicionales requeridos por método (bankCode, etc.)",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Analizar métodos que requieren bankCode",
+                  "descripcion": "Identificar que transfer y pago_movil necesitan código bancario"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar validatePaymentWithData",
+                  "descripcion": "Crear función que valide método base + datos adicionales"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Actualizar Lógica de canContinue",
+              "descripcion": "Modificar la validación del botón continuar para considerar datos adicionales",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Reemplazar validatePaymentMethod simple",
+                  "descripcion": "Usar nueva función de validación que incluye bankCode"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Probar validación por método",
+                  "descripcion": "Verificar que cash permita continuar sin datos extra, pero transfer no"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Integración Backend - Endpoint Principal",
+      "estado": "completada",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Endpoint /pay-with-multiple-methods",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar integración completa con el endpoint principal de pagos múltiples",
+          "dependencias": [
+            "app/services/flowClientService.ts",
+            "store/paymentStore.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Actualizar Payload del Request",
+              "descripcion": "Modificar la estructura de datos enviada al backend según documentación",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Implementar estructura totalAmount + payments[]",
+                  "descripcion": "Cambiar de payload simple a estructura con totalAmount y array payments"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Mapear métodos a formato backend",
+                  "descripcion": "Convertir métodos frontend a métodos backend (wallet, cash, transfer, etc.)"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Manejar Estados de Respuesta",
+              "descripcion": "Implementar lógica para diferentes estados de respuesta del backend",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Status 'complete' - navegación inmediata",
+                  "descripcion": "Cuando pago es completo, continuar automáticamente a matching"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Status 'incomplete' - mostrar referencias",
+                  "descripcion": "Cuando faltan confirmaciones, mostrar pantalla de referencias bancarias"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "UX Mejorada - Inputs Específicos por Método",
+      "estado": "completada",
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Componente PaymentMethodSelector Inteligente",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Mejorar el selector de métodos para mostrar inputs específicos según el método",
+          "dependencias": [
+            "components/PaymentMethodSelector.tsx",
+            "lib/paymentValidation.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Identificar Métodos que Requieren Inputs",
+              "descripcion": "Crear lógica para determinar qué métodos necesitan datos adicionales",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Métodos simples: cash, wallet, zelle, bitcoin",
+                  "descripcion": "Estos métodos no requieren inputs adicionales"
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Métodos complejos: transfer, pago_movil",
+                  "descripcion": "Estos requieren selección de banco (bankCode)"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Implementar BankSelector Component",
+              "descripcion": "Crear componente reutilizable para selección de banco venezolano",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Usar VENEZUELAN_BANKS del validation lib",
+                  "descripcion": "Integrar la lista completa de bancos venezolanos"
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "UI de selección intuitiva",
+                  "descripcion": "Dropdown o lista con nombres cortos de bancos"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.3",
+              "nombre": "Integrar Inputs en PaymentMethodSelector",
+              "descripcion": "Mostrar campos adicionales cuando sean requeridos",
+              "subtareas": [
+                {
+                  "id": "ST3.1.3.1",
+                  "nombre": "Mostrar/ocultar BankSelector dinámicamente",
+                  "descripcion": "Solo mostrar cuando el método seleccionado lo requiera"
+                },
+                {
+                  "id": "ST3.1.3.2",
+                  "nombre": "Validación en tiempo real",
+                  "descripcion": "Mostrar errores inmediatamente cuando falten datos"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Funcionalidades Avanzadas - Wallet y Estados Complejos",
+      "estado": "completada",
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Integración Método Wallet",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar wallet como método prioritario con validación de saldo",
+          "dependencias": [
+            "store/walletStore.ts",
+            "components/WalletBalanceIndicator.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Mostrar Saldo Disponible",
+              "descripcion": "Integrar indicador de saldo en la UI de selección de métodos",
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Crear WalletBalanceIndicator component",
+                  "descripcion": "Componente que muestra saldo actual del usuario"
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Validación automática de saldo",
+                  "descripcion": "Deshabilitar wallet si saldo insuficiente"
+                }
+              ]
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Priorizar Wallet en UI",
+              "descripcion": "Mostrar wallet como primera opción cuando esté disponible",
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "Reordenar lista de métodos",
+                  "descripcion": "Wallet primero, luego cash, luego otros"
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "Indicador visual de recomendado",
+                  "descripcion": "Badge o icono especial para wallet"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Manejo de Referencias Bancarias",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Implementar pantalla y lógica para pagos que requieren confirmación externa",
+          "dependencias": [
+            "components/PaymentReferencesScreen.tsx",
+            "store/paymentStore.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Crear Pantalla de Referencias",
+              "descripcion": "Desarrollar UI para mostrar referencias bancarias generadas",
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Mostrar múltiples referencias",
+                  "descripcion": "UI para lista de referencias (número, banco, monto, expiración)"
+                },
+                {
+                  "id": "ST4.2.1.2",
+                  "nombre": "Instrucciones claras por método",
+                  "descripcion": "Texto explicativo de cómo completar cada tipo de pago"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.2",
+              "nombre": "Implementar Confirmación Manual",
+              "descripcion": "Permitir al usuario confirmar pagos externos realizados",
+              "subtareas": [
+                {
+                  "id": "ST4.2.2.1",
+                  "nombre": "Endpoint de confirmación",
+                  "descripcion": "Integrar endpoint para validar pagos externos"
+                },
+                {
+                  "id": "ST4.2.2.2",
+                  "nombre": "Polling automático",
+                  "descripcion": "Verificar estado automáticamente cada cierto tiempo"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.3",
+          "nombre": "Manejo de Errores Robusto",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Implementar recuperación automática para diferentes tipos de error",
+          "dependencias": [
+            "lib/paymentValidation.ts",
+            "components/unified-flow/steps/Client/Viaje/PaymentMethodology.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T4.3.1",
+              "nombre": "Errores Específicos por Método",
+              "descripcion": "Manejar errores particulares de cada método de pago",
+              "subtareas": [
+                {
+                  "id": "ST4.3.1.1",
+                  "nombre": "INSUFFICIENT_FUNDS para wallet",
+                  "descripcion": "Ofrecer recarga automática o método alternativo"
+                },
+                {
+                  "id": "ST4.3.1.2",
+                  "nombre": "PAYMENT_EXPIRED para referencias",
+                  "descripcion": "Generar nueva referencia automáticamente"
+                }
+              ]
+            },
+            {
+              "id": "T4.3.2",
+              "nombre": "Recuperación Automática",
+              "descripcion": "Intentar resolver errores automáticamente cuando sea posible",
+              "subtareas": [
+                {
+                  "id": "ST4.3.2.1",
+                  "nombre": "Reintento automático para errores temporales",
+                  "descripcion": "Reintentar operaciones que pueden fallar temporalmente"
+                },
+                {
+                  "id": "ST4.3.2.2",
+                  "nombre": "Fallback a métodos alternativos",
+                  "descripcion": "Sugerir métodos alternativos cuando uno falle"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

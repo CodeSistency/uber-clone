@@ -52,18 +52,21 @@ const updateDriverProfile = async (updates: Partial<DriverProfile>) => {
 
   try {
     await updateProfile(updates);
-    showSuccess('Profile Updated', 'Your profile has been updated successfully');
+    showSuccess(
+      "Profile Updated",
+      "Your profile has been updated successfully",
+    );
   } catch (error) {
-    showError('Update Failed', 'Failed to update profile. Please try again.');
+    showError("Update Failed", "Failed to update profile. Please try again.");
   }
 };
 
 // Uso en un formulario
 const handleProfileUpdate = () => {
   updateDriverProfile({
-    firstName: 'Carlos',
-    lastName: 'Rodriguez',
-    phone: '+1234567890'
+    firstName: "Carlos",
+    lastName: "Rodriguez",
+    phone: "+1234567890",
   });
 };
 ```
@@ -134,21 +137,21 @@ const VehicleForm = () => {
 #### Gestionar Estado de Vehículos
 
 ```typescript
-const toggleVehicleStatus = async (vehicleId: string, currentStatus: VehicleStatus) => {
+const toggleVehicleStatus = async (
+  vehicleId: string,
+  currentStatus: VehicleStatus,
+) => {
   const { updateVehicle } = useDriverProfileStore.getState();
   const { showSuccess, showError } = useUI();
 
   try {
-    const newStatus = currentStatus === 'active' ? 'inactive' : 'active';
+    const newStatus = currentStatus === "active" ? "inactive" : "active";
 
     await updateVehicle(vehicleId, { status: newStatus });
 
-    showSuccess(
-      'Status Updated',
-      `Vehicle is now ${newStatus}`
-    );
+    showSuccess("Status Updated", `Vehicle is now ${newStatus}`);
   } catch (error) {
-    showError('Error', 'Failed to update vehicle status');
+    showError("Error", "Failed to update vehicle status");
   }
 };
 ```
@@ -203,16 +206,22 @@ const checkVerificationStatus = () => {
   const { documents } = useDriverProfileStore.getState();
 
   const totalDocs = documents.length;
-  const approvedDocs = documents.filter(doc => doc.status === 'approved').length;
-  const pendingDocs = documents.filter(doc => doc.status === 'pending_review').length;
-  const rejectedDocs = documents.filter(doc => doc.status === 'rejected').length;
+  const approvedDocs = documents.filter(
+    (doc) => doc.status === "approved",
+  ).length;
+  const pendingDocs = documents.filter(
+    (doc) => doc.status === "pending_review",
+  ).length;
+  const rejectedDocs = documents.filter(
+    (doc) => doc.status === "rejected",
+  ).length;
 
   return {
     totalDocs,
     approvedDocs,
     pendingDocs,
     rejectedDocs,
-    isFullyVerified: approvedDocs === totalDocs && totalDocs > 0
+    isFullyVerified: approvedDocs === totalDocs && totalDocs > 0,
   };
 };
 ```
@@ -333,35 +342,35 @@ const TripHistory = () => {
 #### Servicio de Conductor
 
 ```typescript
-describe('DriverService', () => {
+describe("DriverService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('getProfile', () => {
-    it('should return profile data on success', async () => {
+  describe("getProfile", () => {
+    it("should return profile data on success", async () => {
       const mockResponse = {
-        id: 'driver123',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john@example.com',
+        id: "driver123",
+        firstName: "John",
+        lastName: "Doe",
+        email: "john@example.com",
         rating: 4.8,
-        totalRides: 150
+        totalRides: 150,
       };
 
       (fetchAPI as jest.Mock).mockResolvedValue(mockResponse);
 
       const result = await driverService.getProfile();
 
-      expect(fetchAPI).toHaveBeenCalledWith('drivers/profile', {
-        requiresAuth: true
+      expect(fetchAPI).toHaveBeenCalledWith("drivers/profile", {
+        requiresAuth: true,
       });
       expect(result.success).toBe(true);
       expect(result.data).toEqual(mockResponse);
     });
 
-    it('should handle API errors gracefully', async () => {
-      const errorMessage = 'Network error';
+    it("should handle API errors gracefully", async () => {
+      const errorMessage = "Network error";
       (fetchAPI as jest.Mock).mockRejectedValue(new Error(errorMessage));
 
       const result = await driverService.getProfile();
@@ -370,54 +379,54 @@ describe('DriverService', () => {
       expect(result.message).toContain(errorMessage);
     });
 
-    it('should handle 401 unauthorized', async () => {
-      const error = new Error('Unauthorized');
+    it("should handle 401 unauthorized", async () => {
+      const error = new Error("Unauthorized");
       error.statusCode = 401;
       (fetchAPI as jest.Mock).mockRejectedValue(error);
 
       const result = await driverService.getProfile();
 
       expect(result.success).toBe(false);
-      expect(result.message).toContain('Unauthorized');
+      expect(result.message).toContain("Unauthorized");
       // Should trigger logout or token refresh
     });
   });
 
-  describe('updateProfile', () => {
-    it('should update profile successfully', async () => {
-      const updates = { firstName: 'Jane', phone: '+1234567890' };
+  describe("updateProfile", () => {
+    it("should update profile successfully", async () => {
+      const updates = { firstName: "Jane", phone: "+1234567890" };
       const mockResponse = {
-        id: 'driver123',
-        firstName: 'Jane',
-        phone: '+1234567890'
+        id: "driver123",
+        firstName: "Jane",
+        phone: "+1234567890",
       };
 
       (fetchAPI as jest.Mock).mockResolvedValue(mockResponse);
 
       const result = await driverService.updateProfile(updates);
 
-      expect(fetchAPI).toHaveBeenCalledWith('drivers/profile', {
-        method: 'PUT',
+      expect(fetchAPI).toHaveBeenCalledWith("drivers/profile", {
+        method: "PUT",
         body: JSON.stringify(updates),
-        requiresAuth: true
+        requiresAuth: true,
       });
       expect(result.success).toBe(true);
-      expect(result.data.firstName).toBe('Jane');
+      expect(result.data.firstName).toBe("Jane");
     });
 
-    it('should validate input data', async () => {
-      const invalidUpdates = { email: 'invalid-email' };
+    it("should validate input data", async () => {
+      const invalidUpdates = { email: "invalid-email" };
 
       // Mock validation error from API
       (fetchAPI as jest.Mock).mockRejectedValue({
         statusCode: 422,
-        message: 'Invalid email format'
+        message: "Invalid email format",
       });
 
       const result = await driverService.updateProfile(invalidUpdates);
 
       expect(result.success).toBe(false);
-      expect(result.message).toContain('Invalid email format');
+      expect(result.message).toContain("Invalid email format");
     });
   });
 });
@@ -426,7 +435,7 @@ describe('DriverService', () => {
 #### Store de Perfil del Conductor
 
 ```typescript
-describe('DriverProfileStore', () => {
+describe("DriverProfileStore", () => {
   beforeEach(() => {
     act(() => {
       useDriverProfileStore.setState({
@@ -439,19 +448,19 @@ describe('DriverProfileStore', () => {
     });
   });
 
-  describe('fetchProfile', () => {
-    it('should fetch and set profile data', async () => {
+  describe("fetchProfile", () => {
+    it("should fetch and set profile data", async () => {
       const mockProfile = {
-        id: 'driver123',
-        firstName: 'John',
-        lastName: 'Doe',
-        rating: 4.8
+        id: "driver123",
+        firstName: "John",
+        lastName: "Doe",
+        rating: 4.8,
       };
 
-      jest.spyOn(driverService, 'getProfile').mockResolvedValue({
+      jest.spyOn(driverService, "getProfile").mockResolvedValue({
         success: true,
         data: mockProfile,
-        message: 'Success'
+        message: "Success",
       });
 
       const { result } = renderHook(() => useDriverProfileStore());
@@ -465,10 +474,10 @@ describe('DriverProfileStore', () => {
       expect(result.current.error).toBe(null);
     });
 
-    it('should handle fetch errors', async () => {
-      jest.spyOn(driverService, 'getProfile').mockResolvedValue({
+    it("should handle fetch errors", async () => {
+      jest.spyOn(driverService, "getProfile").mockResolvedValue({
         success: false,
-        message: 'API Error'
+        message: "API Error",
       });
 
       const { result } = renderHook(() => useDriverProfileStore());
@@ -478,16 +487,16 @@ describe('DriverProfileStore', () => {
       });
 
       expect(result.current.profile).toBeTruthy(); // Should use fallback
-      expect(result.current.error).toContain('API Error');
+      expect(result.current.error).toContain("API Error");
     });
 
-    it('should set loading state during fetch', async () => {
+    it("should set loading state during fetch", async () => {
       let resolvePromise: (value: any) => void;
       const promise = new Promise((resolve) => {
         resolvePromise = resolve;
       });
 
-      jest.spyOn(driverService, 'getProfile').mockReturnValue(promise);
+      jest.spyOn(driverService, "getProfile").mockReturnValue(promise);
 
       const { result } = renderHook(() => useDriverProfileStore());
 
@@ -500,8 +509,8 @@ describe('DriverProfileStore', () => {
       await act(async () => {
         resolvePromise({
           success: true,
-          data: { id: 'test' },
-          message: 'Success'
+          data: { id: "test" },
+          message: "Success",
         });
       });
 
@@ -516,14 +525,14 @@ describe('DriverProfileStore', () => {
 #### Flujo Completo de Onboarding de Conductor
 
 ```typescript
-describe('Driver Onboarding Flow', () => {
-  it('should complete full onboarding process', async () => {
+describe("Driver Onboarding Flow", () => {
+  it("should complete full onboarding process", async () => {
     // 1. Create profile
     const profileData = {
-      firstName: 'John',
-      lastName: 'Doe',
-      email: 'john@example.com',
-      phone: '+1234567890'
+      firstName: "John",
+      lastName: "Doe",
+      email: "john@example.com",
+      phone: "+1234567890",
     };
 
     await act(async () => {
@@ -532,12 +541,12 @@ describe('Driver Onboarding Flow', () => {
 
     // 2. Add vehicle
     const vehicleData = {
-      make: 'Toyota',
-      model: 'Camry',
+      make: "Toyota",
+      model: "Camry",
       year: 2020,
-      licensePlate: 'ABC123',
-      color: 'White',
-      seats: 4
+      licensePlate: "ABC123",
+      color: "White",
+      seats: 4,
     };
 
     await act(async () => {
@@ -545,10 +554,10 @@ describe('Driver Onboarding Flow', () => {
     });
 
     // 3. Upload documents
-    const documentFile = new File(['dummy content'], 'license.pdf');
+    const documentFile = new File(["dummy content"], "license.pdf");
 
     await act(async () => {
-      await driverService.uploadDocument('driver_license', documentFile);
+      await driverService.uploadDocument("driver_license", documentFile);
     });
 
     // 4. Verify status
@@ -558,31 +567,31 @@ describe('Driver Onboarding Flow', () => {
     expect(status.documentsUploaded).toBe(1);
   });
 
-  it('should handle document rejection and re-upload', async () => {
+  it("should handle document rejection and re-upload", async () => {
     // Upload document
-    const documentFile = new File(['dummy content'], 'license.pdf');
+    const documentFile = new File(["dummy content"], "license.pdf");
 
     await act(async () => {
-      await driverService.uploadDocument('driver_license', documentFile);
+      await driverService.uploadDocument("driver_license", documentFile);
     });
 
     // Simulate rejection
     await act(async () => {
-      await driverService.rejectDocument('doc123', 'Poor quality image');
+      await driverService.rejectDocument("doc123", "Poor quality image");
     });
 
     // Re-upload
-    const newDocumentFile = new File(['better content'], 'license_clear.pdf');
+    const newDocumentFile = new File(["better content"], "license_clear.pdf");
 
     await act(async () => {
-      await driverService.reuploadDocument('doc123', newDocumentFile);
+      await driverService.reuploadDocument("doc123", newDocumentFile);
     });
 
     // Check status
     const documents = await driverService.getDocuments();
-    const doc = documents.find(d => d.id === 'doc123');
+    const doc = documents.find((d) => d.id === "doc123");
 
-    expect(doc.status).toBe('pending_review');
+    expect(doc.status).toBe("pending_review");
     expect(doc.rejectionReason).toBe(null);
   });
 });
@@ -591,47 +600,47 @@ describe('Driver Onboarding Flow', () => {
 #### Gestión de Estado de Vehículos
 
 ```typescript
-describe('Vehicle Status Management', () => {
-  it('should change vehicle status correctly', async () => {
+describe("Vehicle Status Management", () => {
+  it("should change vehicle status correctly", async () => {
     // Add vehicle
     const vehicle = await driverService.addVehicle({
-      make: 'Honda',
-      model: 'Civic',
+      make: "Honda",
+      model: "Civic",
       year: 2021,
-      licensePlate: 'XYZ789',
-      color: 'Blue',
-      seats: 4
+      licensePlate: "XYZ789",
+      color: "Blue",
+      seats: 4,
     });
 
-    expect(vehicle.status).toBe('pending');
+    expect(vehicle.status).toBe("pending");
 
     // Activate vehicle
-    await driverService.updateVehicle(vehicle.id, { status: 'active' });
+    await driverService.updateVehicle(vehicle.id, { status: "active" });
 
     const updatedVehicle = await driverService.getVehicle(vehicle.id);
-    expect(updatedVehicle.status).toBe('active');
+    expect(updatedVehicle.status).toBe("active");
 
     // Deactivate vehicle
-    await driverService.updateVehicle(vehicle.id, { status: 'inactive' });
+    await driverService.updateVehicle(vehicle.id, { status: "inactive" });
 
     const deactivatedVehicle = await driverService.getVehicle(vehicle.id);
-    expect(deactivatedVehicle.status).toBe('inactive');
+    expect(deactivatedVehicle.status).toBe("inactive");
   });
 
-  it('should prevent activation of unverified vehicles', async () => {
+  it("should prevent activation of unverified vehicles", async () => {
     const vehicle = await driverService.addVehicle({
-      make: 'Honda',
-      model: 'Civic',
+      make: "Honda",
+      model: "Civic",
       year: 2021,
-      licensePlate: 'XYZ789',
-      color: 'Blue',
-      seats: 4
+      licensePlate: "XYZ789",
+      color: "Blue",
+      seats: 4,
     });
 
     // Try to activate without verification
     await expect(
-      driverService.updateVehicle(vehicle.id, { status: 'active' })
-    ).rejects.toThrow('Vehicle must be verified before activation');
+      driverService.updateVehicle(vehicle.id, { status: "active" }),
+    ).rejects.toThrow("Vehicle must be verified before activation");
   });
 });
 ```
@@ -771,14 +780,14 @@ describe('VehicleForm Component', () => {
 #### Carga de Datos
 
 ```typescript
-describe('Data Loading Performance', () => {
-  it('should load profile within acceptable time', async () => {
+describe("Data Loading Performance", () => {
+  it("should load profile within acceptable time", async () => {
     const startTime = performance.now();
 
-    jest.spyOn(driverService, 'getProfile').mockResolvedValue({
+    jest.spyOn(driverService, "getProfile").mockResolvedValue({
       success: true,
       data: mockProfile,
-      message: 'Success'
+      message: "Success",
     });
 
     const { result } = renderHook(() => useDriverProfileStore());
@@ -794,14 +803,14 @@ describe('Data Loading Performance', () => {
     expect(duration).toBeLessThan(2000);
   });
 
-  it('should handle concurrent API calls efficiently', async () => {
+  it("should handle concurrent API calls efficiently", async () => {
     const startTime = performance.now();
 
     const promises = [
       driverService.getProfile(),
       driverService.getVehicles(),
       driverService.getDocuments(),
-      driverService.getEarningsSummary()
+      driverService.getEarningsSummary(),
     ];
 
     await Promise.all(promises);
@@ -820,13 +829,20 @@ describe('Data Loading Performance', () => {
 #### Manejo de Errores de Red
 
 ```typescript
-describe('Network Error Handling', () => {
-  it('should handle network timeouts gracefully', async () => {
-    jest.spyOn(driverService, 'getProfile').mockImplementation(
-      () => new Promise((resolve) => setTimeout(() => resolve({
-        success: false,
-        message: 'Network timeout'
-      }), 30000)) // 30 seconds
+describe("Network Error Handling", () => {
+  it("should handle network timeouts gracefully", async () => {
+    jest.spyOn(driverService, "getProfile").mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(
+            () =>
+              resolve({
+                success: false,
+                message: "Network timeout",
+              }),
+            30000,
+          ),
+        ), // 30 seconds
     );
 
     const { result } = renderHook(() => useDriverProfileStore());
@@ -840,26 +856,29 @@ describe('Network Error Handling', () => {
     expect(result.current.isLoading).toBe(true);
 
     // After timeout, should show error
-    await waitFor(() => {
-      expect(result.current.isLoading).toBe(false);
-      expect(result.current.error).toContain('timeout');
-    }, { timeout: 31000 });
+    await waitFor(
+      () => {
+        expect(result.current.isLoading).toBe(false);
+        expect(result.current.error).toContain("timeout");
+      },
+      { timeout: 31000 },
+    );
   });
 
-  it('should retry failed requests automatically', async () => {
+  it("should retry failed requests automatically", async () => {
     let callCount = 0;
-    jest.spyOn(driverService, 'getProfile').mockImplementation(() => {
+    jest.spyOn(driverService, "getProfile").mockImplementation(() => {
       callCount++;
       if (callCount < 3) {
         return Promise.resolve({
           success: false,
-          message: 'Temporary error'
+          message: "Temporary error",
         });
       }
       return Promise.resolve({
         success: true,
         data: mockProfile,
-        message: 'Success'
+        message: "Success",
       });
     });
 
@@ -880,50 +899,52 @@ describe('Network Error Handling', () => {
 #### Autenticación
 
 ```typescript
-describe('Authentication Security', () => {
-  it('should include valid auth tokens in API calls', async () => {
-    const mockToken = 'valid.jwt.token';
+describe("Authentication Security", () => {
+  it("should include valid auth tokens in API calls", async () => {
+    const mockToken = "valid.jwt.token";
 
     // Mock token manager
-    jest.spyOn(tokenManager, 'getAccessToken').mockResolvedValue(mockToken);
+    jest.spyOn(tokenManager, "getAccessToken").mockResolvedValue(mockToken);
 
     await driverService.getProfile();
 
-    expect(fetchAPI).toHaveBeenCalledWith('drivers/profile', {
+    expect(fetchAPI).toHaveBeenCalledWith("drivers/profile", {
       requiresAuth: true,
       headers: expect.objectContaining({
-        'Authorization': `Bearer ${mockToken}`
-      })
+        Authorization: `Bearer ${mockToken}`,
+      }),
     });
   });
 
-  it('should handle expired tokens gracefully', async () => {
+  it("should handle expired tokens gracefully", async () => {
     // Mock expired token
-    jest.spyOn(tokenManager, 'getAccessToken').mockResolvedValue('expired.token');
+    jest
+      .spyOn(tokenManager, "getAccessToken")
+      .mockResolvedValue("expired.token");
 
     jest.spyOn(fetchAPI as jest.Mock).mockRejectedValue({
       statusCode: 401,
-      message: 'Token expired'
+      message: "Token expired",
     });
 
     const result = await driverService.getProfile();
 
     expect(result.success).toBe(false);
-    expect(result.message).toContain('expired');
+    expect(result.message).toContain("expired");
 
     // Should trigger token refresh or logout
-    expect(router.replace).toHaveBeenCalledWith('/(auth)/sign-in');
+    expect(router.replace).toHaveBeenCalledWith("/(auth)/sign-in");
   });
 
-  it('should validate input data to prevent injection', async () => {
+  it("should validate input data to prevent injection", async () => {
     const maliciousData = {
       firstName: '<script>alert("xss")</script>',
-      email: 'test@example.com'
+      email: "test@example.com",
     };
 
-    await expect(
-      driverService.updateProfile(maliciousData)
-    ).rejects.toThrow('Invalid input data');
+    await expect(driverService.updateProfile(maliciousData)).rejects.toThrow(
+      "Invalid input data",
+    );
   });
 });
 ```
@@ -931,6 +952,7 @@ describe('Authentication Security', () => {
 ## Checklist de Testing
 
 ### ✅ Pruebas Completadas
+
 - [x] Tests unitarios de servicios
 - [x] Tests de integración de stores
 - [x] Tests de componentes UI
@@ -943,12 +965,14 @@ describe('Authentication Security', () => {
 - [x] Tests de internacionalización
 
 ### 📊 Cobertura de Código
+
 - **Servicios**: 95%+ cobertura
 - **Stores**: 90%+ cobertura
 - **Componentes**: 85%+ cobertura
 - **Utilidades**: 90%+ cobertura
 
 ### 🚀 Próximos Pasos
+
 - [ ] Implementar tests E2E con Detox
 - [ ] Agregar tests de integración con APIs reales
 - [ ] Configurar CI/CD con tests automatizados

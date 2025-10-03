@@ -1,6 +1,6 @@
-import { useRef } from 'react';
-import { Region, LatLng } from 'react-native-maps';
-import { MapHandle } from '@/components/Map';
+import { useRef } from "react";
+import { Region, LatLng } from "react-native-maps";
+import { MapHandle } from "@/components/Map";
 
 export const useMapController = () => {
   const mapRef = useRef<MapHandle | null>(null);
@@ -23,8 +23,14 @@ export const useMapController = () => {
     mapRef.current?.animateToCoordinate(center, duration);
   };
 
-  const fitBounds = (coords: LatLng[], padding = { top: 40, right: 40, bottom: 40, left: 40 }) => {
-    mapRef.current?.fitToCoordinates(coords, { edgePadding: padding, animated: true });
+  const fitBounds = (
+    coords: LatLng[],
+    padding = { top: 40, right: 40, bottom: 40, left: 40 },
+  ) => {
+    mapRef.current?.fitToCoordinates(coords, {
+      edgePadding: padding,
+      animated: true,
+    });
   };
 
   const setCamera = (config: any) => {
@@ -41,7 +47,10 @@ export const useMapController = () => {
     mapRef.current?.clearRoutePolyline();
   };
 
-  const setNavMarkers = (markers: { pickup?: LatLng | null; destination?: LatLng | null }) => {
+  const setNavMarkers = (markers: {
+    pickup?: LatLng | null;
+    destination?: LatLng | null;
+  }) => {
     mapRef.current?.setNavMarkers(markers);
   };
 
@@ -56,5 +65,3 @@ export const useMapController = () => {
     setNavMarkers,
   };
 };
-
-

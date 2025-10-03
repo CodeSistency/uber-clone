@@ -1,4 +1,4 @@
-const { getDefaultConfig } = require('expo/metro-config');
+const { getDefaultConfig } = require("expo/metro-config");
 
 /** @type {import('expo/metro-config').MetroConfig} */
 const config = getDefaultConfig(__dirname, {
@@ -39,7 +39,7 @@ config.server = {
   enhanceMiddleware: (middleware) => {
     return (req, res, next) => {
       // Add custom headers for better caching
-      res.setHeader('Cache-Control', 'public, max-age=31536000, immutable');
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
       return middleware(req, res, next);
     };
   },
@@ -50,7 +50,6 @@ config.watchFolders = [
   ...config.watchFolders,
   // Add any additional folders to watch for changes
 ];
-
 
 // Configure serializer for production optimizations
 config.serializer = {
@@ -63,14 +62,16 @@ config.serializer = {
 
   processModuleFilter: function (modules) {
     // Filter out development-only modules in production
-    if (process.env.NODE_ENV === 'production') {
+    if (process.env.NODE_ENV === "production") {
       return modules.filter((module) => {
         const { path } = module;
         // Exclude test files and development utilities
-        return !path.includes('.test.') &&
-               !path.includes('__tests__') &&
-               !path.includes('dev.ts') &&
-               !path.includes('LoggerDebugger');
+        return (
+          !path.includes(".test.") &&
+          !path.includes("__tests__") &&
+          !path.includes("dev.ts") &&
+          !path.includes("LoggerDebugger")
+        );
       });
     }
     return modules;

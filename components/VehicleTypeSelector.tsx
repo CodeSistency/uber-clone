@@ -129,4 +129,3 @@ const VehicleTypeSelector: React.FC<VehicleTypeSelectorProps> = ({
 };
 
 export default VehicleTypeSelector;
-

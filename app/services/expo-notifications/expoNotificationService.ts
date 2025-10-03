@@ -4,20 +4,39 @@ import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
 
 import { log } from "@/lib/logger";
-import { expoNotificationConfig, setupExpoNotificationHandler, setupExpoAndroidChannels } from "@/lib/expo-notifications/config";
-import { expoTokenManager, getExpoPushToken } from "@/lib/expo-notifications/tokenManager";
+import {
+  expoNotificationConfig,
+  setupExpoNotificationHandler,
+  setupExpoAndroidChannels,
+} from "@/lib/expo-notifications/config";
+import {
+  expoTokenManager,
+  getExpoPushToken,
+} from "@/lib/expo-notifications/tokenManager";
 import { useExpoNotificationStore } from "@/store/expo-notifications/expoNotificationStore";
 
-// Types are available globally via expo-notifications.d.ts
+import {
+  ExpoNotificationServiceInterface,
+  ExpoNotificationError,
+  ExpoNotificationData,
+  ExpoNotificationType,
+  ExpoPushToken,
+  ExpoNotificationPermissions,
+  ExpoNotificationEventType,
+  ExpoNotificationEventMap,
+} from "../../../types/expo-notifications";
 
 /**
  * Servicio principal para Expo Notifications
  * Implementa patrón singleton y maneja todas las operaciones de notificaciones
  */
-export class ExpoNotificationService implements ExpoNotificationServiceInterface {
+export class ExpoNotificationService
+  implements ExpoNotificationServiceInterface
+{
   private static instance: ExpoNotificationService;
   private isInitialized = false;
-  private eventListeners: Map<string, { event: string; callback: Function }> = new Map();
+  private eventListeners: Map<string, { event: string; callback: Function }> =
+    new Map();
   private notificationSubscription: Notifications.Subscription | null = null;
   private responseSubscription: Notifications.Subscription | null = null;
 
@@ -48,12 +67,16 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     const operationId = `init_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info("ExpoNotificationService", "Initializing Expo Notification Service", {
-        operationId,
-        platform: Platform.OS,
-        deviceName: Device.deviceName,
-        hasNotificationSupport: !!Notifications,
-      });
+      log.info(
+        "ExpoNotificationService",
+        "Initializing Expo Notification Service",
+        {
+          operationId,
+          platform: Platform.OS,
+          deviceName: Device.deviceName,
+          hasNotificationSupport: !!Notifications,
+        },
+      );
 
       // 1. Configurar handler global
       setupExpoNotificationHandler();
@@ -75,7 +98,9 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
           tokenPrefix: token.data.substring(0, 20) + "...",
         });
       } else {
-        log.warn("ExpoNotificationService", "No push token available", { operationId });
+        log.warn("ExpoNotificationService", "No push token available", {
+          operationId,
+        });
       }
 
       // 4. Configurar event listeners
@@ -87,22 +112,30 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
 
       this.isInitialized = true;
 
-      log.info("ExpoNotificationService", "Expo Notification Service initialized successfully", {
-        operationId,
-        hasToken: !!token,
-        permissionsGranted: permissions.granted,
-      });
-
+      log.info(
+        "ExpoNotificationService",
+        "Expo Notification Service initialized successfully",
+        {
+          operationId,
+          hasToken: !!token,
+          permissionsGranted: permissions.granted,
+        },
+      );
     } catch (error) {
-      log.error("ExpoNotificationService", "Failed to initialize service", {
-        operationId,
-        error: (error as Error)?.message,
-      }, error instanceof Error ? error : undefined);
+      log.error(
+        "ExpoNotificationService",
+        "Failed to initialize service",
+        {
+          operationId,
+          error: (error as Error)?.message,
+        },
+        error instanceof Error ? error : undefined,
+      );
 
       throw new ExpoNotificationError(
         `Service initialization failed: ${(error as Error)?.message}`,
         ExpoNotificationError.INVALID_CONFIGURATION,
-        { originalError: error }
+        { originalError: error },
       );
     }
   }
@@ -125,7 +158,9 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
 
       // Cancelar suscripciones
       if (this.notificationSubscription) {
-        Notifications.removeNotificationSubscription(this.notificationSubscription);
+        Notifications.removeNotificationSubscription(
+          this.notificationSubscription,
+        );
         this.notificationSubscription = null;
       }
 
@@ -144,7 +179,6 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       this.isInitialized = false;
 
       log.info("ExpoNotificationService", "Service destroyed successfully");
-
     } catch (error) {
       log.error("ExpoNotificationService", "Error destroying service", {
         error: (error as Error)?.message,
@@ -159,21 +193,24 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     log.info("ExpoNotificationService", "Setting up event listeners");
 
     // Listener para notificaciones recibidas (foreground)
-    this.notificationSubscription = Notifications.addNotificationReceivedListener(
-      (notification) => {
-        log.info("ExpoNotificationService", "Notification received in foreground", {
-          notificationId: notification.request.identifier,
-          title: notification.request.content.title,
-          hasData: !!notification.request.content.data,
-        });
+    this.notificationSubscription =
+      Notifications.addNotificationReceivedListener((notification) => {
+        log.info(
+          "ExpoNotificationService",
+          "Notification received in foreground",
+          {
+            notificationId: notification.request.identifier,
+            title: notification.request.content.title,
+            hasData: !!notification.request.content.data,
+          },
+        );
 
         this.handleNotificationReceived(notification);
-      }
-    );
+      });
 
     // Listener para respuestas a notificaciones (taps)
-    this.responseSubscription = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
+    this.responseSubscription =
+      Notifications.addNotificationResponseReceivedListener((response) => {
         log.info("ExpoNotificationService", "Notification response received", {
           notificationId: response.notification.request.identifier,
           action: response.actionIdentifier,
@@ -181,16 +218,20 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
         });
 
         this.handleNotificationResponse(response);
-      }
-    );
+      });
 
-    log.info("ExpoNotificationService", "Event listeners configured successfully");
+    log.info(
+      "ExpoNotificationService",
+      "Event listeners configured successfully",
+    );
   }
 
   /**
    * Manejar notificación recibida
    */
-  private handleNotificationReceived(notification: Notifications.Notification): void {
+  private handleNotificationReceived(
+    notification: Notifications.Notification,
+  ): void {
     try {
       const { title, body, data } = notification.request.content;
 
@@ -202,7 +243,9 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
         data: data || {},
         timestamp: new Date(notification.date),
         type: (data?.type as ExpoNotificationType) || "SYSTEM_UPDATE",
-        priority: (data?.priority as "low" | "normal" | "high" | "critical") || "normal",
+        priority:
+          (data?.priority as "low" | "normal" | "high" | "critical") ||
+          "normal",
         isRead: false,
       };
 
@@ -210,24 +253,32 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       useExpoNotificationStore.getState().addNotification(notificationData);
 
       // Trigger haptic feedback para notificaciones importantes
-      if (notificationData.priority === "high" || notificationData.priority === "critical") {
+      if (
+        notificationData.priority === "high" ||
+        notificationData.priority === "critical"
+      ) {
         this.triggerHapticFeedback();
       }
 
       // Emitir evento interno
       this.emitEvent("notificationReceived", notification);
-
     } catch (error) {
-      log.error("ExpoNotificationService", "Error handling notification received", {
-        error: (error as Error)?.message,
-      });
+      log.error(
+        "ExpoNotificationService",
+        "Error handling notification received",
+        {
+          error: (error as Error)?.message,
+        },
+      );
     }
   }
 
   /**
    * Manejar respuesta a notificación (tap)
    */
-  private handleNotificationResponse(response: Notifications.NotificationResponse): void {
+  private handleNotificationResponse(
+    response: Notifications.NotificationResponse,
+  ): void {
     try {
       const notificationId = response.notification.request.identifier;
       const { data } = response.notification.request.content;
@@ -243,11 +294,14 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
         notificationId,
         data,
       });
-
     } catch (error) {
-      log.error("ExpoNotificationService", "Error handling notification response", {
-        error: (error as Error)?.message,
-      });
+      log.error(
+        "ExpoNotificationService",
+        "Error handling notification response",
+        {
+          error: (error as Error)?.message,
+        },
+      );
     }
   }
 
@@ -278,9 +332,13 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
           const token = await expoTokenManager.getPushToken();
           resolve(token);
         } catch (error) {
-          log.error("ExpoNotificationService", "Error in debounced getPushToken", {
-            error: (error as Error)?.message,
-          });
+          log.error(
+            "ExpoNotificationService",
+            "Error in debounced getPushToken",
+            {
+              error: (error as Error)?.message,
+            },
+          );
           resolve(null);
         }
       }, this.TOKEN_DEBOUNCE_MS);
@@ -308,9 +366,13 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
 
   async requestPermissions(): Promise<ExpoNotificationPermissions> {
     try {
-      log.info("ExpoNotificationService", "Requesting notification permissions");
+      log.info(
+        "ExpoNotificationService",
+        "Requesting notification permissions",
+      );
 
-      const { status: existingStatus } = await Notifications.getPermissionsAsync();
+      const { status: existingStatus } =
+        await Notifications.getPermissionsAsync();
 
       let finalStatus = existingStatus;
       if (existingStatus !== "granted") {
@@ -334,7 +396,6 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       });
 
       return permissions;
-
     } catch (error) {
       log.error("ExpoNotificationService", "Error requesting permissions", {
         error: (error as Error)?.message,
@@ -354,7 +415,6 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       };
 
       return permissions;
-
     } catch (error) {
       log.error("ExpoNotificationService", "Error checking permissions", {
         error: (error as Error)?.message,
@@ -369,7 +429,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     title: string,
     body: string,
     data?: any,
-    options?: any
+    options?: any,
   ): Promise<string> {
     this.ensureInitialized();
 
@@ -378,14 +438,15 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     const timeSinceLastNotification = now - this.lastNotificationTime;
 
     if (timeSinceLastNotification < this.NOTIFICATION_THROTTLE_MS) {
-      const waitTime = this.NOTIFICATION_THROTTLE_MS - timeSinceLastNotification;
+      const waitTime =
+        this.NOTIFICATION_THROTTLE_MS - timeSinceLastNotification;
       log.warn("ExpoNotificationService", "Throttling notification send", {
         waitTime,
         lastNotificationTime: this.lastNotificationTime,
       });
 
       // Esperar el tiempo restante antes de enviar
-      await new Promise(resolve => setTimeout(resolve, waitTime));
+      await new Promise((resolve) => setTimeout(resolve, waitTime));
     }
 
     this.lastNotificationTime = Date.now();
@@ -425,12 +486,15 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       });
 
       return notificationId;
-
     } catch (error) {
-      log.error("ExpoNotificationService", "Failed to send local notification", {
-        title,
-        error: (error as Error)?.message,
-      });
+      log.error(
+        "ExpoNotificationService",
+        "Failed to send local notification",
+        {
+          title,
+          error: (error as Error)?.message,
+        },
+      );
       throw error;
     }
   }
@@ -440,7 +504,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     body: string,
     trigger: any,
     data?: any,
-    options?: any
+    options?: any,
   ): Promise<string> {
     this.ensureInitialized();
 
@@ -462,11 +526,13 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       log.info("ExpoNotificationService", "Notification scheduled", {
         notificationId,
         title,
-        triggerType: trigger && typeof trigger === "object" ? Object.keys(trigger)[0] : String(trigger),
+        triggerType:
+          trigger && typeof trigger === "object"
+            ? Object.keys(trigger)[0]
+            : String(trigger),
       });
 
       return notificationId;
-
     } catch (error) {
       log.error("ExpoNotificationService", "Failed to schedule notification", {
         title,
@@ -479,7 +545,9 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
   async cancelNotification(identifier: string): Promise<void> {
     try {
       await Notifications.cancelScheduledNotificationAsync(identifier);
-      log.info("ExpoNotificationService", "Notification cancelled", { identifier });
+      log.info("ExpoNotificationService", "Notification cancelled", {
+        identifier,
+      });
     } catch (error) {
       log.error("ExpoNotificationService", "Failed to cancel notification", {
         identifier,
@@ -494,9 +562,13 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
       await Notifications.cancelAllScheduledNotificationsAsync();
       log.info("ExpoNotificationService", "All notifications cancelled");
     } catch (error) {
-      log.error("ExpoNotificationService", "Failed to cancel all notifications", {
-        error: (error as Error)?.message,
-      });
+      log.error(
+        "ExpoNotificationService",
+        "Failed to cancel all notifications",
+        {
+          error: (error as Error)?.message,
+        },
+      );
       throw error;
     }
   }
@@ -557,7 +629,9 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
 
     try {
       await Notifications.deleteNotificationChannelAsync(channelId);
-      log.info("ExpoNotificationService", "Android channel deleted", { channelId });
+      log.info("ExpoNotificationService", "Android channel deleted", {
+        channelId,
+      });
     } catch (error) {
       log.error("ExpoNotificationService", "Failed to delete Android channel", {
         channelId,
@@ -585,7 +659,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
 
   addEventListener<T extends ExpoNotificationEventType>(
     event: T,
-    callback: ExpoNotificationEventMap[T]
+    callback: ExpoNotificationEventMap[T],
   ): string {
     const listenerId = `listener_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
@@ -606,7 +680,9 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     const removed = this.eventListeners.delete(identifier);
 
     if (removed) {
-      log.debug("ExpoNotificationService", "Event listener removed", { identifier });
+      log.debug("ExpoNotificationService", "Event listener removed", {
+        identifier,
+      });
     }
 
     return removed;
@@ -622,7 +698,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
         }
       }
 
-      listenersToRemove.forEach(id => this.eventListeners.delete(id));
+      listenersToRemove.forEach((id) => this.eventListeners.delete(id));
       log.debug("ExpoNotificationService", "All listeners removed for event", {
         event,
         removedCount: listenersToRemove.length,
@@ -630,13 +706,16 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     } else {
       const removedCount = this.eventListeners.size;
       this.eventListeners.clear();
-      log.debug("ExpoNotificationService", "All event listeners removed", { removedCount });
+      log.debug("ExpoNotificationService", "All event listeners removed", {
+        removedCount,
+      });
     }
   }
 
   private emitEvent(event: string, data: any): void {
-    const listeners = Array.from(this.eventListeners.values())
-      .filter(listener => listener.event === event);
+    const listeners = Array.from(this.eventListeners.values()).filter(
+      (listener) => listener.event === event,
+    );
 
     log.debug("ExpoNotificationService", "Emitting event", {
       event,
@@ -659,7 +738,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
 
   getNotificationContent(
     type: ExpoNotificationType,
-    data?: any
+    data?: any,
   ): { title: string; body: string } {
     switch (type) {
       case "RIDE_REQUEST":
@@ -739,6 +818,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
           body: data.body,
           data: data.data || {},
           sound: "default",
+          categoryIdentifier: null,
         },
         trigger: { type: "push" },
       },
@@ -757,7 +837,7 @@ export class ExpoNotificationService implements ExpoNotificationServiceInterface
     if (!this.isInitialized) {
       throw new ExpoNotificationError(
         "ExpoNotificationService not initialized. Call initialize() first.",
-        ExpoNotificationError.INVALID_CONFIGURATION
+        ExpoNotificationError.INVALID_CONFIGURATION,
       );
     }
   }

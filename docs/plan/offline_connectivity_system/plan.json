@@ -116,10 +116,7 @@
           "progreso": 100,
           "prioridad": "Alta",
           "descripcion": "Crear hooks y utilidades para manejar conectividad en componentes",
-          "dependencias": [
-            "lib/connectivity.ts",
-            "store/realtime/realtime.ts"
-          ],
+          "dependencias": ["lib/connectivity.ts", "store/realtime/realtime.ts"],
           "tareas": [
             {
               "id": "T1.2.1",
@@ -269,10 +266,7 @@
           "progreso": 100,
           "prioridad": "Alta",
           "descripcion": "Modificar fetchAPI para usar cola offline cuando no hay conexión",
-          "dependencias": [
-            "lib/fetch.ts",
-            "lib/offline/OfflineQueue.ts"
-          ],
+          "dependencias": ["lib/fetch.ts", "lib/offline/OfflineQueue.ts"],
           "tareas": [
             {
               "id": "T2.2.1",

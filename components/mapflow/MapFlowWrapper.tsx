@@ -6,6 +6,7 @@ import InlineBottomSheet from "@/components/ui/InlineBottomSheet";
 import { MapFlowProvider } from "@/context/MapFlowContext";
 import { useMapController } from "@/hooks/useMapController";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import { DARK_MODERN_STYLE, type MapConfiguration } from "@/constants/mapStyles";
 
 interface MapFlowWrapperProps {
   role?: "customer" | "driver";
@@ -68,6 +69,32 @@ const MapFlowWrapper: React.FC<MapFlowWrapperProps> = ({
     step: flow.step,
   });
 
+  // 🎨 Configuración del mapa con tema dark moderno
+  const mapConfig: Partial<MapConfiguration> = useMemo(
+    () => ({
+      theme: "dark",
+      customStyle: DARK_MODERN_STYLE,
+      userInterfaceStyle: "dark",
+      mapType: "standard",
+      showsUserLocation: true,
+      showsPointsOfInterest: false,
+      showsBuildings: true,
+      showsTraffic: false,
+      showsCompass: true,
+      showsScale: false,
+      showsMyLocationButton: false,
+      zoomEnabled: true,
+      scrollEnabled: true,
+      rotateEnabled: true,
+      pitchEnabled: true,
+      tintColor: "#00FF88",
+      routeColor: "#4285F4",
+      trailColor: "#FFE014",
+      predictionColor: "#00FF88",
+    }),
+    [],
+  );
+
   const content = useMemo(() => {
     console.log("[MapFlowWrapper] Rendering step content for step:", flow.step);
     const renderedContent = renderStep(flow.step);
@@ -94,6 +121,7 @@ const MapFlowWrapper: React.FC<MapFlowWrapperProps> = ({
         <Map
           ref={map.setRef as unknown as React.Ref<MapHandle>}
           serviceType="transport"
+          mapConfig={mapConfig}
         />
 
         {sheetVisible ? (

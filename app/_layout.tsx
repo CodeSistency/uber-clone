@@ -56,8 +56,14 @@ export default function RootLayout() {
         console.log(
           "[RootLayout] ✅ Environment configuration validated successfully",
         );
-        console.log("[RootLayout] Environment:", process.env.NODE_ENV || 'development');
-        console.log("[RootLayout] API URL:", config.EXPO_PUBLIC_SERVER_URL || 'Not configured');
+        console.log(
+          "[RootLayout] Environment:",
+          process.env.NODE_ENV || "development",
+        );
+        console.log(
+          "[RootLayout] API URL:",
+          config.EXPO_PUBLIC_SERVER_URL || "Not configured",
+        );
       } catch (error: any) {
         console.error(
           "[RootLayout] ❌ Environment configuration failed:",
@@ -75,28 +81,30 @@ export default function RootLayout() {
       (async () => {
         try {
           const healthResults: HealthCheckResult[] = await checkAllEndpoints();
-        const allAvailable = areAllEndpointsAvailable();
+          const allAvailable = areAllEndpointsAvailable();
 
-        console.log("[RootLayout] Health check results:");
-        healthResults.forEach((result) => {
-          const status = result.available ? "✅" : "❌";
-          console.log(
-            `[RootLayout] ${status} ${result.endpoint}: ${result.available ? "Available" : result.error || "Unavailable"} (${result.responseTime}ms)`,
-          );
-        });
+          console.log("[RootLayout] Health check results:");
+          healthResults.forEach((result) => {
+            const status = result.available ? "✅" : "❌";
+            console.log(
+              `[RootLayout] ${status} ${result.endpoint}: ${result.available ? "Available" : result.error || "Unavailable"} (${result.responseTime}ms)`,
+            );
+          });
 
-        if (!allAvailable) {
+          if (!allAvailable) {
+            console.warn(
+              "[RootLayout] ⚠️ Some endpoints are not available. App may have limited functionality.",
+            );
+            // In production, you might want to show a warning or retry
+          } else {
+            console.log("[RootLayout] ✅ All critical endpoints are available");
+          }
+        } catch (error: any) {
+          console.error("[RootLayout] ❌ Health check failed:", error.message);
           console.warn(
-            "[RootLayout] ⚠️ Some endpoints are not available. App may have limited functionality.",
+            "[RootLayout] Continuing without health check results...",
           );
-          // In production, you might want to show a warning or retry
-        } else {
-          console.log("[RootLayout] ✅ All critical endpoints are available");
         }
-      } catch (error: any) {
-        console.error("[RootLayout] ❌ Health check failed:", error.message);
-        console.warn("[RootLayout] Continuing without health check results...");
-      }
       })();
 
       // Initialize connectivity manager first (foundation for all network operations)
@@ -107,7 +115,10 @@ export default function RootLayout() {
           await connectivityManager.initialize();
           console.log("[RootLayout] ✅ Connectivity manager initialized");
         } catch (error) {
-          console.error("[RootLayout] ❌ Connectivity manager initialization failed:", error);
+          console.error(
+            "[RootLayout] ❌ Connectivity manager initialization failed:",
+            error,
+          );
           console.warn("[RootLayout] Network detection may not work properly");
         }
       };

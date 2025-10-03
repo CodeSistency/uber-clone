@@ -5,7 +5,11 @@ import { useExpoNotificationStore } from "../../store/expo-notifications/expoNot
 import { expoNotificationService } from "../services/expo-notifications";
 
 // Importar tipos legacy para compatibilidad
-import { NotificationData, NotificationPreferences, NotificationType } from "../../types/type";
+import {
+  NotificationData,
+  NotificationPreferences,
+  NotificationType,
+} from "../../types/type";
 
 // Importar servicios legacy para transición gradual
 import { notificationStorage } from "../lib/storage";
@@ -21,30 +25,37 @@ export const useNotificationsCompat = () => {
   const expoStore = useExpoNotificationStore();
 
   // Adaptadores de tipos: convertir entre NotificationData y ExpoNotificationData
-  const adaptToLegacyNotification = useCallback((expoNotification: any): NotificationData => {
-    return {
-      id: expoNotification.id,
-      type: expoNotification.type as NotificationType,
-      title: expoNotification.title,
-      message: expoNotification.message,
-      data: expoNotification.data,
-      timestamp: expoNotification.timestamp,
-      isRead: expoNotification.isRead,
-    };
-  }, []);
+  const adaptToLegacyNotification = useCallback(
+    (expoNotification: any): NotificationData => {
+      return {
+        id: expoNotification.id,
+        type: expoNotification.type as NotificationType,
+        title: expoNotification.title,
+        message: expoNotification.message,
+        data: expoNotification.data,
+        timestamp: expoNotification.timestamp,
+        priority: expoNotification.priority || "normal",
+        isRead: expoNotification.isRead,
+      };
+    },
+    [],
+  );
 
-  const adaptToExpoNotification = useCallback((legacyNotification: NotificationData): any => {
-    return {
-      id: legacyNotification.id,
-      type: legacyNotification.type,
-      title: legacyNotification.title,
-      message: legacyNotification.message,
-      data: legacyNotification.data,
-      timestamp: legacyNotification.timestamp,
-      isRead: legacyNotification.isRead,
-      priority: 'normal', // Default priority for legacy compatibility
-    };
-  }, []);
+  const adaptToExpoNotification = useCallback(
+    (legacyNotification: NotificationData): any => {
+      return {
+        id: legacyNotification.id,
+        type: legacyNotification.type,
+        title: legacyNotification.title,
+        message: legacyNotification.message,
+        data: legacyNotification.data,
+        timestamp: legacyNotification.timestamp,
+        isRead: legacyNotification.isRead,
+        priority: "normal", // Default priority for legacy compatibility
+      };
+    },
+    [],
+  );
 
   // Convertir notificaciones del nuevo formato al legacy
   const legacyNotifications = useMemo(() => {
@@ -71,14 +82,20 @@ export const useNotificationsCompat = () => {
   }, [expoStore.preferences]);
 
   // Adaptar acciones para mantener API compatible
-  const addNotification = useCallback((notification: NotificationData) => {
-    const expoNotification = adaptToExpoNotification(notification);
-    expoStore.addNotification(expoNotification);
-  }, [expoStore, adaptToExpoNotification]);
+  const addNotification = useCallback(
+    (notification: NotificationData) => {
+      const expoNotification = adaptToExpoNotification(notification);
+      expoStore.addNotification(expoNotification);
+    },
+    [expoStore, adaptToExpoNotification],
+  );
 
-  const markAsRead = useCallback((notificationId: string) => {
-    expoStore.markAsRead(notificationId);
-  }, [expoStore]);
+  const markAsRead = useCallback(
+    (notificationId: string) => {
+      expoStore.markAsRead(notificationId);
+    },
+    [expoStore],
+  );
 
   const markAllAsRead = useCallback(() => {
     expoStore.markAllAsRead();
@@ -88,25 +105,28 @@ export const useNotificationsCompat = () => {
     expoStore.clearNotifications();
   }, [expoStore]);
 
-  const updatePreferences = useCallback((preferences: NotificationPreferences) => {
-    // Convertir preferencias legacy al nuevo formato
-    const expoPreferences = {
-      pushEnabled: preferences.pushEnabled,
-      smsEnabled: preferences.smsEnabled ?? false,
-      rideUpdates: preferences.rideUpdates,
-      driverMessages: preferences.driverMessages,
-      promotional: preferences.promotional ?? false,
-      emergencyAlerts: preferences.emergencyAlerts,
-      soundEnabled: preferences.soundEnabled,
-      vibrationEnabled: preferences.vibrationEnabled,
-      badgeEnabled: preferences.badgeEnabled ?? true,
-      quietHoursEnabled: preferences.quietHoursEnabled ?? false,
-      quietHoursStart: preferences.quietHoursStart ?? "22:00",
-      quietHoursEnd: preferences.quietHoursEnd ?? "08:00",
-    };
+  const updatePreferences = useCallback(
+    (preferences: NotificationPreferences) => {
+      // Convertir preferencias legacy al nuevo formato
+      const expoPreferences = {
+        pushEnabled: preferences.pushEnabled,
+        smsEnabled: preferences.smsEnabled ?? false,
+        rideUpdates: preferences.rideUpdates,
+        driverMessages: preferences.driverMessages,
+        promotional: preferences.promotional ?? false,
+        emergencyAlerts: preferences.emergencyAlerts,
+        soundEnabled: preferences.soundEnabled ?? true,
+        vibrationEnabled: preferences.vibrationEnabled ?? true,
+        badgeEnabled: preferences.badgeEnabled ?? true,
+        quietHoursEnabled: preferences.quietHoursEnabled ?? false,
+        quietHoursStart: preferences.quietHoursStart ?? "22:00",
+        quietHoursEnd: preferences.quietHoursEnd ?? "08:00",
+      };
 
-    expoStore.updatePreferences(expoPreferences);
-  }, [expoStore]);
+      expoStore.updatePreferences(expoPreferences);
+    },
+    [expoStore],
+  );
 
   // Inicialización compatible con el sistema legacy
   useEffect(() => {
@@ -122,18 +142,24 @@ export const useNotificationsCompat = () => {
         }
 
         if (history && history.length > 0) {
-          console.log("[useNotificationsCompat] Migrating legacy notification history", {
-            count: history.length
-          });
+          console.log(
+            "[useNotificationsCompat] Migrating legacy notification history",
+            {
+              count: history.length,
+            },
+          );
           // Convertir y agregar notificaciones legacy al nuevo store
-          history.forEach(notification => {
+          history.forEach((notification) => {
             addNotification(notification);
           });
         }
 
         console.log("[useNotificationsCompat] Compatibility layer initialized");
       } catch (error) {
-        console.error("[useNotificationsCompat] Error initializing compatibility layer:", error);
+        console.error(
+          "[useNotificationsCompat] Error initializing compatibility layer:",
+          error,
+        );
       }
     };
 
@@ -145,9 +171,14 @@ export const useNotificationsCompat = () => {
     const initializeService = async () => {
       try {
         await expoNotificationService.initialize();
-        console.log("[useNotificationsCompat] Expo notification service initialized");
+        console.log(
+          "[useNotificationsCompat] Expo notification service initialized",
+        );
       } catch (error) {
-        console.error("[useNotificationsCompat] Failed to initialize Expo service:", error);
+        console.error(
+          "[useNotificationsCompat] Failed to initialize Expo service:",
+          error,
+        );
       }
     };
 
@@ -162,11 +193,17 @@ export const useNotificationsCompat = () => {
         await notificationStorage.savePreferences(legacyPreferences);
         await notificationStorage.saveNotificationHistory(legacyNotifications);
       } catch (error) {
-        console.error("[useNotificationsCompat] Error saving to legacy storage:", error);
+        console.error(
+          "[useNotificationsCompat] Error saving to legacy storage:",
+          error,
+        );
       }
     };
 
-    if (legacyNotifications.length > 0 || Object.keys(legacyPreferences).length > 0) {
+    if (
+      legacyNotifications.length > 0 ||
+      Object.keys(legacyPreferences).length > 0
+    ) {
       saveToLegacyStorage();
     }
   }, [legacyNotifications, legacyPreferences]);
@@ -188,13 +225,33 @@ export const useNotificationsCompat = () => {
     updatePreferences,
 
     // Acciones adicionales del nuevo sistema (implementadas directamente)
-    sendLocalNotification: useCallback(async (title: string, body: string, data?: any) => {
-      return await expoNotificationService.sendLocalNotification(title, body, data);
-    }, []),
+    sendLocalNotification: useCallback(
+      async (title: string, body: string, data?: any) => {
+        return await expoNotificationService.sendLocalNotification(
+          title,
+          body,
+          data,
+        );
+      },
+      [],
+    ),
 
-    scheduleNotification: useCallback(async (title: string, body: string, delayInSeconds: number, data?: any) => {
-      return await expoNotificationService.scheduleNotification(title, body, { seconds: delayInSeconds }, data);
-    }, []),
+    scheduleNotification: useCallback(
+      async (
+        title: string,
+        body: string,
+        delayInSeconds: number,
+        data?: any,
+      ) => {
+        return await expoNotificationService.scheduleNotification(
+          title,
+          body,
+          { seconds: delayInSeconds },
+          data,
+        );
+      },
+      [],
+    ),
 
     cancelNotification: useCallback(async (notificationId: string) => {
       return await expoNotificationService.cancelNotification(notificationId);
@@ -221,5 +278,3 @@ export const useNotificationsCompat = () => {
     removeNotification: expoStore.removeNotification,
   };
 };
-
-

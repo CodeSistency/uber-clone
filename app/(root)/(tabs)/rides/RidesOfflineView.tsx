@@ -1,12 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TouchableOpacity, RefreshControl, ActivityIndicator } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons } from '@expo/vector-icons';
-import { useRidesStore } from '@/store/rides';
-import { useConnectivity } from '@/hooks/useConnectivity';
-import { OfflineBanner } from '@/components/offline/OfflineIndicator';
-import RideCard from '@/components/RideCard';
-import { CachedRide } from '@/lib/cache/CriticalDataCache';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+  ActivityIndicator,
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { Ionicons } from "@expo/vector-icons";
+import { useRidesStore } from "@/store/rides";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { OfflineBanner } from "@/components/offline/OfflineIndicator";
+import RideCard from "@/components/RideCard";
+import { CachedRide } from "@/lib/cache/CriticalDataCache";
 
 // Local type definition for Ride (matching the interface from types/type.d.ts)
 interface Ride {
@@ -55,8 +62,8 @@ const transformCachedRideToRide = (cachedRide: CachedRide): Ride => {
     user_id: cachedRide.user_id,
     created_at: cachedRide.created_at,
     driver: cachedRide.driver || {
-      first_name: 'Unknown',
-      last_name: 'Driver',
+      first_name: "Unknown",
+      last_name: "Driver",
       car_seats: 4,
       rating: undefined,
     },
@@ -95,7 +102,7 @@ export const RidesOfflineView: React.FC<RidesOfflineViewProps> = ({
       }
       onRefresh?.();
     } catch (error) {
-      console.error('[RidesOfflineView] Refresh failed:', error);
+      console.error("[RidesOfflineView] Refresh failed:", error);
     } finally {
       setRefreshing(false);
     }
@@ -106,7 +113,7 @@ export const RidesOfflineView: React.FC<RidesOfflineViewProps> = ({
       await syncNow();
       await loadFromCache(); // Reload cache after sync
     } catch (error) {
-      console.error('[RidesOfflineView] Sync failed:', error);
+      console.error("[RidesOfflineView] Sync failed:", error);
     }
   };
 
@@ -130,14 +137,13 @@ export const RidesOfflineView: React.FC<RidesOfflineViewProps> = ({
       </View>
 
       <Text className="font-JakartaBold text-xl text-gray-800 mb-2 text-center">
-        {isOnline ? 'No tienes viajes aún' : 'Viajes guardados localmente'}
+        {isOnline ? "No tienes viajes aún" : "Viajes guardados localmente"}
       </Text>
 
       <Text className="font-Jakarta text-base text-gray-600 text-center mb-6">
         {isOnline
-          ? 'Tus viajes aparecerán aquí después de completar tu primer viaje.'
-          : 'Los viajes se guardan localmente cuando no hay conexión a internet.'
-        }
+          ? "Tus viajes aparecerán aquí después de completar tu primer viaje."
+          : "Los viajes se guardan localmente cuando no hay conexión a internet."}
       </Text>
 
       {!isOnline && pendingSyncCount > 0 && (
@@ -231,7 +237,7 @@ export const RidesOfflineView: React.FC<RidesOfflineViewProps> = ({
           <RefreshControl
             refreshing={refreshing || isLoadingCache}
             onRefresh={handleRefresh}
-            colors={['#0286FF']}
+            colors={["#0286FF"]}
             tintColor="#0286FF"
           />
         }
@@ -272,7 +278,7 @@ export const RidesOfflineList: React.FC<{
       <View className="flex-1 justify-center items-center py-8">
         <Ionicons name="car-outline" size={48} color="#9CA3AF" />
         <Text className="font-Jakarta text-gray-500 mt-2 text-center">
-          {isOnline ? 'No tienes viajes recientes' : 'Viajes guardados offline'}
+          {isOnline ? "No tienes viajes recientes" : "Viajes guardados offline"}
         </Text>
       </View>
     );

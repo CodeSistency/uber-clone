@@ -16,17 +16,16 @@ import { useUI } from "@/components/UIWrapper";
 import { useDriverNavigation } from "@/hooks/useDriverNavigation";
 
 const DriverProfile = () => {
-  const {
-    profile,
-    documents,
-    isLoading,
-    error,
-    fetchProfile,
-    updateProfile
-  } = useDriverProfileStore();
+  const { profile, documents, isLoading, error, fetchProfile, updateProfile } =
+    useDriverProfileStore();
 
   const { showError, showSuccess } = useUI();
-  const { hasActiveRide, currentServiceType, navigateToVehicles, navigateToEarnings } = useDriverNavigation();
+  const {
+    hasActiveRide,
+    currentServiceType,
+    navigateToVehicles,
+    navigateToEarnings,
+  } = useDriverNavigation();
 
   useEffect(() => {
     // Fetch profile data on component mount
@@ -82,7 +81,7 @@ const DriverProfile = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot edit personal information while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot edit personal information while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       return;
     }
@@ -90,7 +89,7 @@ const DriverProfile = () => {
     Alert.alert(
       "Edit Personal Information",
       "Personal info editing - integrate with form component",
-      [{ text: "OK" }]
+      [{ text: "OK" }],
     );
   };
 
@@ -106,7 +105,7 @@ const DriverProfile = () => {
     Alert.alert(
       "Upload Document",
       `Upload ${docType} functionality - integrate with camera/gallery API`,
-      [{ text: "OK" }]
+      [{ text: "OK" }],
     );
   };
 
@@ -162,7 +161,9 @@ const DriverProfile = () => {
                   ⭐ {profile.averageRating}
                 </Text>
               </View>
-              <Text className="text-xs text-secondary-600 font-JakartaMedium">Rating</Text>
+              <Text className="text-xs text-secondary-600 font-JakartaMedium">
+                Rating
+              </Text>
             </View>
             <View className="items-center flex-1">
               <View className="bg-primary-50 px-3 py-2 rounded-lg mb-1">
@@ -170,7 +171,9 @@ const DriverProfile = () => {
                   {profile.totalRides}
                 </Text>
               </View>
-              <Text className="text-xs text-secondary-600 font-JakartaMedium">Trips</Text>
+              <Text className="text-xs text-secondary-600 font-JakartaMedium">
+                Trips
+              </Text>
             </View>
             <View className="items-center flex-1">
               <View className="bg-success-50 px-3 py-2 rounded-lg mb-1">
@@ -178,7 +181,9 @@ const DriverProfile = () => {
                   {new Date(profile.joinedDate).getFullYear()}
                 </Text>
               </View>
-              <Text className="text-xs text-secondary-600 font-JakartaMedium">Member</Text>
+              <Text className="text-xs text-secondary-600 font-JakartaMedium">
+                Member
+              </Text>
             </View>
           </View>
         </View>
@@ -250,7 +255,8 @@ const DriverProfile = () => {
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-secondary-600">Documents Verified</Text>
             <Text className="font-JakartaBold">
-              {documents.filter(d => d.status === "approved").length}/{documents.length}
+              {documents.filter((d) => d.status === "approved").length}/
+              {documents.length}
             </Text>
           </View>
 

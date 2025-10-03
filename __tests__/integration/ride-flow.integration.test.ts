@@ -1,22 +1,24 @@
-import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { useRealtimeStore } from '../../store';
-import { useLocationStore } from '../../store';
-import { useMapFlow } from '../../hooks/useMapFlow';
-import { fetchAPI } from '../../lib/fetch';
-import { websocketService } from '../../app/services/websocketService';
+import { renderHook, act, waitFor } from "@testing-library/react-native";
+import { useRealtimeStore } from "../../store";
+import { useLocationStore } from "../../store";
+import { useMapFlow } from "../../hooks/useMapFlow";
+import { fetchAPI } from "../../lib/fetch";
+import { websocketService } from "../../app/services/websocketService";
 
 // Mock dependencies
-jest.mock('../../lib/fetch');
-jest.mock('../../app/services/websocketService');
-jest.mock('@/store', () => ({
+jest.mock("../../lib/fetch");
+jest.mock("../../app/services/websocketService");
+jest.mock("@/store", () => ({
   useRealtimeStore: jest.fn(),
   useLocationStore: jest.fn(),
   useUserStore: jest.fn(() => ({
-    user: { id: 1, name: 'Test User' },
+    user: { id: 1, name: "Test User" },
     isAuthenticated: true,
   })),
   useVehicleTiersStore: jest.fn(() => ({
-    loadTiersFromStorage: jest.fn().mockResolvedValue([{ id: 1, name: 'Basic' }]),
+    loadTiersFromStorage: jest
+      .fn()
+      .mockResolvedValue([{ id: 1, name: "Basic" }]),
   })),
 }));
 
@@ -29,9 +31,9 @@ const mockWebsocketService = {
   off: jest.fn(),
 } as any;
 
-describe('Ride Flow Integration Tests', () => {
+describe("Ride Flow Integration Tests", () => {
   const mockRealtimeStore = {
-    rideStatus: 'idle',
+    rideStatus: "idle",
     activeRide: null,
     driverLocation: null,
     isTracking: false,
@@ -44,11 +46,11 @@ describe('Ride Flow Integration Tests', () => {
 
   const mockLocationStore = {
     userLatitude: 40.7128,
-    userLongitude: -74.0060,
-    userAddress: '123 Main St, NYC',
+    userLongitude: -74.006,
+    userAddress: "123 Main St, NYC",
     destinationLatitude: 40.7589,
     destinationLongitude: -73.9851,
-    destinationAddress: '456 Oak Ave, NYC',
+    destinationAddress: "456 Oak Ave, NYC",
     setUserLocation: jest.fn(),
     setDestinationLocation: jest.fn(),
   };
@@ -59,34 +61,34 @@ describe('Ride Flow Integration Tests', () => {
     // The stores are already mocked at the module level
   });
 
-  describe('Complete Ride Request Flow', () => {
+  describe("Complete Ride Request Flow", () => {
     const rideRequestData = {
-      pickupLocation: '123 Main St, NYC',
-      destination: '456 Oak Ave, NYC',
-      serviceType: 'transport',
-      vehicleTier: 'basic',
-      paymentMethod: 'card',
-      estimatedFare: 25.50,
+      pickupLocation: "123 Main St, NYC",
+      destination: "456 Oak Ave, NYC",
+      serviceType: "transport",
+      vehicleTier: "basic",
+      paymentMethod: "card",
+      estimatedFare: 25.5,
     };
 
     const mockRideResponse = {
       id: 123,
-      status: 'requested',
+      status: "requested",
       driverId: null,
       estimatedPickupTime: 5,
       estimatedArrivalTime: 15,
       ...rideRequestData,
     };
 
-    test('successful ride request creates ride and updates state', async () => {
+    test("successful ride request creates ride and updates state", async () => {
       mockFetchAPI.mockResolvedValue({
         success: true,
         data: mockRideResponse,
       });
 
       // Simulate ride request
-      const result = await mockFetchAPI('rides/request', {
-        method: 'POST',
+      const result = await mockFetchAPI("rides/request", {
+        method: "POST",
         body: JSON.stringify(rideRequestData),
       });
 
@@ -94,14 +96,18 @@ describe('Ride Flow Integration Tests', () => {
       expect(result.data).toEqual(mockRideResponse);
 
       // Verify ride state was updated
-      expect(mockRealtimeStore.setActiveRide).toHaveBeenCalledWith(mockRideResponse);
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('requested');
+      expect(mockRealtimeStore.setActiveRide).toHaveBeenCalledWith(
+        mockRideResponse,
+      );
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "requested",
+      );
     });
 
-    test('ride request with location validation', async () => {
+    test("ride request with location validation", async () => {
       // Test with valid locations
       mockLocationStore.userLatitude = 40.7128;
-      mockLocationStore.userLongitude = -74.0060;
+      mockLocationStore.userLongitude = -74.006;
       mockLocationStore.destinationLatitude = 40.7589;
       mockLocationStore.destinationLongitude = -73.9851;
 
@@ -110,19 +116,19 @@ describe('Ride Flow Integration Tests', () => {
         data: mockRideResponse,
       });
 
-      const result = await mockFetchAPI('rides/request', {
-        method: 'POST',
+      const result = await mockFetchAPI("rides/request", {
+        method: "POST",
         body: JSON.stringify(rideRequestData),
       });
 
       expect(result.success).toBe(true);
-      expect(mockFetchAPI).toHaveBeenCalledWith('rides/request', {
-        method: 'POST',
+      expect(mockFetchAPI).toHaveBeenCalledWith("rides/request", {
+        method: "POST",
         body: JSON.stringify(rideRequestData),
       });
     });
 
-    test('ride request fails with invalid locations', async () => {
+    test("ride request fails with invalid locations", async () => {
       (mockLocationStore as any).userLatitude = null;
       (mockLocationStore as any).userLongitude = null;
 
@@ -132,45 +138,49 @@ describe('Ride Flow Integration Tests', () => {
     });
   });
 
-  describe('Driver Assignment and Acceptance Flow', () => {
+  describe("Driver Assignment and Acceptance Flow", () => {
     const mockDriver = {
       id: 456,
-      name: 'Driver John',
+      name: "Driver John",
       rating: 4.8,
-      vehicleType: 'sedan',
-      licensePlate: 'ABC123',
+      vehicleType: "sedan",
+      licensePlate: "ABC123",
       currentLocation: { lat: 40.7505, lng: -73.9934 },
     };
 
     const mockAcceptedRide = {
       id: 123,
-      status: 'accepted',
+      status: "accepted",
       driverId: 456,
       driver: mockDriver,
       estimatedPickupTime: 3,
     };
 
-    test('driver acceptance updates ride and driver state', () => {
+    test("driver acceptance updates ride and driver state", () => {
       // Simulate WebSocket event for driver acceptance
       mockWebsocketService.emit = jest.fn();
-      (mockRealtimeStore as any).activeRide = { id: 123, status: 'requested' };
+      (mockRealtimeStore as any).activeRide = { id: 123, status: "requested" };
 
       // Trigger driver acceptance event
       const acceptanceEvent = {
         rideId: 123,
         driver: mockDriver,
-        status: 'accepted',
+        status: "accepted",
       };
 
       // Simulate the event handler
-      mockRealtimeStore.updateRideStatus('accepted');
+      mockRealtimeStore.updateRideStatus("accepted");
       mockRealtimeStore.setActiveRide(mockAcceptedRide);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('accepted');
-      expect(mockRealtimeStore.setActiveRide).toHaveBeenCalledWith(mockAcceptedRide);
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "accepted",
+      );
+      expect(mockRealtimeStore.setActiveRide).toHaveBeenCalledWith(
+        mockAcceptedRide,
+      );
     });
 
-    test('driver location tracking starts after acceptance', () => {
+    test("driver location tracking starts after acceptance", () => {
       (mockRealtimeStore as any).activeRide = mockAcceptedRide;
 
       // Start driver tracking
@@ -180,7 +190,7 @@ describe('Ride Flow Integration Tests', () => {
       expect(mockRealtimeStore.isTracking).toBe(true);
     });
 
-    test('real-time driver location updates work correctly', () => {
+    test("real-time driver location updates work correctly", () => {
       const driverLocationUpdate = {
         rideId: 123,
         location: { latitude: 40.7505, longitude: -73.9934 },
@@ -190,85 +200,105 @@ describe('Ride Flow Integration Tests', () => {
       // Simulate WebSocket location update
       mockRealtimeStore.setDriverLocation(driverLocationUpdate.location);
 
-      expect(mockRealtimeStore.setDriverLocation).toHaveBeenCalledWith(driverLocationUpdate.location);
+      expect(mockRealtimeStore.setDriverLocation).toHaveBeenCalledWith(
+        driverLocationUpdate.location,
+      );
     });
   });
 
-  describe('Ride Progress and Status Updates', () => {
-    const rideStatuses = ['accepted', 'arriving', 'arrived', 'in_progress', 'completed'];
+  describe("Ride Progress and Status Updates", () => {
+    const rideStatuses = [
+      "accepted",
+      "arriving",
+      "arrived",
+      "in_progress",
+      "completed",
+    ];
 
-    test.each(rideStatuses)('status transition to %s works correctly', (status) => {
-      const rideUpdate = {
-        rideId: 123,
-        newStatus: status,
-        timestamp: new Date().toISOString(),
-      };
+    test.each(rideStatuses)(
+      "status transition to %s works correctly",
+      (status) => {
+        const rideUpdate = {
+          rideId: 123,
+          newStatus: status,
+          timestamp: new Date().toISOString(),
+        };
 
-      mockRealtimeStore.updateRideStatus(status);
+        mockRealtimeStore.updateRideStatus(status);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(status);
+        expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(status);
 
-      // Verify status-specific logic
-      if (status === 'completed') {
-        expect(mockRealtimeStore.stopTracking).toHaveBeenCalled();
-        expect(mockRealtimeStore.isTracking).toBe(false);
-      }
-    });
+        // Verify status-specific logic
+        if (status === "completed") {
+          expect(mockRealtimeStore.stopTracking).toHaveBeenCalled();
+          expect(mockRealtimeStore.isTracking).toBe(false);
+        }
+      },
+    );
 
-    test('arrival notifications trigger correct UI updates', () => {
+    test("arrival notifications trigger correct UI updates", () => {
       const arrivalUpdate = {
         rideId: 123,
-        status: 'arrived',
-        driverLocation: { latitude: 40.7128, longitude: -74.0060 },
+        status: "arrived",
+        driverLocation: { latitude: 40.7128, longitude: -74.006 },
       };
 
-      mockRealtimeStore.updateRideStatus('arrived');
+      mockRealtimeStore.updateRideStatus("arrived");
       mockRealtimeStore.setDriverLocation(arrivalUpdate.driverLocation);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('arrived');
-      expect(mockRealtimeStore.setDriverLocation).toHaveBeenCalledWith(arrivalUpdate.driverLocation);
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "arrived",
+      );
+      expect(mockRealtimeStore.setDriverLocation).toHaveBeenCalledWith(
+        arrivalUpdate.driverLocation,
+      );
     });
 
-    test('ride completion triggers cleanup', () => {
-      (mockRealtimeStore as any).activeRide = { id: 123, status: 'in_progress' };
+    test("ride completion triggers cleanup", () => {
+      (mockRealtimeStore as any).activeRide = {
+        id: 123,
+        status: "in_progress",
+      };
 
       // Complete ride
-      mockRealtimeStore.updateRideStatus('completed');
+      mockRealtimeStore.updateRideStatus("completed");
       mockRealtimeStore.setActiveRide(null);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('completed');
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "completed",
+      );
       expect(mockRealtimeStore.setActiveRide).toHaveBeenCalledWith(null);
       expect(mockRealtimeStore.activeRide).toBeNull();
     });
   });
 
-  describe('Payment Integration Flow', () => {
+  describe("Payment Integration Flow", () => {
     const paymentData = {
       rideId: 123,
-      amount: 25.50,
-      paymentMethod: 'card',
-      currency: 'USD',
+      amount: 25.5,
+      paymentMethod: "card",
+      currency: "USD",
     };
 
     const mockPaymentResponse = {
       success: true,
-      transactionId: 'txn_123456',
-      status: 'completed',
+      transactionId: "txn_123456",
+      status: "completed",
       receipt: {
-        id: 'txn_123456',
-        amount: 25.50,
+        id: "txn_123456",
+        amount: 25.5,
         date: new Date().toISOString(),
       },
     };
 
-    test('payment processing after ride completion', async () => {
+    test("payment processing after ride completion", async () => {
       mockFetchAPI.mockResolvedValue({
         success: true,
         data: mockPaymentResponse,
       });
 
-      const result = await mockFetchAPI('payments/process', {
-        method: 'POST',
+      const result = await mockFetchAPI("payments/process", {
+        method: "POST",
         body: JSON.stringify(paymentData),
       });
 
@@ -276,23 +306,23 @@ describe('Ride Flow Integration Tests', () => {
       expect(result.data).toEqual(mockPaymentResponse);
     });
 
-    test('payment failure handling', async () => {
+    test("payment failure handling", async () => {
       mockFetchAPI.mockResolvedValue({
         success: false,
-        message: 'Payment declined',
-        error: 'CARD_DECLINED',
+        message: "Payment declined",
+        error: "CARD_DECLINED",
       });
 
-      const result = await mockFetchAPI('payments/process', {
-        method: 'POST',
+      const result = await mockFetchAPI("payments/process", {
+        method: "POST",
         body: JSON.stringify(paymentData),
       });
 
       expect(result.success).toBe(false);
-      expect(result.message).toBe('Payment declined');
+      expect(result.message).toBe("Payment declined");
     });
 
-    test('receipt generation and storage', async () => {
+    test("receipt generation and storage", async () => {
       mockFetchAPI
         .mockResolvedValueOnce({
           success: true,
@@ -300,63 +330,69 @@ describe('Ride Flow Integration Tests', () => {
         })
         .mockResolvedValueOnce({
           success: true,
-          data: { receiptUrl: 'https://example.com/receipt/123' },
+          data: { receiptUrl: "https://example.com/receipt/123" },
         });
 
       // Process payment
-      await mockFetchAPI('payments/process', {
-        method: 'POST',
+      await mockFetchAPI("payments/process", {
+        method: "POST",
         body: JSON.stringify(paymentData),
       });
 
       // Generate receipt
-      const receiptResult = await mockFetchAPI('payments/receipt/123');
+      const receiptResult = await mockFetchAPI("payments/receipt/123");
 
       expect(receiptResult.success).toBe(true);
       expect(receiptResult.data.receiptUrl).toBeDefined();
     });
   });
 
-  describe('Cancellation Flow', () => {
+  describe("Cancellation Flow", () => {
     const cancellationData = {
       rideId: 123,
-      reason: 'user_cancelled',
+      reason: "user_cancelled",
       timestamp: new Date().toISOString(),
     };
 
-    test('ride cancellation before driver acceptance', async () => {
-      (mockRealtimeStore as any).activeRide = { id: 123, status: 'requested' };
+    test("ride cancellation before driver acceptance", async () => {
+      (mockRealtimeStore as any).activeRide = { id: 123, status: "requested" };
 
       mockFetchAPI.mockResolvedValue({
         success: true,
-        data: { status: 'cancelled' },
+        data: { status: "cancelled" },
       });
 
-      const result = await mockFetchAPI('rides/cancel', {
-        method: 'POST',
+      const result = await mockFetchAPI("rides/cancel", {
+        method: "POST",
         body: JSON.stringify(cancellationData),
       });
 
       expect(result.success).toBe(true);
 
       // Verify state cleanup
-      mockRealtimeStore.updateRideStatus('cancelled');
+      mockRealtimeStore.updateRideStatus("cancelled");
       mockRealtimeStore.setActiveRide(null);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('cancelled');
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "cancelled",
+      );
       expect(mockRealtimeStore.setActiveRide).toHaveBeenCalledWith(null);
     });
 
-    test('ride cancellation after driver acceptance', async () => {
-      (mockRealtimeStore as any).activeRide = { id: 123, status: 'accepted', driverId: 456 };
+    test("ride cancellation after driver acceptance", async () => {
+      (mockRealtimeStore as any).activeRide = {
+        id: 123,
+        status: "accepted",
+        driverId: 456,
+      };
 
       mockFetchAPI.mockResolvedValue({
         success: true,
-        data: { status: 'cancelled', cancellationFee: 5.00 },
+        data: { status: "cancelled", cancellationFee: 5.0 },
       });
 
-      const result = await mockFetchAPI('rides/cancel', {
-        method: 'POST',
+      const result = await mockFetchAPI("rides/cancel", {
+        method: "POST",
         body: JSON.stringify(cancellationData),
       });
 
@@ -364,11 +400,11 @@ describe('Ride Flow Integration Tests', () => {
       expect(result.data.cancellationFee).toBeDefined();
     });
 
-    test('cancellation with network error', async () => {
-      mockFetchAPI.mockRejectedValue(new Error('Network error'));
+    test("cancellation with network error", async () => {
+      mockFetchAPI.mockRejectedValue(new Error("Network error"));
 
-      const result = await mockFetchAPI('rides/cancel', {
-        method: 'POST',
+      const result = await mockFetchAPI("rides/cancel", {
+        method: "POST",
         body: JSON.stringify(cancellationData),
       });
 
@@ -377,23 +413,23 @@ describe('Ride Flow Integration Tests', () => {
     });
   });
 
-  describe('Rating and Feedback Flow', () => {
+  describe("Rating and Feedback Flow", () => {
     const ratingData = {
       rideId: 123,
       driverId: 456,
       rating: 5,
-      feedback: 'Great service!',
+      feedback: "Great service!",
       timestamp: new Date().toISOString(),
     };
 
-    test('successful rating submission', async () => {
+    test("successful rating submission", async () => {
       mockFetchAPI.mockResolvedValue({
         success: true,
         data: { averageRating: 4.8 },
       });
 
-      const result = await mockFetchAPI('ratings/submit', {
-        method: 'POST',
+      const result = await mockFetchAPI("ratings/submit", {
+        method: "POST",
         body: JSON.stringify(ratingData),
       });
 
@@ -401,16 +437,16 @@ describe('Ride Flow Integration Tests', () => {
       expect(result.data.averageRating).toBeDefined();
     });
 
-    test('rating validation', () => {
+    test("rating validation", () => {
       const invalidRatings = [0, 6, -1, 5.5];
 
-      invalidRatings.forEach(rating => {
+      invalidRatings.forEach((rating) => {
         expect(rating).not.toBeGreaterThanOrEqual(1);
         expect(rating).not.toBeLessThanOrEqual(5);
       });
     });
 
-    test('feedback storage and retrieval', async () => {
+    test("feedback storage and retrieval", async () => {
       mockFetchAPI.mockResolvedValue({
         success: true,
         data: {
@@ -420,8 +456,8 @@ describe('Ride Flow Integration Tests', () => {
         },
       });
 
-      const result = await mockFetchAPI('ratings/submit', {
-        method: 'POST',
+      const result = await mockFetchAPI("ratings/submit", {
+        method: "POST",
         body: JSON.stringify(ratingData),
       });
 
@@ -430,23 +466,26 @@ describe('Ride Flow Integration Tests', () => {
     });
   });
 
-  describe('WebSocket Integration', () => {
+  describe("WebSocket Integration", () => {
     beforeEach(() => {
       mockWebsocketService.connect = jest.fn().mockResolvedValue(true);
       mockWebsocketService.emit = jest.fn();
       mockWebsocketService.on = jest.fn();
     });
 
-    test('WebSocket connection for ride tracking', async () => {
-      await mockWebsocketService.connect('user_123', 'token_456');
+    test("WebSocket connection for ride tracking", async () => {
+      await mockWebsocketService.connect("user_123", "token_456");
 
-      expect(mockWebsocketService.connect).toHaveBeenCalledWith('user_123', 'token_456');
+      expect(mockWebsocketService.connect).toHaveBeenCalledWith(
+        "user_123",
+        "token_456",
+      );
     });
 
-    test('real-time ride status updates via WebSocket', () => {
+    test("real-time ride status updates via WebSocket", () => {
       const rideUpdate = {
         rideId: 123,
-        status: 'in_progress',
+        status: "in_progress",
         driverLocation: { latitude: 40.7505, longitude: -73.9934 },
       };
 
@@ -454,11 +493,15 @@ describe('Ride Flow Integration Tests', () => {
       mockRealtimeStore.updateRideStatus(rideUpdate.status);
       mockRealtimeStore.setDriverLocation(rideUpdate.driverLocation);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('in_progress');
-      expect(mockRealtimeStore.setDriverLocation).toHaveBeenCalledWith(rideUpdate.driverLocation);
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "in_progress",
+      );
+      expect(mockRealtimeStore.setDriverLocation).toHaveBeenCalledWith(
+        rideUpdate.driverLocation,
+      );
     });
 
-    test('WebSocket disconnection handling', () => {
+    test("WebSocket disconnection handling", () => {
       mockWebsocketService.disconnect = jest.fn();
 
       // Simulate disconnection
@@ -470,17 +513,17 @@ describe('Ride Flow Integration Tests', () => {
     });
   });
 
-  describe('Error Handling and Recovery', () => {
-    test('network failure during ride request', async () => {
-      mockFetchAPI.mockRejectedValue(new Error('Network timeout'));
+  describe("Error Handling and Recovery", () => {
+    test("network failure during ride request", async () => {
+      mockFetchAPI.mockRejectedValue(new Error("Network timeout"));
 
       const rideRequestData = {
-        pickupLocation: '123 Main St',
-        destination: '456 Oak Ave',
+        pickupLocation: "123 Main St",
+        destination: "456 Oak Ave",
       };
 
-      const result = await mockFetchAPI('rides/request', {
-        method: 'POST',
+      const result = await mockFetchAPI("rides/request", {
+        method: "POST",
         body: JSON.stringify(rideRequestData),
       });
 
@@ -488,40 +531,42 @@ describe('Ride Flow Integration Tests', () => {
       // UI should show retry option
     });
 
-    test('driver unavailability handling', async () => {
+    test("driver unavailability handling", async () => {
       mockFetchAPI.mockResolvedValue({
         success: false,
-        message: 'No drivers available',
+        message: "No drivers available",
         retryIn: 300, // 5 minutes
       });
 
-      const result = await mockFetchAPI('rides/request', {
-        method: 'POST',
-        body: JSON.stringify({ pickupLocation: '123 Main St' }),
+      const result = await mockFetchAPI("rides/request", {
+        method: "POST",
+        body: JSON.stringify({ pickupLocation: "123 Main St" }),
       });
 
       expect(result.success).toBe(false);
       expect(result.data.retryIn).toBeDefined();
     });
 
-    test('ride timeout handling', () => {
+    test("ride timeout handling", () => {
       jest.useFakeTimers();
 
-      (mockRealtimeStore as any).activeRide = { id: 123, status: 'requested' };
+      (mockRealtimeStore as any).activeRide = { id: 123, status: "requested" };
 
       // Simulate timeout after 10 minutes
       jest.advanceTimersByTime(10 * 60 * 1000);
 
       // Should trigger timeout handling
-      mockRealtimeStore.updateRideStatus('timeout');
+      mockRealtimeStore.updateRideStatus("timeout");
       mockRealtimeStore.setActiveRide(null);
 
-      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith('timeout');
+      expect(mockRealtimeStore.updateRideStatus).toHaveBeenCalledWith(
+        "timeout",
+      );
 
       jest.useRealTimers();
     });
 
-    test('location update failures are handled gracefully', () => {
+    test("location update failures are handled gracefully", () => {
       // Simulate GPS failure
       (mockLocationStore as any).userLatitude = null;
       (mockLocationStore as any).userLongitude = null;
@@ -531,8 +576,8 @@ describe('Ride Flow Integration Tests', () => {
     });
   });
 
-  describe('Performance and Resource Management', () => {
-    test('tracking stops when app goes to background', () => {
+  describe("Performance and Resource Management", () => {
+    test("tracking stops when app goes to background", () => {
       mockRealtimeStore.isTracking = true;
 
       // Simulate app background event
@@ -542,12 +587,18 @@ describe('Ride Flow Integration Tests', () => {
       expect(mockRealtimeStore.isTracking).toBe(false);
     });
 
-    test('memory cleanup on ride completion', () => {
-      (mockRealtimeStore as any).activeRide = { id: 123, status: 'in_progress' };
-      (mockRealtimeStore as any).driverLocation = { latitude: 40.7128, longitude: -74.0060 };
+    test("memory cleanup on ride completion", () => {
+      (mockRealtimeStore as any).activeRide = {
+        id: 123,
+        status: "in_progress",
+      };
+      (mockRealtimeStore as any).driverLocation = {
+        latitude: 40.7128,
+        longitude: -74.006,
+      };
 
       // Complete ride
-      mockRealtimeStore.updateRideStatus('completed');
+      mockRealtimeStore.updateRideStatus("completed");
       mockRealtimeStore.setActiveRide(null);
       mockRealtimeStore.setDriverLocation(null);
 
@@ -555,22 +606,23 @@ describe('Ride Flow Integration Tests', () => {
       expect(mockRealtimeStore.driverLocation).toBeNull();
     });
 
-    test('WebSocket reconnection after network recovery', async () => {
-      (mockWebsocketService.connect as jest.Mock).mockRejectedValueOnce(new Error('Network error'));
+    test("WebSocket reconnection after network recovery", async () => {
+      (mockWebsocketService.connect as jest.Mock).mockRejectedValueOnce(
+        new Error("Network error"),
+      );
       (mockWebsocketService.connect as jest.Mock).mockResolvedValueOnce(true);
 
       // First attempt fails
       try {
-        await mockWebsocketService.connect('user_123', 'token_456');
+        await mockWebsocketService.connect("user_123", "token_456");
       } catch (error) {
         // Expected to fail
       }
 
       // Second attempt succeeds (simulating network recovery)
-      await mockWebsocketService.connect('user_123', 'token_456');
+      await mockWebsocketService.connect("user_123", "token_456");
 
       expect(mockWebsocketService.connect).toHaveBeenCalledTimes(2);
     });
   });
 });
-

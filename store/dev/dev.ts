@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { create } from "zustand";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 interface DevStoreState {
   developerMode: boolean;
@@ -15,7 +15,7 @@ interface DevStoreState {
   loadFromStorage: () => Promise<void>;
 }
 
-const STORAGE_KEY = 'dev_store_flags_v1';
+const STORAGE_KEY = "dev_store_flags_v1";
 
 export const useDevStore = create<DevStoreState>((set, get) => ({
   developerMode: false,
@@ -23,11 +23,26 @@ export const useDevStore = create<DevStoreState>((set, get) => ({
   wsBypass: false,
   latencyMs: 0,
   errorRate: 0,
-  setDeveloperMode: (v) => { set({ developerMode: v }); save(); },
-  setNetworkBypass: (v) => { set({ networkBypass: v }); save(); },
-  setWsBypass: (v) => { set({ wsBypass: v }); save(); },
-  setLatencyMs: (v) => { set({ latencyMs: Math.max(0, v) }); save(); },
-  setErrorRate: (v) => { set({ errorRate: Math.min(1, Math.max(0, v)) }); save(); },
+  setDeveloperMode: (v) => {
+    set({ developerMode: v });
+    save();
+  },
+  setNetworkBypass: (v) => {
+    set({ networkBypass: v });
+    save();
+  },
+  setWsBypass: (v) => {
+    set({ wsBypass: v });
+    save();
+  },
+  setLatencyMs: (v) => {
+    set({ latencyMs: Math.max(0, v) });
+    save();
+  },
+  setErrorRate: (v) => {
+    set({ errorRate: Math.min(1, Math.max(0, v)) });
+    save();
+  },
   loadFromStorage: async () => {
     try {
       const raw = await AsyncStorage.getItem(STORAGE_KEY);
@@ -37,12 +52,14 @@ export const useDevStore = create<DevStoreState>((set, get) => ({
           developerMode: !!parsed.developerMode,
           networkBypass: !!parsed.networkBypass,
           wsBypass: !!parsed.wsBypass,
-          latencyMs: typeof parsed.latencyMs === 'number' ? parsed.latencyMs : 0,
-          errorRate: typeof parsed.errorRate === 'number' ? parsed.errorRate : 0,
+          latencyMs:
+            typeof parsed.latencyMs === "number" ? parsed.latencyMs : 0,
+          errorRate:
+            typeof parsed.errorRate === "number" ? parsed.errorRate : 0,
         });
       }
     } catch {}
-  }
+  },
 }));
 
 async function save() {
@@ -58,6 +75,3 @@ async function save() {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch {}
 }
-
-
-

@@ -1,11 +1,11 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export enum LogLevel {
   DEBUG = 0,
   INFO = 1,
   WARN = 2,
   ERROR = 3,
-  CRITICAL = 4
+  CRITICAL = 4,
 }
 
 export interface LogEntry {
@@ -42,7 +42,7 @@ export class Logger {
 
   setLogLevel(level: LogLevel): void {
     this.logLevel = level;
-    this.info('Logger', 'Log level changed', { newLevel: level });
+    this.info("Logger", "Log level changed", { newLevel: level });
   }
 
   private shouldLog(level: LogLevel): boolean {
@@ -54,7 +54,7 @@ export class Logger {
     category: string,
     message: string,
     data?: any,
-    stackTrace?: string
+    stackTrace?: string,
   ): LogEntry {
     return {
       id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -64,7 +64,7 @@ export class Logger {
       message,
       data,
       sessionId: this.sessionId,
-      stackTrace
+      stackTrace,
     };
   }
 
@@ -95,29 +95,34 @@ export class Logger {
 
     switch (entry.level) {
       case LogLevel.DEBUG:
-        console.debug(`${prefix} ${message}`, entry.data || '');
+        console.debug(`${prefix} ${message}`, entry.data || "");
         break;
       case LogLevel.INFO:
-        console.info(`${prefix} ${message}`, entry.data || '');
+        console.info(`${prefix} ${message}`, entry.data || "");
         break;
       case LogLevel.WARN:
-        console.warn(`${prefix} ${message}`, entry.data || '');
+        console.warn(`${prefix} ${message}`, entry.data || "");
         break;
       case LogLevel.ERROR:
       case LogLevel.CRITICAL:
-        console.error(`${prefix} ${message}`, entry.data || '', entry.stackTrace || '');
+        console.error(
+          `${prefix} ${message}`,
+          entry.data || "",
+          entry.stackTrace || "",
+        );
         break;
     }
   }
 
   private async persistLog(entry: LogEntry): Promise<void> {
     try {
-      const persistedLogs = await AsyncStorage.getItem('uber_app_logs') || '[]';
+      const persistedLogs =
+        (await AsyncStorage.getItem("uber_app_logs")) || "[]";
       const logs = JSON.parse(persistedLogs);
 
       logs.unshift({
         ...entry,
-        timestamp: entry.timestamp.toISOString() // Convert to string for storage
+        timestamp: entry.timestamp.toISOString(), // Convert to string for storage
       });
 
       // Keep only last 500 persisted logs
@@ -125,31 +130,36 @@ export class Logger {
         logs.splice(500);
       }
 
-      await AsyncStorage.setItem('uber_app_logs', JSON.stringify(logs));
+      await AsyncStorage.setItem("uber_app_logs", JSON.stringify(logs));
     } catch (error) {
-      console.error('[Logger] Failed to persist log:', error);
+      console.error("[Logger] Failed to persist log:", error);
     }
   }
 
   private async loadPersistedLogs(): Promise<void> {
     try {
-      const persistedLogs = await AsyncStorage.getItem('uber_app_logs');
+      const persistedLogs = await AsyncStorage.getItem("uber_app_logs");
       if (persistedLogs) {
         const logs = JSON.parse(persistedLogs);
         // Convert timestamp strings back to Date objects
         this.logs = logs.map((log: any) => ({
           ...log,
-          timestamp: new Date(log.timestamp)
+          timestamp: new Date(log.timestamp),
         }));
       }
     } catch (error) {
-      console.error('[Logger] Failed to load persisted logs:', error);
+      console.error("[Logger] Failed to load persisted logs:", error);
     }
   }
 
   debug(category: string, message: string, data?: any): void {
     if (this.shouldLog(LogLevel.DEBUG)) {
-      const entry = this.createLogEntry(LogLevel.DEBUG, category, message, data);
+      const entry = this.createLogEntry(
+        LogLevel.DEBUG,
+        category,
+        message,
+        data,
+      );
       this.addLog(entry);
     }
   }
@@ -175,7 +185,7 @@ export class Logger {
         category,
         message,
         data,
-        error?.stack
+        error?.stack,
       );
       this.addLog(entry);
     }
@@ -188,14 +198,19 @@ export class Logger {
         category,
         message,
         data,
-        error?.stack
+        error?.stack,
       );
       this.addLog(entry);
     }
   }
 
   // Performance logging
-  performance(category: string, operation: string, startTime: number, metadata?: any): void {
+  performance(
+    category: string,
+    operation: string,
+    startTime: number,
+    metadata?: any,
+  ): void {
     const duration = Date.now() - startTime;
     const level = duration > 5000 ? LogLevel.WARN : LogLevel.INFO;
 
@@ -206,17 +221,28 @@ export class Logger {
         `Performance: ${operation}`,
         {
           duration,
-          ...metadata
-        }
+          ...metadata,
+        },
       );
       this.addLog(entry);
     }
   }
 
   // Network logging
-  network(category: string, method: string, url: string, statusCode?: number, duration?: number, error?: any): void {
-    const level = statusCode && statusCode >= 400 ? LogLevel.ERROR :
-                 error ? LogLevel.WARN : LogLevel.DEBUG;
+  network(
+    category: string,
+    method: string,
+    url: string,
+    statusCode?: number,
+    duration?: number,
+    error?: any,
+  ): void {
+    const level =
+      statusCode && statusCode >= 400
+        ? LogLevel.ERROR
+        : error
+          ? LogLevel.WARN
+          : LogLevel.DEBUG;
 
     if (this.shouldLog(level)) {
       const entry = this.createLogEntry(
@@ -226,8 +252,8 @@ export class Logger {
         {
           statusCode,
           duration,
-          error: error?.message
-        }
+          error: error?.message,
+        },
       );
       this.addLog(entry);
     }
@@ -243,7 +269,7 @@ export class Logger {
         category,
         `WebSocket: ${event}`,
         data,
-        error?.stack
+        error?.stack,
       );
       this.addLog(entry);
     }
@@ -256,7 +282,7 @@ export class Logger {
         LogLevel.INFO,
         category,
         `User Action: ${action}`,
-        details
+        details,
       );
       this.addLog(entry);
     }
@@ -267,11 +293,11 @@ export class Logger {
     let filteredLogs = this.logs;
 
     if (level !== undefined) {
-      filteredLogs = filteredLogs.filter(log => log.level >= level);
+      filteredLogs = filteredLogs.filter((log) => log.level >= level);
     }
 
     if (category) {
-      filteredLogs = filteredLogs.filter(log => log.category === category);
+      filteredLogs = filteredLogs.filter((log) => log.category === category);
     }
 
     return filteredLogs.slice(0, limit);
@@ -280,19 +306,19 @@ export class Logger {
   // Clear logs
   clearLogs(): void {
     this.logs = [];
-    AsyncStorage.removeItem('uber_app_logs');
-    this.info('Logger', 'Logs cleared');
+    AsyncStorage.removeItem("uber_app_logs");
+    this.info("Logger", "Logs cleared");
   }
 
   // Export logs for debugging
   exportLogs(): Promise<string> {
     return new Promise((resolve) => {
-      AsyncStorage.getItem('uber_app_logs').then((persistedLogs) => {
+      AsyncStorage.getItem("uber_app_logs").then((persistedLogs) => {
         const allLogs = {
           memoryLogs: this.logs,
           persistedLogs: persistedLogs ? JSON.parse(persistedLogs) : [],
           sessionId: this.sessionId,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
         };
         resolve(JSON.stringify(allLogs, null, 2));
       });
@@ -300,17 +326,22 @@ export class Logger {
   }
 
   // Get log statistics
-  getStats(): { total: number; byLevel: Record<string, number>; byCategory: Record<string, number> } {
+  getStats(): {
+    total: number;
+    byLevel: Record<string, number>;
+    byCategory: Record<string, number>;
+  } {
     const stats = {
       total: this.logs.length,
       byLevel: {} as Record<string, number>,
-      byCategory: {} as Record<string, number>
+      byCategory: {} as Record<string, number>,
     };
 
-    this.logs.forEach(log => {
+    this.logs.forEach((log) => {
       const levelStr = LogLevel[log.level];
       stats.byLevel[levelStr] = (stats.byLevel[levelStr] || 0) + 1;
-      stats.byCategory[log.category] = (stats.byCategory[log.category] || 0) + 1;
+      stats.byCategory[log.category] =
+        (stats.byCategory[log.category] || 0) + 1;
     });
 
     return stats;
@@ -322,21 +353,36 @@ export const logger = Logger.getInstance();
 
 // Convenience functions
 export const log = {
-  debug: (category: string, message: string, data?: any) => logger.debug(category, message, data),
-  info: (category: string, message: string, data?: any) => logger.info(category, message, data),
-  warn: (category: string, message: string, data?: any) => logger.warn(category, message, data),
-  error: (category: string, message: string, data?: any, error?: Error) => logger.error(category, message, data, error),
-  critical: (category: string, message: string, data?: any, error?: Error) => logger.critical(category, message, data, error),
+  debug: (category: string, message: string, data?: any) =>
+    logger.debug(category, message, data),
+  info: (category: string, message: string, data?: any) =>
+    logger.info(category, message, data),
+  warn: (category: string, message: string, data?: any) =>
+    logger.warn(category, message, data),
+  error: (category: string, message: string, data?: any, error?: Error) =>
+    logger.error(category, message, data, error),
+  critical: (category: string, message: string, data?: any, error?: Error) =>
+    logger.critical(category, message, data, error),
 
-  performance: (category: string, operation: string, startTime: number, metadata?: any) =>
-    logger.performance(category, operation, startTime, metadata),
+  performance: (
+    category: string,
+    operation: string,
+    startTime: number,
+    metadata?: any,
+  ) => logger.performance(category, operation, startTime, metadata),
 
-  network: (category: string, method: string, url: string, statusCode?: number, duration?: number, error?: any) =>
-    logger.network(category, method, url, statusCode, duration, error),
+  network: (
+    category: string,
+    method: string,
+    url: string,
+    statusCode?: number,
+    duration?: number,
+    error?: any,
+  ) => logger.network(category, method, url, statusCode, duration, error),
 
   websocket: (category: string, event: string, data?: any, error?: any) =>
     logger.websocket(category, event, data, error),
 
   userAction: (category: string, action: string, details?: any) =>
-    logger.userAction(category, action, details)
+    logger.userAction(category, action, details),
 };

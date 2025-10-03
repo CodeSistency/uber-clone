@@ -1,9 +1,14 @@
-import { BaseModule, MetricsConfig, HealthStatus, PerformanceMetrics } from './types';
+import {
+  BaseModule,
+  MetricsConfig,
+  HealthStatus,
+  PerformanceMetrics,
+} from "./types";
 
 export class MetricsMonitor implements BaseModule {
   private config: MetricsConfig;
   private metrics: PerformanceMetrics;
-  private metricsTimer: number | null = null;
+  private metricsTimer: ReturnType<typeof setInterval> | null = null;
   private startTime: Date;
   private connectionStartTime: Date | null = null;
   private messageLatencies: number[] = [];
@@ -28,7 +33,7 @@ export class MetricsMonitor implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log('[MetricsMonitor] Initializing metrics collection');
+    console.log("[MetricsMonitor] Initializing metrics collection");
 
     if (this.config.enableMetrics) {
       this.startMetricsCollection();
@@ -36,7 +41,7 @@ export class MetricsMonitor implements BaseModule {
   }
 
   async destroy(): Promise<void> {
-    console.log('[MetricsMonitor] Destroying metrics monitor');
+    console.log("[MetricsMonitor] Destroying metrics monitor");
     this.stopMetricsCollection();
     this.messageLatencies.length = 0;
     this.errorCounts.clear();
@@ -47,13 +52,14 @@ export class MetricsMonitor implements BaseModule {
     const now = new Date();
 
     // Consider unhealthy if no updates in last 2x metrics interval
-    const timeSinceLastUpdate = now.getTime() - this.metrics.lastUpdated.getTime();
-    const isHealthy = timeSinceLastUpdate < (this.config.metricsInterval * 2);
+    const timeSinceLastUpdate =
+      now.getTime() - this.metrics.lastUpdated.getTime();
+    const isHealthy = timeSinceLastUpdate < this.config.metricsInterval * 2;
 
     return {
       healthy: isHealthy,
       lastCheck: now,
-      error: !isHealthy ? 'Metrics not updating' : undefined,
+      error: !isHealthy ? "Metrics not updating" : undefined,
       details: {
         lastUpdated: this.metrics.lastUpdated,
         timeSinceLastUpdate,
@@ -83,7 +89,9 @@ export class MetricsMonitor implements BaseModule {
     }
 
     // Update average
-    this.metrics.averageResponseTime = this.messageLatencies.reduce((sum, lat) => sum + lat, 0) / this.messageLatencies.length;
+    this.metrics.averageResponseTime =
+      this.messageLatencies.reduce((sum, lat) => sum + lat, 0) /
+      this.messageLatencies.length;
     this.updateMetrics();
   }
 
@@ -93,11 +101,18 @@ export class MetricsMonitor implements BaseModule {
     this.errorCounts.set(errorType, currentCount + 1);
 
     // Recalculate error rate
-    const totalErrors = Array.from(this.errorCounts.values()).reduce((sum, count) => sum + count, 0);
-    const totalMessages = this.metrics.messagesSent + this.metrics.messagesReceived;
-    this.metrics.errorRate = totalMessages > 0 ? (totalErrors / totalMessages) * 100 : 0;
+    const totalErrors = Array.from(this.errorCounts.values()).reduce(
+      (sum, count) => sum + count,
+      0,
+    );
+    const totalMessages =
+      this.metrics.messagesSent + this.metrics.messagesReceived;
+    this.metrics.errorRate =
+      totalMessages > 0 ? (totalErrors / totalMessages) * 100 : 0;
 
-    console.log(`[MetricsMonitor] Error recorded: ${errorType} (total: ${currentCount + 1})`);
+    console.log(
+      `[MetricsMonitor] Error recorded: ${errorType} (total: ${currentCount + 1})`,
+    );
     this.updateMetrics();
   }
 
@@ -110,15 +125,18 @@ export class MetricsMonitor implements BaseModule {
   // Connection tracking
   recordConnectionStart(): void {
     this.connectionStartTime = new Date();
-    console.log('[MetricsMonitor] Connection started');
+    console.log("[MetricsMonitor] Connection started");
   }
 
   recordConnectionEnd(): void {
     if (this.connectionStartTime) {
-      const connectionDuration = Date.now() - this.connectionStartTime.getTime();
+      const connectionDuration =
+        Date.now() - this.connectionStartTime.getTime();
       this.metrics.connectionUptime += connectionDuration;
       this.connectionStartTime = null;
-      console.log(`[MetricsMonitor] Connection ended, duration: ${connectionDuration}ms`);
+      console.log(
+        `[MetricsMonitor] Connection ended, duration: ${connectionDuration}ms`,
+      );
     }
     this.updateMetrics();
   }
@@ -156,15 +174,24 @@ export class MetricsMonitor implements BaseModule {
     const sortedLatencies = [...this.messageLatencies].sort((a, b) => a - b);
     const latencyStats = {
       min: sortedLatencies.length > 0 ? sortedLatencies[0] : 0,
-      max: sortedLatencies.length > 0 ? sortedLatencies[sortedLatencies.length - 1] : 0,
+      max:
+        sortedLatencies.length > 0
+          ? sortedLatencies[sortedLatencies.length - 1]
+          : 0,
       avg: this.metrics.averageResponseTime,
-      p95: sortedLatencies.length > 0 ? sortedLatencies[Math.floor(sortedLatencies.length * 0.95)] : 0,
+      p95:
+        sortedLatencies.length > 0
+          ? sortedLatencies[Math.floor(sortedLatencies.length * 0.95)]
+          : 0,
       count: sortedLatencies.length,
     };
 
     // Calculate uptime percentage
     const totalRuntime = Date.now() - this.startTime.getTime();
-    const uptimePercentage = totalRuntime > 0 ? (this.metrics.connectionUptime / totalRuntime) * 100 : 0;
+    const uptimePercentage =
+      totalRuntime > 0
+        ? (this.metrics.connectionUptime / totalRuntime) * 100
+        : 0;
 
     return {
       metrics: this.getMetrics(),
@@ -177,7 +204,7 @@ export class MetricsMonitor implements BaseModule {
 
   // Reset metrics
   resetMetrics(): void {
-    console.log('[MetricsMonitor] Resetting all metrics');
+    console.log("[MetricsMonitor] Resetting all metrics");
 
     this.metrics = {
       messagesSent: 0,
@@ -204,7 +231,7 @@ export class MetricsMonitor implements BaseModule {
       duration: number;
     };
     performance: PerformanceMetrics;
-    details: ReturnType<MetricsMonitor['getDetailedStats']>;
+    details: ReturnType<MetricsMonitor["getDetailedStats"]>;
   } {
     const now = new Date();
 
@@ -231,14 +258,20 @@ export class MetricsMonitor implements BaseModule {
     if (this.metrics.errorRate > 10) {
       critical.push(`High error rate: ${this.metrics.errorRate.toFixed(2)}%`);
     } else if (this.metrics.errorRate > 5) {
-      warnings.push(`Elevated error rate: ${this.metrics.errorRate.toFixed(2)}%`);
+      warnings.push(
+        `Elevated error rate: ${this.metrics.errorRate.toFixed(2)}%`,
+      );
     }
 
     // High latency
     if (this.metrics.averageResponseTime > 5000) {
-      critical.push(`High average latency: ${this.metrics.averageResponseTime.toFixed(0)}ms`);
+      critical.push(
+        `High average latency: ${this.metrics.averageResponseTime.toFixed(0)}ms`,
+      );
     } else if (this.metrics.averageResponseTime > 2000) {
-      warnings.push(`Elevated latency: ${this.metrics.averageResponseTime.toFixed(0)}ms`);
+      warnings.push(
+        `Elevated latency: ${this.metrics.averageResponseTime.toFixed(0)}ms`,
+      );
     }
 
     // Low uptime
@@ -246,14 +279,18 @@ export class MetricsMonitor implements BaseModule {
     if (uptimePercentage < 50) {
       critical.push(`Low connection uptime: ${uptimePercentage.toFixed(1)}%`);
     } else if (uptimePercentage < 80) {
-      warnings.push(`Moderate connection uptime: ${uptimePercentage.toFixed(1)}%`);
+      warnings.push(
+        `Moderate connection uptime: ${uptimePercentage.toFixed(1)}%`,
+      );
     }
 
     return { warnings, critical };
   }
 
   private startMetricsCollection(): void {
-    console.log(`[MetricsMonitor] Starting metrics collection (interval: ${this.config.metricsInterval}ms)`);
+    console.log(
+      `[MetricsMonitor] Starting metrics collection (interval: ${this.config.metricsInterval}ms)`,
+    );
 
     this.metricsTimer = setInterval(() => {
       // Periodic cleanup of old data (if retention is configured)
@@ -265,16 +302,15 @@ export class MetricsMonitor implements BaseModule {
       const { warnings, critical } = this.checkThresholds();
 
       if (critical.length > 0) {
-        console.error('[MetricsMonitor] Critical issues detected:', critical);
+        console.error("[MetricsMonitor] Critical issues detected:", critical);
       }
 
       if (warnings.length > 0) {
-        console.warn('[MetricsMonitor] Warnings:', warnings);
+        console.warn("[MetricsMonitor] Warnings:", warnings);
       }
 
       // Update last updated timestamp
       this.updateMetrics();
-
     }, this.config.metricsInterval);
   }
 
@@ -282,7 +318,7 @@ export class MetricsMonitor implements BaseModule {
     if (this.metricsTimer) {
       clearInterval(this.metricsTimer);
       this.metricsTimer = null;
-      console.log('[MetricsMonitor] Stopped metrics collection');
+      console.log("[MetricsMonitor] Stopped metrics collection");
     }
   }
 
@@ -299,7 +335,10 @@ export class MetricsMonitor implements BaseModule {
 
     if (this.messageLatencies.length > this.maxLatencyHistory) {
       // Keep only the most recent measurements
-      this.messageLatencies.splice(0, this.messageLatencies.length - this.maxLatencyHistory);
+      this.messageLatencies.splice(
+        0,
+        this.messageLatencies.length - this.maxLatencyHistory,
+      );
     }
   }
 }

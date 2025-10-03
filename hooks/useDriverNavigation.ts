@@ -78,13 +78,13 @@ export const useDriverNavigation = () => {
         showInfo(
           "Active Service",
           `You're currently on a ${serviceType} service. ${baseMessage}`,
-          5000 // Show for 5 seconds
+          5000, // Show for 5 seconds
         );
       } else if (step === "DRIVER_DISPONIBILIDAD") {
         showSuccess(
           "Available for Services",
           `You're online and available for ${serviceType || "services"}. ${baseMessage}`,
-          3000
+          3000,
         );
       }
     };
@@ -103,7 +103,7 @@ export const useDriverNavigation = () => {
       showError(
         "Action Not Available",
         `You cannot access this section while on an active ${serviceType} service. Please complete your current service first.`,
-        8000 // Show longer error message
+        8000, // Show longer error message
       );
 
       // Navigate back to a safe route
@@ -143,7 +143,7 @@ export const useDriverNavigation = () => {
       const serviceType = currentServiceType || "service";
       showError(
         "Action Not Available",
-        `You cannot access management sections while on an active ${serviceType} service. Please complete your current service first.`
+        `You cannot access management sections while on an active ${serviceType} service. Please complete your current service first.`,
       );
       return false;
     }
@@ -183,12 +183,12 @@ export const useDriverNavigation = () => {
           const serviceType = currentServiceType || "service";
           showInfo(
             "Active Service",
-            `You're currently on a ${serviceType} service. ${baseMessage}`
+            `You're currently on a ${serviceType} service. ${baseMessage}`,
           );
         } else if (step === "DRIVER_DISPONIBILIDAD") {
           showSuccess(
             "Available for Services",
-            `You're online and available for services. ${baseMessage}`
+            `You're online and available for services. ${baseMessage}`,
           );
         }
       }

@@ -7,6 +7,10 @@ import CustomButton from "@/components/CustomButton";
 import Map from "@/components/Map";
 import RideProgressBar from "@/components/RideProgressBar";
 import { icons } from "@/constants";
+import {
+  DARK_MODERN_STYLE,
+  type MapConfiguration,
+} from "@/constants/mapStyles";
 
 type RideStatus =
   | "driver_en_route"
@@ -112,11 +116,34 @@ const ActiveRide = () => {
     // Here you would send the message to the driver
   };
 
+  // 🎨 Configuración del mapa con tema dark moderno
+  const mapConfig: Partial<MapConfiguration> = {
+    theme: "dark",
+    customStyle: DARK_MODERN_STYLE,
+    userInterfaceStyle: "dark",
+    mapType: "standard",
+    showsUserLocation: true,
+    showsPointsOfInterest: false,
+    showsBuildings: true,
+    showsTraffic: false,
+    showsCompass: true,
+    showsScale: false,
+    showsMyLocationButton: false,
+    zoomEnabled: true,
+    scrollEnabled: true,
+    rotateEnabled: true,
+    pitchEnabled: true,
+    tintColor: "#00FF88",
+    routeColor: "#4285F4",
+    trailColor: "#FFE014",
+    predictionColor: "#00FF88",
+  };
+
   return (
     <View className="flex-1 bg-general-500">
       {/* Map - 60% of screen */}
       <View className="flex-1 relative">
-        <Map />
+        <Map mapConfig={mapConfig} />
 
         {/* Status overlay on map */}
         <View className="absolute top-12 left-4 right-4 z-10">

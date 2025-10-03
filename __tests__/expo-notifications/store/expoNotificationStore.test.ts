@@ -1,8 +1,8 @@
-import { act } from '@testing-library/react-native';
-import { create } from 'zustand';
+import { act } from "@testing-library/react-native";
+import { create } from "zustand";
 
 // Mock del logger
-jest.mock('@/lib/logger', () => ({
+jest.mock("@/lib/logger", () => ({
   log: {
     info: jest.fn(),
     debug: jest.fn(),
@@ -12,16 +12,21 @@ jest.mock('@/lib/logger', () => ({
 }));
 
 // Mock del servicio de notificaciones
-jest.mock('@/app/services/expo-notifications', () => ({
+jest.mock("@/app/services/expo-notifications", () => ({
   expoNotificationService: {
     simulateNotification: jest.fn(),
   },
 }));
 
-import { useExpoNotificationStore } from '@/store/expo-notifications/expoNotificationStore';
-import { ExpoNotificationData, ExpoNotificationPreferences, ExpoPushToken, ExpoNotificationPermissions } from '../../../../types/expo-notifications';
+import { useExpoNotificationStore } from "@/store/expo-notifications/expoNotificationStore";
+import {
+  ExpoNotificationData,
+  ExpoNotificationPreferences,
+  ExpoPushToken,
+  ExpoNotificationPermissions,
+} from "../../../types/expo-notifications";
 
-describe('useExpoNotificationStore', () => {
+describe("useExpoNotificationStore", () => {
   let store: ReturnType<typeof useExpoNotificationStore.getState>;
 
   beforeEach(() => {
@@ -54,8 +59,8 @@ describe('useExpoNotificationStore', () => {
     store = useExpoNotificationStore.getState();
   });
 
-  describe('Initial State', () => {
-    it('should have correct initial state', () => {
+  describe("Initial State", () => {
+    it("should have correct initial state", () => {
       expect(store.notifications).toEqual([]);
       expect(store.unreadCount).toBe(0);
       expect(store.preferences.pushEnabled).toBe(true);
@@ -66,17 +71,17 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('addNotification()', () => {
-    it('should add notification to empty list', () => {
+  describe("addNotification()", () => {
+    it("should add notification to empty list", () => {
       const notification: ExpoNotificationData = {
-        id: 'test-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test Notification',
-        message: 'Test message',
+        id: "test-1",
+        type: "SYSTEM_UPDATE",
+        title: "Test Notification",
+        message: "Test message",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       act(() => {
@@ -89,27 +94,27 @@ describe('useExpoNotificationStore', () => {
       expect(updatedStore.unreadCount).toBe(1);
     });
 
-    it('should add notification to existing list', () => {
+    it("should add notification to existing list", () => {
       const existingNotification: ExpoNotificationData = {
-        id: 'existing-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Existing',
-        message: 'Existing message',
+        id: "existing-1",
+        type: "SYSTEM_UPDATE",
+        title: "Existing",
+        message: "Existing message",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       const newNotification: ExpoNotificationData = {
-        id: 'new-1',
-        type: 'RIDE_REQUEST',
-        title: 'New Ride',
-        message: 'New ride request',
+        id: "new-1",
+        type: "RIDE_REQUEST",
+        title: "New Ride",
+        message: "New ride request",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'high',
+        priority: "high",
       };
 
       act(() => {
@@ -124,27 +129,27 @@ describe('useExpoNotificationStore', () => {
       expect(updatedStore.unreadCount).toBe(2);
     });
 
-    it('should update existing notification', () => {
+    it("should update existing notification", () => {
       const originalNotification: ExpoNotificationData = {
-        id: 'test-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Original',
-        message: 'Original message',
+        id: "test-1",
+        type: "SYSTEM_UPDATE",
+        title: "Original",
+        message: "Original message",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       const updatedNotification: ExpoNotificationData = {
-        id: 'test-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Updated',
-        message: 'Updated message',
+        id: "test-1",
+        type: "SYSTEM_UPDATE",
+        title: "Updated",
+        message: "Updated message",
         data: { updated: true },
         timestamp: new Date(),
         isRead: true,
-        priority: 'high',
+        priority: "high",
       };
 
       act(() => {
@@ -158,18 +163,18 @@ describe('useExpoNotificationStore', () => {
       expect(updatedStore.unreadCount).toBe(0); // Updated to read
     });
 
-    it('should maintain maximum of 100 notifications', () => {
+    it("should maintain maximum of 100 notifications", () => {
       // Add 101 notifications
       for (let i = 1; i <= 101; i++) {
         const notification: ExpoNotificationData = {
           id: `notification-${i}`,
-          type: 'SYSTEM_UPDATE',
+          type: "SYSTEM_UPDATE",
           title: `Notification ${i}`,
           message: `Message ${i}`,
           data: {},
           timestamp: new Date(),
           isRead: false,
-          priority: 'normal',
+          priority: "normal",
         };
 
         act(() => {
@@ -179,31 +184,31 @@ describe('useExpoNotificationStore', () => {
 
       const updatedStore = useExpoNotificationStore.getState();
       expect(updatedStore.notifications).toHaveLength(100);
-      expect(updatedStore.notifications[0].id).toBe('notification-101'); // Most recent
-      expect(updatedStore.notifications[99].id).toBe('notification-2'); // Second most recent
+      expect(updatedStore.notifications[0].id).toBe("notification-101"); // Most recent
+      expect(updatedStore.notifications[99].id).toBe("notification-2"); // Second most recent
     });
 
-    it('should not count read notifications in unread count', () => {
+    it("should not count read notifications in unread count", () => {
       const readNotification: ExpoNotificationData = {
-        id: 'read-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Read Notification',
-        message: 'Read message',
+        id: "read-1",
+        type: "SYSTEM_UPDATE",
+        title: "Read Notification",
+        message: "Read message",
         data: {},
         timestamp: new Date(),
         isRead: true,
-        priority: 'normal',
+        priority: "normal",
       };
 
       const unreadNotification: ExpoNotificationData = {
-        id: 'unread-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Unread Notification',
-        message: 'Unread message',
+        id: "unread-1",
+        type: "SYSTEM_UPDATE",
+        title: "Unread Notification",
+        message: "Unread message",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       act(() => {
@@ -216,22 +221,22 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('markAsRead()', () => {
-    it('should mark notification as read', () => {
+  describe("markAsRead()", () => {
+    it("should mark notification as read", () => {
       const notification: ExpoNotificationData = {
-        id: 'test-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test',
-        message: 'Test message',
+        id: "test-1",
+        type: "SYSTEM_UPDATE",
+        title: "Test",
+        message: "Test message",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       act(() => {
         store.addNotification(notification);
-        store.markAsRead('test-1');
+        store.markAsRead("test-1");
       });
 
       const updatedStore = useExpoNotificationStore.getState();
@@ -239,42 +244,42 @@ describe('useExpoNotificationStore', () => {
       expect(updatedStore.unreadCount).toBe(0);
     });
 
-    it('should update unread count correctly', () => {
+    it("should update unread count correctly", () => {
       const notifications: ExpoNotificationData[] = [
         {
-          id: '1',
-          type: 'SYSTEM_UPDATE',
-          title: 'Test 1',
-          message: 'Message 1',
+          id: "1",
+          type: "SYSTEM_UPDATE",
+          title: "Test 1",
+          message: "Message 1",
           data: {},
           timestamp: new Date(),
           isRead: false,
-          priority: 'normal',
+          priority: "normal",
         },
         {
-          id: '2',
-          type: 'SYSTEM_UPDATE',
-          title: 'Test 2',
-          message: 'Message 2',
+          id: "2",
+          type: "SYSTEM_UPDATE",
+          title: "Test 2",
+          message: "Message 2",
           data: {},
           timestamp: new Date(),
           isRead: false,
-          priority: 'normal',
+          priority: "normal",
         },
       ];
 
       act(() => {
-        notifications.forEach(n => store.addNotification(n));
-        store.markAsRead('1');
+        notifications.forEach((n) => store.addNotification(n));
+        store.markAsRead("1");
       });
 
       const updatedStore = useExpoNotificationStore.getState();
       expect(updatedStore.unreadCount).toBe(1);
     });
 
-    it('should do nothing for non-existent notification', () => {
+    it("should do nothing for non-existent notification", () => {
       act(() => {
-        store.markAsRead('non-existent');
+        store.markAsRead("non-existent");
       });
 
       const updatedStore = useExpoNotificationStore.getState();
@@ -283,53 +288,53 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('markAllAsRead()', () => {
-    it('should mark all notifications as read', () => {
+  describe("markAllAsRead()", () => {
+    it("should mark all notifications as read", () => {
       const notifications: ExpoNotificationData[] = [
         {
-          id: '1',
-          type: 'SYSTEM_UPDATE',
-          title: 'Test 1',
-          message: 'Message 1',
+          id: "1",
+          type: "SYSTEM_UPDATE",
+          title: "Test 1",
+          message: "Message 1",
           data: {},
           timestamp: new Date(),
           isRead: false,
-          priority: 'normal',
+          priority: "normal",
         },
         {
-          id: '2',
-          type: 'SYSTEM_UPDATE',
-          title: 'Test 2',
-          message: 'Message 2',
+          id: "2",
+          type: "SYSTEM_UPDATE",
+          title: "Test 2",
+          message: "Message 2",
           data: {},
           timestamp: new Date(),
           isRead: false,
-          priority: 'normal',
+          priority: "normal",
         },
       ];
 
       act(() => {
-        notifications.forEach(n => store.addNotification(n));
+        notifications.forEach((n) => store.addNotification(n));
         store.markAllAsRead();
       });
 
       const updatedStore = useExpoNotificationStore.getState();
-      expect(updatedStore.notifications.every(n => n.isRead)).toBe(true);
+      expect(updatedStore.notifications.every((n) => n.isRead)).toBe(true);
       expect(updatedStore.unreadCount).toBe(0);
     });
   });
 
-  describe('clearNotifications()', () => {
-    it('should clear all notifications', () => {
+  describe("clearNotifications()", () => {
+    it("should clear all notifications", () => {
       const notification: ExpoNotificationData = {
-        id: 'test-1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test',
-        message: 'Test message',
+        id: "test-1",
+        type: "SYSTEM_UPDATE",
+        title: "Test",
+        message: "Test message",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       act(() => {
@@ -343,8 +348,8 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('updatePreferences()', () => {
-    it('should update notification preferences', () => {
+  describe("updatePreferences()", () => {
+    it("should update notification preferences", () => {
       const newPreferences: ExpoNotificationPreferences = {
         pushEnabled: false,
         smsEnabled: true,
@@ -369,11 +374,11 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('setToken()', () => {
-    it('should set push token', () => {
+  describe("setToken()", () => {
+    it("should set push token", () => {
       const token: ExpoPushToken = {
-        type: 'expo',
-        data: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
+        type: "expo",
+        data: "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
       };
 
       act(() => {
@@ -384,7 +389,7 @@ describe('useExpoNotificationStore', () => {
       expect(updatedStore.token).toEqual(token);
     });
 
-    it('should clear push token', () => {
+    it("should clear push token", () => {
       act(() => {
         store.setToken(null);
       });
@@ -394,12 +399,12 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('setPermissions()', () => {
-    it('should set notification permissions', () => {
+  describe("setPermissions()", () => {
+    it("should set notification permissions", () => {
       const permissions: ExpoNotificationPermissions = {
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: "granted",
       };
 
       act(() => {
@@ -411,8 +416,8 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('setLoading() and setError()', () => {
-    it('should set loading state', () => {
+  describe("setLoading() and setError()", () => {
+    it("should set loading state", () => {
       act(() => {
         store.setLoading(true);
       });
@@ -428,8 +433,8 @@ describe('useExpoNotificationStore', () => {
       expect(updatedStore.isLoading).toBe(false);
     });
 
-    it('should set error state', () => {
-      const errorMessage = 'Test error';
+    it("should set error state", () => {
+      const errorMessage = "Test error";
 
       act(() => {
         store.setError(errorMessage);
@@ -447,8 +452,8 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('syncWithServer()', () => {
-    it('should handle successful sync', async () => {
+  describe("syncWithServer()", () => {
+    it("should handle successful sync", async () => {
       const mockSync = jest.fn().mockResolvedValue(undefined);
 
       act(() => {
@@ -462,8 +467,8 @@ describe('useExpoNotificationStore', () => {
       expect(mockSync).toHaveBeenCalled();
     });
 
-    it('should handle sync error', async () => {
-      const errorMessage = 'Sync failed';
+    it("should handle sync error", async () => {
+      const errorMessage = "Sync failed";
       const mockSync = jest.fn().mockRejectedValue(new Error(errorMessage));
 
       act(() => {
@@ -482,69 +487,69 @@ describe('useExpoNotificationStore', () => {
     });
   });
 
-  describe('removeNotification()', () => {
-    it('should remove specific notification', () => {
+  describe("removeNotification()", () => {
+    it("should remove specific notification", () => {
       const notification1: ExpoNotificationData = {
-        id: '1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test 1',
-        message: 'Message 1',
+        id: "1",
+        type: "SYSTEM_UPDATE",
+        title: "Test 1",
+        message: "Message 1",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       const notification2: ExpoNotificationData = {
-        id: '2',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test 2',
-        message: 'Message 2',
+        id: "2",
+        type: "SYSTEM_UPDATE",
+        title: "Test 2",
+        message: "Message 2",
         data: {},
         timestamp: new Date(),
         isRead: true,
-        priority: 'normal',
+        priority: "normal",
       };
 
       act(() => {
         store.addNotification(notification1);
         store.addNotification(notification2);
-        store.removeNotification('1');
+        useExpoNotificationStore.getState().removeNotification("1");
       });
 
       const updatedStore = useExpoNotificationStore.getState();
       expect(updatedStore.notifications).toHaveLength(1);
-      expect(updatedStore.notifications[0].id).toBe('2');
+      expect(updatedStore.notifications[0].id).toBe("2");
       expect(updatedStore.unreadCount).toBe(0); // notification2 was already read
     });
 
-    it('should update unread count when removing unread notification', () => {
+    it("should update unread count when removing unread notification", () => {
       const notification1: ExpoNotificationData = {
-        id: '1',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test 1',
-        message: 'Message 1',
+        id: "1",
+        type: "SYSTEM_UPDATE",
+        title: "Test 1",
+        message: "Message 1",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       const notification2: ExpoNotificationData = {
-        id: '2',
-        type: 'SYSTEM_UPDATE',
-        title: 'Test 2',
-        message: 'Message 2',
+        id: "2",
+        type: "SYSTEM_UPDATE",
+        title: "Test 2",
+        message: "Message 2",
         data: {},
         timestamp: new Date(),
         isRead: false,
-        priority: 'normal',
+        priority: "normal",
       };
 
       act(() => {
         store.addNotification(notification1);
         store.addNotification(notification2);
-        store.removeNotification('1');
+        useExpoNotificationStore.getState().removeNotification("1");
       });
 
       const updatedStore = useExpoNotificationStore.getState();

@@ -84,7 +84,7 @@ const defaultSessionConfig: SessionConfig = {
 // Session state
 let sessionState: {
   lastActivity: Date;
-  autoLogoutTimer: number | null;
+  autoLogoutTimer: ReturnType<typeof setInterval> | null;
   warningShown: boolean;
   isActive: boolean;
 } = {

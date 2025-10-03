@@ -1,10 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-} from "react-native";
+import { View, Text, ScrollView, RefreshControl } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -67,30 +62,37 @@ const DriverEarningsDashboard = () => {
     }
   };
 
-  const handlePeriodChange = async (period: "today" | "week" | "month" | "total") => {
+  const handlePeriodChange = async (
+    period: "today" | "week" | "month" | "total",
+  ) => {
     setSelectedPeriod(period);
     // Refetch summary with new period
     await fetchEarningsSummary();
   };
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
     }).format(amount);
   };
 
   const formatNumber = (num: number) => {
-    return new Intl.NumberFormat('en-US').format(num);
+    return new Intl.NumberFormat("en-US").format(num);
   };
 
   const getPeriodLabel = () => {
     switch (selectedPeriod) {
-      case "today": return "Today";
-      case "week": return "This Week";
-      case "month": return "This Month";
-      case "total": return "Total";
-      default: return "This Week";
+      case "today":
+        return "Today";
+      case "week":
+        return "This Week";
+      case "month":
+        return "This Month";
+      case "total":
+        return "Total";
+      default:
+        return "This Week";
     }
   };
 
@@ -208,13 +210,17 @@ const DriverEarningsDashboard = () => {
               />
               <Button
                 title="Payment Methods"
-                onPress={() => router.push("/(driver)/earnings/payments" as any)}
+                onPress={() =>
+                  router.push("/(driver)/earnings/payments" as any)
+                }
                 className="w-full"
                 variant="outline"
               />
               <Button
                 title="Request Instant Pay"
-                onPress={() => router.push("/(driver)/earnings/instant-pay" as any)}
+                onPress={() =>
+                  router.push("/(driver)/earnings/instant-pay" as any)
+                }
                 className="w-full"
                 variant="success"
               />
@@ -236,7 +242,10 @@ const DriverEarningsDashboard = () => {
             {tripHistory && tripHistory.length > 0 ? (
               <View className="space-y-3">
                 {tripHistory.slice(0, 3).map((trip, index) => (
-                  <View key={trip.id || index} className="flex-row items-center justify-between py-3 border-b border-secondary-200 last:border-b-0">
+                  <View
+                    key={trip.id || index}
+                    className="flex-row items-center justify-between py-3 border-b border-secondary-200 last:border-b-0"
+                  >
                     <View className="flex-1">
                       <Text className="font-JakartaMedium text-sm">
                         {new Date(trip.date).toLocaleDateString()}
@@ -261,7 +270,9 @@ const DriverEarningsDashboard = () => {
           {/* Active Promotions */}
           <Card className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-JakartaBold">Active Promotions</Text>
+              <Text className="text-lg font-JakartaBold">
+                Active Promotions
+              </Text>
               <View className="bg-primary-100 px-2 py-1 rounded-full">
                 <Text className="text-primary-700 text-xs font-JakartaBold">
                   {promotions?.length || 0}
@@ -272,7 +283,10 @@ const DriverEarningsDashboard = () => {
             {promotions && promotions.length > 0 ? (
               <View className="space-y-3">
                 {promotions.slice(0, 2).map((promo, index) => (
-                  <View key={promo.id || index} className="bg-primary-50 p-3 rounded-lg">
+                  <View
+                    key={promo.id || index}
+                    className="bg-primary-50 p-3 rounded-lg"
+                  >
                     <Text className="font-JakartaBold text-primary-700 text-sm">
                       {promo.title}
                     </Text>
@@ -287,7 +301,9 @@ const DriverEarningsDashboard = () => {
                 {promotions.length > 2 && (
                   <Button
                     title={`View ${promotions.length - 2} more promotions`}
-                    onPress={() => router.push("/(driver)/earnings/promotions" as any)}
+                    onPress={() =>
+                      router.push("/(driver)/earnings/promotions" as any)
+                    }
                     variant="outline"
                     className="mt-2"
                   />
@@ -303,7 +319,9 @@ const DriverEarningsDashboard = () => {
           {/* Active Challenges */}
           <Card className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-JakartaBold">Active Challenges</Text>
+              <Text className="text-lg font-JakartaBold">
+                Active Challenges
+              </Text>
               <View className="bg-warning-100 px-2 py-1 rounded-full">
                 <Text className="text-warning-700 text-xs font-JakartaBold">
                   {challenges?.length || 0}
@@ -314,7 +332,10 @@ const DriverEarningsDashboard = () => {
             {challenges && challenges.length > 0 ? (
               <View className="space-y-3">
                 {challenges.slice(0, 2).map((challenge, index) => (
-                  <View key={challenge.id || index} className="bg-warning-50 p-3 rounded-lg">
+                  <View
+                    key={challenge.id || index}
+                    className="bg-warning-50 p-3 rounded-lg"
+                  >
                     <Text className="font-JakartaBold text-warning-700 text-sm">
                       {challenge.title}
                     </Text>
@@ -334,7 +355,9 @@ const DriverEarningsDashboard = () => {
                 {challenges.length > 2 && (
                   <Button
                     title={`View ${challenges.length - 2} more challenges`}
-                    onPress={() => router.push("/(driver)/earnings/challenges" as any)}
+                    onPress={() =>
+                      router.push("/(driver)/earnings/challenges" as any)
+                    }
                     variant="outline"
                     className="mt-2"
                   />

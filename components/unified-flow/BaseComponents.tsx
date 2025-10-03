@@ -5,7 +5,7 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Button, Card, Badge, Glass } from "@/components/ui";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useDevStore, useNotificationStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 // Componente para manejar errores en el flujo
 export const ErrorBoundaryStep: React.FC<{ error: string }> = ({ error }) => {
@@ -51,7 +51,9 @@ export const WebSocketStatus: React.FC = () => {
   };
 
   const getStatusText = () => {
-    return realtime.connectionStatus.websocketConnected ? "Connected" : "Disconnected";
+    return realtime.connectionStatus.websocketConnected
+      ? "Connected"
+      : "Disconnected";
   };
 
   return (
@@ -147,31 +149,31 @@ export const DriverFlowControls: React.FC = () => {
   const driverStates = [
     {
       label: "Recibir Solicitud",
-      step: FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD,
+      step: FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD,
       color: "bg-blue-500",
       icon: "📨",
     },
     {
       label: "En Camino al Origen",
-      step: FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN,
+      step: FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN,
       color: "bg-green-500",
       icon: "🚗",
     },
     {
       label: "En Origen",
-      step: FLOW_STEPS.DRIVER_TRANSPORT.EN_ORIGEN,
+      step: FLOW_STEPS.DRIVER_TRANSPORT_EN_ORIGEN,
       color: "bg-purple-500",
       icon: "📍",
     },
     {
       label: "En Viaje",
-      step: FLOW_STEPS.DRIVER_TRANSPORT.EN_VIAJE,
+      step: FLOW_STEPS.DRIVER_TRANSPORT_EN_VIAJE,
       color: "bg-orange-500",
       icon: "🏁",
     },
     {
       label: "Finalizar Viaje",
-      step: FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE,
+      step: FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE,
       color: "bg-red-500",
       icon: "✅",
     },

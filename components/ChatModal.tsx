@@ -306,7 +306,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
               ref={flatListRef}
               data={messages}
               renderItem={renderMessage}
-              keyExtractor={(item) => item.id?.toString() || 'unknown'}
+              keyExtractor={(item) => item.id?.toString() || "unknown"}
               className="flex-1 p-4"
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: 20 }}

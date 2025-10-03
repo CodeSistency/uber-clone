@@ -1,5 +1,9 @@
 import { create } from "zustand";
-import type { Vehicle, CreateVehicleRequest, UpdateVehicleRequest } from "@/types/driver";
+import type {
+  Vehicle,
+  CreateVehicleRequest,
+  UpdateVehicleRequest,
+} from "@/types/driver";
 import { vehicleService } from "@/app/services/vehicleService";
 
 interface VehiclesState {
@@ -12,7 +16,10 @@ interface VehiclesState {
   // Acciones
   fetchVehicles: () => Promise<void>;
   createVehicle: (vehicleData: CreateVehicleRequest) => Promise<Vehicle>;
-  updateVehicle: (id: string, updates: UpdateVehicleRequest) => Promise<Vehicle>;
+  updateVehicle: (
+    id: string,
+    updates: UpdateVehicleRequest,
+  ) => Promise<Vehicle>;
   deleteVehicle: (id: string) => Promise<void>;
   activateVehicle: (id: string) => Promise<Vehicle>;
   deactivateVehicle: (id: string) => Promise<Vehicle>;
@@ -41,7 +48,10 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
       const vehicles = await vehicleService.getVehicles();
       set({ vehicles });
 
-      console.log("[VehiclesStore] Vehicles fetched successfully:", vehicles.length);
+      console.log(
+        "[VehiclesStore] Vehicles fetched successfully:",
+        vehicles.length,
+      );
     } catch (error: any) {
       console.error("[VehiclesStore] Error fetching vehicles:", error);
       state.setError(error.message || "Failed to fetch vehicles");
@@ -66,7 +76,10 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
       const vehicles = [...state.vehicles, newVehicle];
       set({ vehicles });
 
-      console.log("[VehiclesStore] Vehicle created successfully:", newVehicle.id);
+      console.log(
+        "[VehiclesStore] Vehicle created successfully:",
+        newVehicle.id,
+      );
       return newVehicle;
     } catch (error: any) {
       console.error("[VehiclesStore] Error creating vehicle:", error);
@@ -86,8 +99,8 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
       state.setError(null);
 
       const updatedVehicle = await vehicleService.updateVehicle(id, updates);
-      const vehicles = state.vehicles.map(vehicle =>
-        vehicle.id === id ? updatedVehicle : vehicle
+      const vehicles = state.vehicles.map((vehicle) =>
+        vehicle.id === id ? updatedVehicle : vehicle,
       );
       set({ vehicles });
 
@@ -117,7 +130,7 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
       state.setError(null);
 
       await vehicleService.deleteVehicle(id);
-      const vehicles = state.vehicles.filter(vehicle => vehicle.id !== id);
+      const vehicles = state.vehicles.filter((vehicle) => vehicle.id !== id);
       set({ vehicles });
 
       // Clear selected vehicle if it was the one deleted
@@ -145,8 +158,8 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
       state.setError(null);
 
       const activatedVehicle = await vehicleService.activateVehicle(id);
-      const vehicles = state.vehicles.map(vehicle =>
-        vehicle.id === id ? activatedVehicle : vehicle
+      const vehicles = state.vehicles.map((vehicle) =>
+        vehicle.id === id ? activatedVehicle : vehicle,
       );
       set({ vehicles });
 
@@ -170,8 +183,8 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
       state.setError(null);
 
       const deactivatedVehicle = await vehicleService.deactivateVehicle(id);
-      const vehicles = state.vehicles.map(vehicle =>
-        vehicle.id === id ? deactivatedVehicle : vehicle
+      const vehicles = state.vehicles.map((vehicle) =>
+        vehicle.id === id ? deactivatedVehicle : vehicle,
       );
       set({ vehicles });
 
@@ -196,4 +209,3 @@ export const useVehiclesStore = create<VehiclesState>((set, get) => ({
   setError: (error: string | null) => set({ error }),
   clearError: () => set({ error: null }),
 }));
-

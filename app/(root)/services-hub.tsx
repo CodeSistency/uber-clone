@@ -22,6 +22,10 @@ import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
 import { Restaurant, loadNearbyRestaurants } from "@/constants/dummyData";
 import { useDriverStore } from "@/store";
+import {
+  DARK_MODERN_STYLE,
+  type MapConfiguration,
+} from "@/constants/mapStyles";
 
 const ServicePill = ({
   title,
@@ -67,6 +71,29 @@ const ServicesHub = () => {
     run();
   }, []);
 
+  // 🎨 Configuración del mapa con tema dark moderno
+  const mapConfig: Partial<MapConfiguration> = {
+    theme: "dark",
+    customStyle: DARK_MODERN_STYLE,
+    userInterfaceStyle: "dark",
+    mapType: "standard",
+    showsUserLocation: true,
+    showsPointsOfInterest: false,
+    showsBuildings: true,
+    showsTraffic: false,
+    showsCompass: true,
+    showsScale: false,
+    showsMyLocationButton: false,
+    zoomEnabled: true,
+    scrollEnabled: true,
+    rotateEnabled: true,
+    pitchEnabled: true,
+    tintColor: "#00FF88",
+    routeColor: "#4285F4",
+    trailColor: "#FFE014",
+    predictionColor: "#00FF88",
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-brand-primary dark:bg-brand-primaryDark">
       <View className="flex-1">
@@ -93,6 +120,7 @@ const ServicesHub = () => {
             serviceType="transport"
             restaurants={restaurants}
             isLoadingRestaurants={loadingRestaurants}
+            mapConfig={mapConfig}
           />
 
           {/* Bottom sheet with service lists */}
@@ -102,6 +130,12 @@ const ServicesHub = () => {
             maxHeight={560}
             initialHeight={320}
             useGradient
+            useBlur
+            blurIntensity={50}
+            blurTint={theme === "dark" ? "dark" : "light"}
+            blurFallbackColor={
+              theme === "dark" ? "rgba(0,0,0,0.35)" : "rgba(255,255,255,0.25)"
+            }
             bottomBar={
               <View className="flex-row items-center justify-between">
                 <Text className="font-JakartaBold text-black dark:text-white">

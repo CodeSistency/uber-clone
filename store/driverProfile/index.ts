@@ -1,2 +1,1 @@
-export { useDriverProfileStore } from './driverProfile';
-
+export { useDriverProfileStore } from "./driverProfile";

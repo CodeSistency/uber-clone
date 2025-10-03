@@ -88,24 +88,24 @@ const NotificationComponent = () => {
 Clase principal que maneja todas las operaciones de notificaciones.
 
 ```typescript
-import { expoNotificationService } from '@/app/services/expo-notifications';
+import { expoNotificationService } from "@/app/services/expo-notifications";
 
 // Inicializar
 await expoNotificationService.initialize();
 
 // Enviar notificación local
 const id = await expoNotificationService.sendLocalNotification(
-  'Title',
-  'Message body',
-  { customData: 'value' }
+  "Title",
+  "Message body",
+  { customData: "value" },
 );
 
 // Programar notificación
 const scheduledId = await expoNotificationService.scheduleNotification(
-  'Reminder',
-  'Time to check your app!',
+  "Reminder",
+  "Time to check your app!",
   { seconds: 3600 }, // 1 hora
-  { type: 'SYSTEM_UPDATE' }
+  { type: "SYSTEM_UPDATE" },
 );
 
 // Gestionar permisos
@@ -155,7 +155,7 @@ EXPO_PUBLIC_NOTIFICATIONS_TIMEOUT=30000
 ### Configuración Programática
 
 ```typescript
-import { expoNotificationConfig } from '@/lib/expo-notifications/config';
+import { expoNotificationConfig } from "@/lib/expo-notifications/config";
 
 // Obtener configuración actual
 const config = expoNotificationConfig.getConfig();
@@ -168,17 +168,17 @@ await expoNotificationConfig.setupExpoAndroidChannels();
 
 ```typescript
 type ExpoNotificationType =
-  | "RIDE_REQUEST"      // Nueva solicitud de viaje
-  | "RIDE_ACCEPTED"     // Viaje aceptado por conductor
-  | "RIDE_CANCELLED"    // Viaje cancelado
-  | "DRIVER_ARRIVED"    // Conductor llegó al punto de recogida
-  | "RIDE_STARTED"      // Viaje iniciado
-  | "RIDE_COMPLETED"    // Viaje completado
-  | "PAYMENT_SUCCESS"   // Pago exitoso
-  | "CHAT_MESSAGE"      // Nuevo mensaje de chat
-  | "EMERGENCY_ALERT"   // Alerta de emergencia
-  | "SYSTEM_UPDATE"     // Actualización del sistema
-  | "PROMOTIONAL"       // Notificación promocional
+  | "RIDE_REQUEST" // Nueva solicitud de viaje
+  | "RIDE_ACCEPTED" // Viaje aceptado por conductor
+  | "RIDE_CANCELLED" // Viaje cancelado
+  | "DRIVER_ARRIVED" // Conductor llegó al punto de recogida
+  | "RIDE_STARTED" // Viaje iniciado
+  | "RIDE_COMPLETED" // Viaje completado
+  | "PAYMENT_SUCCESS" // Pago exitoso
+  | "CHAT_MESSAGE" // Nuevo mensaje de chat
+  | "EMERGENCY_ALERT" // Alerta de emergencia
+  | "SYSTEM_UPDATE" // Actualización del sistema
+  | "PROMOTIONAL"; // Notificación promocional
 ```
 
 ## 📊 Gestión de Estado
@@ -186,19 +186,13 @@ type ExpoNotificationType =
 ### Store Zustand
 
 ```typescript
-import { useExpoNotificationStore } from '@/store/expo-notifications';
+import { useExpoNotificationStore } from "@/store/expo-notifications";
 
 // Acceso directo al store
 const store = useExpoNotificationStore();
 
 // Estado
-const {
-  notifications,
-  unreadCount,
-  preferences,
-  token,
-  permissions,
-} = store;
+const { notifications, unreadCount, preferences, token, permissions } = store;
 
 // Acciones
 store.addNotification(notification);
@@ -213,13 +207,13 @@ import {
   useUnreadNotifications,
   useNotificationsByType,
   useNotificationSummary,
-} from '@/store/expo-notifications';
+} from "@/store/expo-notifications";
 
 // Solo notificaciones no leídas
 const unreadNotifications = useUnreadNotifications();
 
 // Notificaciones por tipo
-const rideNotifications = useNotificationsByType('RIDE_REQUEST');
+const rideNotifications = useNotificationsByType("RIDE_REQUEST");
 
 // Resumen general
 const summary = useNotificationSummary();
@@ -231,9 +225,10 @@ const summary = useNotificationSummary();
 ### Gestión de Permisos
 
 ```typescript
-import { useNotificationPermissions } from '@/app/hooks/expo-notifications';
+import { useNotificationPermissions } from "@/app/hooks/expo-notifications";
 
-const { hasPermissions, canAskAgain, requestPermissions } = useNotificationPermissions();
+const { hasPermissions, canAskAgain, requestPermissions } =
+  useNotificationPermissions();
 
 if (!hasPermissions && canAskAgain) {
   // Solicitar permisos al usuario
@@ -244,7 +239,7 @@ if (!hasPermissions && canAskAgain) {
 ### Gestión de Tokens
 
 ```typescript
-import { usePushToken } from '@/app/hooks/expo-notifications';
+import { usePushToken } from "@/app/hooks/expo-notifications";
 
 const { token, hasToken, tokenType, getDeviceToken } = usePushToken();
 
@@ -257,7 +252,7 @@ if (!hasToken) {
 ### Badge de la App
 
 ```typescript
-import { useAppBadge } from '@/app/hooks/expo-notifications';
+import { useAppBadge } from "@/app/hooks/expo-notifications";
 
 const { badgeCount, clearBadge } = useAppBadge();
 // El badge se actualiza automáticamente con unreadCount
@@ -266,15 +261,18 @@ const { badgeCount, clearBadge } = useAppBadge();
 ### Simulador (para Testing)
 
 ```typescript
-import { useNotificationSimulator } from '@/app/hooks/expo-notifications';
+import { useNotificationSimulator } from "@/app/hooks/expo-notifications";
 
-const { simulateRideRequest, simulateNotification } = useNotificationSimulator();
+const { simulateRideRequest, simulateNotification } =
+  useNotificationSimulator();
 
 // Simular solicitud de viaje
 simulateRideRequest();
 
 // Simular notificación personalizada
-simulateNotification('Custom Title', 'Custom message', { type: 'SYSTEM_UPDATE' });
+simulateNotification("Custom Title", "Custom message", {
+  type: "SYSTEM_UPDATE",
+});
 ```
 
 ## 🎨 Utilidades
@@ -288,34 +286,37 @@ import {
   shouldShowNotification,
   getNotificationIcon,
   getNotificationColor,
-} from '@/lib/expo-notifications/utils';
+} from "@/lib/expo-notifications/utils";
 
 // Formatear tiempo
 const timeString = formatTime(90); // "1h 30m"
 
 // Verificar si mostrar notificación
-const shouldShow = shouldShowNotification(preferences, 'RIDE_REQUEST');
+const shouldShow = shouldShowNotification(preferences, "RIDE_REQUEST");
 
 // Obtener icono y color para UI
-const icon = getNotificationIcon('RIDE_REQUEST'); // "🚗"
-const color = getNotificationColor('RIDE_REQUEST'); // "#0286FF"
+const icon = getNotificationIcon("RIDE_REQUEST"); // "🚗"
+const color = getNotificationColor("RIDE_REQUEST"); // "#0286FF"
 ```
 
 ## 🔄 Ciclo de Vida
 
 ### Inicialización
+
 1. **Configuración**: Setup de canales y handlers
 2. **Permisos**: Verificación/solicitud de permisos
 3. **Token**: Obtención de token push
 4. **Listeners**: Configuración de event listeners
 
 ### Operaciones
+
 - **Local**: Notificaciones inmediatas
 - **Scheduled**: Notificaciones programadas
 - **Push**: Notificaciones desde servidor
 - **Management**: Gestión de estado y preferencias
 
 ### Limpieza
+
 - **Tokens**: Limpieza de tokens almacenados
 - **Listeners**: Remoción de event listeners
 - **Badge**: Reset de contador
@@ -325,28 +326,28 @@ const color = getNotificationColor('RIDE_REQUEST'); // "#0286FF"
 ### Simulación de Notificaciones
 
 ```typescript
-import { expoNotificationService } from '@/app/services/expo-notifications';
+import { expoNotificationService } from "@/app/services/expo-notifications";
 
 // Simular notificación
 expoNotificationService.simulateNotification({
-  title: 'Test Notification',
-  body: 'This is a test',
-  data: { type: 'SYSTEM_UPDATE' },
-  type: 'foreground',
+  title: "Test Notification",
+  body: "This is a test",
+  data: { type: "SYSTEM_UPDATE" },
+  type: "foreground",
 });
 ```
 
 ### Testing con Hooks
 
 ```typescript
-import { renderHook, act } from '@testing-library/react-native';
-import { useExpoNotifications } from '@/app/hooks/expo-notifications';
+import { renderHook, act } from "@testing-library/react-native";
+import { useExpoNotifications } from "@/app/hooks/expo-notifications";
 
 const { result } = renderHook(() => useExpoNotifications());
 
 // Simular envío de notificación
 await act(async () => {
-  await result.current.sendLocalNotification('Test', 'Message');
+  await result.current.sendLocalNotification("Test", "Message");
 });
 
 // Verificar estado
@@ -363,10 +364,10 @@ try {
 } catch (error) {
   if (error instanceof ExpoNotificationError) {
     switch (error.code) {
-      case 'PERMISSION_DENIED':
+      case "PERMISSION_DENIED":
         // Mostrar UI para solicitar permisos
         break;
-      case 'TOKEN_NOT_AVAILABLE':
+      case "TOKEN_NOT_AVAILABLE":
         // Reintentar obtener token
         break;
       default:
@@ -402,14 +403,14 @@ Este sistema es **completamente independiente** del sistema Firebase existente. 
 
 ### Comparación con Firebase
 
-| Característica | Firebase | Expo Only |
-|---|---|---|
-| **Push Tokens** | FCM | Expo Push Token |
-| **Configuración** | google-services.json | Variables ENV |
-| **Dependencias** | Firebase SDK | Solo Expo |
-| **Plataformas** | iOS, Android, Web | iOS, Android |
-| **Testing** | Complejo | Fácil simulación |
-| **Bundle Size** | Más grande | Más pequeño |
+| Característica    | Firebase             | Expo Only        |
+| ----------------- | -------------------- | ---------------- |
+| **Push Tokens**   | FCM                  | Expo Push Token  |
+| **Configuración** | google-services.json | Variables ENV    |
+| **Dependencias**  | Firebase SDK         | Solo Expo        |
+| **Plataformas**   | iOS, Android, Web    | iOS, Android     |
+| **Testing**       | Complejo             | Fácil simulación |
+| **Bundle Size**   | Más grande           | Más pequeño      |
 
 ## 🎯 Próximos Pasos
 
@@ -418,5 +419,3 @@ Este sistema es **completamente independiente** del sistema Firebase existente. 
 3. **Agregar analíticas** de engagement
 4. **Optimizar performance** para listas grandes
 5. **Implementar offline queue** para notificaciones fallidas
-
-

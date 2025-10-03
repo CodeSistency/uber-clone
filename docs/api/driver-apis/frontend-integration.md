@@ -37,9 +37,9 @@ Usamos `fetchAPI` como cliente HTTP base:
 // lib/fetch.ts
 export const fetchAPI = async (
   endpoint: string,
-  options?: RequestInit
+  options?: RequestInit,
 ): Promise<any> => {
-  const fullUrl = endpoint.startsWith('http')
+  const fullUrl = endpoint.startsWith("http")
     ? endpoint
     : `${API_BASE_URL}/${endpoint}`;
 
@@ -103,9 +103,11 @@ interface DriverEarningsState {
   fetchChallenges: () => Promise<void>;
 }
 
-export const useDriverEarningsStore = create<DriverEarningsState>((set, get) => ({
-  // Implementation
-}));
+export const useDriverEarningsStore = create<DriverEarningsState>(
+  (set, get) => ({
+    // Implementation
+  }),
+);
 ```
 
 ## Componentes React
@@ -165,9 +167,12 @@ const handleUpdateProfile = async (updates: Partial<DriverProfile>) => {
 
   try {
     await updateProfile(updates);
-    showSuccess("Profile Updated", "Your profile has been updated successfully");
+    showSuccess(
+      "Profile Updated",
+      "Your profile has been updated successfully",
+    );
   } catch (error) {
-    console.error('Profile update failed:', error);
+    console.error("Profile update failed:", error);
     setError(error.message);
   }
 };
@@ -229,20 +234,20 @@ export const useDriverNavigation = () => {
   const navigateToVehicles = useCallback(() => {
     if (hasActiveRide) {
       showError(
-        'Action Not Available',
-        `You cannot access vehicle management while on an active ${currentServiceType} service.`
+        "Action Not Available",
+        `You cannot access vehicle management while on an active ${currentServiceType} service.`,
       );
       return;
     }
 
-    router.push('/(driver)/vehicles');
+    router.push("/(driver)/vehicles");
   }, [hasActiveRide, currentServiceType]);
 
   return {
     hasActiveRide,
     currentServiceType,
     navigateToVehicles,
-    navigateToEarnings: () => router.push('/(driver)/earnings'),
+    navigateToEarnings: () => router.push("/(driver)/earnings"),
     // ... other navigation methods
   };
 };
@@ -254,10 +259,12 @@ export const useDriverNavigation = () => {
 // hooks/useConnectivity.ts
 export const useConnectivity = () => {
   const [isConnected, setIsConnected] = useState(true);
-  const [connectionType, setConnectionType] = useState<'wifi' | 'cellular' | 'none'>('wifi');
+  const [connectionType, setConnectionType] = useState<
+    "wifi" | "cellular" | "none"
+  >("wifi");
 
   useEffect(() => {
-    const unsubscribe = NetInfo.addEventListener(state => {
+    const unsubscribe = NetInfo.addEventListener((state) => {
       setIsConnected(state.isConnected ?? false);
       setConnectionType(state.type as any);
     });
@@ -275,18 +282,19 @@ export const useConnectivity = () => {
 
 ```typescript
 // store/index.ts
-export * from './driverProfile';
-export * from './driverEarnings';
-export * from './user';
-export * from './location';
-export * from './mapFlow';
+export * from "./driverProfile";
+export * from "./driverEarnings";
+export * from "./user";
+export * from "./location";
+export * from "./mapFlow";
 ```
 
 ### Patrón de Selectores
 
 ```typescript
 // ❌ Mal - Extrae todo el estado
-const { profile, vehicles, documents, isLoading, error } = useDriverProfileStore();
+const { profile, vehicles, documents, isLoading, error } =
+  useDriverProfileStore();
 
 // ✅ Bien - Usa selectores específicos
 const profile = useDriverProfileStore((state) => state.profile);
@@ -398,13 +406,15 @@ const VehiclesScreen = () => (
 
 ```typescript
 // __tests__/services/driverService.test.ts
-describe('DriverService', () => {
+describe("DriverService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should fetch profile successfully', async () => {
-    const mockResponse = { /* mock data */ };
+  it("should fetch profile successfully", async () => {
+    const mockResponse = {
+      /* mock data */
+    };
     (fetchAPI as jest.Mock).mockResolvedValue(mockResponse);
 
     const result = await driverService.getProfile();
@@ -413,13 +423,13 @@ describe('DriverService', () => {
     expect(result.data).toEqual(mockResponse);
   });
 
-  it('should handle API errors', async () => {
-    (fetchAPI as jest.Mock).mockRejectedValue(new Error('API Error'));
+  it("should handle API errors", async () => {
+    (fetchAPI as jest.Mock).mockRejectedValue(new Error("API Error"));
 
     const result = await driverService.getProfile();
 
     expect(result.success).toBe(false);
-    expect(result.message).toContain('API Error');
+    expect(result.message).toContain("API Error");
   });
 });
 ```
@@ -428,8 +438,8 @@ describe('DriverService', () => {
 
 ```typescript
 // __tests__/stores/driverProfileStore.test.ts
-describe('DriverProfileStore', () => {
-  it('should initialize with correct state', () => {
+describe("DriverProfileStore", () => {
+  it("should initialize with correct state", () => {
     const { result } = renderHook(() => useDriverProfileStore());
 
     expect(result.current.profile).toBeNull();
@@ -437,11 +447,13 @@ describe('DriverProfileStore', () => {
     expect(result.current.isLoading).toBe(false);
   });
 
-  it('should fetch profile successfully', async () => {
-    const mockProfile = { /* mock profile */ };
+  it("should fetch profile successfully", async () => {
+    const mockProfile = {
+      /* mock profile */
+    };
     driverService.getProfile.mockResolvedValue({
       success: true,
-      data: mockProfile
+      data: mockProfile,
     });
 
     const { result } = renderHook(() => useDriverProfileStore());
@@ -537,7 +549,7 @@ export const logger = {
     if (__DEV__) {
       console.debug(`[DriverModule] ${message}`, data);
     }
-  }
+  },
 };
 ```
 
@@ -548,23 +560,23 @@ export const logger = {
 export class DriverService {
   async getProfile(): Promise<ApiResponse<DriverProfile>> {
     try {
-      logger.info('Fetching driver profile');
+      logger.info("Fetching driver profile");
 
-      const response = await fetchAPI('drivers/profile');
+      const response = await fetchAPI("drivers/profile");
 
-      logger.info('Profile fetched successfully', { profileId: response.id });
+      logger.info("Profile fetched successfully", { profileId: response.id });
 
       return {
         success: true,
         data: response,
-        message: 'Profile retrieved successfully'
+        message: "Profile retrieved successfully",
       };
     } catch (error) {
-      logger.error('Failed to fetch profile', error);
+      logger.error("Failed to fetch profile", error);
 
       return {
         success: false,
-        message: error.message || 'Failed to fetch profile'
+        message: error.message || "Failed to fetch profile",
       };
     }
   }
@@ -577,7 +589,7 @@ export class DriverService {
 
 ```typescript
 // lib/apiVersion.ts
-export const API_VERSION = 'v1';
+export const API_VERSION = "v1";
 
 export const getApiUrl = (endpoint: string) => {
   return `/${API_VERSION}/${endpoint}`;
@@ -600,6 +612,7 @@ const migrateDriverData = (oldData: any): DriverProfile => {
 ## Checklist de Integración
 
 ### ✅ Requisitos Completados
+
 - [x] Servicios API implementados
 - [x] Stores Zustand configurados
 - [x] Componentes React creados
@@ -613,6 +626,7 @@ const migrateDriverData = (oldData: any): DriverProfile => {
 - [x] Configuración de ambiente
 
 ### 🚀 Próximos Pasos
+
 - [ ] Monitoreo de performance en producción
 - [ ] Analytics y métricas de uso
 - [ ] A/B testing de nuevas funcionalidades

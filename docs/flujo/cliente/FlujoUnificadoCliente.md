@@ -17,11 +17,13 @@ PASO_4_ELECCION_DE_CONDUCTOR_Y_PAGO_PREVIO:
 Descripción del Estado y UI: El bottomsheet se despliega al 90% de la pantalla para mostrar la mayor cantidad de información. La UI muestra una lista de tarjetas de conductores disponibles, cada una con su foto, calificación, tipo de vehículo y precio. Debajo de la lista, se visualiza la sección de "Sistema de Pago Venezolano" con dos opciones principales:
 
 **A) Pago único tradicional:**
+
 - Efectivo, Transferencia bancaria, Pago móvil, Zelle, Bitcoin
 - Una sola referencia bancaria para todo el monto
 - Proceso simple y directo
 
 **B) Pagos múltiples (nuevo):**
+
 - Permite dividir el pago en diferentes métodos
 - Ejemplo: 40% transferencia + 30% pago móvil + 30% efectivo
 - Cada método genera su propia referencia (excepto efectivo)

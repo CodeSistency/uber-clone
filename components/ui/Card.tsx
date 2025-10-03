@@ -1,60 +1,56 @@
 import React from "react";
-import { View, Text, ViewProps } from "react-native";
+import { View, ViewProps } from "react-native";
 
-type CardVariant = "elevated" | "outline" | "filled" | "glass";
+import { cn } from "@/lib/utils";
+
+export type CardVariant = "elevated" | "outline" | "ghost";
+export type CardPadding = "none" | "sm" | "md" | "lg";
 
 export interface CardProps extends ViewProps {
-  title?: string;
-  subtitle?: string;
-  headerRight?: React.ReactNode;
-  footer?: React.ReactNode;
   variant?: CardVariant;
-  className?: string;
+  padding?: CardPadding;
+  header?: React.ReactNode;
+  footer?: React.ReactNode;
+  children: React.ReactNode;
 }
 
 const variantMap: Record<CardVariant, string> = {
-  elevated: "bg-white dark:bg-brand-primaryDark shadow-md shadow-black/20",
+  elevated:
+    "bg-white dark:bg-brand-primary shadow-lg shadow-black/5 dark:shadow-black/40",
   outline:
-    "bg-white dark:bg-brand-primary border border-gray-200 dark:border-brand-primaryDark",
-  filled: "bg-brand-primary dark:bg-brand-primaryDark",
-  glass:
-    "bg-white/20 dark:bg-black/20 border border-white/20 dark:border-white/10",
+    "bg-white dark:bg-brand-primary border border-neutral-200 dark:border-white/10",
+  ghost: "bg-transparent",
+};
+
+const paddingMap: Record<CardPadding, string> = {
+  none: "p-0",
+  sm: "p-3",
+  md: "p-5",
+  lg: "p-7",
 };
 
 export const Card: React.FC<CardProps> = ({
-  title,
-  subtitle,
-  headerRight,
-  footer,
-  variant = "elevated",
-  className = "",
   children,
+  className,
+  variant = "elevated",
+  padding = "md",
+  header,
+  footer,
   ...props
 }) => {
   return (
     <View
-      className={`rounded-xl p-4 ${variantMap[variant]} ${className}`}
+      className={cn(
+        "rounded-3xl overflow-hidden",
+        variantMap[variant],
+        paddingMap[padding],
+        className,
+      )}
       {...props}
     >
-      {(title || headerRight) && (
-        <View className="flex-row items-center justify-between mb-2">
-          <View className="flex-1 mr-2">
-            {!!title && (
-              <Text className="font-JakartaBold text-black dark:text-white">
-                {title}
-              </Text>
-            )}
-            {!!subtitle && (
-              <Text className="text-xs text-gray-600 dark:text-gray-300">
-                {subtitle}
-              </Text>
-            )}
-          </View>
-          {headerRight}
-        </View>
-      )}
-      {children}
-      {!!footer && <View className="mt-3">{footer}</View>}
+      {header ? <View className="mb-4">{header}</View> : null}
+      <View>{children}</View>
+      {footer ? <View className="mt-4">{footer}</View> : null}
     </View>
   );
 };

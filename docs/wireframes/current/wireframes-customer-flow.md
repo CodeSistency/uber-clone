@@ -1,6 +1,7 @@
 # Uber-like App Wireframes: Customer Flow
 
 ## Overview
+
 This document contains ASCII wireframes for the customer journey in the Uber-like multi-modal application, based on the actual implementation.
 
 ## 1. Customer Home Screen
@@ -45,6 +46,7 @@ This document contains ASCII wireframes for the customer journey in the Uber-lik
 ```
 
 **Actual Implementation Notes:**
+
 - Hamburger menu button (circular with shadow)
 - Google Places autocomplete search input
 - Map component with current location
@@ -80,6 +82,7 @@ This document contains ASCII wireframes for the customer journey in the Uber-lik
 ```
 
 **Actual Implementation Notes:**
+
 - Uses RideLayout with map background
 - Header with back arrow and "Ride" title
 - Two GoogleTextInput components (From/To)
@@ -134,6 +137,7 @@ This document contains ASCII wireframes for the customer journey in the Uber-lik
 ```
 
 **Actual Implementation Notes:**
+
 - Uses RideLayout with "Choose a Rider" title
 - Horizontal scrolling ride tiers (Economy/Comfort/Premium)
 - Driver cards in vertical FlatList
@@ -317,27 +321,32 @@ Home Screen
 ## Ride States Implementation
 
 ### Requested → Accepted
+
 - FlatList of available drivers
 - Real-time driver location calculation
 - Fare preview with selected tier
 
 ### Accepted → Arriving
+
 - Driver assigned and en route
 - Live GPS tracking begins
 - Communication features activated
 
 ### Arriving → Arrived
+
 - "Driver has arrived" notification
 - "I'm Ready - Start" button appears
 - Location accuracy within pickup radius
 
 ### Arrived → In Progress
+
 - Trip officially started
 - Route tracking to destination
 - Emergency features available
 - Real-time fare updates
 
 ### In Progress → Completed
+
 - Automatic completion detection
 - Payment processing (marked as "paid" in demo)
 - Rating collection

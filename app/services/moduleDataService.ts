@@ -36,7 +36,8 @@ interface ModuleDataResult {
 // Simple cache for data loading results
 class DataCache {
   private static instance: DataCache;
-  private cache: Map<string, { data: any; timestamp: number; ttl: number }> = new Map();
+  private cache: Map<string, { data: any; timestamp: number; ttl: number }> =
+    new Map();
 
   private constructor() {}
 
@@ -47,7 +48,8 @@ class DataCache {
     return DataCache.instance;
   }
 
-  set(key: string, data: any, ttl: number = 5 * 60 * 1000): void { // 5 minutes default TTL
+  set(key: string, data: any, ttl: number = 5 * 60 * 1000): void {
+    // 5 minutes default TTL
     this.cache.set(key, { data, timestamp: Date.now(), ttl });
   }
 
@@ -86,7 +88,10 @@ class DataLoadingQueue {
   private cache = DataCache.getInstance();
 
   // Helper function to execute task with timeout and retry logic
-  private async executeTaskWithRetry(task: DataTask, maxRetries: number = 1): Promise<any> {
+  private async executeTaskWithRetry(
+    task: DataTask,
+    maxRetries: number = 1,
+  ): Promise<any> {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt <= maxRetries; attempt++) {
@@ -103,7 +108,10 @@ class DataLoadingQueue {
         // Create timeout promise
         const timeout = task.timeout || 10000; // 10 seconds default
         const timeoutPromise = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error(`Task timeout after ${timeout}ms`)), timeout);
+          setTimeout(
+            () => reject(new Error(`Task timeout after ${timeout}ms`)),
+            timeout,
+          );
         });
 
         // Execute task with timeout
@@ -117,17 +125,22 @@ class DataLoadingQueue {
         return result;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.warn(`[DataLoadingQueue] Attempt ${attempt + 1} failed for ${task.name}:`, lastError.message);
+        console.warn(
+          `[DataLoadingQueue] Attempt ${attempt + 1} failed for ${task.name}:`,
+          lastError.message,
+        );
 
         if (attempt < maxRetries) {
           // Exponential backoff for retries
           const delay = Math.min(1000 * Math.pow(2, attempt), 5000);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise((resolve) => setTimeout(resolve, delay));
         }
       }
     }
 
-    throw lastError || new Error(`Task failed after ${maxRetries + 1} attempts`);
+    throw (
+      lastError || new Error(`Task failed after ${maxRetries + 1} attempts`)
+    );
   }
 
   // Add task to queue
@@ -163,23 +176,32 @@ class DataLoadingQueue {
     const totalTasks = this.queue.length;
     let completedTasks = 0;
 
-    console.log(`[DataLoadingQueue] 🚀 Starting optimized processing of ${totalTasks} tasks`);
+    console.log(
+      `[DataLoadingQueue] 🚀 Starting optimized processing of ${totalTasks} tasks`,
+    );
 
     // Process tasks in waves based on priority and dependencies
     const priorityGroups = this.groupTasksByPriorityAndDependencies();
 
     for (const [priority, tasks] of priorityGroups) {
-      console.log(`[DataLoadingQueue] 📊 Processing priority ${priority} (${tasks.length} tasks)`);
+      console.log(
+        `[DataLoadingQueue] 📊 Processing priority ${priority} (${tasks.length} tasks)`,
+      );
 
       if (priority === DataPriority.CRITICAL_BLOCKING) {
         // Process blocking critical tasks sequentially
         for (const task of tasks) {
           try {
             onProgress?.(completedTasks, totalTasks, task.name);
-            const result = await this.executeTaskWithRetry(task, task.retryCount);
+            const result = await this.executeTaskWithRetry(
+              task,
+              task.retryCount,
+            );
             this.results[task.id] = result;
             completedTasks++;
-            console.log(`[DataLoadingQueue] ✅ Blocking critical task completed: ${task.name}`);
+            console.log(
+              `[DataLoadingQueue] ✅ Blocking critical task completed: ${task.name}`,
+            );
           } catch (error) {
             const errorMsg = `Failed to load ${task.name}: ${error instanceof Error ? error.message : "Unknown error"}`;
             console.error(`[DataLoadingQueue] ❌ ${errorMsg}`);
@@ -203,16 +225,25 @@ class DataLoadingQueue {
           try {
             // Wait for dependencies if any
             if (task.dependencies && task.dependencies.length > 0) {
-              const missingDeps = task.dependencies.filter(dep => !this.results[dep]);
+              const missingDeps = task.dependencies.filter(
+                (dep) => !this.results[dep],
+              );
               if (missingDeps.length > 0) {
-                throw new Error(`Missing dependencies: ${missingDeps.join(', ')}`);
+                throw new Error(
+                  `Missing dependencies: ${missingDeps.join(", ")}`,
+                );
               }
             }
 
-            const result = await this.executeTaskWithRetry(task, task.retryCount || 1);
+            const result = await this.executeTaskWithRetry(
+              task,
+              task.retryCount || 1,
+            );
             this.results[task.id] = result;
             completedTasks++;
-            console.log(`[DataLoadingQueue] ✅ Parallel task completed: ${task.name}`);
+            console.log(
+              `[DataLoadingQueue] ✅ Parallel task completed: ${task.name}`,
+            );
             return { success: true, taskId: task.id, result };
           } catch (error) {
             const errorMsg = `Failed to load ${task.name}: ${error instanceof Error ? error.message : "Unknown error"}`;
@@ -236,23 +267,34 @@ class DataLoadingQueue {
           return {
             success: false,
             data: this.results,
-            errors: [...this.errors, error instanceof Error ? error.message : 'Unknown error'],
+            errors: [
+              ...this.errors,
+              error instanceof Error ? error.message : "Unknown error",
+            ],
             loadedItems: Object.keys(this.results),
           };
         }
 
         // Update progress after each priority group
-        onProgress?.(completedTasks, totalTasks, `Completando grupo prioridad ${priority}`);
+        onProgress?.(
+          completedTasks,
+          totalTasks,
+          `Completando grupo prioridad ${priority}`,
+        );
       }
     }
 
     this.isProcessing = false;
 
     // Consider success if all required tasks completed
-    const requiredTasks = this.queue.filter(task => task.required);
-    const success = requiredTasks.every(task => this.results[task.id] !== undefined);
+    const requiredTasks = this.queue.filter((task) => task.required);
+    const success = requiredTasks.every(
+      (task) => this.results[task.id] !== undefined,
+    );
 
-    console.log(`[DataLoadingQueue] 🎉 Processing complete. Success: ${success}, Completed: ${completedTasks}/${totalTasks}`);
+    console.log(
+      `[DataLoadingQueue] 🎉 Processing complete. Success: ${success}, Completed: ${completedTasks}/${totalTasks}`,
+    );
 
     return {
       success,
@@ -269,8 +311,8 @@ class DataLoadingQueue {
     const pending = [...this.queue];
 
     // Initialize groups
-    Object.values(DataPriority).forEach(priority => {
-      if (typeof priority === 'number') {
+    Object.values(DataPriority).forEach((priority) => {
+      if (typeof priority === "number") {
         groups.set(priority, []);
       }
     });
@@ -282,8 +324,11 @@ class DataLoadingQueue {
       if (processed.has(task.id)) continue;
 
       // Check if all dependencies are processed
-      const depsReady = !task.dependencies ||
-        task.dependencies.every(dep => processed.has(dep) || this.results[dep]);
+      const depsReady =
+        !task.dependencies ||
+        task.dependencies.every(
+          (dep) => processed.has(dep) || this.results[dep],
+        );
 
       if (depsReady) {
         const group = groups.get(task.priority) || [];
@@ -385,7 +430,7 @@ export class ModuleDataService {
           status: "available",
           fuel: 85,
           maintenance: "up_to_date",
-          location: "available"
+          location: "available",
         };
       },
     });
@@ -405,7 +450,7 @@ export class ModuleDataService {
             latitude: locationStore.userLatitude,
             longitude: locationStore.userLongitude,
             accuracy: 10,
-            timestamp: Date.now()
+            timestamp: Date.now(),
           };
         }
         throw new Error("Ubicación no disponible");
@@ -441,7 +486,7 @@ export class ModuleDataService {
           totalRides: 150,
           rating: 4.8,
           earnings: 2500,
-          lastRide: "2024-01-15T10:30:00Z"
+          lastRide: "2024-01-15T10:30:00Z",
         };
       },
     });
@@ -458,7 +503,7 @@ export class ModuleDataService {
         return {
           license: "valid",
           insurance: "active",
-          vehicleRegistration: "current"
+          vehicleRegistration: "current",
         };
       },
     });

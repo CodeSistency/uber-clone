@@ -16,7 +16,7 @@ export interface DriverProfile {
   vehicleRegistration: string;
   registrationExpiry: Date;
   isVerified: boolean;
-  verificationStatus: 'pending' | 'approved' | 'rejected' | 'expired';
+  verificationStatus: "pending" | "approved" | "rejected" | "expired";
   joinedDate: Date;
   totalRides: number;
   totalEarnings: number;
@@ -25,12 +25,17 @@ export interface DriverProfile {
 
 export interface DriverDocument {
   id: string;
-  type: 'license' | 'insurance' | 'registration' | 'background_check' | 'vehicle_inspection';
+  type:
+    | "license"
+    | "insurance"
+    | "registration"
+    | "background_check"
+    | "vehicle_inspection";
   name: string;
   fileUrl: string;
   uploadDate: Date;
   expiryDate?: Date;
-  status: 'pending' | 'approved' | 'rejected' | 'expired';
+  status: "pending" | "approved" | "rejected" | "expired";
   rejectionReason?: string;
   isRequired: boolean;
 }
@@ -55,7 +60,7 @@ export interface Vehicle {
 export interface VehicleFeature {
   id: string;
   name: string;
-  type: 'comfort' | 'safety' | 'accessibility' | 'entertainment';
+  type: "comfort" | "safety" | "accessibility" | "entertainment";
   isAvailable: boolean;
 }
 
@@ -78,7 +83,7 @@ export interface ServiceType {
 }
 
 export interface AppSettings {
-  theme: 'light' | 'dark' | 'auto';
+  theme: "light" | "dark" | "auto";
   language: string;
   notifications: {
     rideRequests: boolean;
@@ -94,7 +99,7 @@ export interface AppSettings {
     volume: number;
   };
   display: {
-    mapStyle: 'standard' | 'satellite' | 'hybrid';
+    mapStyle: "standard" | "satellite" | "hybrid";
     showTraffic: boolean;
     showDemandZones: boolean;
     showPeakHours: boolean;
@@ -108,12 +113,12 @@ export interface AppSettings {
 }
 
 export interface NavigationSettings {
-  defaultApp: 'uber' | 'waze' | 'google_maps';
+  defaultApp: "uber" | "waze" | "google_maps";
   voiceGuidance: boolean;
   avoidTolls: boolean;
   avoidHighways: boolean;
   avoidFerries: boolean;
-  unitSystem: 'metric' | 'imperial';
+  unitSystem: "metric" | "imperial";
   autoReroute: boolean;
 }
 
@@ -153,7 +158,7 @@ interface DriverConfigStore {
   navigationSettings: NavigationSettings;
   soundSettings: SoundSettings;
   ridePreferences: RidePreferences;
-  
+
   // Loading and Error States
   isLoading: boolean;
   error: string | null;
@@ -161,30 +166,45 @@ interface DriverConfigStore {
   // Actions
   fetchProfile: () => Promise<void>;
   updateProfile: (updates: Partial<DriverProfile>) => Promise<void>;
-  
+
   // Documents Management
   fetchDocuments: () => Promise<void>;
-  uploadDocument: (document: Omit<DriverDocument, 'id' | 'uploadDate' | 'status'>) => Promise<void>;
-  updateDocument: (documentId: string, updates: Partial<DriverDocument>) => Promise<void>;
+  uploadDocument: (
+    document: Omit<DriverDocument, "id" | "uploadDate" | "status">,
+  ) => Promise<void>;
+  updateDocument: (
+    documentId: string,
+    updates: Partial<DriverDocument>,
+  ) => Promise<void>;
   deleteDocument: (documentId: string) => Promise<void>;
-  
+
   // Vehicles Management
   fetchVehicles: () => Promise<void>;
-  addVehicle: (vehicle: Omit<Vehicle, 'id'>) => Promise<void>;
-  updateVehicle: (vehicleId: string, updates: Partial<Vehicle>) => Promise<void>;
+  addVehicle: (vehicle: Omit<Vehicle, "id">) => Promise<void>;
+  updateVehicle: (
+    vehicleId: string,
+    updates: Partial<Vehicle>,
+  ) => Promise<void>;
   deleteVehicle: (vehicleId: string) => Promise<void>;
   setDefaultVehicle: (vehicleId: string) => Promise<void>;
-  
+
   // Service Types Management
   fetchServiceTypes: () => Promise<void>;
-  updateServiceTypeStatus: (serviceTypeId: string, isActive: boolean) => Promise<void>;
-  
+  updateServiceTypeStatus: (
+    serviceTypeId: string,
+    isActive: boolean,
+  ) => Promise<void>;
+
   // Settings Management
   updateAppSettings: (settings: Partial<AppSettings>) => Promise<void>;
-  updateNavigationSettings: (settings: Partial<NavigationSettings>) => Promise<void>;
+  updateNavigationSettings: (
+    settings: Partial<NavigationSettings>,
+  ) => Promise<void>;
   updateSoundSettings: (settings: Partial<SoundSettings>) => Promise<void>;
-  updateRidePreferences: (preferences: Partial<RidePreferences>) => Promise<void>;
-  
+  updateRidePreferences: (
+    preferences: Partial<RidePreferences>,
+  ) => Promise<void>;
+
   // Utility Functions
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
@@ -210,15 +230,15 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
     verificationStatus: "approved" as const,
     joinedDate: new Date("2023-01-15"),
     totalRides: 1234,
-    totalEarnings: 18765.40,
-    averageRating: 4.8
+    totalEarnings: 18765.4,
+    averageRating: 4.8,
   },
   documents: [],
   vehicles: [],
   serviceTypes: [],
   appSettings: {
-    theme: 'auto',
-    language: 'en',
+    theme: "auto",
+    language: "en",
     notifications: {
       rideRequests: true,
       earnings: true,
@@ -233,7 +253,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       volume: 0.7,
     },
     display: {
-      mapStyle: 'standard',
+      mapStyle: "standard",
       showTraffic: true,
       showDemandZones: true,
       showPeakHours: true,
@@ -246,18 +266,18 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
     },
   },
   navigationSettings: {
-    defaultApp: 'uber',
+    defaultApp: "uber",
     voiceGuidance: true,
     avoidTolls: false,
     avoidHighways: false,
     avoidFerries: false,
-    unitSystem: 'metric',
+    unitSystem: "metric",
     autoReroute: true,
   },
   soundSettings: {
-    rideRequestSound: 'default',
-    navigationSound: 'default',
-    notificationSound: 'default',
+    rideRequestSound: "default",
+    navigationSound: "default",
+    notificationSound: "default",
     masterVolume: 0.7,
     vibrationEnabled: true,
   },
@@ -272,86 +292,86 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
     autoAccept: false,
     autoAcceptRadius: 5,
     workingHours: {
-      start: '06:00',
-      end: '22:00',
+      start: "06:00",
+      end: "22:00",
       days: [1, 2, 3, 4, 5, 6, 0], // All days
     },
   },
-  
+
   // Loading and Error States
   isLoading: false,
   error: null,
 
   // Actions
   fetchProfile: async () => {
-    console.log('[DriverConfigStore] Fetching driver profile');
+    console.log("[DriverConfigStore] Fetching driver profile");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       // TODO: Replace with actual API call
       const mockProfile: DriverProfile = {
-        id: 'driver_001',
-        firstName: 'John',
-        lastName: 'Doe',
-        email: 'john.doe@example.com',
-        phone: '+1234567890',
-        profilePicture: 'https://example.com/profile.jpg',
-        dateOfBirth: new Date('1985-06-15'),
-        licenseNumber: 'DL123456789',
-        licenseExpiry: new Date('2025-06-15'),
-        insuranceProvider: 'State Farm',
-        insuranceExpiry: new Date('2024-12-31'),
-        vehicleRegistration: 'REG123456',
-        registrationExpiry: new Date('2024-12-31'),
+        id: "driver_001",
+        firstName: "John",
+        lastName: "Doe",
+        email: "john.doe@example.com",
+        phone: "+1234567890",
+        profilePicture: "https://example.com/profile.jpg",
+        dateOfBirth: new Date("1985-06-15"),
+        licenseNumber: "DL123456789",
+        licenseExpiry: new Date("2025-06-15"),
+        insuranceProvider: "State Farm",
+        insuranceExpiry: new Date("2024-12-31"),
+        vehicleRegistration: "REG123456",
+        registrationExpiry: new Date("2024-12-31"),
         isVerified: true,
-        verificationStatus: 'approved',
-        joinedDate: new Date('2023-01-15'),
+        verificationStatus: "approved",
+        joinedDate: new Date("2023-01-15"),
         totalRides: 1247,
-        totalEarnings: 4250.30,
+        totalEarnings: 4250.3,
         averageRating: 4.8,
       };
 
       set(() => ({ profile: mockProfile }));
     } catch (error) {
-      console.error('[DriverConfigStore] Error fetching profile:', error);
-      state.setError((error as Error).message || 'Failed to fetch profile');
+      console.error("[DriverConfigStore] Error fetching profile:", error);
+      state.setError((error as Error).message || "Failed to fetch profile");
     } finally {
       state.setLoading(false);
     }
   },
 
   updateProfile: async (updates: Partial<DriverProfile>) => {
-    console.log('[DriverConfigStore] Updating profile:', updates);
+    console.log("[DriverConfigStore] Updating profile:", updates);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       if (!state.profile) {
-        throw new Error('No profile to update');
+        throw new Error("No profile to update");
       }
 
       const updatedProfile = { ...state.profile, ...updates };
       set(() => ({ profile: updatedProfile }));
 
       // TODO: Send to backend
-      console.log('[DriverConfigStore] Profile updated successfully');
+      console.log("[DriverConfigStore] Profile updated successfully");
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating profile:', error);
-      state.setError((error as Error).message || 'Failed to update profile');
+      console.error("[DriverConfigStore] Error updating profile:", error);
+      state.setError((error as Error).message || "Failed to update profile");
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchDocuments: async () => {
-    console.log('[DriverConfigStore] Fetching documents');
+    console.log("[DriverConfigStore] Fetching documents");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -359,50 +379,52 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockDocuments: DriverDocument[] = [
         {
-          id: 'doc_001',
-          type: 'license',
-          name: 'Driver License',
-          fileUrl: 'https://example.com/license.pdf',
-          uploadDate: new Date('2023-01-15'),
-          expiryDate: new Date('2025-06-15'),
-          status: 'approved',
+          id: "doc_001",
+          type: "license",
+          name: "Driver License",
+          fileUrl: "https://example.com/license.pdf",
+          uploadDate: new Date("2023-01-15"),
+          expiryDate: new Date("2025-06-15"),
+          status: "approved",
           isRequired: true,
         },
         {
-          id: 'doc_002',
-          type: 'insurance',
-          name: 'Vehicle Insurance',
-          fileUrl: 'https://example.com/insurance.pdf',
-          uploadDate: new Date('2023-01-15'),
-          expiryDate: new Date('2024-12-31'),
-          status: 'approved',
+          id: "doc_002",
+          type: "insurance",
+          name: "Vehicle Insurance",
+          fileUrl: "https://example.com/insurance.pdf",
+          uploadDate: new Date("2023-01-15"),
+          expiryDate: new Date("2024-12-31"),
+          status: "approved",
           isRequired: true,
         },
         {
-          id: 'doc_003',
-          type: 'registration',
-          name: 'Vehicle Registration',
-          fileUrl: 'https://example.com/registration.pdf',
-          uploadDate: new Date('2023-01-15'),
-          expiryDate: new Date('2024-12-31'),
-          status: 'approved',
+          id: "doc_003",
+          type: "registration",
+          name: "Vehicle Registration",
+          fileUrl: "https://example.com/registration.pdf",
+          uploadDate: new Date("2023-01-15"),
+          expiryDate: new Date("2024-12-31"),
+          status: "approved",
           isRequired: true,
         },
       ];
 
       set(() => ({ documents: mockDocuments }));
     } catch (error) {
-      console.error('[DriverConfigStore] Error fetching documents:', error);
-      state.setError((error as Error).message || 'Failed to fetch documents');
+      console.error("[DriverConfigStore] Error fetching documents:", error);
+      state.setError((error as Error).message || "Failed to fetch documents");
     } finally {
       state.setLoading(false);
     }
   },
 
-  uploadDocument: async (document: Omit<DriverDocument, 'id' | 'uploadDate' | 'status'>) => {
-    console.log('[DriverConfigStore] Uploading document:', document);
+  uploadDocument: async (
+    document: Omit<DriverDocument, "id" | "uploadDate" | "status">,
+  ) => {
+    console.log("[DriverConfigStore] Uploading document:", document);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -412,7 +434,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
         ...document,
         id: documentId,
         uploadDate: new Date(),
-        status: 'pending',
+        status: "pending",
       };
 
       set((state) => ({
@@ -420,65 +442,68 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Upload to backend
-      console.log('[DriverConfigStore] Document uploaded:', documentId);
+      console.log("[DriverConfigStore] Document uploaded:", documentId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error uploading document:', error);
-      state.setError((error as Error).message || 'Failed to upload document');
+      console.error("[DriverConfigStore] Error uploading document:", error);
+      state.setError((error as Error).message || "Failed to upload document");
     } finally {
       state.setLoading(false);
     }
   },
 
-  updateDocument: async (documentId: string, updates: Partial<DriverDocument>) => {
-    console.log('[DriverConfigStore] Updating document:', documentId, updates);
+  updateDocument: async (
+    documentId: string,
+    updates: Partial<DriverDocument>,
+  ) => {
+    console.log("[DriverConfigStore] Updating document:", documentId, updates);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        documents: state.documents.map(doc =>
-          doc.id === documentId ? { ...doc, ...updates } : doc
+        documents: state.documents.map((doc) =>
+          doc.id === documentId ? { ...doc, ...updates } : doc,
         ),
       }));
 
       // TODO: Update in backend
-      console.log('[DriverConfigStore] Document updated:', documentId);
+      console.log("[DriverConfigStore] Document updated:", documentId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating document:', error);
-      state.setError((error as Error).message || 'Failed to update document');
+      console.error("[DriverConfigStore] Error updating document:", error);
+      state.setError((error as Error).message || "Failed to update document");
     } finally {
       state.setLoading(false);
     }
   },
 
   deleteDocument: async (documentId: string) => {
-    console.log('[DriverConfigStore] Deleting document:', documentId);
+    console.log("[DriverConfigStore] Deleting document:", documentId);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        documents: state.documents.filter(doc => doc.id !== documentId),
+        documents: state.documents.filter((doc) => doc.id !== documentId),
       }));
 
       // TODO: Delete from backend
-      console.log('[DriverConfigStore] Document deleted:', documentId);
+      console.log("[DriverConfigStore] Document deleted:", documentId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error deleting document:', error);
-      state.setError((error as Error).message || 'Failed to delete document');
+      console.error("[DriverConfigStore] Error deleting document:", error);
+      state.setError((error as Error).message || "Failed to delete document");
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchVehicles: async () => {
-    console.log('[DriverConfigStore] Fetching vehicles');
+    console.log("[DriverConfigStore] Fetching vehicles");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -486,39 +511,49 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockVehicles: Vehicle[] = [
         {
-          id: 'vehicle_001',
-          make: 'Toyota',
-          model: 'Camry',
+          id: "vehicle_001",
+          make: "Toyota",
+          model: "Camry",
           year: 2020,
-          color: 'Silver',
-          licensePlate: 'ABC123',
-          vin: '1HGBH41JXMN109186',
+          color: "Silver",
+          licensePlate: "ABC123",
+          vin: "1HGBH41JXMN109186",
           isActive: true,
           isDefault: true,
-          serviceTypes: ['uberx', 'ubercomfort'] as any,
+          serviceTypes: ["uberx", "ubercomfort"] as any,
           capacity: 4,
           features: [
-            { id: 'feat_001', name: 'Air Conditioning', type: 'comfort', isAvailable: true },
-            { id: 'feat_002', name: 'Bluetooth', type: 'entertainment', isAvailable: true },
+            {
+              id: "feat_001",
+              name: "Air Conditioning",
+              type: "comfort",
+              isAvailable: true,
+            },
+            {
+              id: "feat_002",
+              name: "Bluetooth",
+              type: "entertainment",
+              isAvailable: true,
+            },
           ],
-          inspectionDate: new Date('2023-06-15'),
-          inspectionExpiry: new Date('2024-06-15'),
+          inspectionDate: new Date("2023-06-15"),
+          inspectionExpiry: new Date("2024-06-15"),
         },
       ];
 
       set(() => ({ vehicles: mockVehicles }));
     } catch (error) {
-      console.error('[DriverConfigStore] Error fetching vehicles:', error);
-      state.setError((error as Error).message || 'Failed to fetch vehicles');
+      console.error("[DriverConfigStore] Error fetching vehicles:", error);
+      state.setError((error as Error).message || "Failed to fetch vehicles");
     } finally {
       state.setLoading(false);
     }
   },
 
-  addVehicle: async (vehicle: Omit<Vehicle, 'id'>) => {
-    console.log('[DriverConfigStore] Adding vehicle:', vehicle);
+  addVehicle: async (vehicle: Omit<Vehicle, "id">) => {
+    console.log("[DriverConfigStore] Adding vehicle:", vehicle);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -534,90 +569,95 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Add to backend
-      console.log('[DriverConfigStore] Vehicle added:', vehicleId);
+      console.log("[DriverConfigStore] Vehicle added:", vehicleId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error adding vehicle:', error);
-      state.setError((error as Error).message || 'Failed to add vehicle');
+      console.error("[DriverConfigStore] Error adding vehicle:", error);
+      state.setError((error as Error).message || "Failed to add vehicle");
     } finally {
       state.setLoading(false);
     }
   },
 
   updateVehicle: async (vehicleId: string, updates: Partial<Vehicle>) => {
-    console.log('[DriverConfigStore] Updating vehicle:', vehicleId, updates);
+    console.log("[DriverConfigStore] Updating vehicle:", vehicleId, updates);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        vehicles: state.vehicles.map(vehicle =>
-          vehicle.id === vehicleId ? { ...vehicle, ...updates } : vehicle
+        vehicles: state.vehicles.map((vehicle) =>
+          vehicle.id === vehicleId ? { ...vehicle, ...updates } : vehicle,
         ),
       }));
 
       // TODO: Update in backend
-      console.log('[DriverConfigStore] Vehicle updated:', vehicleId);
+      console.log("[DriverConfigStore] Vehicle updated:", vehicleId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating vehicle:', error);
-      state.setError((error as Error).message || 'Failed to update vehicle');
+      console.error("[DriverConfigStore] Error updating vehicle:", error);
+      state.setError((error as Error).message || "Failed to update vehicle");
     } finally {
       state.setLoading(false);
     }
   },
 
   deleteVehicle: async (vehicleId: string) => {
-    console.log('[DriverConfigStore] Deleting vehicle:', vehicleId);
+    console.log("[DriverConfigStore] Deleting vehicle:", vehicleId);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        vehicles: state.vehicles.filter(vehicle => vehicle.id !== vehicleId),
+        vehicles: state.vehicles.filter((vehicle) => vehicle.id !== vehicleId),
       }));
 
       // TODO: Delete from backend
-      console.log('[DriverConfigStore] Vehicle deleted:', vehicleId);
+      console.log("[DriverConfigStore] Vehicle deleted:", vehicleId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error deleting vehicle:', error);
-      state.setError((error as Error).message || 'Failed to delete vehicle');
+      console.error("[DriverConfigStore] Error deleting vehicle:", error);
+      state.setError((error as Error).message || "Failed to delete vehicle");
     } finally {
       state.setLoading(false);
     }
   },
 
   setDefaultVehicle: async (vehicleId: string) => {
-    console.log('[DriverConfigStore] Setting default vehicle:', vehicleId);
+    console.log("[DriverConfigStore] Setting default vehicle:", vehicleId);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        vehicles: state.vehicles.map(vehicle => ({
+        vehicles: state.vehicles.map((vehicle) => ({
           ...vehicle,
           isDefault: vehicle.id === vehicleId,
         })),
       }));
 
       // TODO: Update in backend
-      console.log('[DriverConfigStore] Default vehicle set:', vehicleId);
+      console.log("[DriverConfigStore] Default vehicle set:", vehicleId);
     } catch (error) {
-      console.error('[DriverConfigStore] Error setting default vehicle:', error);
-      state.setError((error as Error).message || 'Failed to set default vehicle');
+      console.error(
+        "[DriverConfigStore] Error setting default vehicle:",
+        error,
+      );
+      state.setError(
+        (error as Error).message || "Failed to set default vehicle",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   fetchServiceTypes: async () => {
-    console.log('[DriverConfigStore] Fetching service types');
+    console.log("[DriverConfigStore] Fetching service types");
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -625,10 +665,10 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       // TODO: Replace with actual API call
       const mockServiceTypes: ServiceType[] = [
         {
-          id: 'uberx',
-          name: 'uberx',
-          displayName: 'UberX',
-          description: 'Affordable rides for up to 4 passengers',
+          id: "uberx",
+          name: "uberx",
+          displayName: "UberX",
+          description: "Affordable rides for up to 4 passengers",
           baseFare: 2.55,
           perMinuteRate: 0.18,
           perMileRate: 1.15,
@@ -641,10 +681,10 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
           },
         },
         {
-          id: 'ubercomfort',
-          name: 'ubercomfort',
-          displayName: 'Uber Comfort',
-          description: 'Newer cars with extra legroom',
+          id: "ubercomfort",
+          name: "ubercomfort",
+          displayName: "Uber Comfort",
+          description: "Newer cars with extra legroom",
           baseFare: 3.75,
           perMinuteRate: 0.27,
           perMileRate: 1.35,
@@ -654,50 +694,65 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
             minRating: 4.7,
             vehicleYear: 2017,
             vehicleCapacity: 4,
-            features: ['extra_legroom'],
+            features: ["extra_legroom"],
           },
         },
       ];
 
       set(() => ({ serviceTypes: mockServiceTypes }));
     } catch (error) {
-      console.error('[DriverConfigStore] Error fetching service types:', error);
-      state.setError((error as Error).message || 'Failed to fetch service types');
+      console.error("[DriverConfigStore] Error fetching service types:", error);
+      state.setError(
+        (error as Error).message || "Failed to fetch service types",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   updateServiceTypeStatus: async (serviceTypeId: string, isActive: boolean) => {
-    console.log('[DriverConfigStore] Updating service type status:', serviceTypeId, isActive);
+    console.log(
+      "[DriverConfigStore] Updating service type status:",
+      serviceTypeId,
+      isActive,
+    );
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
 
       set((state) => ({
-        serviceTypes: state.serviceTypes.map(serviceType =>
+        serviceTypes: state.serviceTypes.map((serviceType) =>
           serviceType.id === serviceTypeId
             ? { ...serviceType, isActive }
-            : serviceType
+            : serviceType,
         ),
       }));
 
       // TODO: Update in backend
-      console.log('[DriverConfigStore] Service type status updated:', serviceTypeId, isActive);
+      console.log(
+        "[DriverConfigStore] Service type status updated:",
+        serviceTypeId,
+        isActive,
+      );
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating service type status:', error);
-      state.setError((error as Error).message || 'Failed to update service type status');
+      console.error(
+        "[DriverConfigStore] Error updating service type status:",
+        error,
+      );
+      state.setError(
+        (error as Error).message || "Failed to update service type status",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   updateAppSettings: async (settings: Partial<AppSettings>) => {
-    console.log('[DriverConfigStore] Updating app settings:', settings);
+    console.log("[DriverConfigStore] Updating app settings:", settings);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -707,19 +762,21 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log('[DriverConfigStore] App settings updated');
+      console.log("[DriverConfigStore] App settings updated");
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating app settings:', error);
-      state.setError((error as Error).message || 'Failed to update app settings');
+      console.error("[DriverConfigStore] Error updating app settings:", error);
+      state.setError(
+        (error as Error).message || "Failed to update app settings",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   updateNavigationSettings: async (settings: Partial<NavigationSettings>) => {
-    console.log('[DriverConfigStore] Updating navigation settings:', settings);
+    console.log("[DriverConfigStore] Updating navigation settings:", settings);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -729,19 +786,24 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log('[DriverConfigStore] Navigation settings updated');
+      console.log("[DriverConfigStore] Navigation settings updated");
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating navigation settings:', error);
-      state.setError((error as Error).message || 'Failed to update navigation settings');
+      console.error(
+        "[DriverConfigStore] Error updating navigation settings:",
+        error,
+      );
+      state.setError(
+        (error as Error).message || "Failed to update navigation settings",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   updateSoundSettings: async (settings: Partial<SoundSettings>) => {
-    console.log('[DriverConfigStore] Updating sound settings:', settings);
+    console.log("[DriverConfigStore] Updating sound settings:", settings);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -751,19 +813,24 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log('[DriverConfigStore] Sound settings updated');
+      console.log("[DriverConfigStore] Sound settings updated");
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating sound settings:', error);
-      state.setError((error as Error).message || 'Failed to update sound settings');
+      console.error(
+        "[DriverConfigStore] Error updating sound settings:",
+        error,
+      );
+      state.setError(
+        (error as Error).message || "Failed to update sound settings",
+      );
     } finally {
       state.setLoading(false);
     }
   },
 
   updateRidePreferences: async (preferences: Partial<RidePreferences>) => {
-    console.log('[DriverConfigStore] Updating ride preferences:', preferences);
+    console.log("[DriverConfigStore] Updating ride preferences:", preferences);
     const state = get();
-    
+
     try {
       state.setLoading(true);
       state.clearError();
@@ -773,10 +840,15 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log('[DriverConfigStore] Ride preferences updated');
+      console.log("[DriverConfigStore] Ride preferences updated");
     } catch (error) {
-      console.error('[DriverConfigStore] Error updating ride preferences:', error);
-      state.setError((error as Error).message || 'Failed to update ride preferences');
+      console.error(
+        "[DriverConfigStore] Error updating ride preferences:",
+        error,
+      );
+      state.setError(
+        (error as Error).message || "Failed to update ride preferences",
+      );
     } finally {
       state.setLoading(false);
     }
@@ -784,17 +856,17 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
   // Utility Functions
   setLoading: (loading: boolean) => {
-    console.log('[DriverConfigStore] Setting loading:', loading);
+    console.log("[DriverConfigStore] Setting loading:", loading);
     set(() => ({ isLoading: loading }));
   },
 
   setError: (error: string | null) => {
-    console.log('[DriverConfigStore] Setting error:', error);
+    console.log("[DriverConfigStore] Setting error:", error);
     set(() => ({ error }));
   },
 
   clearError: () => {
-    console.log('[DriverConfigStore] Clearing error');
+    console.log("[DriverConfigStore] Clearing error");
     set(() => ({ error: null }));
   },
 }));

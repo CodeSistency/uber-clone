@@ -533,6 +533,7 @@ Esta colección de wireframes muestra la nueva experiencia de usuario con mapa i
 ### 9.1 Bottom Sheet Size Transitions
 
 #### Small → Medium (25% → 50%)
+
 ```
 Animation: Smooth upward slide (0.3s)
 ┌─────────────────────────────────────┐
@@ -549,6 +550,7 @@ Animation: Smooth upward slide (0.3s)
 ```
 
 #### Medium → Large (50% → 75%)
+
 ```
 Animation: Full screen expansion (0.4s)
 ┌─────────────────────────────────────┐
@@ -570,6 +572,7 @@ Animation: Full screen expansion (0.4s)
 ### 9.2 Map Interactions
 
 #### Location Selection
+
 ```
 ┌─────────────────────────────────────┐
 │        🗺️ MAP INTERACTION         │
@@ -587,6 +590,7 @@ Animation: Full screen expansion (0.4s)
 ```
 
 #### Route Preview
+
 ```
 ┌─────────────────────────────────────┐
 │        🗺️ ROUTE ANIMATION         │
@@ -657,21 +661,25 @@ Animation: Full screen expansion (0.4s)
 ## 🎯 Key Design Principles
 
 ### 1. **Progressive Disclosure**
+
 - Start with essential information
 - Expand details as needed
 - Maintain visual hierarchy
 
 ### 2. **Contextual Actions**
+
 - Show relevant options based on state
 - Hide unnecessary complexity
 - Guide users through the flow
 
 ### 3. **Visual Consistency**
+
 - Consistent iconography
 - Unified color scheme
 - Standard interaction patterns
 
 ### 4. **Performance First**
+
 - Lazy load map tiles
 - Optimize animations
 - Minimize re-renders
@@ -681,18 +689,21 @@ Animation: Full screen expansion (0.4s)
 ## 🚀 Implementation Notes
 
 ### Technical Considerations
+
 - **Map Performance**: Use map clustering for dense areas
 - **Animation Performance**: Use native animations when possible
 - **Memory Management**: Implement proper cleanup for map instances
 - **Offline Support**: Cache map tiles for offline viewing
 
 ### Accessibility Features
+
 - **Voice Over**: Screen reader support for all interactive elements
 - **High Contrast**: Support for different visual needs
 - **Font Scaling**: Respect system font size preferences
 - **Touch Targets**: Minimum 44pt touch targets
 
 ### Testing Scenarios
+
 - **Network Conditions**: Test with poor connectivity
 - **Device Types**: iOS/Android, different screen sizes
 - **Location Services**: GPS accuracy, location permissions

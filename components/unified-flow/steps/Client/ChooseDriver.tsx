@@ -15,7 +15,7 @@ import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useLocationStore } from "@/store";
 import { useDriverStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 import { MarkerData } from "@/types/type";
 
 import FlowHeader from "../../FlowHeader";
@@ -165,7 +165,7 @@ const ChooseDriver: React.FC = () => {
               "¡Conductor confirmado!",
               "Procediendo con la reserva...",
             );
-            goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.GESTION_CONFIRMACION);
+            goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_GESTION_CONFIRMACION);
           } else if (status === "cancelled") {
             // Conductor rechazó - volver atrás
             setIsWaitingForAcceptance(false);
@@ -617,10 +617,6 @@ const ChooseDriver: React.FC = () => {
                   <View
                     key={i}
                     className="w-2 h-2 bg-primary-500 rounded-full mx-1 animate-pulse"
-                    style={{
-                      animationDelay: `${i * 0.2}s`,
-                      animationDuration: "1.5s",
-                    }}
                   />
                 ))}
               </View>
@@ -758,7 +754,9 @@ const ChooseDriver: React.FC = () => {
 
       <View className="px-5 pb-4">
         <Button
-          variant={selectedDriver && !isWaitingForAcceptance ? "primary" : "secondary"}
+          variant={
+            selectedDriver && !isWaitingForAcceptance ? "primary" : "secondary"
+          }
           title={
             isWaitingForAcceptance
               ? "Esperando respuesta..."

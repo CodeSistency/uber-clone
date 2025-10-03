@@ -27,7 +27,8 @@ const ModeSwitcher = ({
   const [isBusinessRegistered, setIsBusinessRegistered] = useState(false);
 
   // Use the module transition hook for splash screen transitions
-  const { switchToCustomer, switchToBusiness, switchToDriver } = useModuleTransition();
+  const { switchToCustomer, switchToBusiness, switchToDriver } =
+    useModuleTransition();
 
   // Load registration status using storage utility
   React.useEffect(() => {

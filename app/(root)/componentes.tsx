@@ -80,12 +80,18 @@ export default function ComponentesScreen() {
 
         <Section title="Cards & Glass">
           <View className="gap-3">
-            <Card title="Card Elevated" subtitle="Tarjeta con sombra">
+            <Card variant="elevated">
+              <Text className="text-black dark:text-white font-JakartaBold mb-1">
+                Card Elevated
+              </Text>
+              <Text className="text-black dark:text-white text-sm mb-3">
+                Tarjeta con sombra
+              </Text>
               <Text className="text-black dark:text-white">
                 Contenido de ejemplo
               </Text>
             </Card>
-            <Card title="Card Outline" variant="outline">
+            <Card variant="outline">
               <Text className="text-black dark:text-white">Borde tenue</Text>
             </Card>
             <Glass className="p-4">

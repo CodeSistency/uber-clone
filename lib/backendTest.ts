@@ -171,8 +171,7 @@ export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> 
 
         // Set up connection listeners
         const wsService = websocketService as any;
-        const originalOnConnect =
-          wsService.socket?.listeners("connect") || [];
+        const originalOnConnect = wsService.socket?.listeners("connect") || [];
         const originalOnConnectError =
           wsService.socket?.listeners("connect_error") || [];
 

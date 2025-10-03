@@ -193,7 +193,7 @@ export const EmergencyButton: React.FC<EmergencyButtonProps> = ({
         location: {
           latitude: location.latitude,
           longitude: location.longitude,
-          address: location.address || "Unknown location"
+          address: location.address || "Unknown location",
         },
         description: "Emergency triggered from app",
       });

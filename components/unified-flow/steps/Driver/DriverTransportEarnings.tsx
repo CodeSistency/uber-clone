@@ -6,7 +6,7 @@ import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 interface EarningsSummary {
   tripFare: number;

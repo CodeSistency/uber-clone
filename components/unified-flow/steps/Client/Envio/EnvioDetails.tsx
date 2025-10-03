@@ -5,7 +5,7 @@ import { Button, TextField, Card } from "@/components/ui";
 import { parcelClient } from "@/app/services/flowClientService";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -55,18 +55,10 @@ const EnvioDetails: React.FC = () => {
 
         <View className="flex-row">
           <View className="flex-1 mr-2">
-            <TextField
-              label="Tamaño"
-              value={size}
-              onChangeText={setSize}
-            />
+            <TextField label="Tamaño" value={size} onChangeText={setSize} />
           </View>
           <View className="flex-1 ml-2">
-            <TextField
-              label="Peso"
-              value={weight}
-              onChangeText={setWeight}
-            />
+            <TextField label="Peso" value={weight} onChangeText={setWeight} />
           </View>
         </View>
 
@@ -101,7 +93,7 @@ const EnvioDetails: React.FC = () => {
             );
             const id = res?.data?.id || res?.id;
             if (id) setParcelId(id);
-            goTo(FLOW_STEPS.CUSTOMER_ENVIO.CALCULAR_PRECIO);
+            goTo(FLOW_STEPS.CUSTOMER_ENVIO_CALCULAR_PRECIO);
           }}
           disabled={!canContinue}
           className="rounded-xl p-4"

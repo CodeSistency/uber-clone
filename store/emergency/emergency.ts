@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { emergencyService } from '@/app/services/emergencyService';
+import { create } from "zustand";
+import { emergencyService } from "@/app/services/emergencyService";
 
 // Types
 interface EmergencyContact {
@@ -12,10 +12,10 @@ interface EmergencyContact {
 
 interface EmergencyHistory {
   id: string;
-  type: 'sos' | 'accident' | 'medical' | 'other';
+  type: "sos" | "accident" | "medical" | "other";
   description: string;
   timestamp: Date;
-  status: 'active' | 'resolved' | 'cancelled';
+  status: "active" | "resolved" | "cancelled";
   location?: {
     latitude: number;
     longitude: number;
@@ -27,7 +27,7 @@ interface EmergencyHistory {
 
 interface ActiveEmergency {
   id: string;
-  type: 'sos' | 'accident' | 'medical' | 'other';
+  type: "sos" | "accident" | "medical" | "other";
   description: string;
   timestamp: Date;
   location: {
@@ -35,7 +35,7 @@ interface ActiveEmergency {
     longitude: number;
     address: string;
   };
-  status: 'active' | 'resolved';
+  status: "active" | "resolved";
 }
 
 interface EmergencyState {
@@ -50,11 +50,14 @@ interface EmergencyState {
   // Actions
   fetchEmergencyContacts: () => Promise<void>;
   fetchEmergencyHistory: () => Promise<void>;
-  addEmergencyContact: (contact: Omit<EmergencyContact, 'id'>) => Promise<void>;
-  updateEmergencyContact: (id: string, updates: Partial<EmergencyContact>) => Promise<void>;
+  addEmergencyContact: (contact: Omit<EmergencyContact, "id">) => Promise<void>;
+  updateEmergencyContact: (
+    id: string,
+    updates: Partial<EmergencyContact>,
+  ) => Promise<void>;
   removeEmergencyContact: (id: string) => Promise<void>;
   triggerEmergency: (emergencyData: {
-    type: 'sos' | 'accident' | 'medical' | 'other';
+    type: "sos" | "accident" | "medical" | "other";
     description: string;
     location: { latitude: number; longitude: number; address: string };
   }) => Promise<void>;
@@ -90,14 +93,20 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
       // Validate response
       if (!Array.isArray(contacts)) {
-        throw new Error('Invalid response format from emergency contacts API');
+        throw new Error("Invalid response format from emergency contacts API");
       }
 
       // Update state with API response
       set({ emergencyContacts: contacts });
-      console.log("[EmergencyStore] Emergency contacts fetched successfully:", contacts.length);
+      console.log(
+        "[EmergencyStore] Emergency contacts fetched successfully:",
+        contacts.length,
+      );
     } catch (error: any) {
-      console.error("[EmergencyStore] Error fetching emergency contacts:", error);
+      console.error(
+        "[EmergencyStore] Error fetching emergency contacts:",
+        error,
+      );
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to fetch emergency contacts";
@@ -108,7 +117,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       state.setError(errorMessage);
 
       // Fallback to dummy data for development
-      console.log("[EmergencyStore] Using fallback dummy data for emergency contacts");
+      console.log(
+        "[EmergencyStore] Using fallback dummy data for emergency contacts",
+      );
       set({
         emergencyContacts: [
           {
@@ -125,7 +136,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
             relationship: "Friend",
             isPrimary: false,
           },
-        ]
+        ],
       });
     } finally {
       state.setLoading(false);
@@ -145,14 +156,20 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
       // Validate response
       if (!Array.isArray(history)) {
-        throw new Error('Invalid response format from emergency history API');
+        throw new Error("Invalid response format from emergency history API");
       }
 
       // Update state with API response
       set({ emergencyHistory: history as any });
-      console.log("[EmergencyStore] Emergency history fetched successfully:", history.length);
+      console.log(
+        "[EmergencyStore] Emergency history fetched successfully:",
+        history.length,
+      );
     } catch (error: any) {
-      console.error("[EmergencyStore] Error fetching emergency history:", error);
+      console.error(
+        "[EmergencyStore] Error fetching emergency history:",
+        error,
+      );
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to fetch emergency history";
@@ -163,7 +180,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       state.setError(errorMessage);
 
       // Fallback to dummy data for development
-      console.log("[EmergencyStore] Using fallback dummy data for emergency history");
+      console.log(
+        "[EmergencyStore] Using fallback dummy data for emergency history",
+      );
       set({
         emergencyHistory: [
           {
@@ -174,11 +193,13 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
             status: "resolved",
             location: {
               latitude: 40.7128,
-              longitude: -74.0060,
-              address: "123 Main St, New York, NY"
+              longitude: -74.006,
+              address: "123 Main St, New York, NY",
             },
             responseTime: 8,
-            resolvedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000 + 8 * 60 * 1000),
+            resolvedAt: new Date(
+              Date.now() - 7 * 24 * 60 * 60 * 1000 + 8 * 60 * 1000,
+            ),
           },
           {
             id: "2",
@@ -189,12 +210,14 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
             location: {
               latitude: 40.7589,
               longitude: -73.9851,
-              address: "456 Broadway, New York, NY"
+              address: "456 Broadway, New York, NY",
             },
             responseTime: 12,
-            resolvedAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000 + 12 * 60 * 1000),
+            resolvedAt: new Date(
+              Date.now() - 30 * 24 * 60 * 60 * 1000 + 12 * 60 * 1000,
+            ),
           },
-        ]
+        ],
       });
     } finally {
       state.setLoading(false);
@@ -210,14 +233,18 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       state.setError(null);
 
       // Real API call using emergencyService
-      const newContact = await emergencyService.addEmergencyContact(contactData);
+      const newContact =
+        await emergencyService.addEmergencyContact(contactData);
 
       // Update state with new contact
       set((prevState) => ({
-        emergencyContacts: [...prevState.emergencyContacts, newContact]
+        emergencyContacts: [...prevState.emergencyContacts, newContact],
       }));
 
-      console.log("[EmergencyStore] Emergency contact added successfully:", newContact);
+      console.log(
+        "[EmergencyStore] Emergency contact added successfully:",
+        newContact,
+      );
     } catch (error: any) {
       console.error("[EmergencyStore] Error adding emergency contact:", error);
 
@@ -236,25 +263,37 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   updateEmergencyContact: async (id, updates) => {
     const state = get();
-    console.log("[EmergencyStore] updateEmergencyContact called:", { id, updates });
+    console.log("[EmergencyStore] updateEmergencyContact called:", {
+      id,
+      updates,
+    });
 
     try {
       state.setLoading(true);
       state.setError(null);
 
       // Real API call using emergencyService
-      const updatedContact = await emergencyService.updateEmergencyContact(id, updates);
+      const updatedContact = await emergencyService.updateEmergencyContact(
+        id,
+        updates,
+      );
 
       // Update state with updated contact
       set((prevState) => ({
-        emergencyContacts: prevState.emergencyContacts.map(contact =>
-          contact.id === id ? updatedContact : contact
-        )
+        emergencyContacts: prevState.emergencyContacts.map((contact) =>
+          contact.id === id ? updatedContact : contact,
+        ),
       }));
 
-      console.log("[EmergencyStore] Emergency contact updated successfully:", updatedContact);
+      console.log(
+        "[EmergencyStore] Emergency contact updated successfully:",
+        updatedContact,
+      );
     } catch (error: any) {
-      console.error("[EmergencyStore] Error updating emergency contact:", error);
+      console.error(
+        "[EmergencyStore] Error updating emergency contact:",
+        error,
+      );
 
       // Enhanced error handling
       let errorMessage = "Failed to update emergency contact";
@@ -282,12 +321,17 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
       // Update state by removing contact
       set((prevState) => ({
-        emergencyContacts: prevState.emergencyContacts.filter(contact => contact.id !== id)
+        emergencyContacts: prevState.emergencyContacts.filter(
+          (contact) => contact.id !== id,
+        ),
       }));
 
       console.log("[EmergencyStore] Emergency contact removed successfully");
     } catch (error: any) {
-      console.error("[EmergencyStore] Error removing emergency contact:", error);
+      console.error(
+        "[EmergencyStore] Error removing emergency contact:",
+        error,
+      );
 
       // Enhanced error handling
       let errorMessage = "Failed to remove emergency contact";
@@ -324,13 +368,16 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
           location: emergency.location || {
             latitude: 0,
             longitude: 0,
-            address: "Unknown location"
+            address: "Unknown location",
           },
-          status: 'active'
-        }
+          status: "active",
+        },
       });
 
-      console.log("[EmergencyStore] Emergency triggered successfully:", emergency);
+      console.log(
+        "[EmergencyStore] Emergency triggered successfully:",
+        emergency,
+      );
     } catch (error: any) {
       console.error("[EmergencyStore] Error triggering emergency:", error);
 
@@ -361,7 +408,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       // Update state to clear active emergency
       set({
         isEmergencyActive: false,
-        activeEmergency: null
+        activeEmergency: null,
       });
 
       // Refresh emergency history

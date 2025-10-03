@@ -1,16 +1,16 @@
-import { jest } from '@jest/globals';
+import { jest } from "@jest/globals";
 
 // Mock AsyncStorage
-jest.mock('@react-native-async-storage/async-storage', () => ({
+jest.mock("@react-native-async-storage/async-storage", () => ({
   getItem: jest.fn(),
   setItem: jest.fn(),
   removeItem: jest.fn(),
 }));
 
 // Import after mocking
-import { CriticalDataCache } from '@/lib/cache/CriticalDataCache';
+import { CriticalDataCache } from "@/lib/cache/CriticalDataCache";
 
-describe('CriticalDataCache', () => {
+describe("CriticalDataCache", () => {
   let cache: CriticalDataCache;
   let mockAsyncStorage: any;
 
@@ -21,11 +21,11 @@ describe('CriticalDataCache', () => {
     (CriticalDataCache as any).instance = null;
 
     cache = CriticalDataCache.getInstance();
-    mockAsyncStorage = require('@react-native-async-storage/async-storage');
+    mockAsyncStorage = require("@react-native-async-storage/async-storage");
   });
 
-  describe('Singleton Pattern', () => {
-    it('should return the same instance', () => {
+  describe("Singleton Pattern", () => {
+    it("should return the same instance", () => {
       const instance1 = CriticalDataCache.getInstance();
       const instance2 = CriticalDataCache.getInstance();
 
@@ -33,42 +33,42 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Location Caching', () => {
+  describe("Location Caching", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should cache new location', async () => {
+    it("should cache new location", async () => {
       const location = {
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York, NY',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York, NY",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
       };
 
       const result = await cache.cacheLocation(location);
 
-      expect(result).toBe('New York, NY');
+      expect(result).toBe("New York, NY");
       expect(mockAsyncStorage.setItem).toHaveBeenCalled();
     });
 
-    it('should update existing location frequency', async () => {
+    it("should update existing location frequency", async () => {
       const location1 = {
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York, NY',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York, NY",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
       };
 
       const location2 = {
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York, NY',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York, NY",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
       };
 
       // Cache same location twice
@@ -79,74 +79,76 @@ describe('CriticalDataCache', () => {
       expect(locations[0].frequency).toBe(2);
     });
 
-    it('should respect maximum locations limit', async () => {
+    it("should respect maximum locations limit", async () => {
       // Mock existing locations
       const existingLocations = Array.from({ length: 200 }, (_, i) => ({
         id: `loc_${i}`,
         latitude: 40.7128 + i * 0.001,
-        longitude: -74.0060 + i * 0.001,
+        longitude: -74.006 + i * 0.001,
         address: `Location ${i}`,
         formattedAddress: `Location ${i}, USA`,
-        source: 'search' as const,
+        source: "search" as const,
         timestamp: Date.now(),
         frequency: 1,
         lastUsed: Date.now(),
       }));
 
-      mockAsyncStorage.getItem.mockResolvedValue(JSON.stringify(existingLocations));
+      mockAsyncStorage.getItem.mockResolvedValue(
+        JSON.stringify(existingLocations),
+      );
 
       await cache.initializeCache();
 
       // Add one more location (should keep 200 max)
       await cache.cacheLocation({
         latitude: 41.7128,
-        longitude: -75.0060,
-        address: 'New Location',
-        formattedAddress: 'New Location, USA',
-        source: 'search' as const,
+        longitude: -75.006,
+        address: "New Location",
+        formattedAddress: "New Location, USA",
+        source: "search" as const,
       });
 
       const locations = await cache.getCachedLocations();
       expect(locations).toHaveLength(200);
     });
 
-    it('should search locations by query', async () => {
+    it("should search locations by query", async () => {
       await cache.cacheLocation({
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York City',
-        formattedAddress: 'New York City, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York City",
+        formattedAddress: "New York City, NY, USA",
+        source: "search" as const,
       });
 
       await cache.cacheLocation({
         latitude: 34.0522,
         longitude: -118.2437,
-        address: 'Los Angeles',
-        formattedAddress: 'Los Angeles, CA, USA',
-        source: 'search' as const,
+        address: "Los Angeles",
+        formattedAddress: "Los Angeles, CA, USA",
+        source: "search" as const,
       });
 
-      const results = await cache.searchLocations('New York');
+      const results = await cache.searchLocations("New York");
       expect(results).toHaveLength(1);
-      expect(results[0].address).toContain('New York');
+      expect(results[0].address).toContain("New York");
     });
 
-    it('should rank search results by relevance', async () => {
+    it("should rank search results by relevance", async () => {
       await cache.cacheLocation({
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York City Center',
-        formattedAddress: 'New York City Center, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York City Center",
+        formattedAddress: "New York City Center, NY, USA",
+        source: "search" as const,
       });
 
       await cache.cacheLocation({
         latitude: 40.7589,
         longitude: -73.9851,
-        address: 'Times Square, New York',
-        formattedAddress: 'Times Square, New York, NY, USA',
-        source: 'search' as const,
+        address: "Times Square, New York",
+        formattedAddress: "Times Square, New York, NY, USA",
+        source: "search" as const,
       });
 
       // Manually update frequency for testing
@@ -156,31 +158,31 @@ describe('CriticalDataCache', () => {
         locations[1].frequency = 10;
       }
 
-      const results = await cache.searchLocations('New York');
-      expect(results[0].address).toBe('Times Square, New York'); // Higher frequency first
+      const results = await cache.searchLocations("New York");
+      expect(results[0].address).toBe("Times Square, New York"); // Higher frequency first
     });
   });
 
-  describe('Ride Caching', () => {
+  describe("Ride Caching", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should cache new ride', async () => {
+    it("should cache new ride", async () => {
       const ride = {
         ride_id: 123,
-        origin_address: 'Origin',
-        destination_address: 'Destination',
+        origin_address: "Origin",
+        destination_address: "Destination",
         origin_latitude: 40.7128,
-        origin_longitude: -74.0060,
+        origin_longitude: -74.006,
         destination_latitude: 40.7589,
         destination_longitude: -73.9851,
-        fare_price: 25.50,
+        fare_price: 25.5,
         ride_time: 1200,
-        payment_status: 'paid',
+        payment_status: "paid",
         created_at: new Date().toISOString(),
-        status: 'completed',
+        status: "completed",
         driver_id: 456,
         user_id: 789,
       };
@@ -190,66 +192,66 @@ describe('CriticalDataCache', () => {
       expect(mockAsyncStorage.setItem).toHaveBeenCalled();
     });
 
-    it('should update existing ride', async () => {
+    it("should update existing ride", async () => {
       const ride = {
         ride_id: 123,
-        origin_address: 'Origin',
-        destination_address: 'Destination',
+        origin_address: "Origin",
+        destination_address: "Destination",
         origin_latitude: 40.7128,
-        origin_longitude: -74.0060,
+        origin_longitude: -74.006,
         destination_latitude: 40.7589,
         destination_longitude: -73.9851,
-        fare_price: 25.50,
+        fare_price: 25.5,
         ride_time: 1200,
-        payment_status: 'paid',
+        payment_status: "paid",
         created_at: new Date().toISOString(),
-        status: 'completed',
+        status: "completed",
         driver_id: 456,
         user_id: 789,
       };
 
       // Cache twice
       await cache.cacheRide(ride);
-      await cache.cacheRide({ ...ride, fare_price: 30.00 });
+      await cache.cacheRide({ ...ride, fare_price: 30.0 });
 
       const rides = await cache.getCachedRides();
       expect(rides).toHaveLength(1);
-      expect(rides[0].fare_price).toBe(30.00);
+      expect(rides[0].fare_price).toBe(30.0);
     });
 
-    it('should get rides sorted by recency', async () => {
+    it("should get rides sorted by recency", async () => {
       const now = Date.now();
 
       await cache.cacheRide({
         ride_id: 1,
-        origin_address: 'Origin 1',
-        destination_address: 'Destination 1',
+        origin_address: "Origin 1",
+        destination_address: "Destination 1",
         origin_latitude: 40.7128,
-        origin_longitude: -74.0060,
+        origin_longitude: -74.006,
         destination_latitude: 40.7589,
         destination_longitude: -73.9851,
-        fare_price: 25.50,
+        fare_price: 25.5,
         ride_time: 1200,
-        payment_status: 'paid',
+        payment_status: "paid",
         created_at: new Date(now - 2000).toISOString(),
-        status: 'completed',
+        status: "completed",
         driver_id: 456,
         user_id: 789,
       });
 
       await cache.cacheRide({
         ride_id: 2,
-        origin_address: 'Origin 2',
-        destination_address: 'Destination 2',
+        origin_address: "Origin 2",
+        destination_address: "Destination 2",
         origin_latitude: 40.7128,
-        origin_longitude: -74.0060,
+        origin_longitude: -74.006,
         destination_latitude: 40.7589,
         destination_longitude: -73.9851,
-        fare_price: 25.50,
+        fare_price: 25.5,
         ride_time: 1200,
-        payment_status: 'paid',
+        payment_status: "paid",
         created_at: new Date(now - 1000).toISOString(),
-        status: 'completed',
+        status: "completed",
         driver_id: 456,
         user_id: 789,
       });
@@ -259,19 +261,19 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Driver Caching', () => {
+  describe("Driver Caching", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should cache new driver', async () => {
+    it("should cache new driver", async () => {
       const driver = {
         driver_id: 123,
-        first_name: 'John',
-        last_name: 'Doe',
-        profile_image_url: 'https://example.com/profile.jpg',
-        car_image_url: 'https://example.com/car.jpg',
+        first_name: "John",
+        last_name: "Doe",
+        profile_image_url: "https://example.com/profile.jpg",
+        car_image_url: "https://example.com/car.jpg",
         car_seats: 4,
         rating: 4.8,
       };
@@ -281,25 +283,25 @@ describe('CriticalDataCache', () => {
       expect(mockAsyncStorage.setItem).toHaveBeenCalled();
     });
 
-    it('should get drivers sorted by last seen', async () => {
+    it("should get drivers sorted by last seen", async () => {
       const now = Date.now();
 
       await cache.cacheDriver({
         driver_id: 1,
-        first_name: 'Driver 1',
-        last_name: 'One',
-        profile_image_url: 'https://example.com/1.jpg',
-        car_image_url: 'https://example.com/car1.jpg',
+        first_name: "Driver 1",
+        last_name: "One",
+        profile_image_url: "https://example.com/1.jpg",
+        car_image_url: "https://example.com/car1.jpg",
         car_seats: 4,
         rating: 4.8,
       });
 
       await cache.cacheDriver({
         driver_id: 2,
-        first_name: 'Driver 2',
-        last_name: 'Two',
-        profile_image_url: 'https://example.com/2.jpg',
-        car_image_url: 'https://example.com/car2.jpg',
+        first_name: "Driver 2",
+        last_name: "Two",
+        profile_image_url: "https://example.com/2.jpg",
+        car_image_url: "https://example.com/car2.jpg",
         car_seats: 4,
         rating: 4.8,
       });
@@ -310,20 +312,20 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Favorites Management', () => {
+  describe("Favorites Management", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should add location to favorites', async () => {
+    it("should add location to favorites", async () => {
       const location = {
-        id: 'loc_1',
+        id: "loc_1",
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
         timestamp: Date.now(),
         frequency: 1,
         lastUsed: Date.now(),
@@ -333,17 +335,17 @@ describe('CriticalDataCache', () => {
 
       const favorites = await cache.getFavorites();
       expect(favorites).toHaveLength(1);
-      expect(favorites[0].address).toBe('New York');
+      expect(favorites[0].address).toBe("New York");
     });
 
-    it('should not add duplicate to favorites', async () => {
+    it("should not add duplicate to favorites", async () => {
       const location = {
-        id: 'loc_1',
+        id: "loc_1",
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
         timestamp: Date.now(),
         frequency: 1,
         lastUsed: Date.now(),
@@ -356,58 +358,58 @@ describe('CriticalDataCache', () => {
       expect(favorites).toHaveLength(1);
     });
 
-    it('should remove from favorites', async () => {
+    it("should remove from favorites", async () => {
       const location = {
-        id: 'loc_1',
+        id: "loc_1",
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
         timestamp: Date.now(),
         frequency: 1,
         lastUsed: Date.now(),
       };
 
       await cache.addToFavorites(location);
-      await cache.removeFromFavorites('loc_1');
+      await cache.removeFromFavorites("loc_1");
 
       const favorites = await cache.getFavorites();
       expect(favorites).toHaveLength(0);
     });
   });
 
-  describe('Cache Statistics', () => {
+  describe("Cache Statistics", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should calculate correct statistics', async () => {
+    it("should calculate correct statistics", async () => {
       const now = Date.now();
 
       // Add some test data
       await cache.cacheLocation({
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'New York',
-        formattedAddress: 'New York, NY, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "New York",
+        formattedAddress: "New York, NY, USA",
+        source: "search" as const,
       });
 
       await cache.cacheRide({
         ride_id: 1,
-        origin_address: 'Origin',
-        destination_address: 'Destination',
+        origin_address: "Origin",
+        destination_address: "Destination",
         origin_latitude: 40.7128,
-        origin_longitude: -74.0060,
+        origin_longitude: -74.006,
         destination_latitude: 40.7589,
         destination_longitude: -73.9851,
-        fare_price: 25.50,
+        fare_price: 25.5,
         ride_time: 1200,
-        payment_status: 'paid',
+        payment_status: "paid",
         created_at: new Date(now - 2000).toISOString(),
-        status: 'completed',
+        status: "completed",
         driver_id: 456,
         user_id: 789,
       });
@@ -419,7 +421,7 @@ describe('CriticalDataCache', () => {
       expect(stats.locations.bySource.search).toBe(1);
     });
 
-    it('should return empty stats for empty cache', async () => {
+    it("should return empty stats for empty cache", async () => {
       const stats = await cache.getStats();
 
       expect(stats.locations.total).toBe(0);
@@ -428,13 +430,13 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Cache Health Check', () => {
+  describe("Cache Health Check", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should report healthy cache', async () => {
+    it("should report healthy cache", async () => {
       const health = await cache.getCacheHealth();
 
       expect(health.isHealthy).toBe(true);
@@ -442,15 +444,15 @@ describe('CriticalDataCache', () => {
       expect(health.recommendations).toHaveLength(0);
     });
 
-    it('should detect full cache', async () => {
+    it("should detect full cache", async () => {
       // Mock full cache
       const fullLocations = Array.from({ length: 200 }, (_, i) => ({
         id: `loc_${i}`,
         latitude: 40.7128 + i * 0.001,
-        longitude: -74.0060 + i * 0.001,
+        longitude: -74.006 + i * 0.001,
         address: `Location ${i}`,
         formattedAddress: `Location ${i}, USA`,
-        source: 'search' as const,
+        source: "search" as const,
         timestamp: Date.now(),
         frequency: 1,
         lastUsed: Date.now(),
@@ -470,21 +472,21 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Performance Monitoring', () => {
+  describe("Performance Monitoring", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should track performance metrics', async () => {
+    it("should track performance metrics", async () => {
       const initialMetrics = cache.getPerformanceMetrics();
 
       await cache.cacheLocation({
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'Test Location',
-        formattedAddress: 'Test Location, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "Test Location",
+        formattedAddress: "Test Location, USA",
+        source: "search" as const,
       });
 
       const metrics = cache.getPerformanceMetrics();
@@ -493,7 +495,7 @@ describe('CriticalDataCache', () => {
       expect(metrics.cacheMisses).toBe(initialMetrics.cacheMisses + 1);
     });
 
-    it('should reset performance metrics', () => {
+    it("should reset performance metrics", () => {
       cache.resetPerformanceMetrics();
 
       const metrics = cache.getPerformanceMetrics();
@@ -503,27 +505,27 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Bulk Operations', () => {
+  describe("Bulk Operations", () => {
     beforeEach(async () => {
       mockAsyncStorage.getItem.mockResolvedValue(null);
       await cache.initializeCache();
     });
 
-    it('should bulk cache locations', async () => {
+    it("should bulk cache locations", async () => {
       const locations = [
         {
           latitude: 40.7128,
-          longitude: -74.0060,
-          address: 'New York',
-          formattedAddress: 'New York, NY, USA',
-          source: 'search' as const,
+          longitude: -74.006,
+          address: "New York",
+          formattedAddress: "New York, NY, USA",
+          source: "search" as const,
         },
         {
           latitude: 34.0522,
           longitude: -118.2437,
-          address: 'Los Angeles',
-          formattedAddress: 'Los Angeles, CA, USA',
-          source: 'search' as const,
+          address: "Los Angeles",
+          formattedAddress: "Los Angeles, CA, USA",
+          source: "search" as const,
         },
       ];
 
@@ -533,37 +535,37 @@ describe('CriticalDataCache', () => {
       expect(cachedLocations).toHaveLength(2);
     });
 
-    it('should bulk cache rides', async () => {
+    it("should bulk cache rides", async () => {
       const rides = [
         {
           ride_id: 1,
-          origin_address: 'Origin 1',
-          destination_address: 'Destination 1',
+          origin_address: "Origin 1",
+          destination_address: "Destination 1",
           origin_latitude: 40.7128,
-          origin_longitude: -74.0060,
+          origin_longitude: -74.006,
           destination_latitude: 40.7589,
           destination_longitude: -73.9851,
-          fare_price: 25.50,
+          fare_price: 25.5,
           ride_time: 1200,
-          payment_status: 'paid',
+          payment_status: "paid",
           created_at: new Date().toISOString(),
-          status: 'completed',
+          status: "completed",
           driver_id: 456,
           user_id: 789,
         },
         {
           ride_id: 2,
-          origin_address: 'Origin 2',
-          destination_address: 'Destination 2',
+          origin_address: "Origin 2",
+          destination_address: "Destination 2",
           origin_latitude: 40.7128,
-          origin_longitude: -74.0060,
+          origin_longitude: -74.006,
           destination_latitude: 40.7589,
           destination_longitude: -73.9851,
-          fare_price: 30.00,
+          fare_price: 30.0,
           ride_time: 1500,
-          payment_status: 'paid',
+          payment_status: "paid",
           created_at: new Date().toISOString(),
-          status: 'completed',
+          status: "completed",
           driver_id: 456,
           user_id: 789,
         },
@@ -576,17 +578,17 @@ describe('CriticalDataCache', () => {
     });
   });
 
-  describe('Cleanup Operations', () => {
-    it('should cleanup expired data', async () => {
-      const oldTime = Date.now() - (31 * 24 * 60 * 60 * 1000); // 31 days ago
+  describe("Cleanup Operations", () => {
+    it("should cleanup expired data", async () => {
+      const oldTime = Date.now() - 31 * 24 * 60 * 60 * 1000; // 31 days ago
 
       const oldLocation = {
-        id: 'loc_old',
+        id: "loc_old",
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'Old Location',
-        formattedAddress: 'Old Location, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "Old Location",
+        formattedAddress: "Old Location, USA",
+        source: "search" as const,
         timestamp: oldTime,
         frequency: 1,
         lastUsed: oldTime,
@@ -601,13 +603,13 @@ describe('CriticalDataCache', () => {
       expect(locations).toHaveLength(0);
     });
 
-    it('should clear all cache', async () => {
+    it("should clear all cache", async () => {
       await cache.cacheLocation({
         latitude: 40.7128,
-        longitude: -74.0060,
-        address: 'Test Location',
-        formattedAddress: 'Test Location, USA',
-        source: 'search' as const,
+        longitude: -74.006,
+        address: "Test Location",
+        formattedAddress: "Test Location, USA",
+        source: "search" as const,
       });
 
       await cache.clearAllCache();

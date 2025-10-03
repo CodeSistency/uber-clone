@@ -122,6 +122,10 @@ declare interface NotificationPreferences {
   emergencyAlerts: boolean;
   soundEnabled: boolean;
   vibrationEnabled: boolean;
+  badgeEnabled?: boolean;
+  quietHoursEnabled?: boolean;
+  quietHoursStart?: string;
+  quietHoursEnd?: string;
 }
 
 // Real-time Types
@@ -143,15 +147,16 @@ declare interface RideStatusUpdate {
 // Chat Types
 declare interface ChatMessage {
   id: number;
-  rideId?: number;        // Para mensajes de viaje (opcional)
-  orderId?: number;       // Para mensajes de delivery (opcional)
-  senderId: string;       // Clerk ID del remitente
-  messageText: string;    // Contenido del mensaje (máx. 1000 chars)
-  createdAt: string;      // Timestamp ISO string
-  isRead?: boolean;       // Para compatibilidad con UI existente
+  rideId?: number; // Para mensajes de viaje (opcional)
+  orderId?: number; // Para mensajes de delivery (opcional)
+  senderId: string; // Clerk ID del remitente
+  messageText: string; // Contenido del mensaje (máx. 1000 chars)
+  createdAt: string; // Timestamp ISO string
+  isRead?: boolean; // Para compatibilidad con UI existente
   messageType?: "text" | "location" | "system"; // Para compatibilidad
-  timestamp?: Date;       // Para compatibilidad con UI existente
-  sender?: {              // Información del remitente
+  timestamp?: Date; // Para compatibilidad con UI existente
+  sender?: {
+    // Información del remitente
     id: number;
     name: string;
     profileImage?: string;
@@ -201,6 +206,8 @@ declare interface LocationData {
   accuracy?: number;
   timestamp: Date;
   address?: string;
+  speed?: number;
+  bearing?: number;
 }
 
 // Enums
@@ -214,7 +221,9 @@ declare type NotificationType =
   | "PAYMENT_SUCCESS"
   | "CHAT_MESSAGE"
   | "EMERGENCY_ALERT"
-  | "SYSTEM_UPDATE";
+  | "SYSTEM_UPDATE"
+  | "PROMOTIONAL"
+  | "MAINTENANCE";
 
 declare type WebSocketMessageType =
   | "RIDE_CREATED"

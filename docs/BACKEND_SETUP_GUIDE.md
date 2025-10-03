@@ -92,19 +92,19 @@ El backend debe configurar el namespace `/uber-realtime`:
 
 ```typescript
 // server.js o app.js
-import { Server } from 'socket.io';
-import http from 'http';
+import { Server } from "socket.io";
+import http from "http";
 
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
     origin: "http://localhost:8081", // Tu app React Native
-    methods: ["GET", "POST"]
-  }
+    methods: ["GET", "POST"],
+  },
 });
 
 // Configurar namespace
-const realtimeIo = io.of('/uber-realtime');
+const realtimeIo = io.of("/uber-realtime");
 
 // Middleware de autenticación
 realtimeIo.use(async (socket, next) => {
@@ -115,34 +115,34 @@ realtimeIo.use(async (socket, next) => {
     socket.userId = decoded.id;
     next();
   } catch (error) {
-    next(new Error('Authentication failed'));
+    next(new Error("Authentication failed"));
   }
 });
 
-realtimeIo.on('connection', (socket) => {
-  console.log('User connected:', socket.userId);
+realtimeIo.on("connection", (socket) => {
+  console.log("User connected:", socket.userId);
 
   // Unirse a salas de chat
-  socket.on('joinRideRoom', ({ rideId }) => {
+  socket.on("joinRideRoom", ({ rideId }) => {
     socket.join(`ride_${rideId}`);
   });
 
-  socket.on('leaveRideRoom', ({ rideId }) => {
+  socket.on("leaveRideRoom", ({ rideId }) => {
     socket.leave(`ride_${rideId}`);
   });
 
   // Manejar mensajes de chat
-  socket.on('chat:message', async (data) => {
+  socket.on("chat:message", async (data) => {
     // Procesar mensaje...
   });
 
   // Manejar indicadores de escritura
-  socket.on('typingStart', (data) => {
-    socket.to(`ride_${data.rideId}`).emit('typingStart', data);
+  socket.on("typingStart", (data) => {
+    socket.to(`ride_${data.rideId}`).emit("typingStart", data);
   });
 
-  socket.on('typingStop', (data) => {
-    socket.to(`ride_${data.rideId}`).emit('typingStop', data);
+  socket.on("typingStop", (data) => {
+    socket.to(`ride_${data.rideId}`).emit("typingStop", data);
   });
 });
 
@@ -154,9 +154,11 @@ server.listen(3000);
 ### Chat Endpoints
 
 #### GET /api/chat/:rideId/messages
+
 Obtener historial de mensajes de un viaje.
 
 **Respuesta:**
+
 ```json
 [
   {
@@ -175,9 +177,11 @@ Obtener historial de mensajes de un viaje.
 ```
 
 #### POST /api/chat/:rideId/messages
+
 Enviar mensaje a un viaje.
 
 **Request Body:**
+
 ```json
 {
   "senderId": "user_2abc123def456",
@@ -186,9 +190,11 @@ Enviar mensaje a un viaje.
 ```
 
 #### GET /api/chat/order/:orderId/messages
+
 Obtener historial de mensajes de una orden de delivery.
 
 #### POST /api/chat/order/:orderId/messages
+
 Enviar mensaje a una orden de delivery.
 
 ### Esquema de Base de Datos
@@ -247,37 +253,41 @@ curl -X POST \
 
 ```javascript
 // En browser console o con un cliente WebSocket
-const socket = io('http://localhost:3000/uber-realtime', {
-  auth: { token: 'YOUR_JWT_TOKEN' }
+const socket = io("http://localhost:3000/uber-realtime", {
+  auth: { token: "YOUR_JWT_TOKEN" },
 });
 
-socket.on('connect', () => {
-  console.log('Connected to WebSocket');
+socket.on("connect", () => {
+  console.log("Connected to WebSocket");
 });
 
-socket.on('chat:new-message', (data) => {
-  console.log('New message:', data);
+socket.on("chat:new-message", (data) => {
+  console.log("New message:", data);
 });
 ```
 
 ## 🔧 Troubleshooting
 
 ### Error: "WebSocket connection failed"
+
 - Verifica que el servidor esté corriendo en el puerto 3000
 - Verifica CORS configuration
 - Verifica JWT token validity
 
 ### Error: "Authentication failed"
+
 - Verifica que el JWT token sea válido
 - Verifica que el `JWT_SECRET` sea correcto
 - Verifica expiración del token
 
 ### Error: "Database connection failed"
+
 - Verifica PostgreSQL esté corriendo
 - Verifica `DATABASE_URL` en `.env`
 - Verifica credenciales de base de datos
 
 ### Performance Issues
+
 - Agrega índices a las tablas de mensajes
 - Considera Redis para cache de mensajes recientes
 - Implementa pagination para historial largo
@@ -285,17 +295,20 @@ socket.on('chat:new-message', (data) => {
 ## 🚀 Deployment
 
 ### Para Desarrollo
+
 ```bash
 npm run dev
 ```
 
 ### Para Producción
+
 ```bash
 npm run build
 npm start
 ```
 
 ### Con Docker
+
 ```dockerfile
 FROM node:18-alpine
 WORKDIR /app
@@ -309,6 +322,7 @@ CMD ["npm", "start"]
 ## 📊 Monitoring
 
 Considera implementar:
+
 - Logs estructurados con Winston
 - Métricas con Prometheus
 - Health checks automáticos

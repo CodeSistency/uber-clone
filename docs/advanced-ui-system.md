@@ -1,16 +1,19 @@
 # Advanced UI System - Complete Guide
 
 ## 🎯 **Overview**
+
 El sistema avanzado de UI proporciona una colección completa de componentes y utilidades para crear experiencias de usuario premium con feedback visual instantáneo.
 
 ## 📋 **Architecture Overview**
 
 ### **Core Components**
+
 - **UIStore**: Gestión centralizada del estado de UI
 - **UIWrapper**: Componente principal que renderiza todos los elementos de UI
 - **useUI Hook**: Interface principal para interactuar con el sistema
 
 ### **Available UI Components**
+
 - ✅ **Toast Notifications** - Notificaciones temporales
 - ✅ **Bottom Sheets** - Paneles deslizables desde abajo
 - ✅ **Advanced Modals** - Modales con acciones complejas
@@ -24,6 +27,7 @@ El sistema avanzado de UI proporciona una colección completa de componentes y u
 ## 🚀 **Quick Start**
 
 ### **Basic Usage**
+
 ```typescript
 import { useUI } from '@/components/UIWrapper';
 
@@ -57,6 +61,7 @@ const MyComponent = () => {
 ## 🎨 **Toast Notifications**
 
 ### **Basic Toasts**
+
 ```typescript
 const { showSuccess, showError, showInfo, showWarning } = useUI();
 
@@ -68,40 +73,47 @@ showWarning("Warning", "Be careful!");
 ```
 
 ### **Advanced Toasts with Actions**
+
 ```typescript
-showError("Connection Failed", "Unable to connect to server", {
-  label: "Retry",
-  onPress: () => retryConnection()
-}, {
-  position: 'center',
-  persistent: true,
-  duration: 10000
-});
+showError(
+  "Connection Failed",
+  "Unable to connect to server",
+  {
+    label: "Retry",
+    onPress: () => retryConnection(),
+  },
+  {
+    position: "center",
+    persistent: true,
+    duration: 10000,
+  },
+);
 ```
 
 ### **Custom Toast Configuration**
+
 ```typescript
 const { showAdvancedToast } = useUI();
 
 showAdvancedToast({
-  type: 'success',
-  title: 'Upload Complete',
-  message: 'Your file has been uploaded successfully',
-  position: 'top',
-  variant: 'filled',
+  type: "success",
+  title: "Upload Complete",
+  message: "Your file has been uploaded successfully",
+  position: "top",
+  variant: "filled",
   duration: 5000,
   actions: [
     {
-      label: 'View File',
+      label: "View File",
       onPress: () => openFile(),
-      variant: 'default'
+      variant: "default",
     },
     {
-      label: 'Share',
+      label: "Share",
       onPress: () => shareFile(),
-      variant: 'secondary'
-    }
-  ]
+      variant: "secondary",
+    },
+  ],
 });
 ```
 
@@ -110,6 +122,7 @@ showAdvancedToast({
 ## 📱 **Bottom Sheets**
 
 ### **Basic Bottom Sheet**
+
 ```typescript
 const { showBottomSheet } = useUI();
 
@@ -129,6 +142,7 @@ const sheetId = showBottomSheet({
 ```
 
 ### **Advanced Bottom Sheet**
+
 ```typescript
 showBottomSheet({
   title: "Select Payment Method",
@@ -151,6 +165,7 @@ showBottomSheet({
 ## 🪟 **Advanced Modals**
 
 ### **Basic Modal**
+
 ```typescript
 const { showModal } = useUI();
 
@@ -175,6 +190,7 @@ showModal({
 ```
 
 ### **Confirmation Modal**
+
 ```typescript
 showModal({
   title: "Delete Account",
@@ -198,6 +214,7 @@ showModal({
 ```
 
 ### **Large Modal with Form**
+
 ```typescript
 showModal({
   title: "Edit Profile",
@@ -229,33 +246,34 @@ showModal({
 ## 🍿 **Advanced Snackbars**
 
 ### **Positioned Snackbars**
+
 ```typescript
 const { showSnackbar } = useUI();
 
 // Top positioned
 showSnackbar({
   message: "File uploaded successfully",
-  type: 'success',
-  position: 'top',
-  duration: 3000
+  type: "success",
+  position: "top",
+  duration: 3000,
 });
 
 // Bottom positioned
 showSnackbar({
   message: "Connection restored",
-  type: 'info',
-  position: 'bottom'
+  type: "info",
+  position: "bottom",
 });
 
 // Corner positioned
 showSnackbar({
   message: "New message received",
-  type: 'info',
-  position: 'top-right',
+  type: "info",
+  position: "top-right",
   action: {
-    label: 'View',
-    onPress: () => viewMessage()
-  }
+    label: "View",
+    onPress: () => viewMessage(),
+  },
 });
 ```
 
@@ -264,39 +282,41 @@ showSnackbar({
 ## ⏳ **Loading States**
 
 ### **Different Loading Types**
+
 ```typescript
 const { showLoadingState } = useUI();
 
 // Spinner
 showLoadingState({
-  type: 'spinner',
-  message: 'Loading...',
-  size: 'md',
-  overlay: false
+  type: "spinner",
+  message: "Loading...",
+  size: "md",
+  overlay: false,
 });
 
 // Dots animation
 showLoadingState({
-  type: 'dots',
-  message: 'Processing...',
-  size: 'lg',
-  overlay: true
+  type: "dots",
+  message: "Processing...",
+  size: "lg",
+  overlay: true,
 });
 
 // Skeleton loader
 showLoadingState({
-  type: 'skeleton',
-  overlay: false
+  type: "skeleton",
+  overlay: false,
 });
 ```
 
 ### **Overlay Loading**
+
 ```typescript
 showLoadingState({
-  type: 'spinner',
-  message: 'Please wait...',
+  type: "spinner",
+  message: "Please wait...",
   overlay: true, // Covers entire screen
-  size: 'lg'
+  size: "lg",
 });
 ```
 
@@ -305,45 +325,48 @@ showLoadingState({
 ## 📊 **Progress Indicators**
 
 ### **Linear Progress**
+
 ```typescript
 const { showProgress } = useUI();
 
 const progressId = showProgress({
-  type: 'linear',
+  type: "linear",
   value: 0,
   max: 100,
-  label: 'Uploading file...',
+  label: "Uploading file...",
   showPercentage: true,
-  color: '#0286FF'
+  color: "#0286FF",
 });
 
 // Update progress
-updateProgress(progressId, { value: 50, label: 'Halfway there...' });
+updateProgress(progressId, { value: 50, label: "Halfway there..." });
 ```
 
 ### **Circular Progress**
+
 ```typescript
 showProgress({
-  type: 'circular',
+  type: "circular",
   value: 75,
-  size: 'lg',
-  label: 'Processing...',
+  size: "lg",
+  label: "Processing...",
   showPercentage: true,
-  color: '#22c55e'
+  color: "#22c55e",
 });
 ```
 
 ### **Step Progress**
+
 ```typescript
 showProgress({
-  type: 'steps',
-  label: 'Setup Progress',
+  type: "steps",
+  label: "Setup Progress",
   steps: [
-    { label: 'Account', completed: true, active: false },
-    { label: 'Profile', completed: true, active: false },
-    { label: 'Payment', completed: false, active: true },
-    { label: 'Complete', completed: false, active: false }
-  ]
+    { label: "Account", completed: true, active: false },
+    { label: "Profile", completed: true, active: false },
+    { label: "Payment", completed: false, active: true },
+    { label: "Complete", completed: false, active: false },
+  ],
 });
 ```
 
@@ -352,11 +375,12 @@ showProgress({
 ## 🎯 **Advanced Async Operations**
 
 ### **withUI - Automatic UI Management**
+
 ```typescript
 const result = await withUI(
   async () => {
     // Your async operation
-    const response = await fetch('/api/data');
+    const response = await fetch("/api/data");
     return response.json();
   },
   {
@@ -364,39 +388,40 @@ const result = await withUI(
     successMessage: "Data loaded successfully!",
     errorTitle: "Failed to load data",
     onSuccess: (data) => {
-      console.log('Data:', data);
+      console.log("Data:", data);
       // Handle success
     },
     onError: (error) => {
-      console.error('Error:', error);
+      console.error("Error:", error);
       // Handle error
-    }
-  }
+    },
+  },
 );
 ```
 
 ### **withProgress - Operations with Progress**
+
 ```typescript
 const result = await withProgress(
   async (updateProgress) => {
     // Operation with progress updates
-    updateProgress(25, 'Initializing...');
+    updateProgress(25, "Initializing...");
     await step1();
 
-    updateProgress(50, 'Processing...');
+    updateProgress(50, "Processing...");
     await step2();
 
-    updateProgress(75, 'Finalizing...');
+    updateProgress(75, "Finalizing...");
     await step3();
 
-    updateProgress(100, 'Complete!');
+    updateProgress(100, "Complete!");
     return finalResult;
   },
   {
-    initialMessage: 'Starting process...',
-    successMessage: 'Process completed!',
-    onSuccess: (result) => handleResult(result)
-  }
+    initialMessage: "Starting process...",
+    successMessage: "Process completed!",
+    onSuccess: (result) => handleResult(result),
+  },
 );
 ```
 
@@ -405,94 +430,97 @@ const result = await withProgress(
 ## 🎨 **Advanced Examples**
 
 ### **File Upload with Progress**
+
 ```typescript
 const uploadFile = async (file: File) => {
   const result = await withProgress(
     async (updateProgress) => {
       const formData = new FormData();
-      formData.append('file', file);
+      formData.append("file", file);
 
       const xhr = new XMLHttpRequest();
 
       return new Promise((resolve, reject) => {
-        xhr.upload.addEventListener('progress', (event) => {
+        xhr.upload.addEventListener("progress", (event) => {
           if (event.lengthComputable) {
             const percent = Math.round((event.loaded / event.total) * 100);
             updateProgress(percent, `Uploading... ${percent}%`);
           }
         });
 
-        xhr.addEventListener('load', () => {
+        xhr.addEventListener("load", () => {
           if (xhr.status === 200) {
             resolve(JSON.parse(xhr.responseText));
           } else {
-            reject(new Error('Upload failed'));
+            reject(new Error("Upload failed"));
           }
         });
 
-        xhr.addEventListener('error', () => reject(new Error('Upload failed')));
+        xhr.addEventListener("error", () => reject(new Error("Upload failed")));
 
-        xhr.open('POST', '/api/upload');
+        xhr.open("POST", "/api/upload");
         xhr.send(formData);
       });
     },
     {
-      initialMessage: 'Preparing upload...',
-      successMessage: 'File uploaded successfully!',
+      initialMessage: "Preparing upload...",
+      successMessage: "File uploaded successfully!",
       onSuccess: (response) => {
-        showSuccess('Upload Complete', `File uploaded to ${response.url}`);
-      }
-    }
+        showSuccess("Upload Complete", `File uploaded to ${response.url}`);
+      },
+    },
   );
 };
 ```
 
 ### **Multi-step Form with Progress**
+
 ```typescript
 const submitMultiStepForm = async (formData: any) => {
   const result = await withProgress(
     async (updateProgress) => {
       // Step 1: Validation
-      updateProgress(10, 'Validating form...');
+      updateProgress(10, "Validating form...");
       await validateForm(formData);
 
       // Step 2: Upload images
-      updateProgress(30, 'Uploading images...');
+      updateProgress(30, "Uploading images...");
       const imageUrls = await uploadImages(formData.images);
 
       // Step 3: Save data
-      updateProgress(70, 'Saving data...');
+      updateProgress(70, "Saving data...");
       const savedData = await saveFormData({ ...formData, imageUrls });
 
       // Step 4: Send notifications
-      updateProgress(90, 'Sending notifications...');
+      updateProgress(90, "Sending notifications...");
       await sendNotifications(savedData.id);
 
-      updateProgress(100, 'Complete!');
+      updateProgress(100, "Complete!");
       return savedData;
     },
     {
-      initialMessage: 'Submitting form...',
-      successMessage: 'Form submitted successfully!',
+      initialMessage: "Submitting form...",
+      successMessage: "Form submitted successfully!",
       onSuccess: (data) => {
         router.push(`/success/${data.id}`);
-      }
-    }
+      },
+    },
   );
 };
 ```
 
 ### **Real-time Data Sync**
+
 ```typescript
 const syncData = async () => {
   const result = await withUI(
     async () => {
       // Show progress for sync operation
       const progressId = showProgress({
-        type: 'circular',
+        type: "circular",
         value: 0,
-        label: 'Syncing data...',
-        showPercentage: true
+        label: "Syncing data...",
+        showPercentage: true,
       });
 
       try {
@@ -511,8 +539,8 @@ const syncData = async () => {
     {
       loadingMessage: "Preparing sync...",
       successMessage: "Data synchronized successfully!",
-      errorTitle: "Sync Failed"
-    }
+      errorTitle: "Sync Failed",
+    },
   );
 };
 ```
@@ -522,37 +550,40 @@ const syncData = async () => {
 ## 🎨 **Customization**
 
 ### **Custom Colors and Themes**
+
 ```typescript
 // Custom progress color
 showProgress({
-  type: 'linear',
+  type: "linear",
   value: 75,
-  color: '#ff6b6b', // Custom red color
-  label: 'Processing...'
+  color: "#ff6b6b", // Custom red color
+  label: "Processing...",
 });
 
 // Custom loading color
 showLoadingState({
-  type: 'spinner',
-  color: '#4ecdc4', // Custom teal color
-  size: 'lg'
+  type: "spinner",
+  color: "#4ecdc4", // Custom teal color
+  size: "lg",
 });
 ```
 
 ### **Custom Durations**
+
 ```typescript
 showSuccess("Success!", "Operation completed", null, {
   duration: 10000, // 10 seconds instead of default 3
-  persistent: false
+  persistent: false,
 });
 ```
 
 ### **Custom Positioning**
+
 ```typescript
 showSnackbar({
   message: "Custom positioned snackbar",
-  position: 'bottom-left',
-  type: 'info'
+  position: "bottom-left",
+  type: "info",
 });
 ```
 
@@ -561,6 +592,7 @@ showSnackbar({
 ## 🔧 **Best Practices**
 
 ### **1. Consistent Messaging**
+
 ```typescript
 // ✅ Good: Consistent language
 showLoading("Loading your profile...");
@@ -572,24 +604,26 @@ showSuccess("Done", "Your profile has been saved!");
 ```
 
 ### **2. Appropriate Loading Types**
+
 ```typescript
 // ✅ Good: Match loading type to operation
 // Quick operations
 showLoading("Saving...");
 
 // Long operations with progress
-showProgress({ type: 'linear', label: 'Uploading file...' });
+showProgress({ type: "linear", label: "Uploading file..." });
 
 // Indeterminate operations
-showLoadingState({ type: 'dots', message: 'Processing...' });
+showLoadingState({ type: "dots", message: "Processing..." });
 ```
 
 ### **3. Error Handling**
+
 ```typescript
 // ✅ Good: Provide actionable errors
 showError("Upload Failed", "File size exceeds 10MB limit", {
   label: "Choose Smaller File",
-  onPress: () => openFilePicker()
+  onPress: () => openFilePicker(),
 });
 
 // ❌ Bad: Generic errors
@@ -597,12 +631,13 @@ showError("Error", "Something went wrong");
 ```
 
 ### **4. Progress Updates**
+
 ```typescript
 // ✅ Good: Meaningful progress updates
-updateProgress(progressId, { value: 25, label: 'Connecting...' });
-updateProgress(progressId, { value: 50, label: 'Downloading...' });
-updateProgress(progressId, { value: 75, label: 'Processing...' });
-updateProgress(progressId, { value: 100, label: 'Complete!' });
+updateProgress(progressId, { value: 25, label: "Connecting..." });
+updateProgress(progressId, { value: 50, label: "Downloading..." });
+updateProgress(progressId, { value: 75, label: "Processing..." });
+updateProgress(progressId, { value: 100, label: "Complete!" });
 
 // ❌ Bad: Meaningless updates
 updateProgress(progressId, { value: 37 });
@@ -613,22 +648,20 @@ updateProgress(progressId, { value: 37 });
 ## 🚀 **Integration Examples**
 
 ### **API Service Integration**
+
 ```typescript
 // apiService.ts
-import { useUI } from '@/components/UIWrapper';
+import { useUI } from "@/components/UIWrapper";
 
 export class ApiService {
   private ui = useUI();
 
   async getData(endpoint: string) {
-    return this.ui.withUI(
-      () => fetch(endpoint).then(r => r.json()),
-      {
-        loadingMessage: "Loading data...",
-        successMessage: "Data loaded!",
-        errorTitle: "Failed to load data"
-      }
-    );
+    return this.ui.withUI(() => fetch(endpoint).then((r) => r.json()), {
+      loadingMessage: "Loading data...",
+      successMessage: "Data loaded!",
+      errorTitle: "Failed to load data",
+    });
   }
 
   async uploadFile(file: File) {
@@ -639,14 +672,15 @@ export class ApiService {
       },
       {
         initialMessage: "Preparing upload...",
-        successMessage: "File uploaded successfully!"
-      }
+        successMessage: "File uploaded successfully!",
+      },
     );
   }
 }
 ```
 
 ### **Form Validation Integration**
+
 ```typescript
 const validateAndSubmit = async (formData: any) => {
   const { withUI, showError } = useUI();
@@ -654,22 +688,19 @@ const validateAndSubmit = async (formData: any) => {
   // Client-side validation
   const errors = validateForm(formData);
   if (errors.length > 0) {
-    showError("Validation Error", errors.join('\n'));
+    showError("Validation Error", errors.join("\n"));
     return;
   }
 
   // Submit with UI feedback
-  const result = await withUI(
-    () => submitForm(formData),
-    {
-      loadingMessage: "Submitting form...",
-      successMessage: "Form submitted successfully!",
-      errorTitle: "Submission Failed"
-    }
-  );
+  const result = await withUI(() => submitForm(formData), {
+    loadingMessage: "Submitting form...",
+    successMessage: "Form submitted successfully!",
+    errorTitle: "Submission Failed",
+  });
 
   if (result) {
-    router.push('/success');
+    router.push("/success");
   }
 };
 ```
@@ -678,37 +709,37 @@ const validateAndSubmit = async (formData: any) => {
 
 ## 🎉 **Complete System Features**
 
-| Feature | Status | Description |
-|---------|--------|-------------|
+| Feature                    | Status   | Description                          |
+| -------------------------- | -------- | ------------------------------------ |
 | ✅ **Toast Notifications** | Complete | Basic + Advanced toasts with actions |
-| ✅ **Bottom Sheets** | Complete | Draggable sheets with custom content |
-| ✅ **Advanced Modals** | Complete | Modals with actions and variants |
-| ✅ **Advanced Snackbars** | Complete | Positioned snackbars with actions |
-| ✅ **Loading States** | Complete | Multiple loading types and styles |
-| ✅ **Progress Indicators** | Complete | Linear, circular, and step progress |
-| ✅ **Global Loading** | Complete | Full-screen loading overlay |
-| ✅ **Async Wrappers** | Complete | `withUI` and `withProgress` helpers |
-| ✅ **Custom Positioning** | Complete | Flexible positioning system |
-| ✅ **Theme Support** | Complete | Colors, variants, and customization |
-| ✅ **Animation System** | Complete | Smooth enter/exit animations |
-| ✅ **Queue Management** | Complete | Multiple UI elements management |
+| ✅ **Bottom Sheets**       | Complete | Draggable sheets with custom content |
+| ✅ **Advanced Modals**     | Complete | Modals with actions and variants     |
+| ✅ **Advanced Snackbars**  | Complete | Positioned snackbars with actions    |
+| ✅ **Loading States**      | Complete | Multiple loading types and styles    |
+| ✅ **Progress Indicators** | Complete | Linear, circular, and step progress  |
+| ✅ **Global Loading**      | Complete | Full-screen loading overlay          |
+| ✅ **Async Wrappers**      | Complete | `withUI` and `withProgress` helpers  |
+| ✅ **Custom Positioning**  | Complete | Flexible positioning system          |
+| ✅ **Theme Support**       | Complete | Colors, variants, and customization  |
+| ✅ **Animation System**    | Complete | Smooth enter/exit animations         |
+| ✅ **Queue Management**    | Complete | Multiple UI elements management      |
 
 ---
 
 ## 🎯 **Usage in Your App**
 
 ### **Replace Alert with UI System**
+
 ```typescript
 // Before
-Alert.alert("Success", "Data saved!", [
-  { text: "OK", onPress: () => {} }
-]);
+Alert.alert("Success", "Data saved!", [{ text: "OK", onPress: () => {} }]);
 
 // After
 showSuccess("Success", "Data saved!");
 ```
 
 ### **Replace Loading States**
+
 ```typescript
 // Before
 const [loading, setLoading] = useState(false);
@@ -718,11 +749,12 @@ const [loading, setLoading] = useState(false);
 const { withUI } = useUI();
 const result = await withUI(() => apiCall(), {
   loadingMessage: "Loading...",
-  successMessage: "Loaded successfully!"
+  successMessage: "Loaded successfully!",
 });
 ```
 
 ### **Replace Complex UI Logic**
+
 ```typescript
 // Before: Complex state management
 const [loading, setLoading] = useState(false);
@@ -732,7 +764,7 @@ const [error, setError] = useState(null);
 // After: Simple one-liner
 const result = await withProgress(
   (updateProgress) => uploadFile(file, updateProgress),
-  { successMessage: "Upload complete!" }
+  { successMessage: "Upload complete!" },
 );
 ```
 

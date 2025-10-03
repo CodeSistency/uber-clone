@@ -200,7 +200,9 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
               {/* Action Buttons */}
               <View className="space-y-3">
                 <Button
-                  variant={isProcessing || isConfirming ? "secondary" : "primary"}
+                  variant={
+                    isProcessing || isConfirming ? "secondary" : "primary"
+                  }
                   title={
                     isProcessing || isConfirming
                       ? "Confirmando..."

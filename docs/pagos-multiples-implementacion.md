@@ -11,6 +11,7 @@ Se ha implementado completamente el sistema de **pagos múltiples** según la do
 ### **1. Servicios (`app/services/`)**
 
 #### **PaymentService** (`paymentService.ts`)
+
 Servicio principal que maneja todas las operaciones de pagos múltiples:
 
 ```typescript
@@ -20,18 +21,18 @@ import { paymentService } from "@/app/services/paymentService";
 const result = await paymentService.initiateMultiple({
   serviceType: "ride",
   serviceId: 123,
-  totalAmount: 75.50,
+  totalAmount: 75.5,
   payments: [
-    { method: "transfer", amount: 25.00, bankCode: "0102" },
-    { method: "pago_movil", amount: 30.50, bankCode: "0105" },
-    { method: "cash", amount: 20.00 }
-  ]
+    { method: "transfer", amount: 25.0, bankCode: "0102" },
+    { method: "pago_movil", amount: 30.5, bankCode: "0105" },
+    { method: "cash", amount: 20.0 },
+  ],
 });
 
 // Confirmar pago parcial
 await paymentService.confirmPartial({
   referenceNumber: "12345678901234567890",
-  bankCode: "0102"
+  bankCode: "0102",
 });
 
 // Obtener estado del grupo
@@ -44,6 +45,7 @@ await paymentService.cancelGroup("group-uuid", "Cancelado por usuario");
 ### **2. Estado Global (`store/payment/`)**
 
 #### **PaymentStore** (`payment.ts`)
+
 Store Zustand que maneja el estado de pagos múltiples:
 
 ```typescript
@@ -53,8 +55,8 @@ import { usePaymentStore } from "@/store";
 const result = await paymentStore.createPaymentGroup({
   serviceType: "ride",
   serviceId: 123,
-  totalAmount: 75.50,
-  payments: paymentMethods
+  totalAmount: 75.5,
+  payments: paymentMethods,
 });
 
 // Buscar grupo activo para un servicio
@@ -70,6 +72,7 @@ paymentStore.updateGroupStatus(groupId, newStatus);
 ### **3. Componentes UI (`components/`)**
 
 #### **MultiplePaymentSplitter** (`MultiplePaymentSplitter.tsx`)
+
 Componente principal para dividir pagos:
 
 ```typescript
@@ -87,6 +90,7 @@ import MultiplePaymentSplitter from "@/components/MultiplePaymentSplitter";
 ```
 
 #### **MultiplePaymentProgress** (`MultiplePaymentProgress.tsx`)
+
 Componente para mostrar progreso de pagos:
 
 ```typescript
@@ -100,6 +104,7 @@ import MultiplePaymentProgress from "@/components/MultiplePaymentProgress";
 ```
 
 #### **PaymentMethodSelector** (`PaymentMethodSelector.tsx`)
+
 Selector actualizado con soporte para pagos múltiples:
 
 ```typescript
@@ -117,6 +122,7 @@ import PaymentMethodSelector from "@/components/PaymentMethodSelector";
 ```
 
 #### **PaymentStatusCard** (`PaymentStatusCard.tsx`)
+
 Componente para mostrar estado de pagos en otras pantallas:
 
 ```typescript
@@ -136,12 +142,14 @@ import PaymentStatusCard from "@/components/PaymentStatusCard";
 ### **Escenario: Usuario divide $75.50 en 3 métodos**
 
 #### **Paso 1: Selección de Método**
+
 ```typescript
 // Usuario selecciona "Pagos Múltiples" en PaymentMethodSelector
 // Se abre MultiplePaymentSplitter
 ```
 
 #### **Paso 2: Configuración de Pagos**
+
 ```typescript
 // Usuario configura:
 // - Transferencia: $25.00 (Banco Venezuela)
@@ -150,16 +158,17 @@ import PaymentStatusCard from "@/components/PaymentStatusCard";
 ```
 
 #### **Paso 3: Creación del Grupo**
+
 ```typescript
 const result = await paymentService.initiateMultiple({
   serviceType: "ride",
   serviceId: 123,
-  totalAmount: 75.50,
+  totalAmount: 75.5,
   payments: [
-    { method: "transfer", amount: 25.00, bankCode: "0102" },
-    { method: "pago_movil", amount: 30.50, bankCode: "0105" },
-    { method: "cash", amount: 20.00 }
-  ]
+    { method: "transfer", amount: 25.0, bankCode: "0102" },
+    { method: "pago_movil", amount: 30.5, bankCode: "0105" },
+    { method: "cash", amount: 20.0 },
+  ],
 });
 
 // Resultado:
@@ -169,24 +178,26 @@ const result = await paymentService.initiateMultiple({
 ```
 
 #### **Paso 4: Confirmación de Pagos**
+
 ```typescript
 // Usuario confirma cada pago:
 // 1. Transferencia al banco → confirma automáticamente
 await paymentService.confirmPartial({
   referenceNumber: "01021234567890123456",
-  bankCode: "0102"
+  bankCode: "0102",
 });
 
 // 2. Pago móvil → confirma automáticamente
 await paymentService.confirmPartial({
   referenceNumber: "01051234567890123456",
-  bankCode: "0105"
+  bankCode: "0105",
 });
 
 // 3. Efectivo → se marca como confirmado por el conductor
 ```
 
 #### **Paso 5: Seguimiento en Tiempo Real**
+
 ```typescript
 // Estado actualizado automáticamente vía WebSocket
 const status = await paymentService.getGroupStatus("group-abc-123");
@@ -198,11 +209,12 @@ const status = await paymentService.getGroupStatus("group-abc-123");
 ## 🔧 UTILIDADES Y HELPERS
 
 ### **PaymentUtils** (`paymentService.ts`)
+
 ```typescript
 import { paymentUtils } from "@/app/services/paymentService";
 
 // Formatear montos
-const formatted = paymentUtils.formatAmount(75.50); // "$75.50"
+const formatted = paymentUtils.formatAmount(75.5); // "$75.50"
 
 // Validar referencias
 const isValid = paymentUtils.isValidReference("12345678901234567890"); // true
@@ -216,6 +228,7 @@ const timeLeft = paymentUtils.getTimeRemaining(expiresAt);
 ```
 
 ### **Generación de Idempotency Keys**
+
 ```typescript
 import { paymentService } from "@/app/services/paymentService";
 
@@ -229,6 +242,7 @@ const key = paymentService.generatePaymentIdempotencyKey();
 ## 🔗 INTEGRACIÓN CON FLUJOS EXISTENTES
 
 ### **ChooseDriver Actualizado**
+
 El componente `ChooseDriver` ahora soporta completamente pagos múltiples:
 
 ```typescript
@@ -251,7 +265,7 @@ const handlePaymentConfirmation = async () => {
       serviceType: "ride",
       serviceId: rideId,
       totalAmount: estimatedFare,
-      payments: multiplePayments
+      payments: multiplePayments,
     });
   }
 };
@@ -262,25 +276,28 @@ const handlePaymentConfirmation = async () => {
 ## 📊 ESTADOS Y TRANSICIONES
 
 ### **Estados de Grupo de Pagos**
+
 ```typescript
 type PaymentGroupStatus =
-  | "active"        // Grupo activo, esperando confirmaciones
-  | "completed"     // Todos los pagos confirmados
-  | "cancelled"     // Grupo cancelado por usuario
-  | "expired";      // Referencias bancarias expiradas
+  | "active" // Grupo activo, esperando confirmaciones
+  | "completed" // Todos los pagos confirmados
+  | "cancelled" // Grupo cancelado por usuario
+  | "expired"; // Referencias bancarias expiradas
 ```
 
 ### **Estados de Pago Individual**
+
 ```typescript
 type PaymentStatus =
-  | "pending"             // Esperando confirmación
-  | "pending_reference"   // Referencia generada, esperando pago
-  | "confirmed"           // Pago confirmado exitosamente
-  | "cancelled"           // Pago cancelado
-  | "expired";            // Referencia expirada
+  | "pending" // Esperando confirmación
+  | "pending_reference" // Referencia generada, esperando pago
+  | "confirmed" // Pago confirmado exitosamente
+  | "cancelled" // Pago cancelado
+  | "expired"; // Referencia expirada
 ```
 
 ### **Transiciones de Estado**
+
 ```
 Pago Único:
 pending → confirmed
@@ -296,6 +313,7 @@ pending_reference → expired
 ## 🔒 MANEJO DE ERRORES
 
 ### **Errores Comunes**
+
 ```typescript
 // Monto total no coincide
 { statusCode: 400, message: "La suma de los pagos no coincide con el total" }
@@ -314,6 +332,7 @@ pending_reference → expired
 ```
 
 ### **Manejo en Componentes**
+
 ```typescript
 try {
   await paymentStore.createPaymentGroup(request);
@@ -333,6 +352,7 @@ try {
 ## 🔄 WEBSOCKET INTEGRATION
 
 ### **Eventos de Pagos**
+
 ```typescript
 // Estado de grupo actualizado
 socket.on("payment:group:updated", (data) => {
@@ -341,12 +361,9 @@ socket.on("payment:group:updated", (data) => {
 
 // Pago confirmado
 socket.on("payment:confirmed", (data) => {
-  paymentStore.updatePaymentStatus(
-    data.groupId,
-    data.paymentId,
-    "confirmed",
-    { confirmedAt: data.confirmedAt }
-  );
+  paymentStore.updatePaymentStatus(data.groupId, data.paymentId, "confirmed", {
+    confirmedAt: data.confirmedAt,
+  });
 });
 
 // Grupo completado
@@ -360,6 +377,7 @@ socket.on("payment:group:completed", (data) => {
 ## 🧪 TESTING
 
 ### **Testing del Servicio**
+
 ```typescript
 describe("PaymentService", () => {
   test("should create multiple payment group", async () => {
@@ -378,6 +396,7 @@ describe("PaymentService", () => {
 ```
 
 ### **Testing del Store**
+
 ```typescript
 describe("PaymentStore", () => {
   test("should create payment group and update state", async () => {
@@ -393,6 +412,7 @@ describe("PaymentStore", () => {
 ## 📈 MONITOREO Y ANALYTICS
 
 ### **Métricas a Monitorear**
+
 ```typescript
 // Tasa de éxito de pagos
 const successRate = paymentStore.getStats().successRate;
@@ -405,6 +425,7 @@ const expiryRate = calculateExpiryRate();
 ```
 
 ### **Dashboard de Pagos**
+
 - Grupos activos por tipo de servicio
 - Tasa de conversión de pagos múltiples
 - Tiempo promedio de confirmación
@@ -416,18 +437,21 @@ const expiryRate = calculateExpiryRate();
 ## 🚀 DEPLOYMENT CHECKLIST
 
 ### **Pre-Deployment**
+
 - ✅ **Backend APIs**: Endpoints de pagos implementados
 - ✅ **WebSocket**: Eventos de pagos configurados
 - ✅ **Database**: Esquemas de pagos múltiples creados
 - ✅ **Validations**: Reglas de negocio implementadas
 
 ### **Deployment Steps**
+
 1. **Database Migration**: Nuevas tablas de pagos
 2. **Backend Deployment**: APIs de pagos
 3. **Frontend Deployment**: Componentes de pagos múltiples
 4. **WebSocket Deployment**: Eventos de pagos
 
 ### **Post-Deployment**
+
 1. **Monitoring**: Configurar alertas de pagos
 2. **Testing**: Validar flujos críticos en producción
 3. **Support**: Preparar equipo para soporte de pagos
@@ -438,11 +462,13 @@ const expiryRate = calculateExpiryRate();
 ## 📚 REFERENCIAS Y DOCUMENTACIÓN
 
 ### **Archivos de Documentación**
+
 - `docs/flujo/backend/Flow-API-Overview.md` - API completa
 - `docs/endpoint-analysis.md` - Análisis de implementación
 - `docs/development-plan.md` - Plan de desarrollo completo
 
 ### **Archivos de Código**
+
 - `app/services/paymentService.ts` - Servicio principal
 - `store/payment/payment.ts` - Store de estado
 - `components/MultiplePaymentSplitter.tsx` - UI principal
@@ -453,6 +479,7 @@ const expiryRate = calculateExpiryRate();
 ## 🎯 CONCLUSIONES
 
 ### **✅ Lo que se logró:**
+
 - **Sistema completo** de pagos múltiples operativo
 - **Integración perfecta** con flujos existentes
 - **UI/UX moderna** y intuitiva
@@ -460,16 +487,17 @@ const expiryRate = calculateExpiryRate();
 - **Documentación completa** para mantenimiento
 
 ### **🔧 Beneficios técnicos:**
+
 - **Escalabilidad**: Arquitectura preparada para crecimiento
 - **Mantenibilidad**: Código bien estructurado y documentado
 - **Confiabilidad**: Testing exhaustivo y manejo de errores
 - **Performance**: Optimizado para experiencia fluida
 
 ### **💰 Beneficios de negocio:**
+
 - **Flexibilidad de pago**: Usuarios pueden usar múltiples métodos
 - **Mejor conversión**: Reduce fricción en pagos grandes
 - **Satisfacción**: Experiencia de pago mejorada
 - **Analytics**: Seguimiento completo de comportamiento
 
 **🚀 El sistema de pagos múltiples está completamente implementado y listo para producción.**
-

@@ -20,7 +20,7 @@ const DriverEnvioPickupPackage: React.FC = () => {
       const active = useRealtimeStore.getState().activeRide as any;
       const id = active?.id || active?.ride_id || 0;
       if (id) await driverParcelService.pickup(id, generateIdempotencyKey());
-      goTo(FLOW_STEPS.DRIVER_ENVIO.EN_CAMINO_DESTINO);
+      goTo(FLOW_STEPS.DRIVER_ENVIO_EN_CAMINO_DESTINO);
     } catch {
       // Optional: toast error
     } finally {

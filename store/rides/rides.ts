@@ -25,7 +25,7 @@ export interface RidesStore {
   deleteRide: (rideId: number) => Promise<void>;
 
   // Offline operations
-  addRideOffline: (ride: Omit<Ride, 'ride_id'>) => Promise<string>;
+  addRideOffline: (ride: Omit<Ride, "ride_id">) => Promise<string>;
   getOfflineRides: () => Promise<CachedRide[]>;
 
   // Utility methods
@@ -61,15 +61,17 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
       set({
         cachedRides: userRides,
-        isLoadingCache: false
+        isLoadingCache: false,
       });
 
-      console.log(`[RidesStore] ✅ Loaded ${userRides.length} rides from cache`);
+      console.log(
+        `[RidesStore] ✅ Loaded ${userRides.length} rides from cache`,
+      );
     } catch (error) {
       console.error("[RidesStore] ❌ Failed to load from cache:", error);
       set({
         error: error instanceof Error ? error.message : "Failed to load cache",
-        isLoadingCache: false
+        isLoadingCache: false,
       });
     }
   },
@@ -90,30 +92,36 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
       // Update cache with server data
       const rides = get().rides;
-      await criticalDataCache.bulkCacheRides(rides
-        .filter(ride => ride.ride_id !== undefined && ride.user_id !== undefined)
-        .map(ride => ({
-          ride_id: ride.ride_id!,
-          origin_address: ride.origin_address,
-          destination_address: ride.destination_address,
-          origin_latitude: ride.origin_latitude,
-          origin_longitude: ride.origin_longitude,
-          destination_latitude: ride.destination_latitude,
-          destination_longitude: ride.destination_longitude,
-          fare_price: ride.fare_price,
-          ride_time: ride.ride_time,
-          payment_status: ride.payment_status,
-          created_at: ride.created_at,
-          status: ride.status,
-          driver_id: ride.driver_id,
-          user_id: ride.user_id!,
-          driver: ride.driver ? {
-            first_name: ride.driver.first_name,
-            last_name: ride.driver.last_name,
-            car_seats: ride.driver.car_seats,
-            rating: ride.driver.rating || 0,
-          } : undefined,
-        })));
+      await criticalDataCache.bulkCacheRides(
+        rides
+          .filter(
+            (ride) => ride.ride_id !== undefined && ride.user_id !== undefined,
+          )
+          .map((ride) => ({
+            ride_id: ride.ride_id!,
+            origin_address: ride.origin_address,
+            destination_address: ride.destination_address,
+            origin_latitude: ride.origin_latitude,
+            origin_longitude: ride.origin_longitude,
+            destination_latitude: ride.destination_latitude,
+            destination_longitude: ride.destination_longitude,
+            fare_price: ride.fare_price,
+            ride_time: ride.ride_time,
+            payment_status: ride.payment_status,
+            created_at: ride.created_at,
+            status: ride.status,
+            driver_id: ride.driver_id,
+            user_id: ride.user_id!,
+            driver: ride.driver
+              ? {
+                  first_name: ride.driver.first_name,
+                  last_name: ride.driver.last_name,
+                  car_seats: ride.driver.car_seats,
+                  rating: ride.driver.rating || 0,
+                }
+              : undefined,
+          })),
+      );
 
       console.log("[RidesStore] ✅ Synced with server successfully");
     } catch (error) {
@@ -129,7 +137,7 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
       set({
         rides: [],
         cachedRides: [],
-        error: null
+        error: null,
       });
       console.log("[RidesStore] ✅ Cache cleared");
     } catch (error) {
@@ -163,32 +171,36 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
       set({
         rides,
         isLoading: false,
-        lastSync: new Date()
+        lastSync: new Date(),
       });
 
       // Cache the rides
-      await criticalDataCache.bulkCacheRides(rides.map((ride: Ride) => ({
-        ride_id: ride.ride_id || 0,
-        origin_address: ride.origin_address,
-        destination_address: ride.destination_address,
-        origin_latitude: ride.origin_latitude,
-        origin_longitude: ride.origin_longitude,
-        destination_latitude: ride.destination_latitude,
-        destination_longitude: ride.destination_longitude,
-        fare_price: ride.fare_price,
-        ride_time: ride.ride_time,
-        payment_status: ride.payment_status,
-        created_at: ride.created_at,
-        status: ride.status || 'unknown',
-        driver_id: ride.driver_id || 0,
-        user_id: ride.user_id || 0,
-        driver: ride.driver ? {
-          first_name: ride.driver.first_name,
-          last_name: ride.driver.last_name,
-          car_seats: ride.driver.car_seats,
-          rating: ride.driver.rating || 0,
-        } : undefined,
-      })));
+      await criticalDataCache.bulkCacheRides(
+        rides.map((ride: Ride) => ({
+          ride_id: ride.ride_id || 0,
+          origin_address: ride.origin_address,
+          destination_address: ride.destination_address,
+          origin_latitude: ride.origin_latitude,
+          origin_longitude: ride.origin_longitude,
+          destination_latitude: ride.destination_latitude,
+          destination_longitude: ride.destination_longitude,
+          fare_price: ride.fare_price,
+          ride_time: ride.ride_time,
+          payment_status: ride.payment_status,
+          created_at: ride.created_at,
+          status: ride.status || "unknown",
+          driver_id: ride.driver_id || 0,
+          user_id: ride.user_id || 0,
+          driver: ride.driver
+            ? {
+                first_name: ride.driver.first_name,
+                last_name: ride.driver.last_name,
+                car_seats: ride.driver.car_seats,
+                rating: ride.driver.rating || 0,
+              }
+            : undefined,
+        })),
+      );
 
       console.log(`[RidesStore] ✅ Fetched ${rides.length} rides from server`);
     } catch (error) {
@@ -200,7 +212,7 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
       set({
         error: error instanceof Error ? error.message : "Failed to fetch rides",
-        isLoading: false
+        isLoading: false,
       });
 
       throw error;
@@ -212,8 +224,8 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
     try {
       // Add to local state
-      set(state => ({
-        rides: [ride, ...state.rides]
+      set((state) => ({
+        rides: [ride, ...state.rides],
       }));
 
       // Cache the ride
@@ -229,15 +241,17 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
         ride_time: ride.ride_time,
         payment_status: ride.payment_status,
         created_at: ride.created_at,
-        status: ride.status || 'unknown',
+        status: ride.status || "unknown",
         driver_id: ride.driver_id || 0,
         user_id: ride.user_id || 0,
-        driver: ride.driver ? {
-          first_name: ride.driver.first_name,
-          last_name: ride.driver.last_name,
-          car_seats: ride.driver.car_seats,
-          rating: ride.driver.rating || 0,
-        } : undefined,
+        driver: ride.driver
+          ? {
+              first_name: ride.driver.first_name,
+              last_name: ride.driver.last_name,
+              car_seats: ride.driver.car_seats,
+              rating: ride.driver.rating || 0,
+            }
+          : undefined,
       });
 
       console.log("[RidesStore] ✅ Ride added and cached");
@@ -252,15 +266,19 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
     try {
       // Update local state
-      set(state => ({
-        rides: state.rides.map(ride =>
-          ride.ride_id === rideId ? { ...ride, ...updates } : ride
-        )
+      set((state) => ({
+        rides: state.rides.map((ride) =>
+          ride.ride_id === rideId ? { ...ride, ...updates } : ride,
+        ),
       }));
 
       // Update cache
-      const existingRide = get().rides.find(r => r.ride_id === rideId);
-      if (existingRide && existingRide.ride_id !== undefined && existingRide.user_id !== undefined) {
+      const existingRide = get().rides.find((r) => r.ride_id === rideId);
+      if (
+        existingRide &&
+        existingRide.ride_id !== undefined &&
+        existingRide.user_id !== undefined
+      ) {
         await criticalDataCache.cacheRide({
           ride_id: existingRide.ride_id,
           origin_address: existingRide.origin_address,
@@ -276,12 +294,14 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
           status: existingRide.status,
           driver_id: existingRide.driver_id,
           user_id: existingRide.user_id,
-          driver: existingRide.driver ? {
-            first_name: existingRide.driver.first_name,
-            last_name: existingRide.driver.last_name,
-            car_seats: existingRide.driver.car_seats,
-            rating: existingRide.driver.rating ?? 0,
-          } as const : undefined,
+          driver: existingRide.driver
+            ? ({
+                first_name: existingRide.driver.first_name,
+                last_name: existingRide.driver.last_name,
+                car_seats: existingRide.driver.car_seats,
+                rating: existingRide.driver.rating ?? 0,
+              } as const)
+            : undefined,
           ...updates,
         } as any);
       }
@@ -298,8 +318,8 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
     try {
       // Remove from local state
-      set(state => ({
-        rides: state.rides.filter(ride => ride.ride_id !== rideId)
+      set((state) => ({
+        rides: state.rides.filter((ride) => ride.ride_id !== rideId),
       }));
 
       // Remove from cache (we'll just not cache it anymore)
@@ -311,7 +331,7 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
   },
 
   // Offline operations
-  addRideOffline: async (ride: Omit<Ride, 'ride_id'>): Promise<string> => {
+  addRideOffline: async (ride: Omit<Ride, "ride_id">): Promise<string> => {
     console.log("[RidesStore] Adding ride offline...");
 
     try {
@@ -320,46 +340,48 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
       const offlineRide: Ride = {
         ...ride,
-        ride_id: parseInt(tempId.replace('temp_', '')),
+        ride_id: parseInt(tempId.replace("temp_", "")),
       };
 
       // Add to local state
-      set(state => ({
-        rides: [offlineRide, ...state.rides]
+      set((state) => ({
+        rides: [offlineRide, ...state.rides],
       }));
 
       // Cache locally (will be synced when connection returns)
       if (offlineRide.ride_id !== undefined) {
         await criticalDataCache.cacheRide({
           ride_id: offlineRide.ride_id,
-        origin_address: ride.origin_address,
-        destination_address: ride.destination_address,
-        origin_latitude: ride.origin_latitude,
-        origin_longitude: ride.origin_longitude,
-        destination_latitude: ride.destination_latitude,
-        destination_longitude: ride.destination_longitude,
-        fare_price: ride.fare_price,
-        ride_time: ride.ride_time,
-        payment_status: ride.payment_status,
-        created_at: ride.created_at,
-        status: ride.status || 'pending',
-        driver_id: ride.driver_id || 0,
-        user_id: ride.user_id || 0,
-        driver: ride.driver ? {
-          first_name: ride.driver.first_name,
-          last_name: ride.driver.last_name,
-          car_seats: ride.driver.car_seats,
-          rating: ride.driver.rating || 0,
-        } : undefined,
+          origin_address: ride.origin_address,
+          destination_address: ride.destination_address,
+          origin_latitude: ride.origin_latitude,
+          origin_longitude: ride.origin_longitude,
+          destination_latitude: ride.destination_latitude,
+          destination_longitude: ride.destination_longitude,
+          fare_price: ride.fare_price,
+          ride_time: ride.ride_time,
+          payment_status: ride.payment_status,
+          created_at: ride.created_at,
+          status: ride.status || "pending",
+          driver_id: ride.driver_id || 0,
+          user_id: ride.user_id || 0,
+          driver: ride.driver
+            ? {
+                first_name: ride.driver.first_name,
+                last_name: ride.driver.last_name,
+                car_seats: ride.driver.car_seats,
+                rating: ride.driver.rating || 0,
+              }
+            : undefined,
         });
       }
 
       // Queue server sync
       await offlineQueue.add({
-        endpoint: 'ride/create',
-        method: 'POST',
+        endpoint: "ride/create",
+        method: "POST",
         data: ride,
-        priority: 'high', // High priority for ride creation
+        priority: "high", // High priority for ride creation
         requiresAuth: true,
       });
 
@@ -383,27 +405,30 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
   // Utility methods
   getRideById: (rideId: number): Ride | undefined => {
-    return get().rides.find(ride => ride.ride_id === rideId);
+    return get().rides.find((ride) => ride.ride_id === rideId);
   },
 
   getRecentRides: (limit: number = 10): Ride[] => {
-    return get().rides
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    return get()
+      .rides.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )
       .slice(0, limit);
   },
 
   getRidesByStatus: (status: string): Ride[] => {
-    return get().rides.filter(ride => ride.status === status);
+    return get().rides.filter((ride) => ride.status === status);
   },
 
   getTotalSpent: (): number => {
-    return get().rides
-      .filter(ride => ride.payment_status === 'paid')
+    return get()
+      .rides.filter((ride) => ride.payment_status === "paid")
       .reduce((total, ride) => total + ride.fare_price, 0);
   },
 
   getAverageRating: (): number => {
-    const ridesWithDriver = get().rides.filter(ride => ride.driver);
+    const ridesWithDriver = get().rides.filter((ride) => ride.driver);
     if (ridesWithDriver.length === 0) return 0;
 
     const totalRating = ridesWithDriver.reduce((sum, ride) => {
@@ -419,8 +444,12 @@ export const useRides = () => useRidesStore((state) => state.rides);
 export const useCachedRides = () => useRidesStore((state) => state.cachedRides);
 export const useRidesLoading = () => useRidesStore((state) => state.isLoading);
 export const useRidesError = () => useRidesStore((state) => state.error);
-export const useRecentRides = (limit?: number) => useRidesStore((state) => state.getRecentRides(limit));
-export const useRidesByStatus = (status: string) => useRidesStore((state) => state.getRidesByStatus(status));
-export const useTotalSpent = () => useRidesStore((state) => state.getTotalSpent());
-export const useAverageRating = () => useRidesStore((state) => state.getAverageRating());
+export const useRecentRides = (limit?: number) =>
+  useRidesStore((state) => state.getRecentRides(limit));
+export const useRidesByStatus = (status: string) =>
+  useRidesStore((state) => state.getRidesByStatus(status));
+export const useTotalSpent = () =>
+  useRidesStore((state) => state.getTotalSpent());
+export const useAverageRating = () =>
+  useRidesStore((state) => state.getAverageRating());
 export const useLastSync = () => useRidesStore((state) => state.lastSync);

@@ -5,7 +5,15 @@ import { endpoints } from "@/lib/endpoints";
 import { formatDate, formatTime } from "@/lib/utils";
 import { Ride } from "@/types/type";
 
-const RideCard = ({ ride, onPress, showStatus }: { ride: Ride; onPress?: () => void; showStatus?: boolean }) => {
+const RideCard = ({
+  ride,
+  onPress,
+  showStatus,
+}: {
+  ride: Ride;
+  onPress?: () => void;
+  showStatus?: boolean;
+}) => {
   console.log("[RideCard] Rendering ride:", {
     rideId: ride.ride_id,
     origin: ride.origin_address,
@@ -89,10 +97,13 @@ const RideCard = ({ ride, onPress, showStatus }: { ride: Ride; onPress?: () => v
               </Text>
               <Text
                 className={`text-md capitalize font-JakartaBold ${
-                  ride.status === "completed" ? "text-green-500" :
-                  ride.status === "cancelled" ? "text-red-500" :
-                  ride.status === "in_progress" ? "text-blue-500" :
-                  "text-gray-500"
+                  ride.status === "completed"
+                    ? "text-green-500"
+                    : ride.status === "cancelled"
+                      ? "text-red-500"
+                      : ride.status === "in_progress"
+                        ? "text-blue-500"
+                        : "text-gray-500"
                 }`}
               >
                 {ride.status}

@@ -12,7 +12,7 @@ import {
   createSplitPayment,
 } from "@/lib/paymentValidation";
 import { useRealtimeStore, useDriverStore, usePaymentStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../../FlowHeader";
 
@@ -124,7 +124,7 @@ const DriverConfirmation: React.FC = () => {
       }
 
       // Continuar con el flujo
-      goTo(FLOW_STEPS.CUSTOMER_TRANSPORT.DURANTE_FINALIZACION);
+      goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_DURANTE_FINALIZACION);
     } catch (error: any) {
       console.error("[DriverConfirmation] Payment confirmation error:", error);
       const errorMessage = error?.message || "Error al procesar el pago";

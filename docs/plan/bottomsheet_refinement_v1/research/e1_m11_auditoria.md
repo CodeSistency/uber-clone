@@ -1,12 +1,14 @@
 # Auditoría de Bottom Sheet (E1 · M1.1 · T1.1.1)
 
 ## Fuentes revisadas
+
 - `store/mapFlow/mapFlow.ts`
 - `hooks/useMapFlow.ts`
 - `components/unified-flow/UnifiedFlowWrapper.tsx`
 - `components/ui/InlineBottomSheet.tsx`
 
 ## Configuración actual por paso (extracto)
+
 - **CUSTOMER_TRANSPORT_DEFINICION_VIAJE** → min 160, max 520, initial 320, drag habilitado.
 - **CUSTOMER_TRANSPORT_CONFIRM_ORIGIN/DESTINATION** → sheet oculto (min/max 0), interacciones de mapa activas.
 - **CUSTOMER_TRANSPORT_SELECCION_VEHICULO** → min 200, max 560, initial 440 (salto alto desde confirmación).
@@ -22,16 +24,19 @@
 - **CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY** → min 120, max 300, initial 150 (follow_driver).
 
 ## Observaciones de transición
+
 - Saltos notorios cuando se pasa de pasos ocultos (confirm origin/destination) a `SELECCION_VEHICULO` (0 → 440).
 - Cambios abruptos entre estados compactos (`BUSCANDO_CONDUCTOR` 150) y expandidos (`GESTION_CONFIRMACION` 120 pero drag habilitado/posible). Se requiere animación suave.
 - Varios pasos deshabilitan drag pero mantienen minHeight > 0, lo que puede sorprender al usuario al intentar arrastrar.
 
 ## Hooks y lógica relevante
+
 - `useMapFlow` expone `startWithCustomerStep` y logs de estado (útiles para depurar transiciones).
 - `UnifiedFlowWrapper` toma configuraciones del store y pasa props crudas a `InlineBottomSheet` sin animación adicional.
 - `InlineBottomSheet` usa `Animated.spring` pero setea height directamente al nuevo valor; no hay interpolación entre props cambiantes.
 
 ## Próximos pasos (para T1.1.2)
+
 1. Definir estrategia para detectar cambios de altura desde `UnifiedFlowWrapper` o dentro de `InlineBottomSheet` (effect comparando previousHeight vs nextHeight).
 2. Evaluar mantener historial de altura previa en store para iniciar animaciones desde el valor real mostrado.
 3. Considerar Reanimated v3 si se requiere sincronización avanzada con gestures.

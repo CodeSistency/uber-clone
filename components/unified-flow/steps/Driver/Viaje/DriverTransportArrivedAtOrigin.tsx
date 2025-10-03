@@ -8,7 +8,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 const DriverTransportArrivedAtOrigin: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -42,7 +42,7 @@ const DriverTransportArrivedAtOrigin: React.FC = () => {
       const id = (useRealtimeStore.getState().activeRide as any)?.ride_id || 0;
       if (id) await driverTransportService.start(id, generateIdempotencyKey());
       showSuccess("Viaje iniciado", "Buena ruta");
-      goTo(FLOW_STEPS.DRIVER_TRANSPORT.INICIAR_VIAJE);
+      goTo(FLOW_STEPS.DRIVER_TRANSPORT_INICIAR_VIAJE);
     } catch (e) {
       showError("Error", "No se pudo iniciar el viaje");
     } finally {

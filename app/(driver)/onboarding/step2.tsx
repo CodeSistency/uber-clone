@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -14,12 +8,8 @@ import { useDriverOnboardingStore } from "@/store/driverOnboarding";
 import { useUI } from "@/components/UIWrapper";
 
 const OnboardingStep2 = () => {
-  const {
-    onboardingData,
-    updateStepData,
-    completeStep,
-    goToStep,
-  } = useDriverOnboardingStore();
+  const { onboardingData, updateStepData, completeStep, goToStep } =
+    useDriverOnboardingStore();
 
   const { showError } = useUI();
 
@@ -28,11 +18,13 @@ const OnboardingStep2 = () => {
     phoneSecondary: "",
   });
 
-  const [references, setReferences] = useState<Array<{
-    name: string;
-    phone: string;
-    relationship: string;
-  }>>([]);
+  const [references, setReferences] = useState<
+    Array<{
+      name: string;
+      phone: string;
+      relationship: string;
+    }>
+  >([]);
 
   useEffect(() => {
     // Load existing data
@@ -76,7 +68,10 @@ const OnboardingStep2 = () => {
       if (ref.name.trim() || ref.phone.trim() || ref.relationship.trim()) {
         // If any field is filled, all must be filled
         if (!ref.name.trim() || !ref.phone.trim() || !ref.relationship.trim()) {
-          showError("Validation Error", `Please complete all fields for reference ${i + 1}`);
+          showError(
+            "Validation Error",
+            `Please complete all fields for reference ${i + 1}`,
+          );
           return false;
         }
       }
@@ -91,14 +86,18 @@ const OnboardingStep2 = () => {
     try {
       await updateStepData(2, {
         ...formData,
-        references: references.filter(ref =>
-          ref.name.trim() || ref.phone.trim() || ref.relationship.trim()
+        references: references.filter(
+          (ref) =>
+            ref.name.trim() || ref.phone.trim() || ref.relationship.trim(),
         ),
       });
       await completeStep(2);
       goToStep(3);
     } catch (error: any) {
-      showError("Error", error.message || "Failed to save personal information");
+      showError(
+        "Error",
+        error.message || "Failed to save personal information",
+      );
     }
   };
 
@@ -124,21 +123,27 @@ const OnboardingStep2 = () => {
               <View key={step} className="flex-row items-center">
                 <View
                   className={`w-8 h-8 rounded-full items-center justify-center ${
-                    step < 2 ? "bg-green-500" :
-                    step === 2 ? "bg-primary-500" :
-                    "bg-secondary-300"
+                    step < 2
+                      ? "bg-green-500"
+                      : step === 2
+                        ? "bg-primary-500"
+                        : "bg-secondary-300"
                   }`}
                 >
-                  <Text className={`text-xs font-JakartaBold ${
-                    step <= 2 ? "text-white" : "text-secondary-600"
-                  }`}>
+                  <Text
+                    className={`text-xs font-JakartaBold ${
+                      step <= 2 ? "text-white" : "text-secondary-600"
+                    }`}
+                  >
                     {step}
                   </Text>
                 </View>
                 {step < 6 && (
-                  <View className={`w-8 h-1 ${
-                    step < 2 ? "bg-green-500" : "bg-secondary-300"
-                  }`} />
+                  <View
+                    className={`w-8 h-1 ${
+                      step < 2 ? "bg-green-500" : "bg-secondary-300"
+                    }`}
+                  />
                 )}
               </View>
             ))}
@@ -146,14 +151,18 @@ const OnboardingStep2 = () => {
 
           {/* Address Information */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-4">Address Information</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Address Information
+            </Text>
 
             <View className="space-y-4">
               <TextField
                 label="Full Address"
                 placeholder="Street address, city, state, ZIP code"
                 value={formData.address}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, address: text }))}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, address: text }))
+                }
                 multiline
                 numberOfLines={3}
               />
@@ -163,7 +172,8 @@ const OnboardingStep2 = () => {
                   📍 Location Verification
                 </Text>
                 <Text className="text-blue-700 text-sm">
-                  This address will be used for service area verification and may be required for insurance purposes.
+                  This address will be used for service area verification and
+                  may be required for insurance purposes.
                 </Text>
               </View>
             </View>
@@ -171,14 +181,18 @@ const OnboardingStep2 = () => {
 
           {/* Secondary Phone */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-4">Contact Information</Text>
+            <Text className="text-lg font-JakartaBold mb-4">
+              Contact Information
+            </Text>
 
             <View className="space-y-4">
               <TextField
                 label="Secondary Phone (Optional)"
                 placeholder="Alternative phone number"
                 value={formData.phoneSecondary}
-                onChangeText={(text) => setFormData(prev => ({ ...prev, phoneSecondary: text }))}
+                onChangeText={(text) =>
+                  setFormData((prev) => ({ ...prev, phoneSecondary: text }))
+                }
                 keyboardType="phone-pad"
               />
 
@@ -187,7 +201,8 @@ const OnboardingStep2 = () => {
                   📞 Emergency Contact
                 </Text>
                 <Text className="text-green-700 text-sm">
-                  A secondary phone number helps us reach you in case of service-related emergencies.
+                  A secondary phone number helps us reach you in case of
+                  service-related emergencies.
                 </Text>
               </View>
             </View>
@@ -196,7 +211,9 @@ const OnboardingStep2 = () => {
           {/* Personal References */}
           <Card className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-JakartaBold">Personal References</Text>
+              <Text className="text-lg font-JakartaBold">
+                Personal References
+              </Text>
               <TouchableOpacity
                 onPress={addReference}
                 disabled={references.length >= 2}
@@ -204,16 +221,19 @@ const OnboardingStep2 = () => {
                   references.length >= 2 ? "bg-secondary-200" : "bg-primary-500"
                 }`}
               >
-                <Text className={`text-sm font-JakartaBold ${
-                  references.length >= 2 ? "text-secondary-600" : "text-white"
-                }`}>
+                <Text
+                  className={`text-sm font-JakartaBold ${
+                    references.length >= 2 ? "text-secondary-600" : "text-white"
+                  }`}
+                >
                   + Add Reference
                 </Text>
               </TouchableOpacity>
             </View>
 
             <Text className="text-secondary-600 mb-4">
-              Provide 1-2 personal references who can vouch for your character and reliability.
+              Provide 1-2 personal references who can vouch for your character
+              and reliability.
             </Text>
 
             {references.map((reference, index) => (
@@ -226,7 +246,9 @@ const OnboardingStep2 = () => {
                     onPress={() => removeReference(index)}
                     className="w-6 h-6 bg-red-500 rounded-full items-center justify-center"
                   >
-                    <Text className="text-white text-xs font-JakartaBold">×</Text>
+                    <Text className="text-white text-xs font-JakartaBold">
+                      ×
+                    </Text>
                   </TouchableOpacity>
                 </View>
 
@@ -235,14 +257,18 @@ const OnboardingStep2 = () => {
                     label="Full Name"
                     placeholder="Reference's full name"
                     value={reference.name}
-                    onChangeText={(text) => updateReference(index, 'name', text)}
+                    onChangeText={(text) =>
+                      updateReference(index, "name", text)
+                    }
                   />
 
                   <TextField
                     label="Phone Number"
                     placeholder="Reference's phone number"
                     value={reference.phone}
-                    onChangeText={(text) => updateReference(index, 'phone', text)}
+                    onChangeText={(text) =>
+                      updateReference(index, "phone", text)
+                    }
                     keyboardType="phone-pad"
                   />
 
@@ -250,7 +276,9 @@ const OnboardingStep2 = () => {
                     label="Relationship"
                     placeholder="How do you know this person?"
                     value={reference.relationship}
-                    onChangeText={(text) => updateReference(index, 'relationship', text)}
+                    onChangeText={(text) =>
+                      updateReference(index, "relationship", text)
+                    }
                   />
                 </View>
               </View>
@@ -260,7 +288,8 @@ const OnboardingStep2 = () => {
               <View className="bg-secondary-50 border-2 border-dashed border-secondary-300 rounded-lg p-6 items-center">
                 <Text className="text-3xl mb-2">👥</Text>
                 <Text className="text-secondary-600 text-center">
-                  Personal references help verify your character and reliability as a driver.
+                  Personal references help verify your character and reliability
+                  as a driver.
                 </Text>
                 <Button
                   title="Add First Reference"
@@ -274,14 +303,18 @@ const OnboardingStep2 = () => {
 
           {/* Privacy Notice */}
           <Card className="mb-6">
-            <Text className="text-lg font-JakartaBold mb-3">Privacy & Verification</Text>
+            <Text className="text-lg font-JakartaBold mb-3">
+              Privacy & Verification
+            </Text>
 
             <View className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
               <Text className="text-yellow-800 font-JakartaBold mb-2">
                 🔒 Your Information is Secure
               </Text>
               <Text className="text-yellow-700 text-sm">
-                Personal information provided here is encrypted and used solely for driver verification and emergency contact purposes. We comply with all data protection regulations.
+                Personal information provided here is encrypted and used solely
+                for driver verification and emergency contact purposes. We
+                comply with all data protection regulations.
               </Text>
             </View>
           </Card>

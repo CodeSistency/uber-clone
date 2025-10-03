@@ -1,8 +1,8 @@
-import { act, renderHook, waitFor } from '@testing-library/react-native';
-import { Platform } from 'react-native';
+import { act, renderHook, waitFor } from "@testing-library/react-native";
+import { Platform } from "react-native";
 
 // Mock del servicio
-jest.mock('@/app/services/expo-notifications', () => ({
+jest.mock("@/app/services/expo-notifications", () => ({
   expoNotificationService: {
     initialize: jest.fn(),
     sendLocalNotification: jest.fn(),
@@ -17,7 +17,7 @@ jest.mock('@/app/services/expo-notifications', () => ({
 }));
 
 // Mock del store
-jest.mock('@/store/expo-notifications/expoNotificationStore', () => ({
+jest.mock("@/store/expo-notifications/expoNotificationStore", () => ({
   useExpoNotificationStore: jest.fn(() => ({
     notifications: [],
     unreadCount: 0,
@@ -49,64 +49,79 @@ jest.mock('@/store/expo-notifications/expoNotificationStore', () => ({
 }));
 
 // Mock de React hooks
-jest.mock('react', () => ({
-  ...jest.requireActual('react'),
+jest.mock("react", () => ({
+  ...jest.requireActual("react"),
   useEffect: jest.fn((callback) => callback()),
 }));
 
-import { useExpoNotifications } from '@/app/hooks/expo-notifications/useExpoNotifications';
-import { expoNotificationService } from '@/app/services/expo-notifications';
-import { useExpoNotificationStore } from '@/store/expo-notifications/expoNotificationStore';
+import { useExpoNotifications } from "@/app/hooks/expo-notifications/useExpoNotifications";
+import { expoNotificationService } from "@/app/services/expo-notifications";
+import { useExpoNotificationStore } from "@/store/expo-notifications/expoNotificationStore";
 
-describe('useExpoNotifications', () => {
-  const mockExpoNotificationService = expoNotificationService as jest.Mocked<typeof expoNotificationService>;
-  const mockUseExpoNotificationStore = useExpoNotificationStore as jest.MockedFunction<typeof useExpoNotificationStore>;
+describe("useExpoNotifications", () => {
+  const mockExpoNotificationService = expoNotificationService as jest.Mocked<
+    typeof expoNotificationService
+  >;
+  const mockUseExpoNotificationStore =
+    useExpoNotificationStore as jest.MockedFunction<
+      typeof useExpoNotificationStore
+    >;
 
   beforeEach(() => {
     jest.clearAllMocks();
 
     // Setup default mocks
     mockExpoNotificationService.initialize.mockResolvedValue(undefined);
-    mockExpoNotificationService.sendLocalNotification.mockResolvedValue('notification-id');
-    mockExpoNotificationService.scheduleNotification.mockResolvedValue('scheduled-id');
+    mockExpoNotificationService.sendLocalNotification.mockResolvedValue(
+      "notification-id",
+    );
+    mockExpoNotificationService.scheduleNotification.mockResolvedValue(
+      "scheduled-id",
+    );
     mockExpoNotificationService.cancelNotification.mockResolvedValue(undefined);
-    mockExpoNotificationService.cancelAllNotifications.mockResolvedValue(undefined);
+    mockExpoNotificationService.cancelAllNotifications.mockResolvedValue(
+      undefined,
+    );
     mockExpoNotificationService.requestPermissions.mockResolvedValue({
       granted: true,
       canAskAgain: true,
-      status: 'granted',
+      status: "granted",
     });
     mockExpoNotificationService.getPushToken.mockResolvedValue({
-      type: 'expo',
-      data: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
+      type: "expo",
+      data: "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
     });
     mockExpoNotificationService.setBadgeCount.mockResolvedValue(undefined);
   });
 
-  describe('Initialization', () => {
-    it('should initialize service on mount', async () => {
+  describe("Initialization", () => {
+    it("should initialize service on mount", async () => {
       renderHook(() => useExpoNotifications());
 
       expect(mockExpoNotificationService.initialize).toHaveBeenCalledTimes(1);
     });
 
-    it('should handle initialization error gracefully', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
-      mockExpoNotificationService.initialize.mockRejectedValue(new Error('Init failed'));
+    it("should handle initialization error gracefully", async () => {
+      const consoleSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+      mockExpoNotificationService.initialize.mockRejectedValue(
+        new Error("Init failed"),
+      );
 
       renderHook(() => useExpoNotifications());
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        '[useExpoNotifications] Failed to initialize service:',
-        expect.any(Error)
+        "[useExpoNotifications] Failed to initialize service:",
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();
     });
   });
 
-  describe('State', () => {
-    it('should return correct initial state', () => {
+  describe("State", () => {
+    it("should return correct initial state", () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       expect(result.current.notifications).toEqual([]);
@@ -119,98 +134,103 @@ describe('useExpoNotifications', () => {
     });
   });
 
-  describe('sendLocalNotification', () => {
-    it('should call service sendLocalNotification with correct parameters', async () => {
+  describe("sendLocalNotification", () => {
+    it("should call service sendLocalNotification with correct parameters", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       await act(async () => {
         await result.current.sendLocalNotification(
-          'Test Title',
-          'Test Message',
-          { customData: 'test' }
+          "Test Title",
+          "Test Message",
+          { customData: "test" },
         );
       });
 
-      expect(mockExpoNotificationService.sendLocalNotification).toHaveBeenCalledWith(
-        'Test Title',
-        'Test Message',
-        { customData: 'test' }
-      );
+      expect(
+        mockExpoNotificationService.sendLocalNotification,
+      ).toHaveBeenCalledWith("Test Title", "Test Message", {
+        customData: "test",
+      });
     });
 
-    it('should handle sendLocalNotification error', async () => {
+    it("should handle sendLocalNotification error", async () => {
       const { result } = renderHook(() => useExpoNotifications());
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      const consoleSpy = jest
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
 
       mockExpoNotificationService.sendLocalNotification.mockRejectedValue(
-        new Error('Send failed')
+        new Error("Send failed"),
       );
 
       await act(async () => {
         await expect(
-          result.current.sendLocalNotification('Title', 'Message')
-        ).rejects.toThrow('Send failed');
+          result.current.sendLocalNotification("Title", "Message"),
+        ).rejects.toThrow("Send failed");
       });
 
       expect(consoleSpy).toHaveBeenCalledWith(
-        '[useExpoNotifications] Failed to send local notification:',
-        expect.any(Error)
+        "[useExpoNotifications] Failed to send local notification:",
+        expect.any(Error),
       );
 
       consoleSpy.mockRestore();
     });
   });
 
-  describe('scheduleNotification', () => {
-    it('should call service scheduleNotification with time trigger', async () => {
+  describe("scheduleNotification", () => {
+    it("should call service scheduleNotification with time trigger", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       const trigger = { seconds: 300 };
 
       await act(async () => {
         await result.current.scheduleNotification(
-          'Reminder',
-          'Time to check app',
+          "Reminder",
+          "Time to check app",
           300,
-          { reminderId: '123' }
+          { reminderId: "123" },
         );
       });
 
-      expect(mockExpoNotificationService.scheduleNotification).toHaveBeenCalledWith(
-        'Reminder',
-        'Time to check app',
-        trigger,
-        { reminderId: '123' }
-      );
+      expect(
+        mockExpoNotificationService.scheduleNotification,
+      ).toHaveBeenCalledWith("Reminder", "Time to check app", trigger, {
+        reminderId: "123",
+      });
     });
   });
 
-  describe('cancelNotification', () => {
-    it('should call service cancelNotification', async () => {
+  describe("cancelNotification", () => {
+    it("should call service cancelNotification", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       await act(async () => {
-        await result.current.cancelNotification('notification-id');
+        await result.current.cancelNotification("notification-id");
       });
 
-      expect(mockExpoNotificationService.cancelNotification).toHaveBeenCalledWith('notification-id');
+      expect(
+        mockExpoNotificationService.cancelNotification,
+      ).toHaveBeenCalledWith("notification-id");
     });
   });
 
-  describe('cancelAllNotifications', () => {
-    it('should call service cancelAllNotifications', async () => {
+  describe("cancelAllNotifications", () => {
+    it("should call service cancelAllNotifications", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       await act(async () => {
         await result.current.cancelAllNotifications();
       });
 
-      expect(mockExpoNotificationService.cancelAllNotifications).toHaveBeenCalledTimes(1);
+      expect(
+        mockExpoNotificationService.cancelAllNotifications,
+      ).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe('getDeviceToken', () => {
-    it('should call service getPushToken', async () => {
+  describe("getDeviceToken", () => {
+    it("should call service getPushToken", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       const token = await act(async () => {
@@ -219,31 +239,33 @@ describe('useExpoNotifications', () => {
 
       expect(mockExpoNotificationService.getPushToken).toHaveBeenCalledTimes(1);
       expect(token).toEqual({
-        type: 'expo',
-        data: 'ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]',
+        type: "expo",
+        data: "ExponentPushToken[xxxxxxxxxxxxxxxxxxxxxx]",
       });
     });
   });
 
-  describe('requestPermissions', () => {
-    it('should call service requestPermissions', async () => {
+  describe("requestPermissions", () => {
+    it("should call service requestPermissions", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       const permissions = await act(async () => {
         return await result.current.requestPermissions();
       });
 
-      expect(mockExpoNotificationService.requestPermissions).toHaveBeenCalledTimes(1);
+      expect(
+        mockExpoNotificationService.requestPermissions,
+      ).toHaveBeenCalledTimes(1);
       expect(permissions).toEqual({
         granted: true,
         canAskAgain: true,
-        status: 'granted',
+        status: "granted",
       });
     });
   });
 
-  describe('setBadgeCount', () => {
-    it('should call service setBadgeCount', async () => {
+  describe("setBadgeCount", () => {
+    it("should call service setBadgeCount", async () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       await act(async () => {
@@ -254,7 +276,7 @@ describe('useExpoNotifications', () => {
     });
   });
 
-  describe('Store Actions', () => {
+  describe("Store Actions", () => {
     let mockStoreActions: any;
 
     beforeEach(() => {
@@ -292,17 +314,17 @@ describe('useExpoNotifications', () => {
       });
     });
 
-    it('should expose markAsRead action', () => {
+    it("should expose markAsRead action", () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       act(() => {
-        result.current.markAsRead('test-id');
+        result.current.markAsRead("test-id");
       });
 
-      expect(mockStoreActions.markAsRead).toHaveBeenCalledWith('test-id');
+      expect(mockStoreActions.markAsRead).toHaveBeenCalledWith("test-id");
     });
 
-    it('should expose markAllAsRead action', () => {
+    it("should expose markAllAsRead action", () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       act(() => {
@@ -312,7 +334,7 @@ describe('useExpoNotifications', () => {
       expect(mockStoreActions.markAllAsRead).toHaveBeenCalledTimes(1);
     });
 
-    it('should expose clearNotifications action', () => {
+    it("should expose clearNotifications action", () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       act(() => {
@@ -322,25 +344,42 @@ describe('useExpoNotifications', () => {
       expect(mockStoreActions.clearNotifications).toHaveBeenCalledTimes(1);
     });
 
-    it('should expose updatePreferences action', () => {
+    it("should expose updatePreferences action", () => {
       const { result } = renderHook(() => useExpoNotifications());
-      const newPreferences = { pushEnabled: false };
+      const newPreferences = {
+        pushEnabled: false,
+        smsEnabled: false,
+        rideUpdates: true,
+        driverMessages: true,
+        promotional: false,
+        emergencyAlerts: true,
+        soundEnabled: true,
+        vibrationEnabled: true,
+        badgeEnabled: true,
+        quietHoursEnabled: false,
+        quietHoursStart: "22:00",
+        quietHoursEnd: "08:00",
+      };
 
       act(() => {
         result.current.updatePreferences(newPreferences);
       });
 
-      expect(mockStoreActions.updatePreferences).toHaveBeenCalledWith(newPreferences);
+      expect(mockStoreActions.updatePreferences).toHaveBeenCalledWith(
+        newPreferences,
+      );
     });
 
-    it('should expose removeNotification action', () => {
+    it("should expose removeNotification action", () => {
       const { result } = renderHook(() => useExpoNotifications());
 
       act(() => {
-        result.current.removeNotification('test-id');
+        result.current.removeNotification("test-id");
       });
 
-      expect(mockStoreActions.removeNotification).toHaveBeenCalledWith('test-id');
+      expect(mockStoreActions.removeNotification).toHaveBeenCalledWith(
+        "test-id",
+      );
     });
   });
 });

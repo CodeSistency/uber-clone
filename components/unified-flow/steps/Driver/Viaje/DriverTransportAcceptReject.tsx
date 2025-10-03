@@ -7,7 +7,7 @@ import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useDriverStateStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 const COUNTDOWN_SECONDS = 30;
 
@@ -134,7 +134,7 @@ const DriverTransportAcceptReject: React.FC = () => {
       });
 
       // Ir a navegación hacia el origen
-      goTo(FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN);
+      goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
     } catch (error) {
       console.error(
         "[DriverTransportAcceptReject] Error accepting ride:",

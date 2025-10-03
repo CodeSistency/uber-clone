@@ -24,7 +24,7 @@ const DriverMandadoNavigateToDestination: React.FC = () => {
   };
 
   const handleDelivered = () => {
-    goTo(FLOW_STEPS.DRIVER_MANDADO.ENTREGAR_MANDADO);
+    goTo(FLOW_STEPS.DRIVER_MANDADO_ENTREGAR_MANDADO);
   };
 
   return (

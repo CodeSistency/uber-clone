@@ -1,15 +1,22 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Animated, Modal, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useConnectivity } from '@/hooks/useConnectivity';
-import { offlineQueue } from '@/lib/offline/OfflineQueue';
-import { criticalDataCache } from '@/lib/cache/CriticalDataCache';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Animated,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { offlineQueue } from "@/lib/offline/OfflineQueue";
+import { criticalDataCache } from "@/lib/cache/CriticalDataCache";
 
 interface OfflineIndicatorProps {
   showDetails?: boolean;
   onSync?: () => void;
-  position?: 'top' | 'bottom' | 'center';
-  style?: 'banner' | 'floating' | 'inline';
+  position?: "top" | "bottom" | "center";
+  style?: "banner" | "floating" | "inline";
   autoHide?: boolean;
   autoHideDelay?: number;
 }
@@ -17,8 +24,8 @@ interface OfflineIndicatorProps {
 export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   showDetails = false,
   onSync,
-  position = 'top',
-  style = 'banner',
+  position = "top",
+  style = "banner",
   autoHide = false,
   autoHideDelay = 5000,
 }) => {
@@ -30,7 +37,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     pendingSyncCount,
     lastSyncTime,
     syncNow,
-    isFeatureAvailable
+    isFeatureAvailable,
   } = useConnectivity();
 
   const [isVisible, setIsVisible] = useState(!isOnline);
@@ -85,7 +92,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
     try {
       // Simulate progress for better UX
       const progressInterval = setInterval(() => {
-        setSyncProgress(prev => {
+        setSyncProgress((prev) => {
           if (prev >= 90) {
             clearInterval(progressInterval);
             return prev;
@@ -102,9 +109,8 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         setSyncProgress(0);
         onSync?.();
       }, 1000);
-
     } catch (error) {
-      console.error('[OfflineIndicator] Sync failed:', error);
+      console.error("[OfflineIndicator] Sync failed:", error);
       setShowSyncProgress(false);
     } finally {
       setSyncing(false);
@@ -112,31 +118,35 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   };
 
   const getConnectionColor = () => {
-    if (isOnline) return '#10B981'; // Green
-    if (connectionQuality === 'fair') return '#F59E0B'; // Yellow
-    return '#EF4444'; // Red
+    if (isOnline) return "#10B981"; // Green
+    if (connectionQuality === "fair") return "#F59E0B"; // Yellow
+    return "#EF4444"; // Red
   };
 
   const getConnectionIcon = () => {
-    if (isOnline) return 'wifi';
-    if (connectionQuality === 'fair') return 'wifi-off-outline';
-    return 'wifi-off';
+    if (isOnline) return "wifi";
+    if (connectionQuality === "fair") return "wifi-off-outline";
+    return "wifi-off";
   };
 
   const getConnectionText = () => {
-    if (isOnline) return 'Online';
-    if (connectionQuality === 'fair') return 'Conexión débil';
-    return 'Sin conexión';
+    if (isOnline) return "Online";
+    if (connectionQuality === "fair") return "Conexión débil";
+    return "Sin conexión";
   };
 
   const getPositionStyle = () => {
     switch (position) {
-      case 'top':
+      case "top":
         return { top: 50, left: 16, right: 16 };
-      case 'bottom':
+      case "bottom":
         return { bottom: 100, left: 16, right: 16 };
-      case 'center':
-        return { top: '50%', left: '50%', transform: [{ translateX: -150 }, { translateY: -50 }] };
+      case "center":
+        return {
+          top: "50%",
+          left: "50%",
+          transform: [{ translateX: -150 }, { translateY: -50 }],
+        };
       default:
         return { top: 50, left: 16, right: 16 };
     }
@@ -144,18 +154,18 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
   const getStyleLayout = () => {
     switch (style) {
-      case 'floating':
+      case "floating":
         return {
-          position: 'absolute' as const,
+          position: "absolute" as const,
           ...getPositionStyle(),
           zIndex: 1000,
-          shadowColor: '#000',
+          shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.3,
           shadowRadius: 8,
           elevation: 10,
         };
-      case 'banner':
+      case "banner":
         return {
           backgroundColor: `${getConnectionColor()}20`,
           borderColor: getConnectionColor(),
@@ -163,7 +173,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
           borderRadius: 12,
           padding: 12,
         };
-      case 'inline':
+      case "inline":
         return {
           backgroundColor: `${getConnectionColor()}15`,
           borderRadius: 8,
@@ -176,9 +186,11 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
   if (!isVisible) return null;
 
-  if (style === 'floating') {
+  if (style === "floating") {
     return (
-      <Animated.View style={[getStyleLayout(), { transform: [{ scale: pulseAnim }] }]}>
+      <Animated.View
+        style={[getStyleLayout(), { transform: [{ scale: pulseAnim }] }]}
+      >
         <View className="bg-white rounded-xl p-4 min-w-[280px]">
           <View className="flex-row items-center justify-between mb-3">
             <View className="flex-row items-center">
@@ -189,7 +201,10 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
                   color={getConnectionColor()}
                 />
               </Animated.View>
-              <Text className="ml-3 font-JakartaBold text-lg" style={{ color: getConnectionColor() }}>
+              <Text
+                className="ml-3 font-JakartaBold text-lg"
+                style={{ color: getConnectionColor() }}
+              >
                 {getConnectionText()}
               </Text>
             </View>
@@ -216,8 +231,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
               <Text className="text-sm text-gray-600 mb-2">
                 {isOnline
                   ? `Conexión: ${connectionType.toUpperCase()} • ${connectionSpeed} Mbps • ${connectionQuality}`
-                  : 'Las acciones se guardarán localmente y se sincronizarán cuando vuelvas a tener conexión.'
-                }
+                  : "Las acciones se guardarán localmente y se sincronizarán cuando vuelvas a tener conexión."}
               </Text>
 
               {lastSyncTime && (
@@ -233,7 +247,9 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
   }
 
   return (
-    <Animated.View style={[getStyleLayout(), { transform: [{ scale: pulseAnim }] }]}>
+    <Animated.View
+      style={[getStyleLayout(), { transform: [{ scale: pulseAnim }] }]}
+    >
       <View className="flex-row items-center justify-between">
         <View className="flex-row items-center">
           <Animated.View style={{ transform: [{ scale: pulseAnim }] }}>
@@ -243,7 +259,10 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
               color={getConnectionColor()}
             />
           </Animated.View>
-          <Text className="ml-2 font-JakartaMedium" style={{ color: getConnectionColor() }}>
+          <Text
+            className="ml-2 font-JakartaMedium"
+            style={{ color: getConnectionColor() }}
+          >
             {getConnectionText()}
           </Text>
 
@@ -289,7 +308,8 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 
       {showDetails && !isOnline && (
         <Text className="mt-2 text-sm text-gray-600">
-          Las acciones se guardarán localmente y se sincronizarán cuando vuelvas a tener conexión.
+          Las acciones se guardarán localmente y se sincronizarán cuando vuelvas
+          a tener conexión.
         </Text>
       )}
     </Animated.View>
@@ -297,14 +317,14 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
 };
 
 // Specialized components for different contexts
-export const OfflineBanner: React.FC<Omit<OfflineIndicatorProps, 'style'>> = (props) => (
-  <OfflineIndicator {...props} style="banner" />
-);
+export const OfflineBanner: React.FC<Omit<OfflineIndicatorProps, "style">> = (
+  props,
+) => <OfflineIndicator {...props} style="banner" />;
 
-export const OfflineFloating: React.FC<Omit<OfflineIndicatorProps, 'style'>> = (props) => (
-  <OfflineIndicator {...props} style="floating" />
-);
+export const OfflineFloating: React.FC<Omit<OfflineIndicatorProps, "style">> = (
+  props,
+) => <OfflineIndicator {...props} style="floating" />;
 
-export const OfflineInline: React.FC<Omit<OfflineIndicatorProps, 'style'>> = (props) => (
-  <OfflineIndicator {...props} style="inline" />
-);
+export const OfflineInline: React.FC<Omit<OfflineIndicatorProps, "style">> = (
+  props,
+) => <OfflineIndicator {...props} style="inline" />;

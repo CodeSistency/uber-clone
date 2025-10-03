@@ -33,6 +33,7 @@ Voy a mostrar exactamente qué cambia cuando el usuario selecciona Delivery, usa
 ```
 
 ### Vista Actual:
+
 ```
 ┌─────────────────────────────────────┐
 │        🗺️ MAP VIEW (100%)           │
@@ -68,6 +69,7 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ```
 
 ### Vista durante transición:
+
 ```
 ┌─────────────────────────────────────┐
 │        🗺️ MAP VIEW (100%)           │
@@ -114,6 +116,7 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ```
 
 ### Vista Final con Delivery:
+
 ```
 ┌─────────────────────────────────────┐
 │        🗺️ MAP VIEW (100%)           │
@@ -148,6 +151,7 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ### 1. **Map Markers** - Cambian completamente
 
 #### Transport:
+
 ```typescript
 // Marcadores actuales (drivers)
 <MapView.Marker
@@ -158,6 +162,7 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ```
 
 #### Delivery - NUEVO:
+
 ```typescript
 // Marcadores de restaurantes
 <MapView.Marker
@@ -170,6 +175,7 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ### 2. **Search Input** - Adaptado al contexto
 
 #### Transport:
+
 ```typescript
 <GoogleTextInput
   placeholder="Where to go?"
@@ -181,6 +187,7 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ```
 
 #### Delivery - MODIFICADO:
+
 ```typescript
 <GoogleTextInput
   placeholder="Search restaurants, cuisines..."
@@ -194,40 +201,44 @@ setServiceType("delivery"); // Cambia de "transport" a "delivery"
 ### 3. **Quick Access Buttons** - Cambian completamente
 
 #### Transport (lugares):
+
 ```typescript
 const quickAccessTransport = [
-  { icon: '🏠', label: 'Home', action: () => navigateToHome() },
-  { icon: '💼', label: 'Work', action: () => navigateToWork() },
-  { icon: '🛒', label: 'Mall', action: () => navigateToMall() }
+  { icon: "🏠", label: "Home", action: () => navigateToHome() },
+  { icon: "💼", label: "Work", action: () => navigateToWork() },
+  { icon: "🛒", label: "Mall", action: () => navigateToMall() },
 ];
 ```
 
 #### Delivery (categorías de comida) - NUEVO:
+
 ```typescript
 const quickAccessDelivery = [
-  { icon: '🍕', label: 'Pizza', action: () => filterByCategory('pizza') },
-  { icon: '🍔', label: 'Burgers', action: () => filterByCategory('burgers') },
-  { icon: '🥗', label: 'Healthy', action: () => filterByCategory('healthy') }
+  { icon: "🍕", label: "Pizza", action: () => filterByCategory("pizza") },
+  { icon: "🍔", label: "Burgers", action: () => filterByCategory("burgers") },
+  { icon: "🥗", label: "Healthy", action: () => filterByCategory("healthy") },
 ];
 ```
 
 ### 4. **AI Suggestions** - Completamente nuevas
 
 #### Transport:
+
 ```typescript
 const transportSuggestions = [
   "Need a ride home?",
   "Headed to work?",
-  "Going to the mall?"
+  "Going to the mall?",
 ];
 ```
 
 #### Delivery - NUEVO:
+
 ```typescript
 const deliverySuggestions = [
   "Craving pizza? Mario's is 2 min away",
   "Healthy lunch: Green Cafe - 15 min",
-  "Quick bite: Burger Express - 10 min"
+  "Quick bite: Burger Express - 10 min",
 ];
 ```
 
@@ -239,23 +250,25 @@ const deliverySuggestions = [
 
 ```typescript
 // En useState del home.tsx
-const [serviceType, setServiceType] = useState<"transport" | "delivery">("transport");
+const [serviceType, setServiceType] = useState<"transport" | "delivery">(
+  "transport",
+);
 
 // Nuevo estado para delivery
 const [deliveryData, setDeliveryData] = useState({
   nearbyRestaurants: [],
-  categories: ['pizza', 'burgers', 'healthy'],
-  suggestions: []
+  categories: ["pizza", "burgers", "healthy"],
+  suggestions: [],
 });
 
 // useEffect para cargar datos cuando cambia el modo
 useEffect(() => {
-  if (serviceType === 'delivery') {
+  if (serviceType === "delivery") {
     loadNearbyRestaurants();
-    updateMapMarkers('restaurants');
+    updateMapMarkers("restaurants");
   } else {
     loadNearbyDrivers();
-    updateMapMarkers('drivers');
+    updateMapMarkers("drivers");
   }
 }, [serviceType]);
 ```
@@ -266,20 +279,21 @@ useEffect(() => {
 // Nueva función para cargar restaurantes cercanos
 const loadNearbyRestaurants = async () => {
   try {
-    const restaurants = await fetchAPI('restaurants/nearby', {
-      method: 'GET',
-      params: { lat: userLatitude, lng: userLongitude, radius: 5 }
+    const restaurants = await fetchAPI("restaurants/nearby", {
+      method: "GET",
+      params: { lat: userLatitude, lng: userLongitude, radius: 5 },
     });
-    setDeliveryData(prev => ({ ...prev, nearbyRestaurants: restaurants }));
+    setDeliveryData((prev) => ({ ...prev, nearbyRestaurants: restaurants }));
   } catch (error) {
-    console.error('Error loading restaurants:', error);
+    console.error("Error loading restaurants:", error);
   }
 };
 
 // Nueva función para filtrar por categoría
 const filterByCategory = (category: string) => {
   const filteredRestaurants = deliveryData.nearbyRestaurants.filter(
-    restaurant => restaurant.category.toLowerCase() === category.toLowerCase()
+    (restaurant) =>
+      restaurant.category.toLowerCase() === category.toLowerCase(),
   );
   // Actualizar mapa con restaurantes filtrados
   updateMapMarkers(filteredRestaurants);
@@ -293,11 +307,13 @@ const filterByCategory = (category: string) => {
 ### 1. **Colores y Tema**
 
 #### Transport (actual):
+
 - Tema: Azul (#0286FF)
 - Marcadores: Iconos de carros
 - Énfasis: Movilidad
 
 #### Delivery (nuevo):
+
 - Tema: Naranja/Amarillo (#FF6B35)
 - Marcadores: Iconos de comida
 - Énfasis: Gastronomía
@@ -305,6 +321,7 @@ const filterByCategory = (category: string) => {
 ### 2. **Iconos y Assets**
 
 #### Nuevos iconos necesarios:
+
 ```typescript
 // En constants/icons.ts - agregar
 restaurant: require('@/assets/icons/restaurant.png'),
@@ -320,14 +337,14 @@ healthy: require('@/assets/icons/healthy.png'),
 const markerTransition = {
   from: { opacity: 1, scale: 1 },
   to: { opacity: 0, scale: 0.8 },
-  config: { duration: 300 }
+  config: { duration: 300 },
 };
 
 // Nueva animación para delivery
 const deliveryModeAnimation = {
   markerEnter: { opacity: 0, scale: 0.5 },
   markerVisible: { opacity: 1, scale: 1 },
-  config: { duration: 500, easing: Easing.elastic(1) }
+  config: { duration: 500, easing: Easing.elastic(1) },
 };
 ```
 
@@ -335,20 +352,21 @@ const deliveryModeAnimation = {
 
 ## 📊 Comparación Antes vs Después
 
-| Elemento | Transport (Actual) | Delivery (Nuevo) |
-|----------|-------------------|------------------|
-| **Marcadores** | 🚗 Conductores | 🍕 Restaurantes |
-| **Input** | "Where to go?" | "Search restaurants" |
-| **Accesos** | 🏠💼🛒 Lugares | 🍕🍔🥗 Categorías |
-| **Sugerencias** | Rutas de viaje | Recomendaciones comida |
-| **Tema** | Azul (movilidad) | Naranja (gastronomía) |
-| **Destino** | find-ride | marketplace |
+| Elemento        | Transport (Actual) | Delivery (Nuevo)       |
+| --------------- | ------------------ | ---------------------- |
+| **Marcadores**  | 🚗 Conductores     | 🍕 Restaurantes        |
+| **Input**       | "Where to go?"     | "Search restaurants"   |
+| **Accesos**     | 🏠💼🛒 Lugares     | 🍕🍔🥗 Categorías      |
+| **Sugerencias** | Rutas de viaje     | Recomendaciones comida |
+| **Tema**        | Azul (movilidad)   | Naranja (gastronomía)  |
+| **Destino**     | find-ride          | marketplace            |
 
 ---
 
 ## 🚀 Plan de Implementación
 
 ### Semana 1: Cambios Core
+
 1. ✅ Actualizar selector de servicio (ya funciona)
 2. ✅ Modificar `handleDestinationPress` para delivery (ya implementado)
 3. 🔄 Crear sistema de marcadores dinámicos
@@ -356,6 +374,7 @@ const deliveryModeAnimation = {
 5. 🔄 Actualizar accesos rápidos
 
 ### Semana 2: Mejoras UX
+
 1. 🔄 Agregar animaciones de transición
 2. 🔄 Implementar AI suggestions
 3. 🔄 Crear categorías de comida
@@ -369,6 +388,7 @@ const deliveryModeAnimation = {
 Después de seleccionar Delivery, la pantalla se transforma completamente:
 
 ### ✅ Lo que cambia:
+
 - **Marcadores del mapa** → De conductores a restaurantes
 - **Placeholder del input** → De "Where to go?" a "Search restaurants"
 - **Accesos rápidos** → De lugares a categorías de comida
@@ -377,6 +397,7 @@ Después de seleccionar Delivery, la pantalla se transforma completamente:
 - **Tema visual** → De azul a naranja/gastronomía
 
 ### ✅ Lo que se mantiene:
+
 - **Estructura general** de la pantalla
 - **Componentes base** (GoogleTextInput, etc.)
 - **Navegación bottom** tabs
@@ -387,4 +408,4 @@ Esta transición proporciona una experiencia completamente diferente pero famili
 
 ---
 
-*Los wireframes muestran exactamente cómo se vería la transición usando los componentes actuales de home.tsx con modificaciones mínimas pero efectivas.*
+_Los wireframes muestran exactamente cómo se vería la transición usando los componentes actuales de home.tsx con modificaciones mínimas pero efectivas._

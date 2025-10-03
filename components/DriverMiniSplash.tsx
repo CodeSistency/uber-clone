@@ -35,20 +35,24 @@ const DriverMiniSplash: React.FC<DriverMiniSplashProps> = ({
 
   const getDataQueries = () => {
     if (isFirstTime) {
-      return config.moduleSpecific?.dataQueries || [
-        "Verificando perfil de conductor",
-        "Configurando preferencias",
-        "Cargando datos del vehículo",
-        "Preparando interfaz de conductor",
-      ];
+      return (
+        config.moduleSpecific?.dataQueries || [
+          "Verificando perfil de conductor",
+          "Configurando preferencias",
+          "Cargando datos del vehículo",
+          "Preparando interfaz de conductor",
+        ]
+      );
     }
-    return config.moduleSpecific?.dataQueries || [
-      "Perfil de conductor",
-      "Estado del vehículo",
-      "Ubicación GPS",
-      "Disponibilidad",
-      "Historial de viajes",
-    ];
+    return (
+      config.moduleSpecific?.dataQueries || [
+        "Perfil de conductor",
+        "Estado del vehículo",
+        "Ubicación GPS",
+        "Disponibilidad",
+        "Historial de viajes",
+      ]
+    );
   };
 
   // Default driver-specific configuration

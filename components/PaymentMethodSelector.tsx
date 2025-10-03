@@ -21,6 +21,8 @@ interface PaymentMethod {
   details: string;
   icon: string;
   isDefault?: boolean;
+  isRecommended?: boolean;
+  showBalance?: boolean;
 }
 
 interface PaymentMethodSelectorProps {
@@ -34,9 +36,22 @@ interface PaymentMethodSelectorProps {
   onMultiplePaymentSelect?: (payments: SplitPayment[]) => void;
   paymentMode?: "single" | "multiple";
   onPaymentModeChange?: (mode: "single" | "multiple") => void;
+  // Wallet props
+  showWalletBalance?: boolean;
+  walletBalance?: number;
+  walletCurrency?: string;
+  hasSufficientWalletBalance?: boolean;
 }
 
 const paymentMethods: PaymentMethod[] = [
+  {
+    id: "wallet",
+    type: "wallet",
+    title: "Wallet",
+    details: "Pago instantáneo desde tu saldo",
+    icon: "💰",
+    isDefault: false,
+  },
   {
     id: "cash",
     type: "cash",
@@ -107,6 +122,11 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   onMultiplePaymentSelect,
   paymentMode: externalPaymentMode,
   onPaymentModeChange,
+  // Wallet props
+  showWalletBalance = false,
+  walletBalance = 0,
+  walletCurrency = "VES",
+  hasSufficientWalletBalance = false,
 }) => {
   const { theme } = useUI();
   const [showMultiplePaymentModal, setShowMultiplePaymentModal] =
@@ -137,6 +157,11 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
   const renderPaymentMethod = ({ item }: { item: PaymentMethod }) => {
     const isSelected = selectedMethodId === item.id;
     const isAddNew = item.id === "add_new";
+    const isWallet = item.id === "wallet";
+
+    // Wallet specific logic
+    const showWalletRecommended = isWallet && hasSufficientWalletBalance;
+    const showWalletInsufficient = isWallet && showWalletBalance && !hasSufficientWalletBalance;
 
     return (
       <TouchableOpacity
@@ -144,6 +169,8 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
         className={`mr-4 p-4 rounded-xl border-2 min-w-[140px] ${
           isSelected
             ? "border-primary bg-primary-50"
+            : showWalletRecommended
+            ? "border-green-400 bg-green-50"
             : `border-gray-200 dark:border-gray-600 bg-brand-primary dark:bg-brand-primaryDark`
         } shadow-sm`}
       >
@@ -153,6 +180,20 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
           >
             {item.icon}
           </Text>
+
+          {/* Wallet balance display */}
+          {isWallet && showWalletBalance && (
+            <Text className={`text-xs font-JakartaMedium mt-1 ${
+              hasSufficientWalletBalance ? "text-green-600" : "text-red-500"
+            }`}>
+              {new Intl.NumberFormat('es-VE', {
+                style: 'currency',
+                currency: walletCurrency,
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 0,
+              }).format(walletBalance)}
+            </Text>
+          )}
         </View>
 
         <Text
@@ -175,6 +216,14 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
           <View className="bg-primary rounded-full px-2 py-1 mt-1">
             <Text className="text-white text-xs text-center font-JakartaMedium">
               Default
+            </Text>
+          </View>
+        )}
+
+        {showWalletRecommended && (
+          <View className="bg-green-500 rounded-full px-2 py-1 mt-1">
+            <Text className="text-white text-xs text-center font-JakartaMedium">
+              Recomendado
             </Text>
           </View>
         )}
@@ -317,4 +366,3 @@ const PaymentMethodSelector: React.FC<PaymentMethodSelectorProps> = ({
 };
 
 export default PaymentMethodSelector;
-

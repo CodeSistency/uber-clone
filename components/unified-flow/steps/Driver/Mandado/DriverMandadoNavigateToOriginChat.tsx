@@ -8,7 +8,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
 import { useChatStore, useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 const DriverMandadoNavigateToOriginChat: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -61,7 +61,7 @@ const DriverMandadoNavigateToOriginChat: React.FC = () => {
   };
 
   const handleArrived = () => {
-    goTo(FLOW_STEPS.DRIVER_MANDADO.RECOGER_PRODUCTOS);
+    goTo(FLOW_STEPS.DRIVER_MANDADO_RECOGER_PRODUCTOS);
   };
 
   return (

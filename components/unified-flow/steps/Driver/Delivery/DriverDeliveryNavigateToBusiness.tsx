@@ -24,7 +24,7 @@ const DriverDeliveryNavigateToBusiness: React.FC = () => {
   };
 
   const handleArrived = () => {
-    goTo(FLOW_STEPS.DRIVER_DELIVERY.RECOGER_PEDIDO);
+    goTo(FLOW_STEPS.DRIVER_DELIVERY_RECOGER_PEDIDO);
   };
 
   return (

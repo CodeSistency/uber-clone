@@ -135,7 +135,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
               lineHeight: 22,
             }}
           >
-              {message.messageText}
+            {message.messageText}
           </Text>
         );
     }

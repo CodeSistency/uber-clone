@@ -8,6 +8,7 @@ import { locationTrackingService } from "@/app/services/locationTrackingService"
 import { endpoints } from "@/lib/endpoints";
 import { log, LogLevel } from "@/lib/logger";
 import { generateIdempotencyKey } from "@/lib/utils";
+import { websocketEventManager } from "@/lib/websocketEventManager";
 import { useDevStore } from "@/store/dev/dev";
 import { useDriverConfigStore } from "@/store/driverConfig/driverConfig";
 import { useMapFlowStore, FLOW_STEPS } from "@/store/mapFlow/mapFlow";
@@ -75,7 +76,7 @@ export class WebSocketService {
         const wsUrl = endpoints.websocket.url();
 
         // Check if the URL already includes the namespace to avoid duplication
-        const finalWsUrl = wsUrl.endsWith('/uber-realtime')
+        const finalWsUrl = wsUrl.endsWith("/uber-realtime")
           ? wsUrl
           : `${wsUrl}/uber-realtime`;
 
@@ -85,7 +86,7 @@ export class WebSocketService {
           finalWsUrl,
           userId: userId.substring(0, 8) + "...",
           tokenLength: token.length,
-          hasNamespace: finalWsUrl.includes('/uber-realtime'),
+          hasNamespace: finalWsUrl.includes("/uber-realtime"),
           timestamp: new Date().toISOString(),
         });
 
@@ -117,19 +118,25 @@ export class WebSocketService {
 
         // Add debugging events before the main connection events
         this.socket.on("connecting", () => {
-          console.log("[WebSocketService] 🔄 CONNECTING - Socket.IO handshake started", {
-            connectionId,
-            socketId: this.socket?.id,
-            timestamp: new Date().toISOString(),
-          });
+          console.log(
+            "[WebSocketService] 🔄 CONNECTING - Socket.IO handshake started",
+            {
+              connectionId,
+              socketId: this.socket?.id,
+              timestamp: new Date().toISOString(),
+            },
+          );
         });
 
         this.socket.on("connect_attempt", () => {
-          console.log("[WebSocketService] 🎯 CONNECT_ATTEMPT - Attempting to establish connection", {
-            connectionId,
-            attemptNumber: this.reconnectAttempts + 1,
-            timestamp: new Date().toISOString(),
-          });
+          console.log(
+            "[WebSocketService] 🎯 CONNECT_ATTEMPT - Attempting to establish connection",
+            {
+              connectionId,
+              attemptNumber: this.reconnectAttempts + 1,
+              timestamp: new Date().toISOString(),
+            },
+          );
         });
 
         this.socket.on("reconnect_attempt", () => {
@@ -155,7 +162,7 @@ export class WebSocketService {
             auth: {
               tokenLength: token.length,
               userIdLength: userId.length,
-            }
+            },
           });
 
           log.info("WebSocketService", "Successfully connected to server", {
@@ -257,7 +264,9 @@ export class WebSocketService {
               errorType: error.type,
               errorDescription: error.description,
               attemptNumber: this.reconnectAttempts + 1,
-              socketState: this.socket?.connected ? 'connected' : 'disconnected',
+              socketState: this.socket?.connected
+                ? "connected"
+                : "disconnected",
               socketId: this.socket?.id,
               ioEngine: this.socket?.io?.engine?.transport?.name,
             },
@@ -277,9 +286,9 @@ export class WebSocketService {
                 engine: {
                   transport: this.socket?.io?.engine?.transport?.name,
                   readyState: this.socket?.io?.engine?.readyState,
-                }
-              }
-            }
+                },
+              },
+            },
           });
 
           this.handleConnectionError(error);
@@ -369,11 +378,13 @@ export class WebSocketService {
 
         this.socket.connect();
 
-        console.log("[WebSocketService] ⏳ Socket.connect() called, waiting for events...", {
-          connectionId,
-          timestamp: new Date().toISOString(),
-        });
-
+        console.log(
+          "[WebSocketService] ⏳ Socket.connect() called, waiting for events...",
+          {
+            connectionId,
+            timestamp: new Date().toISOString(),
+          },
+        );
       } catch (error) {
         console.error("[WebSocketService] Connection failed:", error);
         reject(error);
@@ -1028,39 +1039,119 @@ export class WebSocketService {
     // Matching-specific events
     this.socket.on("ride:accepted", (data: any) => {
       console.log("[WebSocketService] Ride accepted event:", data);
+      websocketEventManager.emit("ride:accepted", data);
       this.handleRideAccepted(data);
     });
 
     this.socket.on("ride:rejected", (data: any) => {
       console.log("[WebSocketService] Ride rejected event:", data);
+      websocketEventManager.emit("ride:rejected", data);
       this.handleRideRejected(data);
     });
 
     // New ride lifecycle events
     this.socket.on("ride:arrived", (data: any) => {
       console.log("[WebSocketService] Ride arrived event:", data);
+      websocketEventManager.emit("ride:arrived", data);
       this.handleRideArrived(data);
     });
 
     this.socket.on("ride:started", (data: any) => {
       console.log("[WebSocketService] Ride started event:", data);
+      websocketEventManager.emit("ride:started", data);
       this.handleRideStarted(data);
     });
 
     this.socket.on("ride:completed", (data: any) => {
       console.log("[WebSocketService] Ride completed event:", data);
+      websocketEventManager.emit("ride:completed", data);
       this.handleRideCompleted(data);
     });
 
     this.socket.on("ride:cancelled", (data: any) => {
       console.log("[WebSocketService] Ride cancelled event:", data);
+      websocketEventManager.emit("ride:cancelled", data);
       this.handleRideCancelled(data);
+    });
+
+    // New event for ride requests (broadcast to drivers) - OPTIMIZED
+    this.socket.on("ride:requested", (data: any) => {
+      console.log(
+        "[WebSocketService] 🚨 Ride requested - broadcasting to drivers (optimized):",
+        {
+          rideId: data.rideId || data.id,
+          area: data.area || "unknown",
+          timestamp: data.timestamp || new Date().toISOString(),
+        },
+      );
+
+      // ✅ OPTIMIZED: Emitir solo datos mínimos de notificación
+      const notificationData = {
+        rideId: data.rideId || data.id,
+        area: data.area || this.extractAreaFromLocation(data), // Área aproximada
+        timestamp: data.timestamp || new Date().toISOString(),
+        expiresAt: data.expiresAt,
+        // ❌ REMOVED: No enviar datos calculados específicos del conductor
+        // (farePrice, distance, passenger, originAddress, destinationAddress)
+      };
+
+      websocketEventManager.emit("ride:requested", notificationData);
+
+      // Mantener notificación push con datos completos (viene del backend)
+      this.createDriverNotification(data);
     });
 
     this.socket.on("driver:ride-request", (data: any) => {
       console.log("[WebSocketService] Driver ride request event:", data);
+      websocketEventManager.emit("driverIncomingRequest", data);
       this.handleDriverRideRequest(data);
     });
+  }
+
+  /**
+   * Crear notificación push para conductores cuando llega una nueva solicitud
+   */
+  private createDriverNotification(data: any): void {
+    try {
+      const notification = {
+        id: `ride_requested_${data.rideId || data.id}_${Date.now()}`,
+        type: "RIDE_REQUEST" as NotificationType,
+        title: "¡Nueva solicitud de viaje!",
+        message: `${data.originAddress || "Nueva solicitud"} → ${data.destinationAddress || "Destino"}`,
+        data: {
+          rideId: data.rideId || data.id,
+          origin: data.originAddress,
+          destination: data.destinationAddress,
+          fare: data.farePrice,
+          distance: data.distance,
+          expiresAt: data.expiresAt,
+          passenger: data.passenger,
+        },
+        priority: "high" as const,
+        sound: true,
+        vibrate: true,
+        timestamp: new Date(),
+        isRead: false,
+      };
+
+      // Agregar notificación al store
+      useNotificationStore.getState().addNotification(notification);
+
+      log.info(
+        "WebSocketService",
+        "Driver notification created for ride request",
+        {
+          rideId: data.rideId,
+          notificationId: notification.id,
+        },
+      );
+    } catch (error) {
+      log.error(
+        "WebSocketService",
+        "Error creating driver notification:",
+        error,
+      );
+    }
   }
 
   // Event handlers
@@ -1611,7 +1702,11 @@ export class WebSocketService {
 
     console.log("[WebSocketService] 🔌 DISCONNECT EVENT:", disconnectContext);
 
-    log.info("WebSocketService", "Handling WebSocket disconnect", disconnectContext);
+    log.info(
+      "WebSocketService",
+      "Handling WebSocket disconnect",
+      disconnectContext,
+    );
 
     // Track disconnect in performance metrics
     this.performanceMetrics.disconnects++;
@@ -1725,7 +1820,9 @@ export class WebSocketService {
       ];
 
       if (reason && devReconnectReasons.includes(reason)) {
-        console.log("[WebSocketService] 🔄 DEV MODE: Allowing reconnection for development scenario");
+        console.log(
+          "[WebSocketService] 🔄 DEV MODE: Allowing reconnection for development scenario",
+        );
         return true;
       }
     }
@@ -1733,21 +1830,33 @@ export class WebSocketService {
     // In production, be more conservative
     if (!__DEV__) {
       // Don't reconnect for client-initiated disconnects
-      if (reason === "io client disconnect" || reason === "intentional_disconnect") {
-        console.log("[WebSocketService] 🛑 PROD MODE: Skipping reconnection for client-initiated disconnect");
+      if (
+        reason === "io client disconnect" ||
+        reason === "intentional_disconnect"
+      ) {
+        console.log(
+          "[WebSocketService] 🛑 PROD MODE: Skipping reconnection for client-initiated disconnect",
+        );
         return false;
       }
 
       // Don't reconnect if we have no queued messages and connection was stable
-      if (!context.hasQueuedMessages && this.performanceMetrics.disconnects < 3) {
-        console.log("[WebSocketService] 🛑 PROD MODE: Skipping reconnection (no pending work)");
+      if (
+        !context.hasQueuedMessages &&
+        this.performanceMetrics.disconnects < 3
+      ) {
+        console.log(
+          "[WebSocketService] 🛑 PROD MODE: Skipping reconnection (no pending work)",
+        );
         return false;
       }
     }
 
     // Default: attempt reconnection unless explicitly excluded
     const shouldReconnect = !reason || !noReconnectReasons.includes(reason);
-    console.log(`[WebSocketService] ${shouldReconnect ? '✅' : '❌'} Final reconnection decision: ${shouldReconnect}`);
+    console.log(
+      `[WebSocketService] ${shouldReconnect ? "✅" : "❌"} Final reconnection decision: ${shouldReconnect}`,
+    );
 
     return shouldReconnect;
   }
@@ -2036,6 +2145,29 @@ export class WebSocketService {
     // For socket.io-client, we can check if it's actively connecting
     // by checking the connection state or use a flag
     return "disconnected";
+  }
+
+  // Helper method to extract area from location data
+  private extractAreaFromLocation(data: any): string {
+    // Try to extract area from various location fields
+    if (data.originAddress) {
+      // Extract city/area from address (simple heuristic)
+      const parts = data.originAddress.split(",");
+      if (parts.length > 1) {
+        return parts[parts.length - 1].trim(); // Last part is usually city/area
+      }
+    }
+
+    if (
+      data.originLocation &&
+      data.originLocation.lat &&
+      data.originLocation.lng
+    ) {
+      // Fallback: return coordinates as area identifier
+      return `${data.originLocation.lat.toFixed(2)},${data.originLocation.lng.toFixed(2)}`;
+    }
+
+    return "unknown";
   }
 
   // Public methods for performance monitoring
@@ -2533,12 +2665,14 @@ export class WebSocketService {
   }
 
   // Test basic WebSocket connectivity (without namespace)
-  async testBasicConnection(): Promise<{success: boolean, error?: string}> {
+  async testBasicConnection(): Promise<{ success: boolean; error?: string }> {
     return new Promise((resolve) => {
       try {
-        console.log("[WebSocketService] 🧪 Testing basic WebSocket connection (no namespace)");
+        console.log(
+          "[WebSocketService] 🧪 Testing basic WebSocket connection (no namespace)",
+        );
 
-        const testUrl = endpoints.websocket.url().replace('/uber-realtime', '');
+        const testUrl = endpoints.websocket.url().replace("/uber-realtime", "");
         console.log("[WebSocketService] 🧪 Test URL:", testUrl);
 
         const testSocket = io(testUrl, {
@@ -2562,14 +2696,22 @@ export class WebSocketService {
 
         testSocket.on("connect_error", (error) => {
           clearTimeout(timeout);
-          console.log("[WebSocketService] 🧪 Basic connection test: ERROR", error.message);
+          console.log(
+            "[WebSocketService] 🧪 Basic connection test: ERROR",
+            error.message,
+          );
           testSocket.disconnect();
           resolve({ success: false, error: error.message });
         });
-
       } catch (error) {
-        console.log("[WebSocketService] 🧪 Basic connection test: EXCEPTION", error);
-        resolve({ success: false, error: error instanceof Error ? error.message : "Unknown error" });
+        console.log(
+          "[WebSocketService] 🧪 Basic connection test: EXCEPTION",
+          error,
+        );
+        resolve({
+          success: false,
+          error: error instanceof Error ? error.message : "Unknown error",
+        });
       }
     });
   }

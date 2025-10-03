@@ -45,11 +45,13 @@ const Drawer: React.FC<DrawerProps> = ({
   backdropOpacity = 0.5,
 }) => {
   // Estados para transiciones de módulo
-  const { isSplashActive, splashProgress, currentTransition } = useModuleStore((state) => ({
-    isSplashActive: state.isSplashActive,
-    splashProgress: state.splashProgress,
-    currentTransition: state.currentTransition,
-  }));
+  const { isSplashActive, splashProgress, currentTransition } = useModuleStore(
+    (state) => ({
+      isSplashActive: state.isSplashActive,
+      splashProgress: state.splashProgress,
+      currentTransition: state.currentTransition,
+    }),
+  );
   // Refs y animaciones
   const slideAnim = useRef(
     new Animated.Value(position === "left" ? -width : SCREEN_WIDTH),

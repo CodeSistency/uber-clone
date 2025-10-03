@@ -1,9 +1,9 @@
-import { BaseModule, QueueConfig, HealthStatus, QueuedMessage } from './types';
+import { BaseModule, QueueConfig, HealthStatus, QueuedMessage } from "./types";
 
 export class MessageQueue implements BaseModule {
   private config: QueueConfig;
   private queue: QueuedMessage[] = [];
-  private processingTimer: number | null = null;
+  private processingTimer: ReturnType<typeof setInterval> | null = null;
   private lastMessageTime = 0;
   private isProcessing = false;
   private messageEmitter: ((message: QueuedMessage) => void) | null = null;
@@ -19,12 +19,12 @@ export class MessageQueue implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log('[MessageQueue] Initializing message queue');
+    console.log("[MessageQueue] Initializing message queue");
     this.startProcessing();
   }
 
   async destroy(): Promise<void> {
-    console.log('[MessageQueue] Destroying message queue');
+    console.log("[MessageQueue] Destroying message queue");
     this.stopProcessing();
     this.queue.length = 0;
     this.messageEmitter = null;
@@ -37,7 +37,9 @@ export class MessageQueue implements BaseModule {
     return {
       healthy: isHealthy,
       lastCheck: new Date(),
-      error: !isHealthy ? `Queue size exceeded: ${queueSize}/${this.config.maxSize}` : undefined,
+      error: !isHealthy
+        ? `Queue size exceeded: ${queueSize}/${this.config.maxSize}`
+        : undefined,
       details: {
         queueSize,
         maxSize: this.config.maxSize,
@@ -53,14 +55,17 @@ export class MessageQueue implements BaseModule {
     event: string,
     data: any,
     options: {
-      priority?: 'low' | 'normal' | 'high' | 'critical';
+      priority?: "low" | "normal" | "high" | "critical";
       maxRetries?: number;
-    } = {}
+    } = {},
   ): boolean {
-    const { priority = 'normal', maxRetries = this.config.maxRetries } = options;
+    const { priority = "normal", maxRetries = this.config.maxRetries } =
+      options;
 
     if (this.queue.length >= this.config.maxSize) {
-      console.warn(`[MessageQueue] Queue full (${this.config.maxSize}), message dropped: ${event}`);
+      console.warn(
+        `[MessageQueue] Queue full (${this.config.maxSize}), message dropped: ${event}`,
+      );
       this.stats.queueFull++;
       return false;
     }
@@ -77,7 +82,9 @@ export class MessageQueue implements BaseModule {
 
     // Insert by priority (higher priority first)
     const priorityOrder = { critical: 4, high: 3, normal: 2, low: 1 };
-    const insertIndex = this.queue.findIndex(msg => priorityOrder[msg.priority] < priorityOrder[priority]);
+    const insertIndex = this.queue.findIndex(
+      (msg) => priorityOrder[msg.priority] < priorityOrder[priority],
+    );
 
     if (insertIndex === -1) {
       this.queue.push(queuedMessage);
@@ -85,14 +92,16 @@ export class MessageQueue implements BaseModule {
       this.queue.splice(insertIndex, 0, queuedMessage);
     }
 
-    console.log(`[MessageQueue] Message queued: ${event} (priority: ${priority}, queue size: ${this.queue.length})`);
+    console.log(
+      `[MessageQueue] Message queued: ${event} (priority: ${priority}, queue size: ${this.queue.length})`,
+    );
     return true;
   }
 
   // Set message emitter (called when message should be sent)
   setMessageEmitter(emitter: (message: QueuedMessage) => void): void {
     this.messageEmitter = emitter;
-    console.log('[MessageQueue] Message emitter set');
+    console.log("[MessageQueue] Message emitter set");
   }
 
   // Get queue statistics
@@ -120,7 +129,9 @@ export class MessageQueue implements BaseModule {
   clearQueue(): void {
     const clearedCount = this.queue.length;
     this.queue.length = 0;
-    console.log(`[MessageQueue] Queue cleared (${clearedCount} messages removed)`);
+    console.log(
+      `[MessageQueue] Queue cleared (${clearedCount} messages removed)`,
+    );
   }
 
   // Force process next message (for testing)
@@ -135,7 +146,9 @@ export class MessageQueue implements BaseModule {
   }
 
   private startProcessing(): void {
-    console.log(`[MessageQueue] Starting queue processing (interval: ${this.config.processingInterval}ms)`);
+    console.log(
+      `[MessageQueue] Starting queue processing (interval: ${this.config.processingInterval}ms)`,
+    );
 
     this.processingTimer = setInterval(() => {
       this.processQueue();
@@ -146,7 +159,7 @@ export class MessageQueue implements BaseModule {
     if (this.processingTimer) {
       clearInterval(this.processingTimer);
       this.processingTimer = null;
-      console.log('[MessageQueue] Stopped queue processing');
+      console.log("[MessageQueue] Stopped queue processing");
     }
   }
 
@@ -175,24 +188,28 @@ export class MessageQueue implements BaseModule {
     // Check rate limiting
     if (timeSinceLastMessage < this.config.rateLimitMs) {
       // Too soon, will be processed in next cycle
-      console.log(`[MessageQueue] Rate limited, waiting... (${timeSinceLastMessage}ms since last message)`);
+      console.log(
+        `[MessageQueue] Rate limited, waiting... (${timeSinceLastMessage}ms since last message)`,
+      );
       this.stats.rateLimited++;
       return;
     }
 
     if (!this.messageEmitter) {
-      console.warn('[MessageQueue] No message emitter set, skipping message');
+      console.warn("[MessageQueue] No message emitter set, skipping message");
       return;
     }
 
     try {
-      console.log(`[MessageQueue] Processing message: ${message.event} (id: ${message.id})`);
+      console.log(
+        `[MessageQueue] Processing message: ${message.event} (id: ${message.id})`,
+      );
 
       // Emit message
       await this.emitMessage(message);
 
       // Remove from queue
-      const index = this.queue.findIndex(m => m.id === message.id);
+      const index = this.queue.findIndex((m) => m.id === message.id);
       if (index !== -1) {
         this.queue.splice(index, 1);
       }
@@ -200,25 +217,33 @@ export class MessageQueue implements BaseModule {
       this.lastMessageTime = now;
       this.stats.processed++;
 
-      console.log(`[MessageQueue] Message processed successfully: ${message.event}`);
-
+      console.log(
+        `[MessageQueue] Message processed successfully: ${message.event}`,
+      );
     } catch (error) {
-      console.error(`[MessageQueue] Error processing message ${message.id}:`, error);
+      console.error(
+        `[MessageQueue] Error processing message ${message.id}:`,
+        error,
+      );
 
       message.retryCount++;
 
       if (message.retryCount >= message.maxRetries) {
-        console.error(`[MessageQueue] Message failed permanently after ${message.maxRetries} retries: ${message.id}`);
+        console.error(
+          `[MessageQueue] Message failed permanently after ${message.maxRetries} retries: ${message.id}`,
+        );
 
         // Remove from queue
-        const index = this.queue.findIndex(m => m.id === message.id);
+        const index = this.queue.findIndex((m) => m.id === message.id);
         if (index !== -1) {
           this.queue.splice(index, 1);
         }
 
         this.stats.failed++;
       } else {
-        console.log(`[MessageQueue] Message will be retried (attempt ${message.retryCount}/${message.maxRetries}): ${message.id}`);
+        console.log(
+          `[MessageQueue] Message will be retried (attempt ${message.retryCount}/${message.maxRetries}): ${message.id}`,
+        );
       }
     }
   }
@@ -226,7 +251,7 @@ export class MessageQueue implements BaseModule {
   private async emitMessage(message: QueuedMessage): Promise<void> {
     return new Promise((resolve, reject) => {
       if (!this.messageEmitter) {
-        reject(new Error('No message emitter set'));
+        reject(new Error("No message emitter set"));
         return;
       }
 
@@ -241,19 +266,25 @@ export class MessageQueue implements BaseModule {
 
   // Priority-based message sending methods
   sendMessage(event: string, data: any): boolean {
-    return this.addMessage(event, data, { priority: 'normal' });
+    return this.addMessage(event, data, { priority: "normal" });
   }
 
   sendHighPriorityMessage(event: string, data: any): boolean {
-    return this.addMessage(event, data, { priority: 'high' });
+    return this.addMessage(event, data, { priority: "high" });
   }
 
   sendCriticalMessage(event: string, data: any): boolean {
-    return this.addMessage(event, data, { priority: 'critical' });
+    return this.addMessage(event, data, { priority: "critical" });
   }
 
   // Batch operations
-  addMessages(messages: Array<{ event: string; data: any; priority?: QueuedMessage['priority'] }>): number {
+  addMessages(
+    messages: Array<{
+      event: string;
+      data: any;
+      priority?: QueuedMessage["priority"];
+    }>,
+  ): number {
     let addedCount = 0;
 
     for (const msg of messages) {
@@ -262,7 +293,9 @@ export class MessageQueue implements BaseModule {
       }
     }
 
-    console.log(`[MessageQueue] Batch added ${addedCount}/${messages.length} messages`);
+    console.log(
+      `[MessageQueue] Batch added ${addedCount}/${messages.length} messages`,
+    );
     return addedCount;
   }
 
@@ -288,8 +321,12 @@ export class MessageQueue implements BaseModule {
     oldestMessage?: Date;
     newestMessage?: Date;
   } {
-    const oldestMessage = this.queue.length > 0 ? new Date(this.queue[0].timestamp) : undefined;
-    const newestMessage = this.queue.length > 0 ? new Date(this.queue[this.queue.length - 1].timestamp) : undefined;
+    const oldestMessage =
+      this.queue.length > 0 ? new Date(this.queue[0].timestamp) : undefined;
+    const newestMessage =
+      this.queue.length > 0
+        ? new Date(this.queue[this.queue.length - 1].timestamp)
+        : undefined;
 
     return {
       size: this.queue.length,

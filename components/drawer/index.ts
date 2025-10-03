@@ -23,11 +23,7 @@ export { DrawerHeader } from "./DrawerHeader";
 export { DrawerRouteItem } from "./DrawerRouteItem";
 export { DrawerFooter } from "./DrawerFooter";
 export { ModuleSwitcher } from "./ModuleSwitcher";
-export {
-  useAnimatedDrawerLayout,
-  type DrawerRenderParams,
-  type ContentRenderParams,
-} from "./useAnimatedDrawerLayout";
+export { useAnimatedDrawerLayout } from "./useAnimatedDrawerLayout";
 
 // Exportar configuraciones
 export { drawerConfigs } from "./configs";

@@ -1,6 +1,7 @@
 # Uber-like App Wireframes: Business Flow
 
 ## Overview
+
 This document contains ASCII wireframes for the business management journey in the Uber-like multi-modal application.
 
 ## 1. Business Dashboard
@@ -249,26 +250,31 @@ Business Dashboard
 ## Order States
 
 ### Received
+
 - New order notification
 - Customer and order details displayed
 - Preparation time begins tracking
 
 ### Preparing
+
 - Kitchen staff notified
 - Estimated preparation time displayed
 - Customer receives status updates
 
 ### Ready for Pickup/Delivery
+
 - Order marked as ready
 - Driver assignment available
 - Customer notified
 
 ### Out for Delivery
+
 - Driver assigned and en route
 - Real-time delivery tracking
 - Customer receives updates
 
 ### Delivered
+
 - Order completed successfully
 - Automatic payment processing
 - Customer rating collection

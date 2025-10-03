@@ -3,6 +3,7 @@ import { fetchAPI } from "@/lib/fetch";
 // Types for the service
 
 export interface PendingRequest {
+  id: number;
   rideId: number;
   status: string;
   originAddress: string;
@@ -128,7 +129,7 @@ export const driverTransportService = {
   getPendingRequests: async (
     lat: number,
     lng: number,
-  ): Promise<{ data: PendingRequest[] }> => {
+  ): Promise<{ success: boolean; data: PendingRequest[] }> => {
     const queryParams = `?lat=${lat}&lng=${lng}`;
     return fetchAPI(
       `rides/flow/driver/transport/pending-requests${queryParams}`,

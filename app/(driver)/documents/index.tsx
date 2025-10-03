@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  Alert,
-  TouchableOpacity,
-} from "react-native";
+import { View, Text, ScrollView, Alert, TouchableOpacity } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -41,9 +35,24 @@ const DriverDocuments = () => {
   const documentTypes = [
     { id: "license", name: "Driver's License", required: true, icon: "🪪" },
     { id: "insurance", name: "Vehicle Insurance", required: true, icon: "📋" },
-    { id: "registration", name: "Vehicle Registration", required: true, icon: "📄" },
-    { id: "background_check", name: "Background Check", required: false, icon: "🔍" },
-    { id: "vehicle_photos", name: "Vehicle Photos", required: false, icon: "📷" },
+    {
+      id: "registration",
+      name: "Vehicle Registration",
+      required: true,
+      icon: "📄",
+    },
+    {
+      id: "background_check",
+      name: "Background Check",
+      required: false,
+      icon: "🔍",
+    },
+    {
+      id: "vehicle_photos",
+      name: "Vehicle Photos",
+      required: false,
+      icon: "📷",
+    },
   ];
 
   useEffect(() => {
@@ -51,7 +60,7 @@ const DriverDocuments = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot manage documents while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot manage documents while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       router.back();
       return;
@@ -68,29 +77,37 @@ const DriverDocuments = () => {
   }, [error, showError]);
 
   const getDocumentStatus = (type: string) => {
-    const doc = documents.find(d => d.type === type);
+    const doc = documents.find((d) => d.type === type);
     return doc?.status || "missing";
   };
 
   const getDocumentByType = (type: string) => {
-    return documents.find(d => d.type === type);
+    return documents.find((d) => d.type === type);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "verified": return "text-success-600";
-      case "pending": return "text-warning-600";
-      case "rejected": return "text-danger-600";
-      default: return "text-secondary-600";
+      case "verified":
+        return "text-success-600";
+      case "pending":
+        return "text-warning-600";
+      case "rejected":
+        return "text-danger-600";
+      default:
+        return "text-secondary-600";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "verified": return "✅";
-      case "pending": return "⏳";
-      case "rejected": return "❌";
-      default: return "❓";
+      case "verified":
+        return "✅";
+      case "pending":
+        return "⏳";
+      case "rejected":
+        return "❌";
+      default:
+        return "❓";
     }
   };
 
@@ -99,25 +116,33 @@ const DriverDocuments = () => {
       case "verified":
         return (
           <View className="bg-success-100 px-3 py-1 rounded-full">
-            <Text className="text-success-700 text-xs font-JakartaBold">VERIFIED</Text>
+            <Text className="text-success-700 text-xs font-JakartaBold">
+              VERIFIED
+            </Text>
           </View>
         );
       case "pending":
         return (
           <View className="bg-warning-100 px-3 py-1 rounded-full">
-            <Text className="text-warning-700 text-xs font-JakartaBold">PENDING</Text>
+            <Text className="text-warning-700 text-xs font-JakartaBold">
+              PENDING
+            </Text>
           </View>
         );
       case "rejected":
         return (
           <View className="bg-danger-100 px-3 py-1 rounded-full">
-            <Text className="text-danger-700 text-xs font-JakartaBold">REJECTED</Text>
+            <Text className="text-danger-700 text-xs font-JakartaBold">
+              REJECTED
+            </Text>
           </View>
         );
       default:
         return (
           <View className="bg-secondary-100 px-3 py-1 rounded-full">
-            <Text className="text-secondary-700 text-xs font-JakartaBold">MISSING</Text>
+            <Text className="text-secondary-700 text-xs font-JakartaBold">
+              MISSING
+            </Text>
           </View>
         );
     }
@@ -127,10 +152,8 @@ const DriverDocuments = () => {
     // For now, show a placeholder alert
     Alert.alert(
       "Upload Document",
-      `Upload functionality for ${documentTypes.find(dt => dt.id === type)?.name} will be implemented soon.`,
-      [
-        { text: "OK" }
-      ]
+      `Upload functionality for ${documentTypes.find((dt) => dt.id === type)?.name} will be implemented soon.`,
+      [{ text: "OK" }],
     );
   };
 
@@ -140,7 +163,8 @@ const DriverDocuments = () => {
   };
 
   const handleDeleteDocument = async (documentId: string, type: string) => {
-    const docName = documentTypes.find(dt => dt.id === type)?.name || "Document";
+    const docName =
+      documentTypes.find((dt) => dt.id === type)?.name || "Document";
 
     Alert.alert(
       "Delete Document",
@@ -153,23 +177,28 @@ const DriverDocuments = () => {
           onPress: async () => {
             try {
               await deleteDocument(documentId);
-              showSuccess("Document Deleted", `${docName} has been removed successfully`);
+              showSuccess(
+                "Document Deleted",
+                `${docName} has been removed successfully`,
+              );
             } catch (error) {
               console.error("Document deletion failed:", error);
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
   const getVerificationProgress = () => {
-    const requiredDocs = documentTypes.filter(dt => dt.required);
-    const verifiedCount = requiredDocs.filter(dt => getDocumentStatus(dt.id) === "approved").length;
+    const requiredDocs = documentTypes.filter((dt) => dt.required);
+    const verifiedCount = requiredDocs.filter(
+      (dt) => getDocumentStatus(dt.id) === "approved",
+    ).length;
     return {
       completed: verifiedCount,
       total: requiredDocs.length,
-      percentage: Math.round((verifiedCount / requiredDocs.length) * 100)
+      percentage: Math.round((verifiedCount / requiredDocs.length) * 100),
     };
   };
 
@@ -198,7 +227,9 @@ const DriverDocuments = () => {
           {/* Verification Progress */}
           <Card className="mb-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-lg font-JakartaBold">Verification Status</Text>
+              <Text className="text-lg font-JakartaBold">
+                Verification Status
+              </Text>
               <Text className="text-secondary-600 font-JakartaMedium">
                 {progress.completed}/{progress.total} Complete
               </Text>
@@ -208,8 +239,11 @@ const DriverDocuments = () => {
             <View className="bg-secondary-200 rounded-full h-3 mb-4">
               <View
                 className={`h-3 rounded-full ${
-                  progress.percentage === 100 ? "bg-success-500" :
-                  progress.percentage >= 50 ? "bg-warning-500" : "bg-danger-500"
+                  progress.percentage === 100
+                    ? "bg-success-500"
+                    : progress.percentage >= 50
+                      ? "bg-warning-500"
+                      : "bg-danger-500"
                 }`}
                 style={{ width: `${progress.percentage}%` }}
               />
@@ -218,8 +252,7 @@ const DriverDocuments = () => {
             <Text className="text-center font-JakartaMedium">
               {progress.percentage === 100
                 ? "🎉 All required documents verified!"
-                : `${progress.percentage}% of verification complete`
-              }
+                : `${progress.percentage}% of verification complete`}
             </Text>
 
             {progress.percentage < 100 && (
@@ -263,13 +296,19 @@ const DriverDocuments = () => {
                   {document && (
                     <View className="bg-secondary-50 rounded-lg p-3 mb-3">
                       <View className="flex-row justify-between mb-2">
-                        <Text className="text-secondary-600 text-sm">Document ID:</Text>
-                        <Text className="font-JakartaMedium text-sm">{document.number || document.id}</Text>
+                        <Text className="text-secondary-600 text-sm">
+                          Document ID:
+                        </Text>
+                        <Text className="font-JakartaMedium text-sm">
+                          {document.number || document.id}
+                        </Text>
                       </View>
 
                       {document.expiryDate && (
                         <View className="flex-row justify-between mb-2">
-                          <Text className="text-secondary-600 text-sm">Expires:</Text>
+                          <Text className="text-secondary-600 text-sm">
+                            Expires:
+                          </Text>
                           <Text className="font-JakartaMedium text-sm">
                             {new Date(document.expiryDate).toLocaleDateString()}
                           </Text>
@@ -278,7 +317,9 @@ const DriverDocuments = () => {
 
                       {document.uploadedAt && (
                         <View className="flex-row justify-between">
-                          <Text className="text-secondary-600 text-sm">Uploaded:</Text>
+                          <Text className="text-secondary-600 text-sm">
+                            Uploaded:
+                          </Text>
                           <Text className="font-JakartaMedium text-sm">
                             {new Date(document.uploadedAt).toLocaleDateString()}
                           </Text>
@@ -300,7 +341,9 @@ const DriverDocuments = () => {
                       <>
                         <Button
                           title="View"
-                          onPress={() => document && handleViewDocument(document.id)}
+                          onPress={() =>
+                            document && handleViewDocument(document.id)
+                          }
                           className="flex-1"
                           variant="outline"
                         />
@@ -313,7 +356,10 @@ const DriverDocuments = () => {
                         {!docType.required && (
                           <Button
                             title="Delete"
-                            onPress={() => document && handleDeleteDocument(document.id, docType.id)}
+                            onPress={() =>
+                              document &&
+                              handleDeleteDocument(document.id, docType.id)
+                            }
                             className="flex-1"
                             variant="danger"
                           />
@@ -340,7 +386,8 @@ const DriverDocuments = () => {
                         Under Review
                       </Text>
                       <Text className="text-warning-700 text-sm">
-                        Your document is being reviewed. This usually takes 1-2 business days.
+                        Your document is being reviewed. This usually takes 1-2
+                        business days.
                       </Text>
                     </View>
                   )}
@@ -362,21 +409,30 @@ const DriverDocuments = () => {
                   <Text className="text-lg mr-3">💬</Text>
                   <View>
                     <Text className="font-JakartaMedium">Contact Support</Text>
-                    <Text className="text-secondary-600 text-sm">Get help with document verification</Text>
+                    <Text className="text-secondary-600 text-sm">
+                      Get help with document verification
+                    </Text>
                   </View>
                 </View>
                 <Text className="text-secondary-400">→</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
-                onPress={() => Alert.alert("Document Requirements", "Detailed requirements will be shown here")}
+                onPress={() =>
+                  Alert.alert(
+                    "Document Requirements",
+                    "Detailed requirements will be shown here",
+                  )
+                }
                 className="flex-row items-center justify-between py-3"
               >
                 <View className="flex-row items-center">
                   <Text className="text-lg mr-3">📋</Text>
                   <View>
                     <Text className="font-JakartaMedium">Requirements</Text>
-                    <Text className="text-secondary-600 text-sm">View document requirements</Text>
+                    <Text className="text-secondary-600 text-sm">
+                      View document requirements
+                    </Text>
                   </View>
                 </View>
                 <Text className="text-secondary-400">→</Text>

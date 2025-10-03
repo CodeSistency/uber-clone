@@ -1,6 +1,7 @@
 # Uber-like App Wireframes: Mode Selection
 
 ## Overview
+
 This document contains ASCII wireframes for the mode selection flow of the Uber-like multi-modal application.
 
 ## 1. Welcome Modal (First-time Users)
@@ -173,16 +174,19 @@ Authentication Success
 ## Mode Descriptions
 
 ### Customer Mode
+
 - Primary mode for ride booking and food delivery
 - Available to all authenticated users
 - Full access to ride booking, tracking, and payments
 
 ### Driver Mode
+
 - Requires driver registration and verification
 - Access to ride requests, earnings, and driver tools
 - Location tracking and real-time updates
 
 ### Business Mode
+
 - Requires business registration
 - Access to order management, menu editing, and analytics
 - Restaurant/store management tools

@@ -1,0 +1,260 @@
+{
+  "proyecto": "uber_maps_ux_enhancement",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Core UX Improvements - Orientación y Trazo del Conductor",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Map Orientation System",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema de orientación automática del mapa que rota siguiendo la dirección del conductor, similar a Google Maps",
+          "dependencias": [
+            "components/Map.tsx",
+            "hooks/useMapController.ts",
+            "react-native-maps",
+            "@react-native-community/geolocation"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear Hook useMapOrientation",
+              "descripcion": "Desarrollar hook personalizado que maneje la orientación automática del mapa basada en la dirección del movimiento del conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Implementar sensor de dirección del dispositivo",
+                  "descripcion": "Utilizar el sensor de orientación del dispositivo para determinar la dirección actual",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Crear lógica de bearing calculation",
+                  "descripcion": "Calcular el ángulo de rotación del mapa basado en velocidad y dirección del conductor",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Implementar animación smooth de rotación",
+                  "descripcion": "Agregar animaciones fluidas para cambios de orientación con duración configurable",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Actualizar MapController con orientación",
+              "descripcion": "Extender el hook useMapController para incluir métodos de control de orientación",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Agregar método setBearing",
+                  "descripcion": "Crear método para establecer la orientación del mapa programáticamente"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Implementar toggle norte-arriba",
+                  "descripcion": "Permitir al usuario alternar entre orientación automática y norte arriba"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Integrar en componentes de navegación",
+              "descripcion": "Aplicar el sistema de orientación en los componentes de viaje activo del conductor",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "DriverTransportInProgress",
+                  "descripcion": "Integrar orientación automática en el componente de viaje en progreso"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "DriverTransportNavigateToOrigin",
+                  "descripcion": "Aplicar orientación en navegación hacia punto de recogida"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Driver Trail System - Trazo Neón Amarillo",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema que dibuja un trazo neón amarillo persistente del recorrido del conductor para mejor tracking visual",
+          "dependencias": [
+            "components/Map.tsx",
+            "store/realtime/realtime.ts",
+            "react-native-maps",
+            "@react-native-community/geolocation"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear componente DriverTrail",
+              "descripcion": "Desarrollar componente que renderiza el trazo del conductor con efecto neón amarillo",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Implementar Polyline con estilo neón",
+                  "descripcion": "Crear polyline con color amarillo neón (#FFE014) y efecto glow",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Sistema de fade out progresivo",
+                  "descripcion": "Implementar desvanecimiento gradual del trazo más antiguo",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Gestión de memoria de puntos",
+                  "descripcion": "Limitar a máximo 100 puntos para optimizar performance",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Integrar con WebSocket tracking",
+              "descripcion": "Conectar el sistema de trazo con las actualizaciones GPS del conductor",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Capturar ubicaciones del conductor",
+                  "descripcion": "Obtener coordenadas del conductor desde el store realtime",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Actualizar trazo en tiempo real",
+                  "descripcion": "Agregar nuevos puntos al trazo con cada actualización GPS",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Optimizar performance del trazo",
+              "descripcion": "Asegurar que el trazo no afecte el performance del mapa",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Implementar throttling de puntos",
+                  "descripcion": "Agregar puntos solo cuando el conductor se mueve significativamente",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Cleanup automático de puntos antiguos",
+                  "descripcion": "Eliminar puntos que excedan el límite de memoria configurado",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Route Prediction System",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema que predice el movimiento del conductor para crear una experiencia visual más fluida y reducir consultas a Directions API",
+          "dependencias": [
+            "lib/directions.ts",
+            "store/realtime/realtime.ts",
+            "hooks/useMapNavigation.ts",
+            "AsyncStorage"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Crear RoutePredictor utility",
+              "descripcion": "Desarrollar utilidad que predice la trayectoria del conductor basada en velocidad y dirección actual",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Implementar predicción por inercia",
+                  "descripcion": "Calcular trayectoria basada en velocidad y dirección actuales",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Sistema de confianza de predicción",
+                  "descripcion": "Asignar nivel de confianza a cada predicción (0.0 - 1.0)",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Límite de distancia de predicción",
+                  "descripcion": "Configurar máximo 500 metros de predicción para evitar desviaciones",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar caching inteligente",
+              "descripcion": "Sistema de cache para rutas y predicciones para reducir llamadas a API",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Cache de rutas calculadas",
+                  "descripcion": "Almacenar rutas por 10 minutos en AsyncStorage",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Cache de predicciones",
+                  "descripcion": "Cache de predicciones por 30 segundos",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Invalidación automática de cache",
+                  "descripcion": "Limpiar cache cuando el conductor se desvía significativamente",
+                  "progreso": 100
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Visualizar predicciones en mapa",
+              "descripcion": "Mostrar predicción como línea punteada en el mapa para indicar trayectoria probable",
+              "progreso": 100,
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Polyline punteada para predicción",
+                  "descripcion": "Crear línea punteada que muestre la predicción",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Animación de predicción",
+                  "descripcion": "Animar la aparición/desaparición de la línea de predicción",
+                  "progreso": 100
+                },
+                {
+                  "id": "ST1.3.3.3",
+                  "nombre": "Integración con MapController",
+                  "descripcion": "Conectar predicciones con el sistema de control del mapa",
+                  "progreso": 100
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

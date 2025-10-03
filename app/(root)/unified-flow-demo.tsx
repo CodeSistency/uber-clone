@@ -53,7 +53,8 @@ import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
 import { useMapFlowContext } from "@/context/MapFlowContext";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore, useDevStore } from "@/store";
-import { FLOW_STEPS, MapFlowStep } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
+import { MapFlowStep } from "@/store/mapFlow/mapFlow";
 
 // Ejemplo de cómo usar métodos type-safe para diferentes escenarios
 /*
@@ -67,26 +68,26 @@ const AlternativeInitializations = () => {
 
   // ✅ Type-safe: Solo permite pasos de transporte válidos
   const startTransport = () => {
-    startWithTransportStep(FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE, 'customer');
+    startWithTransportStep(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE, 'customer');
   };
 
   // ✅ Type-safe: Solo permite pasos de delivery válidos
   const startDelivery = () => {
-    startWithDeliveryStep(FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO, 'customer');
+    startWithDeliveryStep(FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO, 'customer');
   };
 
   // ✅ Type-safe: Solo permite pasos de mandado válidos
   const startMandado = () => {
-    startWithMandadoStep(FLOW_STEPS.CUSTOMER_MANDADO.DETALLES_MANDADO, 'customer');
+    startWithMandadoStep(FLOW_STEPS.CUSTOMER_MANDADO_DETALLES_MANDADO, 'customer');
   };
 
   // ✅ Type-safe: Solo permite pasos de driver válidos
   const startDriverView = () => {
-    startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD);
+    startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD);
   };
 
   // ❌ Error de TypeScript: paso de driver no válido para customer
-  // startWithTransportStep(FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD, 'customer'); // Error!
+  // startWithTransportStep(FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD, 'customer'); // Error!
 
   return null; // Este componente es solo para ejemplo
 };
@@ -112,8 +113,8 @@ const createTypeSafeRenderStep = (
 /*
 const stepComponents = {
   [FLOW_STEPS.SELECCION_SERVICIO]: ServiceSelection,
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE]: TransportDefinition,
-  [FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO]: DeliveryBusinessSearch,
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE]: TransportDefinition,
+  [FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO]: DeliveryBusinessSearch,
   // ... más mappings
 };
 
@@ -134,28 +135,28 @@ const TypeSafeFlowExample: React.FC = () => {
 
   // ✅ Type-safe: Solo permite pasos válidos para customer
   const handleCustomerTransport = () => {
-    startWithTransportStep(FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE, 'customer');
+    startWithTransportStep(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE, 'customer');
   };
 
   const handleCustomerDelivery = () => {
-    startWithDeliveryStep(FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO, 'customer');
+    startWithDeliveryStep(FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO, 'customer');
   };
 
   const handleCustomerMandado = () => {
-    startWithMandadoStep(FLOW_STEPS.CUSTOMER_MANDADO.DETALLES_MANDADO, 'customer');
+    startWithMandadoStep(FLOW_STEPS.CUSTOMER_MANDADO_DETALLES_MANDADO, 'customer');
   };
 
   const handleCustomerEnvio = () => {
-    startWithEnvioStep(FLOW_STEPS.CUSTOMER_ENVIO.DETALLES_ENVIO, 'customer');
+    startWithEnvioStep(FLOW_STEPS.CUSTOMER_ENVIO_DETALLES_ENVIO, 'customer');
   };
 
   // ✅ Type-safe: Solo permite pasos válidos para driver
   const handleDriverTransport = () => {
-    startWithTransportStep(FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD, 'driver');
+    startWithTransportStep(FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD, 'driver');
   };
 
   const handleDriverDelivery = () => {
-    startWithDeliveryStep(FLOW_STEPS.DRIVER_DELIVERY.RECIBIR_SOLICITUD, 'driver');
+    startWithDeliveryStep(FLOW_STEPS.DRIVER_DELIVERY_RECIBIR_SOLICITUD, 'driver');
   };
 
   // ✅ Type-safe: Métodos específicos por rol
@@ -164,7 +165,7 @@ const TypeSafeFlowExample: React.FC = () => {
   };
 
   const handleDriverView = () => {
-    startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD);
+    startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD);
   };
 
   return (
@@ -302,10 +303,10 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
 
   // Customer Transport - Flujo de transporte del cliente
   // Flujo optimizado: Matching automático después del pago (sin ELECCION_CONDUCTOR manual)
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE]: () => (
     <TransportDefinition />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_ORIGIN]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_ORIGIN]: () => (
     <ConfirmOrigin
       onConfirm={(location) => {
         console.log("[Demo] Origin confirmed:", location);
@@ -315,7 +316,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
       }}
     />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRM_DESTINATION]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRM_DESTINATION]: () => (
     <ConfirmDestination
       onConfirm={(location) => {
         console.log("[Demo] Destination confirmed:", location);
@@ -325,27 +326,27 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
       }}
     />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.SELECCION_VEHICULO]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_SELECCION_VEHICULO]: () => (
     <TransportVehicleSelection />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.METODOLOGIA_PAGO]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_METODOLOGIA_PAGO]: () => (
     <PaymentMethodology />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.BUSCANDO_CONDUCTOR]: () => <DriverMatching />,
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_BUSCANDO_CONDUCTOR]: () => <DriverMatching />,
   // Nota: ELECCION_CONDUCTOR removido - matching automático después del pago
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONFIRMAR_CONDUCTOR]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_CONFIRMAR_CONDUCTOR]: () => (
     <DriverConfirmationStep />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.ESPERANDO_ACEPTACION]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_ESPERANDO_ACEPTACION]: () => (
     <WaitingForAcceptance />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.GESTION_CONFIRMACION]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_GESTION_CONFIRMACION]: () => (
     <DriverConfirmation />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.DURANTE_FINALIZACION]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_DURANTE_FINALIZACION]: () => (
     <RideInProgressAndFinalize />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.CONDUCTOR_LLEGO]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_CONDUCTOR_LLEGO]: () => (
     <DriverArrived
       // Datos reales vienen del store (matchedDriver, rideId)
       onReady={() => {
@@ -362,7 +363,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
       }}
     />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_EN_CURSO]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_VIAJE_EN_CURSO]: () => (
     <RideInProgress
       // Datos reales vienen del store (matchedDriver, confirmedDestination, rideId)
       estimatedTime={15}
@@ -376,7 +377,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
       }}
     />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_COMPLETADO]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_VIAJE_COMPLETADO]: () => (
     <RideCompleted
       driverName="Carlos Rodriguez"
       fare={18.5}
@@ -394,7 +395,7 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
       }}
     />
   ),
-  [FLOW_STEPS.CUSTOMER_TRANSPORT.VIAJE_CANCELADO]: () => (
+  [FLOW_STEPS.CUSTOMER_TRANSPORT_VIAJE_CANCELADO]: () => (
     <RideCancelled
       reason="El conductor canceló el viaje por motivos personales"
       canRebook={true}
@@ -412,42 +413,42 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   ),
 
   // Customer Delivery - Flujo de delivery del cliente
-  [FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO]: () => (
+  [FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO]: () => (
     <DeliveryBusinessSearch />
   ),
-  [FLOW_STEPS.CUSTOMER_DELIVERY.ARMADO_PEDIDO]: () => <OrderBuilder />,
-  [FLOW_STEPS.CUSTOMER_DELIVERY.CHECKOUT_CONFIRMACION]: () => (
+  [FLOW_STEPS.CUSTOMER_DELIVERY_ARMADO_PEDIDO]: () => <OrderBuilder />,
+  [FLOW_STEPS.CUSTOMER_DELIVERY_CHECKOUT_CONFIRMACION]: () => (
     <DeliveryCheckout />
   ),
-  [FLOW_STEPS.CUSTOMER_DELIVERY.SEGUIMIENTO_DELIVERY]: () => (
+  [FLOW_STEPS.CUSTOMER_DELIVERY_SEGUIMIENTO_DELIVERY]: () => (
     <DeliveryTracking />
   ),
 
   // Customer Mandado - Flujo de mandado del cliente
-  [FLOW_STEPS.CUSTOMER_MANDADO.DETALLES_MANDADO]: () => <MandadoDetails />,
-  [FLOW_STEPS.CUSTOMER_MANDADO.PRECIO_PAGO]: () => <MandadoPriceAndPayment />,
-  [FLOW_STEPS.CUSTOMER_MANDADO.BUSCANDO_CONDUCTOR]: () => <MandadoSearching />,
-  [FLOW_STEPS.CUSTOMER_MANDADO.COMUNICACION_CONFIRMACION]: () => (
+  [FLOW_STEPS.CUSTOMER_MANDADO_DETALLES_MANDADO]: () => <MandadoDetails />,
+  [FLOW_STEPS.CUSTOMER_MANDADO_PRECIO_PAGO]: () => <MandadoPriceAndPayment />,
+  [FLOW_STEPS.CUSTOMER_MANDADO_BUSCANDO_CONDUCTOR]: () => <MandadoSearching />,
+  [FLOW_STEPS.CUSTOMER_MANDADO_COMUNICACION_CONFIRMACION]: () => (
     <MandadoCommsAndConfirm />
   ),
-  [FLOW_STEPS.CUSTOMER_MANDADO.FINALIZACION]: () => <MandadoFinalize />,
+  [FLOW_STEPS.CUSTOMER_MANDADO_FINALIZACION]: () => <MandadoFinalize />,
   // Customer Envío - Flujo de envío de paquetes
-  [FLOW_STEPS.CUSTOMER_ENVIO.DETALLES_ENVIO]: () => <EnvioDetails />,
-  [FLOW_STEPS.CUSTOMER_ENVIO.CALCULAR_PRECIO]: () => <EnvioPricingAndPayment />,
-  [FLOW_STEPS.CUSTOMER_ENVIO.SEGUIMIENTO_PAQUETE]: () => <EnvioTracking />,
-  [FLOW_STEPS.CUSTOMER_ENVIO.CONFIRMACION_ENTREGA]: () => (
+  [FLOW_STEPS.CUSTOMER_ENVIO_DETALLES_ENVIO]: () => <EnvioDetails />,
+  [FLOW_STEPS.CUSTOMER_ENVIO_CALCULAR_PRECIO]: () => <EnvioPricingAndPayment />,
+  [FLOW_STEPS.CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE]: () => <EnvioTracking />,
+  [FLOW_STEPS.CUSTOMER_ENVIO_CONFIRMACION_ENTREGA]: () => (
     <EnvioDeliveryConfirm />
   ),
 
   // ❌ Ejemplos de errores que TypeScript detecta:
   // ['CUSTOMER_TRANSPORT_DEFINICION_VIAJE']: () => <TransportDefinition />, // Error: debe usar FLOW_STEPS
-  // [FLOW_STEPS.CUSTOMER_TRANSPORT.PASO_INVENTADO]: () => <SomeComponent />, // Error: paso no existe
+  // [FLOW_STEPS.CUSTOMER_TRANSPORT_PASO_INVENTADO]: () => <SomeComponent />, // Error: paso no existe
   // ['paso_que_no_existe']: () => <SomeComponent />, // Error: no es MapFlowStep
 
   // ✅ Ejemplos de pasos adicionales que podríamos agregar fácilmente:
-  // [FLOW_STEPS.CUSTOMER_TRANSPORT.ELECCION_CONDUCTOR]: () => <DriverSelection />, // Removido - redundante después del pago
-  // [FLOW_STEPS.CUSTOMER_DELIVERY.ARMADO_PEDIDO]: () => <OrderBuilder />,
-  // [FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD]: () => <DriverRequest />,
+  // [FLOW_STEPS.CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR]: () => <DriverSelection />, // Removido - redundante después del pago
+  // [FLOW_STEPS.CUSTOMER_DELIVERY_ARMADO_PEDIDO]: () => <OrderBuilder />,
+  // [FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD]: () => <DriverRequest />,
 };
 
 // Crear la función renderStep usando el helper type-safe
@@ -521,16 +522,16 @@ const TypeSafeUnifiedFlow: React.FC = () => {
   const initializeFlow = (flowType: 'customer' | 'driver', service?: 'transport' | 'delivery' | 'mandado') => {
     if (flowType === 'customer') {
       if (service === 'transport') {
-        return startWithCustomerStep(FLOW_STEPS.CUSTOMER_TRANSPORT.DEFINICION_VIAJE);
+        return startWithCustomerStep(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE);
       } else if (service === 'delivery') {
-        return startWithCustomerStep(FLOW_STEPS.CUSTOMER_DELIVERY.BUSQUEDA_NEGOCIO);
+        return startWithCustomerStep(FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO);
       } else if (service === 'mandado') {
-        return startWithCustomerStep(FLOW_STEPS.CUSTOMER_MANDADO.DETALLES_MANDADO);
+        return startWithCustomerStep(FLOW_STEPS.CUSTOMER_MANDADO_DETALLES_MANDADO);
       } else {
         return startWithCustomerStep(FLOW_STEPS.SELECCION_SERVICIO);
       }
     } else {
-      return startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT.RECIBIR_SOLICITUD);
+      return startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD);
     }
   };
 

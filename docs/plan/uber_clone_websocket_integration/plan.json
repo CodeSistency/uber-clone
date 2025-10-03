@@ -1,0 +1,658 @@
+{
+  "proyecto": "uber_clone_websocket_integration",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Arquitectura Base WebSocket y Reemplazo de Polling Crítico",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "WebSocket Event Manager",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Sistema central para manejar eventos WebSocket de manera organizada y desacoplada",
+          "dependencias": [
+            "app/services/websocketService.ts",
+            "lib/websocketEventManager.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear clase WebSocketEventManager",
+              "descripcion": "Implementar clase para registro, emisión y cleanup de eventos WebSocket",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Definir interfaz de métodos (on, emit, off)",
+                  "descripcion": "Crear métodos para suscribirse, emitir y desuscribirse de eventos",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Implementar Map para almacenamiento de listeners",
+                  "descripcion": "Usar Map de JavaScript para almacenar callbacks por tipo de evento",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Agregar manejo de errores y logging",
+                  "descripcion": "Implementar try-catch y logging para debugging de eventos",
+                  "completada": true
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Integrar EventManager con WebSocketService",
+              "descripcion": "Conectar el EventManager con el servicio WebSocket existente",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Agregar emisión de eventos en handlers existentes",
+                  "descripcion": "Modificar handlers de ride:accepted, ride:rejected, etc. para emitir eventos",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Crear handler para ride:requested",
+                  "descripcion": "Implementar broadcast de nuevas solicitudes a conductores online",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Agregar notificaciones push automáticas",
+                  "descripcion": "Crear notificaciones push cuando llegan eventos críticos",
+                  "completada": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Reemplazo de Polling en DriverAvailability",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Eliminar polling cada 5 segundos y usar WebSocket para actualizaciones en tiempo real",
+          "dependencias": [
+            "components/unified-flow/steps/Client/Delivery/DriverAvailability.tsx",
+            "lib/websocketEventManager.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear listener para ride:requested",
+              "descripcion": "Suscribirse al evento de nuevas solicitudes de viaje",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Implementar lógica de filtrado por distancia",
+                  "descripcion": "Solo mostrar solicitudes dentro del radio de 5km del conductor",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Agregar validación de estado online",
+                  "descripcion": "Solo procesar solicitudes cuando el conductor esté online",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Crear fetch único inteligente",
+                  "descripcion": "Hacer una sola llamada a getPendingRequests cuando llega el evento",
+                  "completada": true
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Implementar sistema de temporizadores",
+              "descripcion": "Agregar temporizadores de 2 minutos para expiración de solicitudes",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Calcular tiempo restante basado en expiresAt",
+                  "descripcion": "Mostrar countdown visual del tiempo disponible para responder",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Auto-remover solicitudes expiradas",
+                  "descripcion": "Eliminar automáticamente solicitudes que pasan el tiempo límite",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Feedback visual de expiración",
+                  "descripcion": "Mostrar notificaciones cuando una solicitud expira",
+                  "completada": true
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Optimizar UI para tiempo real",
+              "descripcion": "Mejorar interfaz para experiencia responsiva",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Agregar indicadores de actualización en tiempo real",
+                  "descripcion": "Mostrar cuando llegan nuevas solicitudes vs estado vacío",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Implementar feedback háptico",
+                  "descripcion": "Vibración del dispositivo cuando llegan nuevas solicitudes",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "Optimizar renderizado de lista",
+                  "descripcion": "Usar FlatList con keys apropiadas para mejor performance",
+                  "completada": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Reemplazo de Polling en DriverIncomingRequest",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Eliminar polling cada 10 segundos en pantalla de solicitudes entrantes",
+          "dependencias": [
+            "components/unified-flow/steps/Driver/DriverIncomingRequest.tsx",
+            "lib/websocketEventManager.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Reemplazar intervalo continuo por WebSocket",
+              "descripcion": "Cambiar de polling constante a escucha de eventos",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Eliminar setInterval existente",
+                  "descripcion": "Remover el polling cada 10 segundos",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Implementar listener ride:requested",
+                  "descripcion": "Escuchar nuevas solicitudes y actualizar lista automáticamente",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Mantener fetch único para detalles",
+                  "descripcion": "Hacer una llamada única a getPendingRequests cuando llega evento",
+                  "completada": true
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Mejorar manejo de estados de carga",
+              "descripcion": "Optimizar UX durante transiciones de WebSocket",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Agregar estado de 'escuchando'",
+                  "descripcion": "Mostrar indicador visual cuando está esperando solicitudes",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Implementar timeout de fallback",
+                  "descripcion": "Volver a pantalla anterior si no hay solicitudes después de tiempo",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Optimizar navegación automática",
+                  "descripcion": "Mejorar lógica de cuando mostrar/ocultar pantalla",
+                  "completada": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.4",
+          "nombre": "Testing y Validación de Primera Etapa",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Asegurar que la integración WebSocket funciona correctamente",
+          "dependencias": [
+            "lib/websocketEventManager.ts",
+            "components/unified-flow/steps/Client/Delivery/DriverAvailability.tsx",
+            "components/unified-flow/steps/Driver/DriverIncomingRequest.tsx"
+          ],
+          "tareas": [
+            {
+              "id": "T1.4.1",
+              "nombre": "Crear tests unitarios para WebSocketEventManager",
+              "descripcion": "Probar funcionalidad básica del event manager",
+              "subtareas": [
+                {
+                  "id": "ST1.4.1.1",
+                  "nombre": "Test de registro/desregistro de listeners",
+                  "descripcion": "Verificar que on/off funcionan correctamente",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.4.1.2",
+                  "nombre": "Test de emisión de eventos",
+                  "descripcion": "Asegurar que emit llama a todos los listeners registrados",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.4.1.3",
+                  "nombre": "Test de manejo de errores",
+                  "descripcion": "Verificar comportamiento cuando un listener falla",
+                  "completada": true
+                }
+              ]
+            },
+            {
+              "id": "T1.4.2",
+              "nombre": "Testing de integración con componentes",
+              "descripcion": "Probar que los componentes responden correctamente a eventos",
+              "subtareas": [
+                {
+                  "id": "ST1.4.2.1",
+                  "nombre": "Test de DriverAvailability sin polling",
+                  "descripcion": "Verificar que no hace requests continuos",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.4.2.2",
+                  "nombre": "Test de recepción de ride:requested",
+                  "descripcion": "Simular evento y verificar actualización de UI",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.4.2.3",
+                  "nombre": "Test de temporizadores de expiración",
+                  "descripcion": "Verificar que las solicitudes expiran correctamente",
+                  "completada": true
+                }
+              ]
+            },
+            {
+              "id": "T1.4.3",
+              "nombre": "Testing de performance",
+              "descripcion": "Asegurar que la nueva implementación es más eficiente",
+              "subtareas": [
+                {
+                  "id": "ST1.4.3.1",
+                  "nombre": "Comparar uso de CPU/GPU",
+                  "descripcion": "Medir reducción de polling constante",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.4.3.2",
+                  "nombre": "Medir latencia de respuesta",
+                  "descripcion": "Verificar <100ms para eventos WebSocket",
+                  "completada": true
+                },
+                {
+                  "id": "ST1.4.3.3",
+                  "nombre": "Test de carga con múltiples eventos",
+                  "descripcion": "Verificar estabilidad con alta frecuencia de eventos",
+                  "completada": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+
+  "id": "E2",
+  "nombre": "Estados de Viaje en Tiempo Real y Auto-Navegación",
+  "modulos": [
+    {
+      "id": "M2.1",
+      "nombre": "WaitingForAcceptance en Tiempo Real",
+      "progreso": 100,
+      "prioridad": "Alta",
+      "descripcion": "Pantalla de espera con feedback en tiempo real para aceptación/rechazo",
+      "dependencias": [
+        "components/unified-flow/steps/WaitingForAcceptance.tsx",
+        "lib/websocketEventManager.ts"
+      ],
+      "tareas": [
+        {
+          "id": "T2.1.1",
+          "nombre": "Listener para ride:accepted y ride:rejected",
+          "descripcion": "Escuchar eventos de aceptación/rechazo en tiempo real",
+          "subtareas": [
+            {
+              "id": "ST2.1.1.1",
+              "nombre": "Suscribirse a eventos ride:accepted",
+              "descripcion": "Detectar cuando un conductor acepta la solicitud",
+              "completada": true
+            },
+            {
+              "id": "ST2.1.1.2",
+              "nombre": "Suscribirse a eventos ride:rejected",
+              "descripcion": "Detectar cuando conductores rechazan o timeout expira",
+              "completada": true
+            },
+            {
+              "id": "ST2.1.1.3",
+              "nombre": "Validar que el evento corresponde al rideId actual",
+              "descripcion": "Asegurar que el evento es para la solicitud correcta",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.1.2",
+          "nombre": "Feedback visual en tiempo real",
+          "descripcion": "Mostrar progreso y estado actual de la solicitud",
+          "subtareas": [
+            {
+              "id": "ST2.1.2.1",
+              "nombre": "Animación de búsqueda de conductores",
+              "descripcion": "Indicador visual mientras busca conductores disponibles",
+              "completada": true
+            },
+            {
+              "id": "ST2.1.2.2",
+              "nombre": "Contador de conductores contactados",
+              "descripcion": "Mostrar progreso: 'Buscando... 3/5 conductores'",
+              "completada": true
+            },
+            {
+              "id": "ST2.1.2.3",
+              "nombre": "Temporizador de búsqueda",
+              "descripcion": "Countdown del tiempo máximo de búsqueda (30s)",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.1.3",
+          "nombre": "Navegación automática por eventos",
+          "descripcion": "Transición automática a siguiente pantalla según eventos",
+          "subtareas": [
+            {
+              "id": "ST2.1.3.1",
+              "nombre": "Auto-navegación a ConductorEncontrado",
+              "descripcion": "Ir automáticamente cuando se recibe ride:accepted",
+              "completada": true
+            },
+            {
+              "id": "ST2.1.3.2",
+              "nombre": "Auto-navegación a SinConductores",
+              "descripcion": "Ir a pantalla de error cuando expira el tiempo",
+              "completada": true
+            },
+            {
+              "id": "ST2.1.3.3",
+              "nombre": "Manejo de reconexión",
+              "descripcion": "Continuar esperando si se pierde conexión temporal",
+              "completada": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M2.2",
+      "nombre": "RideInProgress con GPS en Tiempo Real",
+      "progreso": 100,
+      "prioridad": "Alta",
+      "descripcion": "Actualización en tiempo real de ubicación del conductor durante el viaje",
+      "dependencias": [
+        "components/unified-flow/steps/RideInProgress.tsx",
+        "lib/websocketEventManager.ts"
+      ],
+      "tareas": [
+        {
+          "id": "T2.2.1",
+          "nombre": "Listener para driverLocationUpdate",
+          "descripcion": "Recibir actualizaciones de GPS del conductor cada pocos segundos",
+          "subtareas": [
+            {
+              "id": "ST2.2.1.1",
+              "nombre": "Suscribirse a eventos driverLocationUpdate",
+              "descripcion": "Escuchar actualizaciones de ubicación del conductor",
+              "completada": true
+            },
+            {
+              "id": "ST2.2.1.2",
+              "nombre": "Filtrar por rideId actual",
+              "descripcion": "Solo procesar ubicaciones del conductor asignado",
+              "completada": true
+            },
+            {
+              "id": "ST2.2.1.3",
+              "nombre": "Validar coordenadas GPS",
+              "descripcion": "Asegurar que las coordenadas sean válidas",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.2.2",
+          "nombre": "Cálculo dinámico de ETA",
+          "descripcion": "Actualizar tiempo estimado de llegada basado en ubicación real",
+          "subtareas": [
+            {
+              "id": "ST2.2.2.1",
+              "nombre": "Recalcular distancia restante",
+              "descripcion": "Usar coordenadas reales del conductor vs destino",
+              "completada": true
+            },
+            {
+              "id": "ST2.2.2.2",
+              "nombre": "Ajustar ETA basado en velocidad",
+              "descripcion": "Considerar velocidad actual del conductor",
+              "completada": true
+            },
+            {
+              "id": "ST2.2.2.3",
+              "nombre": "Indicador de precisión",
+              "descripcion": "Mostrar cuando el ETA es confiable",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.2.3",
+          "nombre": "Estado de conexión WebSocket",
+          "descripcion": "Mostrar estado de conectividad en tiempo real",
+          "subtareas": [
+            {
+              "id": "ST2.2.3.1",
+              "nombre": "Indicador visual de conexión",
+              "descripcion": "Punto verde/rojo según estado WebSocket",
+              "completada": true
+            },
+            {
+              "id": "ST2.2.3.2",
+              "nombre": "Última actualización GPS",
+              "descripcion": "Timestamp de la última ubicación recibida",
+              "completada": true
+            },
+            {
+              "id": "ST2.2.3.3",
+              "nombre": "Modo offline fallback",
+              "descripcion": "Continuar con último ETA conocido si se desconecta",
+              "completada": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M2.3",
+      "nombre": "Auto-Navegación por Estados del Viaje",
+      "progreso": 100,
+      "prioridad": "Alta",
+      "descripcion": "Sistema automático de transición entre estados basado en eventos WebSocket",
+      "dependencias": [
+        "store/mapFlow/mapFlow.ts",
+        "lib/websocketEventManager.ts"
+      ],
+      "tareas": [
+        {
+          "id": "T2.3.1",
+          "nombre": "Mapeo de eventos a transiciones de estado",
+          "descripcion": "Definir qué eventos WebSocket disparan qué transiciones",
+          "subtareas": [
+            {
+              "id": "ST2.3.1.1",
+              "nombre": "ride:accepted → ConductorEncontrado",
+              "descripcion": "Transición automática cuando conductor acepta",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.1.2",
+              "nombre": "ride:arrived → ConductorLlego",
+              "descripcion": "Transición cuando conductor llega al origen",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.1.3",
+              "nombre": "ride:started → ViajeEnCurso",
+              "descripcion": "Inicio del viaje confirmado",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.1.4",
+              "nombre": "ride:completed → ViajeCompletado",
+              "descripcion": "Viaje finalizado exitosamente",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.1.5",
+              "nombre": "ride:cancelled → ViajeCancelado",
+              "descripcion": "Viaje cancelado por cualquier motivo",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.3.2",
+          "nombre": "Sistema de navegación automática",
+          "descripcion": "Hook personalizado para manejar transiciones automáticas",
+          "subtareas": [
+            {
+              "id": "ST2.3.2.1",
+              "nombre": "useAutoNavigation hook",
+              "descripcion": "Hook que escucha eventos y navega automáticamente",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.2.2",
+              "nombre": "Validación de estado actual",
+              "descripcion": "Asegurar que la transición es válida desde estado actual",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.2.3",
+              "nombre": "Logging de transiciones",
+              "descripcion": "Registrar todas las transiciones para debugging",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.3.3",
+          "nombre": "Manejo de estados edge",
+          "descripcion": "Casos especiales y errores en transiciones",
+          "subtareas": [
+            {
+              "id": "ST2.3.3.1",
+              "nombre": "Múltiples eventos del mismo tipo",
+              "descripcion": "Ignorar eventos duplicados o fuera de secuencia",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.3.2",
+              "nombre": "Eventos con delay",
+              "descripcion": "Manejar eventos que llegan fuera de orden",
+              "completada": true
+            },
+            {
+              "id": "ST2.3.3.3",
+              "nombre": "Recuperación de estado",
+              "descripcion": "Sincronizar estado si se pierde conexión",
+              "completada": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "M2.4",
+      "nombre": "Testing de Estados en Tiempo Real",
+      "progreso": 100,
+      "prioridad": "Media",
+      "descripcion": "Validar que las transiciones automáticas funcionan correctamente",
+      "dependencias": [
+        "__tests__/websocket/",
+        "components/unified-flow/steps/"
+      ],
+      "tareas": [
+        {
+          "id": "T2.4.1",
+          "nombre": "Tests de navegación automática",
+          "descripcion": "Probar que los componentes navegan automáticamente por eventos",
+          "subtareas": [
+            {
+              "id": "ST2.4.1.1",
+              "nombre": "Test ride:accepted → navegación",
+              "descripcion": "Verificar transición automática a ConductorEncontrado",
+              "completada": true
+            },
+            {
+              "id": "ST2.4.1.2",
+              "nombre": "Test driverLocationUpdate → UI update",
+              "descripcion": "Verificar actualización en tiempo real del mapa",
+              "completada": true
+            },
+            {
+              "id": "ST2.4.1.3",
+              "nombre": "Test ride:completed → navegación",
+              "descripcion": "Verificar transición automática a ViajeCompletado",
+              "completada": true
+            }
+          ]
+        },
+        {
+          "id": "T2.4.2",
+          "nombre": "Tests de performance",
+          "descripcion": "Asegurar que las actualizaciones son eficientes",
+          "subtareas": [
+            {
+              "id": "ST2.4.2.1",
+              "nombre": "Latencia de navegación automática",
+              "descripcion": "Medir tiempo entre evento y navegación (<100ms)",
+              "completada": true
+            },
+            {
+              "id": "ST2.4.2.2",
+              "nombre": "Uso de CPU con actualizaciones GPS",
+              "descripcion": "Asegurar bajo impacto en rendimiento",
+              "completada": true
+            },
+            {
+              "id": "ST2.4.2.3",
+              "nombre": "Memory leaks en listeners",
+              "descripcion": "Verificar limpieza correcta de event listeners",
+              "completada": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

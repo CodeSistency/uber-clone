@@ -89,14 +89,22 @@ export interface ExpoNotificationRequest {
     threadIdentifier?: string;
     summaryArgument?: string;
     summaryArgumentCount?: number;
-    sound?: "default" | "none" | { name: string; critical?: boolean; volume?: number };
+    sound?:
+      | "default"
+      | "none"
+      | { name: string; critical?: boolean; volume?: number };
     badge?: number;
     attachments?: {
       identifier?: string;
       url: string;
       typeHint?: string;
       hideThumbnail?: boolean;
-      thumbnailClipArea?: { x: number; y: number; width: number; height: number };
+      thumbnailClipArea?: {
+        x: number;
+        y: number;
+        width: number;
+        height: number;
+      };
       thumbnailTime?: number;
     }[];
     launchImageName?: string;
@@ -150,7 +158,7 @@ export interface ExpoNotificationPreferences {
   badgeEnabled: boolean;
   quietHoursEnabled: boolean;
   quietHoursStart?: string; // HH:mm format
-  quietHoursEnd?: string;   // HH:mm format
+  quietHoursEnd?: string; // HH:mm format
 }
 
 // ========== STORE Y ESTADO ==========
@@ -245,7 +253,7 @@ export interface ExpoNotificationServiceInterface {
     title: string,
     body: string,
     data?: any,
-    options?: Partial<ExpoNotificationRequest['content']>
+    options?: Partial<ExpoNotificationRequest["content"]>,
   ): Promise<string>;
 
   scheduleNotification(
@@ -253,7 +261,7 @@ export interface ExpoNotificationServiceInterface {
     body: string,
     trigger: any,
     data?: any,
-    options?: Partial<ExpoNotificationRequest['content']>
+    options?: Partial<ExpoNotificationRequest["content"]>,
   ): Promise<string>;
 
   cancelNotification(identifier: string): Promise<void>;
@@ -267,7 +275,7 @@ export interface ExpoNotificationServiceInterface {
   // Event listeners
   addEventListener<T extends ExpoNotificationEventType>(
     event: T,
-    callback: ExpoNotificationEventMap[T]
+    callback: ExpoNotificationEventMap[T],
   ): string;
 
   removeEventListener(identifier: string): boolean;
@@ -281,7 +289,7 @@ export interface ExpoNotificationServiceInterface {
   // Utility methods
   getNotificationContent(
     type: ExpoNotificationType,
-    data?: any
+    data?: any,
   ): { title: string; body: string };
 
   simulateNotification(data: {
@@ -297,15 +305,17 @@ export interface ExpoNotificationServiceInterface {
 export interface ExpoNotificationUtils {
   formatTime: (minutes: number) => string;
   formatDate: (date: Date) => string;
-  getPriorityFromType: (type: ExpoNotificationType) => "low" | "normal" | "high" | "critical";
+  getPriorityFromType: (
+    type: ExpoNotificationType,
+  ) => "low" | "normal" | "high" | "critical";
   shouldShowNotification: (
     preferences: ExpoNotificationPreferences,
     type: ExpoNotificationType,
-    currentTime?: Date
+    currentTime?: Date,
   ) => boolean;
   isQuietHours: (
     preferences: ExpoNotificationPreferences,
-    currentTime?: Date
+    currentTime?: Date,
   ) => boolean;
 }
 
@@ -327,14 +337,14 @@ export interface UseExpoNotificationsReturn {
   sendLocalNotification: (
     title: string,
     body: string,
-    data?: any
+    data?: any,
   ) => Promise<string>;
 
   scheduleNotification: (
     title: string,
     body: string,
     delayInSeconds: number,
-    data?: any
+    data?: any,
   ) => Promise<string>;
 
   cancelNotification: (id: string) => Promise<void>;
@@ -349,5 +359,3 @@ export interface UseExpoNotificationsReturn {
   requestPermissions: () => Promise<ExpoNotificationPermissions>;
   getDeviceToken: () => Promise<ExpoPushToken | null>;
 }
-
-

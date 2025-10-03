@@ -1,0 +1,553 @@
+{
+  "proyecto": "uber_clone_async_matching",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Implementación del Sistema de Matching Asíncrono",
+      "progreso": 100,
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Servicio de Matching Asíncrono (AsyncDriverMatchingService)",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear el servicio principal que maneja búsquedas de conductores de manera asíncrona, manteniendo sesiones activas por varios minutos",
+          "dependencias": ["lib/fetch.ts", "store/mapFlow/mapFlow.ts"],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Definir interfaces y tipos TypeScript",
+              "descripcion": "Crear todas las interfaces necesarias para el sistema de matching asíncrono incluyendo parámetros de búsqueda, estados y respuestas",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Crear tipos para AsyncSearchParams y AsyncSearchResponse",
+                  "descripcion": "Definir interfaces para parámetros de búsqueda asíncrona y respuestas del backend"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Crear tipos para estados de búsqueda (AsyncSearchState)",
+                  "descripcion": "Definir interfaz para el estado completo de una búsqueda asíncrona incluyendo searchId, status, timeRemaining, etc."
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Crear tipos para eventos WebSocket",
+                  "descripcion": "Definir interfaces para eventos de matching que llegan vía WebSocket (driver-found, timeout, cancelled)"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Implementar métodos del servicio",
+              "descripcion": "Crear todos los métodos necesarios para iniciar, consultar, cancelar y confirmar búsquedas asíncronas",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Implementar startAsyncSearch",
+                  "descripcion": "Crear método que envía POST /async-search/start al backend y retorna el searchId"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Implementar getSearchStatus",
+                  "descripcion": "Crear método que consulta GET /async-search/:searchId/status para obtener estado actual"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Implementar cancelSearch",
+                  "descripcion": "Crear método que envía POST /async-search/cancel para detener búsqueda activa"
+                },
+                {
+                  "id": "ST1.1.2.4",
+                  "nombre": "Implementar confirmDriver",
+                  "descripcion": "Crear método que confirma conductor seleccionado y continúa con creación del ride"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Configurar constantes del servicio",
+              "descripcion": "Definir todas las constantes de configuración para timeouts, prioridades y límites del sistema",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Definir tiempos de espera por prioridad",
+                  "descripcion": "Configurar maxWaitTime para prioridades high (180s), normal (300s), low (600s)"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Configurar radios de búsqueda por defecto",
+                  "descripcion": "Definir radiusKm inicial (5km) y límites máximo (20km)"
+                },
+                {
+                  "id": "ST1.1.3.3",
+                  "nombre": "Configurar eventos WebSocket",
+                  "descripcion": "Definir nombres de eventos para comunicación en tiempo real"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Integración WebSocket para Eventos de Matching",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar la conexión WebSocket y handlers para eventos de matching en tiempo real",
+          "dependencias": ["lib/websocket/socket.ts", "app/services/asyncDriverMatchingService.ts"],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear utilidad de conexión WebSocket",
+              "descripcion": "Implementar función para conectar al servidor WebSocket con autenticación",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Implementar conexión con JWT",
+                  "descripcion": "Configurar conexión WebSocket que incluye token de autenticación"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar reconexión automática",
+                  "descripcion": "Crear lógica de retry para reconectar automáticamente si se pierde la conexión"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Implementar unirse a sala de usuario",
+                  "descripcion": "Enviar evento join-user-room al conectar para recibir notificaciones personales"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Crear handlers de eventos WebSocket",
+              "descripcion": "Implementar funciones que procesan los diferentes eventos de matching",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Handler para driver-found",
+                  "descripcion": "Procesar evento cuando se encuentra un conductor disponible"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Handler para search-timeout",
+                  "descripcion": "Procesar evento cuando la búsqueda expira sin encontrar conductor"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Handler para search-cancelled",
+                  "descripcion": "Procesar evento cuando la búsqueda es cancelada por el usuario"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Implementar gestión de estado WebSocket",
+              "descripcion": "Crear lógica para manejar estados de conexión y reconexión",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Estado de conexión (connected/disconnected/reconnecting)",
+                  "descripcion": "Implementar estados para mostrar feedback visual de conexión WebSocket"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Manejo de errores de conexión",
+                  "descripcion": "Implementar retry logic y mensajes de error para fallos de WebSocket"
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "Cleanup al desconectar",
+                  "descripcion": "Implementar limpieza de listeners y estados al cerrar conexión"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Hook useAsyncDriverSearch",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear hook personalizado que gestiona el estado completo de búsqueda asíncrona y expone métodos para interactuar con el servicio",
+          "dependencias": ["app/services/asyncDriverMatchingService.ts", "lib/websocket/matchingEvents.ts", "store/mapFlow/mapFlow.ts"],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Implementar estado del hook",
+              "descripcion": "Crear estado local que refleja el estado de la búsqueda asíncrona",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Estado searchState con AsyncSearchState",
+                  "descripcion": "Implementar estado que incluye searchId, status, matchedDriver, timeRemaining, error"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Estado de WebSocket connection",
+                  "descripcion": "Agregar estado para el status de la conexión WebSocket"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar métodos del hook",
+              "descripcion": "Crear funciones que el componente puede usar para controlar la búsqueda",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Método startSearch",
+                  "descripcion": "Función que inicia búsqueda asíncrona con parámetros dados"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Método cancelSearch",
+                  "descripcion": "Función que cancela búsqueda activa y limpia estado"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Método confirmDriver",
+                  "descripcion": "Función que confirma conductor seleccionado y continúa flujo"
+                },
+                {
+                  "id": "ST1.3.2.4",
+                  "nombre": "Método retrySearch",
+                  "descripcion": "Función que reinicia búsqueda con mismos parámetros"
+                }
+              ]
+            },
+            {
+              "id": "T1.3.3",
+              "nombre": "Implementar efectos del hook",
+              "descripcion": "Crear useEffect hooks para manejar ciclo de vida del WebSocket y búsqueda",
+              "subtareas": [
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "useEffect para conectar WebSocket",
+                  "descripcion": "Conectar al WebSocket cuando se monta el hook"
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "useEffect para setup listeners",
+                  "descripcion": "Configurar listeners de eventos WebSocket"
+                },
+                {
+                  "id": "ST1.3.3.3",
+                  "nombre": "useEffect para cleanup",
+                  "descripcion": "Limpiar conexiones y listeners al desmontar"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.4",
+          "nombre": "Estados de Búsqueda Asíncrona en Store",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Agregar estados y acciones relacionados con matching asíncrono al store global mapFlow",
+          "dependencias": ["store/mapFlow/mapFlow.ts"],
+          "tareas": [
+            {
+              "id": "T1.4.1",
+              "nombre": "Extender MapFlowState interface",
+              "descripcion": "Agregar propiedades para búsqueda asíncrona al estado global",
+              "subtareas": [
+                {
+                  "id": "ST1.4.1.1",
+                  "nombre": "Agregar asyncSearch object al estado",
+                  "descripcion": "Incluir searchId, status, matchedDriver, timeRemaining, error, startTime"
+                },
+                {
+                  "id": "ST1.4.1.2",
+                  "nombre": "Agregar configuración del sistema",
+                  "descripcion": "Incluir maxWaitTime, defaultRadius, priorityWeights"
+                }
+              ]
+            },
+            {
+              "id": "T1.4.2",
+              "nombre": "Implementar acciones del store",
+              "descripcion": "Crear funciones para actualizar estado de búsqueda asíncrona",
+              "subtareas": [
+                {
+                  "id": "ST1.4.2.1",
+                  "nombre": "startAsyncSearch action",
+                  "descripcion": "Actualizar estado cuando inicia búsqueda asíncrona"
+                },
+                {
+                  "id": "ST1.4.2.2",
+                  "nombre": "updateAsyncSearchStatus action",
+                  "descripcion": "Actualizar status y datos cuando llegan eventos WebSocket"
+                },
+                {
+                  "id": "ST1.4.2.3",
+                  "nombre": "cancelAsyncSearch action",
+                  "descripcion": "Limpiar estado cuando se cancela búsqueda"
+                },
+                {
+                  "id": "ST1.4.2.4",
+                  "nombre": "confirmAsyncDriver action",
+                  "descripcion": "Actualizar estado cuando se confirma conductor"
+                }
+              ]
+            },
+            {
+              "id": "T1.4.3",
+              "nombre": "Implementar lógica de tiempo restante",
+              "descripcion": "Crear lógica para calcular y actualizar tiempo restante de búsqueda",
+              "subtareas": [
+                {
+                  "id": "ST1.4.3.1",
+                  "nombre": "Función calculateTimeRemaining",
+                  "descripcion": "Calcular segundos restantes basado en startTime y maxWaitTime"
+                },
+                {
+                  "id": "ST1.4.3.2",
+                  "nombre": "Timer para actualización automática",
+                  "descripcion": "Implementar interval que actualiza timeRemaining cada segundo"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Documentación y Testing del Sistema de Matching Asíncrono",
+    "progreso": 100,
+    "completado": true,
+    "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Documentación Técnica Completa",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Crear documentación completa del sistema de matching asíncrono para desarrolladores",
+          "dependencias": ["app/services/asyncDriverMatchingService.ts", "hooks/useAsyncDriverSearch.ts", "lib/websocket/matchingEvents.ts"],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Crear README del sistema de matching",
+              "descripcion": "Documentar arquitectura general, componentes y flujo de funcionamiento",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Documentar arquitectura general",
+                  "descripcion": "Describir componentes principales y su interacción"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Documentar flujo de búsqueda asíncrona",
+                  "descripcion": "Explicar el proceso desde inicio hasta confirmación de conductor"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Documentar expansión automática de radio",
+                  "descripcion": "Explicar lógica de expansión de radio y límites"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Documentar APIs y endpoints",
+              "descripcion": "Crear documentación de todos los endpoints REST y WebSocket utilizados",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Documentar endpoints REST",
+                  "descripcion": "Documentar /async-search/start, /status, /cancel, /confirm-driver"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Documentar eventos WebSocket",
+                  "descripcion": "Documentar eventos driver-found, search-timeout, search-cancelled"
+                },
+                {
+                  "id": "ST2.1.2.3",
+                  "nombre": "Documentar formatos de respuesta",
+                  "descripcion": "Especificar estructuras de datos para requests y responses"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Crear guía de troubleshooting",
+              "descripcion": "Documentar problemas comunes y sus soluciones",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Documentar errores comunes",
+                  "descripcion": "Listar errores típicos y cómo resolverlos"
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Documentar debugging",
+                  "descripcion": "Explicar cómo debuggear problemas de matching"
+                },
+                {
+                  "id": "ST2.1.3.3",
+                  "nombre": "Documentar métricas",
+                  "descripcion": "Explicar métricas disponibles para monitoreo"
+                }
+              ]
+            }
+          ]
+        },
+      {
+        "id": "M2.2",
+        "nombre": "Testing y Validación del Sistema",
+        "progreso": 100,
+        "prioridad": "Alta",
+        "descripcion": "Crear tests unitarios y de integración para validar el funcionamiento del sistema",
+        "dependencias": ["app/services/asyncDriverMatchingService.ts", "hooks/useAsyncDriverSearch.ts", "store/mapFlow/mapFlow.ts"],
+        "tareas": [
+          {
+            "id": "T2.2.1",
+            "nombre": "Crear tests unitarios del servicio",
+            "descripcion": "Tests para AsyncDriverMatchingService",
+            "subtareas": [
+              {
+                "id": "ST2.2.1.1",
+                "nombre": "Test startAsyncSearch",
+                "descripcion": "Probar inicio de búsqueda asíncrona"
+              },
+              {
+                "id": "ST2.2.1.2",
+                "nombre": "Test getSearchStatus",
+                "descripcion": "Probar consulta de estado de búsqueda"
+              },
+              {
+                "id": "ST2.2.1.3",
+                "nombre": "Test cancelSearch y confirmDriver",
+                "descripcion": "Probar cancelación y confirmación"
+              }
+            ]
+          },
+          {
+            "id": "T2.2.2",
+            "nombre": "Crear tests del hook useAsyncDriverSearch",
+            "descripcion": "Tests para el hook personalizado",
+            "subtareas": [
+              {
+                "id": "ST2.2.2.1",
+                "nombre": "Test estados del hook",
+                "descripcion": "Probar cambios de estado (searching, found, timeout)"
+              },
+              {
+                "id": "ST2.2.2.2",
+                "nombre": "Test integración WebSocket",
+                "descripcion": "Probar recepción de eventos WebSocket"
+              },
+              {
+                "id": "ST2.2.2.3",
+                "nombre": "Test manejo de errores",
+                "descripcion": "Probar manejo de errores y estados de error"
+              }
+            ]
+          },
+          {
+            "id": "T2.2.3",
+            "nombre": "Crear tests de integración WebSocket",
+            "descripcion": "Tests para conexión y eventos WebSocket",
+            "subtareas": [
+              {
+                "id": "ST2.2.3.1",
+                "nombre": "Test conexión WebSocket",
+                "descripcion": "Probar conexión, reconexión y estados"
+              },
+              {
+                "id": "ST2.2.3.2",
+                "nombre": "Test eventos de matching",
+                "descripcion": "Probar envío y recepción de eventos"
+              },
+              {
+                "id": "ST2.2.3.3",
+                "nombre": "Test cleanup de conexiones",
+                "descripcion": "Probar desconexión y cleanup"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "M2.3",
+        "nombre": "Optimización y Mejoras de Performance",
+        "progreso": 100,
+        "prioridad": "Media",
+        "descripcion": "Optimizar el sistema para mejor performance y experiencia de usuario",
+        "dependencias": ["components/unified-flow/steps/Client/Viaje/DriverMatching.tsx", "hooks/useAsyncDriverSearch.ts"],
+        "tareas": [
+          {
+            "id": "T2.3.1",
+            "nombre": "Optimizar reconexión WebSocket",
+            "descripcion": "Mejorar lógica de reconexión automática",
+            "subtareas": [
+              {
+                "id": "ST2.3.1.1",
+                "nombre": "Implementar exponential backoff",
+                "descripcion": "Usar backoff exponencial para reconexiones"
+              },
+              {
+                "id": "ST2.3.1.2",
+                "nombre": "Optimizar heartbeat",
+                "descripcion": "Implementar heartbeat eficiente para mantener conexión"
+              },
+              {
+                "id": "ST2.3.1.3",
+                "nombre": "Manejar reconexión durante búsqueda",
+                "descripcion": "Mantener estado durante reconexión"
+              }
+            ]
+          },
+          {
+            "id": "T2.3.2",
+            "nombre": "Optimizar UI y animaciones",
+            "descripcion": "Mejorar performance de animaciones y renderizado",
+            "subtareas": [
+              {
+                "id": "ST2.3.2.1",
+                "nombre": "Optimizar animaciones",
+                "descripcion": "Usar useNativeDriver donde sea posible"
+              },
+              {
+                "id": "ST2.3.2.2",
+                "nombre": "Implementar lazy loading",
+                "descripcion": "Cargar componentes de opciones finales solo cuando sea necesario"
+              },
+              {
+                "id": "ST2.3.2.3",
+                "nombre": "Optimizar re-renders",
+                "descripcion": "Prevenir re-renders innecesarios con memo"
+              }
+            ]
+          },
+          {
+            "id": "T2.3.3",
+            "nombre": "Implementar caché inteligente",
+            "descripcion": "Cachear resultados de búsqueda y estado",
+            "subtareas": [
+              {
+                "id": "ST2.3.3.1",
+                "nombre": "Cachear búsquedas recientes",
+                "descripcion": "Cachear resultados de búsquedas para evitar llamadas duplicadas"
+              },
+              {
+                "id": "ST2.3.3.2",
+                "nombre": "Optimizar polling de estado",
+                "descripcion": "Implementar polling inteligente basado en estado"
+              },
+              {
+                "id": "ST2.3.3.3",
+                "nombre": "Cachear configuración",
+                "descripcion": "Cachear configuración del sistema para evitar re-cálculos"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+  ]
+}
+

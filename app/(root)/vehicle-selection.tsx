@@ -34,4 +34,3 @@ const VehicleSelection = () => {
 };
 
 export default VehicleSelection;
-

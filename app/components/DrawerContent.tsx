@@ -14,7 +14,6 @@ import { useUI } from "@/components/UIWrapper";
 import { logoutUser } from "@/lib/auth";
 import ModuleSwitcherWithSplash from "@/components/ModuleSwitcherWithSplash";
 
-
 interface DrawerContentProps {
   currentMode?: "customer" | "driver" | "business";
   visible?: boolean;
@@ -29,15 +28,8 @@ const DrawerContent = ({
   onModeChange,
 }: DrawerContentProps) => {
   const { theme, toggleTheme, setTheme } = useUI();
-  console.log(
-    "DrawerContent rendered, visible:",
-    visible,
-    "currentMode:",
-    currentMode,
-  );
 
   const handleNavigation = (route: string) => {
-    console.log("Navigating to:", route);
     router.push(route as any);
   };
 
@@ -276,11 +268,9 @@ const DrawerContent = ({
 
 // Hamburger Menu Button Component
 export const HamburgerMenu = ({ onPress }: { onPress: () => void }) => {
-  console.log("HamburgerMenu rendered");
   return (
     <TouchableOpacity
       onPress={() => {
-        console.log("HamburgerMenu pressed");
         onPress();
       }}
       className="w-14 h-14 items-center justify-center rounded-full bg-primary-500 shadow-lg shadow-black/20 border-2 border-white"

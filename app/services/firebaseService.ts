@@ -37,8 +37,12 @@ const initializeFirebaseManually = async () => {
     // Check if we have Firebase config
     const firebaseConfig = config.firebase;
     if (!firebaseConfig || !firebaseConfig.apiKey) {
-      console.warn("[FirebaseService] No Firebase config found in environment - push notifications may not work in production");
-      console.log("[FirebaseService] Continuing without Firebase - app will still work for basic functionality");
+      console.warn(
+        "[FirebaseService] No Firebase config found in environment - push notifications may not work in production",
+      );
+      console.log(
+        "[FirebaseService] Continuing without Firebase - app will still work for basic functionality",
+      );
       return true; // Return true to indicate successful "initialization" (no-op)
     }
 
@@ -290,10 +294,14 @@ export class FirebaseService {
       // Check if we have Firebase config for FCM
       const firebaseConfig = config.firebase;
       if (!firebaseConfig || !firebaseConfig.apiKey) {
-        log.warn("FirebaseService", "No Firebase config - using Expo push tokens only", {
-          tokenRequestId,
-          note: "Push notifications will work but may have limitations in production",
-        });
+        log.warn(
+          "FirebaseService",
+          "No Firebase config - using Expo push tokens only",
+          {
+            tokenRequestId,
+            note: "Push notifications will work but may have limitations in production",
+          },
+        );
         // Continue anyway - Expo can still provide push tokens
       }
 

@@ -9,6 +9,10 @@ import ServiceLevelSelector from "@/components/ServiceLevelSelector";
 import { icons } from "@/constants";
 import { fetchAPI } from "@/lib/fetch";
 import { useDriverStore, useLocationStore, useUserStore } from "@/store";
+import {
+  DARK_MODERN_STYLE,
+  type MapConfiguration,
+} from "@/constants/mapStyles";
 
 const ConfirmRide = () => {
   const { drivers, selectedDriver, setSelectedDriver } = useDriverStore();
@@ -177,11 +181,34 @@ const ConfirmRide = () => {
   const listRef = useRef<FlatList<any>>(null);
   const sheetApiRef = useRef<{ snapToIndex: (i: number) => void } | null>(null);
 
+  // 🎨 Configuración del mapa con tema dark moderno
+  const mapConfig: Partial<MapConfiguration> = {
+    theme: "dark",
+    customStyle: DARK_MODERN_STYLE,
+    userInterfaceStyle: "dark",
+    mapType: "standard",
+    showsUserLocation: true,
+    showsPointsOfInterest: false,
+    showsBuildings: true,
+    showsTraffic: false,
+    showsCompass: true,
+    showsScale: false,
+    showsMyLocationButton: false,
+    zoomEnabled: true,
+    scrollEnabled: true,
+    rotateEnabled: true,
+    pitchEnabled: true,
+    tintColor: "#00FF88",
+    routeColor: "#4285F4",
+    trailColor: "#FFE014",
+    predictionColor: "#00FF88",
+  };
+
   return (
     <View className="flex-1 bg-general-500">
       {/* Mapa visible ocupando 40% superior */}
       <View className="flex-1 relative">
-        <Map />
+        <Map mapConfig={mapConfig} />
 
         {/* Información flotante sobre el mapa */}
         <View className="absolute top-12 left-4 right-4 z-10">
@@ -305,4 +332,3 @@ const ConfirmRide = () => {
 };
 
 export default ConfirmRide;
-

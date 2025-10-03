@@ -25,16 +25,16 @@ export type EnvironmentConfig = {
 
 // Default values for development
 const defaultConfig: Partial<EnvironmentConfig> = {
-  EXPO_PUBLIC_SERVER_URL: 'http://localhost:3000',
-  EXPO_PUBLIC_WS_URL: 'ws://localhost:3000',
-  NODE_ENV: 'development',
+  EXPO_PUBLIC_SERVER_URL: "http://localhost:3000",
+  EXPO_PUBLIC_WS_URL: "ws://localhost:3000",
+  NODE_ENV: "development",
 };
 
 // Critical environment variables that must be present
 const criticalEnvVars = [
-  'EXPO_PUBLIC_PLACES_API_KEY',
-  'EXPO_PUBLIC_DIRECTIONS_API_KEY',
-  'EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY',
+  "EXPO_PUBLIC_PLACES_API_KEY",
+  "EXPO_PUBLIC_DIRECTIONS_API_KEY",
+  "EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY",
   // Firebase variables are now optional for basic functionality
   // 'EXPO_PUBLIC_FIREBASE_API_KEY',
   // 'EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN',
@@ -50,7 +50,7 @@ const criticalEnvVars = [
  * Note: Zod validation temporarily commented out due to missing dependency
  */
 export function validateEnvironment(): EnvironmentConfig {
-  console.log('[Config] Validating environment configuration...');
+  console.log("[Config] Validating environment configuration...");
 
   try {
     // Load environment variables
@@ -58,40 +58,47 @@ export function validateEnvironment(): EnvironmentConfig {
       EXPO_PUBLIC_SERVER_URL: process.env.EXPO_PUBLIC_SERVER_URL,
       EXPO_PUBLIC_WS_URL: process.env.EXPO_PUBLIC_WS_URL,
       EXPO_PUBLIC_PLACES_API_KEY: process.env.EXPO_PUBLIC_PLACES_API_KEY,
-      EXPO_PUBLIC_DIRECTIONS_API_KEY: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY,
-      EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      EXPO_PUBLIC_DIRECTIONS_API_KEY:
+        process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY,
+      EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY:
+        process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
       EXPO_PUBLIC_FIREBASE_API_KEY: process.env.EXPO_PUBLIC_FIREBASE_API_KEY,
-      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN: process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
-      EXPO_PUBLIC_FIREBASE_PROJECT_ID: process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
-      EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET: process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
-      EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID: process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+      EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN:
+        process.env.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN,
+      EXPO_PUBLIC_FIREBASE_PROJECT_ID:
+        process.env.EXPO_PUBLIC_FIREBASE_PROJECT_ID,
+      EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET:
+        process.env.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET,
+      EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID:
+        process.env.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
       EXPO_PUBLIC_FIREBASE_APP_ID: process.env.EXPO_PUBLIC_FIREBASE_APP_ID,
       EXPO_PUBLIC_GEOAPIFY_API_KEY: process.env.EXPO_PUBLIC_GEOAPIFY_API_KEY,
       DATABASE_URL: process.env.DATABASE_URL,
-      EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
+      EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY:
+        process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY,
       NODE_ENV: process.env.NODE_ENV,
     };
 
-    console.log('[Config] ✅ Environment configuration validated successfully');
+    console.log("[Config] ✅ Environment configuration validated successfully");
 
     // Check critical variables are present (not just default values)
-    const missingCriticalVars = criticalEnvVars.filter(key => {
+    const missingCriticalVars = criticalEnvVars.filter((key) => {
       const value = (envVars as any)[key];
-      return !value || value.trim() === '';
+      return !value || value.trim() === "";
     });
 
     if (missingCriticalVars.length > 0) {
-      const errorMsg = `[Config] ❌ Critical environment variables missing: ${missingCriticalVars.join(', ')}\n` +
-                      `Please check your .env file and ensure all required variables are set.`;
+      const errorMsg =
+        `[Config] ❌ Critical environment variables missing: ${missingCriticalVars.join(", ")}\n` +
+        `Please check your .env file and ensure all required variables are set.`;
       console.error(errorMsg);
       throw new Error(errorMsg);
     }
 
     return envVars as EnvironmentConfig;
-
   } catch (error) {
-    console.error('[Config] ❌ Environment configuration error:', error);
+    console.error("[Config] ❌ Environment configuration error:", error);
     throw error;
   }
 }
@@ -120,11 +127,11 @@ export function resetConfig(): void {
 // Export specific configuration getters for convenience
 export const config = {
   get apiUrl(): string {
-    return getConfig().EXPO_PUBLIC_SERVER_URL || 'http://localhost:3000';
+    return getConfig().EXPO_PUBLIC_SERVER_URL || "http://localhost:3000";
   },
 
   get wsUrl(): string {
-    return getConfig().EXPO_PUBLIC_WS_URL || 'ws://localhost:3000';
+    return getConfig().EXPO_PUBLIC_WS_URL || "ws://localhost:3000";
   },
 
   get googleMaps(): {
@@ -133,8 +140,8 @@ export const config = {
   } {
     const config = getConfig();
     return {
-      placesApiKey: config.EXPO_PUBLIC_PLACES_API_KEY || '',
-      directionsApiKey: config.EXPO_PUBLIC_DIRECTIONS_API_KEY || '',
+      placesApiKey: config.EXPO_PUBLIC_PLACES_API_KEY || "",
+      directionsApiKey: config.EXPO_PUBLIC_DIRECTIONS_API_KEY || "",
     };
   },
 
@@ -144,7 +151,7 @@ export const config = {
   } {
     const config = getConfig();
     return {
-      publishableKey: config.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || '',
+      publishableKey: config.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY || "",
       secretKey: config.STRIPE_SECRET_KEY,
     };
   },
@@ -159,12 +166,12 @@ export const config = {
   } {
     const config = getConfig();
     return {
-      apiKey: config.EXPO_PUBLIC_FIREBASE_API_KEY || '',
-      authDomain: config.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || '',
-      projectId: config.EXPO_PUBLIC_FIREBASE_PROJECT_ID || '',
-      storageBucket: config.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || '',
-      messagingSenderId: config.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '',
-      appId: config.EXPO_PUBLIC_FIREBASE_APP_ID || '',
+      apiKey: config.EXPO_PUBLIC_FIREBASE_API_KEY || "",
+      authDomain: config.EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN || "",
+      projectId: config.EXPO_PUBLIC_FIREBASE_PROJECT_ID || "",
+      storageBucket: config.EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET || "",
+      messagingSenderId: config.EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || "",
+      appId: config.EXPO_PUBLIC_FIREBASE_APP_ID || "",
     };
   },
 
@@ -192,20 +199,23 @@ export const config = {
     };
   },
 
-  get environment(): 'development' | 'staging' | 'production' {
-    return (getConfig().NODE_ENV as 'development' | 'staging' | 'production') || 'development';
+  get environment(): "development" | "staging" | "production" {
+    return (
+      (getConfig().NODE_ENV as "development" | "staging" | "production") ||
+      "development"
+    );
   },
 
   get isDevelopment(): boolean {
-    return getConfig().NODE_ENV === 'development';
+    return getConfig().NODE_ENV === "development";
   },
 
   get isProduction(): boolean {
-    return getConfig().NODE_ENV === 'production';
+    return getConfig().NODE_ENV === "production";
   },
 
   get isStaging(): boolean {
-    return getConfig().NODE_ENV === 'staging';
+    return getConfig().NODE_ENV === "staging";
   },
 };
 

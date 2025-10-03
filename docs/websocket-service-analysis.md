@@ -1,6 +1,7 @@
 # WebSocket Service - Análisis y Mapa de Funcionalidades
 
 ## 📊 Resumen General
+
 - **Archivo**: `app/services/websocketService.ts`
 - **Líneas**: 2,387
 - **Clase**: `WebSocketService` (Singleton)
@@ -9,98 +10,127 @@
 ## 🏗️ Arquitectura General
 
 ### Patrón de Diseño
+
 - **Singleton Pattern**: Una única instancia global
 - **Observer Pattern**: Sistema de eventos y listeners
 - **Queue Pattern**: Cola de mensajes con rate limiting
 - **State Machine**: Gestión de estados de conexión
 
 ### Dependencias Principales
+
 ```typescript
 import { io, Socket } from "socket.io-client";
 import { driverDeliveryService } from "@/app/services/driverDeliveryService";
 // ... otros servicios
-import { useRealtimeStore, useChatStore, useNotificationStore } from "../../store";
+import {
+  useRealtimeStore,
+  useChatStore,
+  useNotificationStore,
+} from "../../store";
 ```
 
 ## 📋 Mapa de Funcionalidades
 
 ### 1. 🔗 Gestión de Conexión
+
 **Funciones principales:**
+
 - `connect(userId, token)` - Establecer conexión inicial
 - `disconnect()` - Cerrar conexión
 - `forceReconnect()` - Reconexión forzada
 
 **Características:**
+
 - Reconexión automática con backoff exponencial
 - Autenticación JWT en handshake
 - Timeout configurable (10s por defecto)
 - Manejo de errores de conexión
 
 ### 2. 🏠 Gestión de Rooms
+
 **Funciones principales:**
+
 - `joinRideRoom(rideId)` - Unirse a sala de viaje
 - `leaveRideRoom(rideId)` - Salir de sala de viaje
 - `leaveAllRooms()` - Salir de todas las salas
 
 **Propósito:**
+
 - Comunicación específica por viaje
 - Aislamiento de mensajes entre viajes
 - Eficiencia en broadcasting
 
 ### 3. 💬 Sistema de Mensajes
+
 **Funciones principales:**
+
 - `sendMessage(rideId, message)` - Enviar mensaje de texto
 - `sendTypingStart(rideId)` - Indicar escritura
 - `sendTypingStop(rideId)` - Detener indicador de escritura
 
 **Características:**
+
 - Rate limiting (100ms entre mensajes)
 - Queue de mensajes cuando desconectado
 - Procesamiento asíncrono de cola
 
 ### 4. 📍 Tracking GPS
+
 **Funciones principales:**
+
 - `updateDriverLocation(rideId, location)` - Actualizar ubicación
 
 **Características:**
+
 - Envío optimizado de coordenadas
 - Integración con servicios de mapas
 - Actualizaciones en tiempo real
 
 ### 5. 🚨 Sistema de Emergencias
+
 **Funciones principales:**
+
 - `triggerEmergency(emergencyData)` - Activar emergencia
 
 **Características:**
+
 - Prioridad alta en envío
 - Notificación inmediata a sistemas
 - Logging detallado
 
 ### 6. 👨‍💼 Funcionalidades de Conductor
+
 **Funciones principales:**
+
 - `updateDriverStatus(statusData)` - Actualizar estado
 - `requestEarningsUpdate(driverId)` - Solicitar actualización de ganancias
 - `requestPerformanceData(driverId)` - Solicitar métricas de rendimiento
 - `updateVehicleChecklist(vehicleData)` - Actualizar checklist
 
 **Propósito:**
+
 - Dashboard en tiempo real para conductores
 - Métricas de rendimiento live
 - Gestión de estado del vehículo
 
 ### 7. 📊 Sistema de Métricas y Monitoreo
+
 **Propiedades principales:**
+
 - `performanceMetrics` - Métricas de rendimiento
 - `messageQueue` - Cola de mensajes
 - `lastPingTime` - Último ping recibido
 
 **Funciones:**
+
 - `resetPerformanceMetrics()` - Reset de métricas
 - Heartbeat monitoring
 - Connection health tracking
 
 ### 8. 🎯 Sistema de Eventos
+
 **Eventos manejados:**
+
 - `connect` - Conexión establecida
 - `disconnect` - Conexión perdida
 - `connect_error` - Error de conexión
@@ -115,6 +145,7 @@ import { useRealtimeStore, useChatStore, useNotificationStore } from "../../stor
 ## 🔧 Sistema Interno
 
 ### Queue Management
+
 ```typescript
 interface QueuedMessage {
   event: string;
@@ -125,17 +156,20 @@ interface QueuedMessage {
 ```
 
 **Características:**
+
 - Queue con límite máximo (50 mensajes)
 - Procesamiento FIFO
 - Rate limiting automático
 - Priorización de mensajes críticos
 
 ### Rate Limiting
+
 - **Mensaje rate**: 100ms entre mensajes
 - **Reconnection backoff**: Exponencial (1s, 2s, 4s, 8s, 10s max)
 - **Heartbeat**: 30 segundos
 
 ### Error Handling
+
 - **Network errors**: Reintento automático
 - **Authentication errors**: Refresh token automático
 - **Connection drops**: Reconexión automática
@@ -144,11 +178,13 @@ interface QueuedMessage {
 ## 📈 Estados y Ciclo de Vida
 
 ### Estados de Conexión
+
 ```
 DISCONNECTED → CONNECTING → CONNECTED → DISCONNECTING → DISCONNECTED
 ```
 
 ### Estados de Servicio
+
 ```
 INITIALIZING → READY → CONNECTING → CONNECTED → ERROR → RECONNECTING
 ```
@@ -156,11 +192,13 @@ INITIALIZING → READY → CONNECTING → CONNECTED → ERROR → RECONNECTING
 ## 🔗 Integraciones Externas
 
 ### Stores (Zustand)
+
 - `useRealtimeStore` - Estado de viajes en tiempo real
 - `useChatStore` - Estado de mensajes
 - `useNotificationStore` - Notificaciones push
 
 ### Servicios
+
 - `driverDeliveryService` - Gestión de entregas
 - `driverErrandService` - Gestión de mandados
 - `driverParcelService` - Gestión de paquetes
@@ -169,11 +207,13 @@ INITIALIZING → READY → CONNECTING → CONNECTED → ERROR → RECONNECTING
 ## 🎯 Puntos de Extensión
 
 ### Nuevos Tipos de Servicio
+
 - Añadir nuevos servicios de conductor
 - Integrar nuevos tipos de rooms
 - Extender sistema de eventos
 
 ### Nuevas Funcionalidades
+
 - Sistema de notificaciones push
 - Compresión de mensajes
 - Encriptación end-to-end
@@ -181,16 +221,19 @@ INITIALIZING → READY → CONNECTING → CONNECTED → ERROR → RECONNECTING
 ## ⚠️ Problemas Identificados
 
 ### Tamaño del Archivo
+
 - **2,387 líneas** - Muy grande para mantenimiento
 - Múltiples responsabilidades en una clase
 - Difícil testing y debugging
 
 ### Complejidad
+
 - Lógica mezclada (conexión + mensajes + métricas)
 - Dependencias circulares con stores
 - Configuración hardcodeada
 
 ### Rendimiento
+
 - Queue processing sincrónico
 - Rate limiting básico
 - Memory leaks potenciales
@@ -200,14 +243,17 @@ INITIALIZING → READY → CONNECTING → CONNECTED → ERROR → RECONNECTING
 ### Módulos a Extraer - Responsabilidades Separables
 
 #### 1. **ConnectionManager** (`app/services/websocket/connection.ts`)
+
 **Líneas aproximadas**: 200-300
 **Funciones a extraer**:
+
 - `connect()`, `disconnect()`, `forceReconnect()`
 - Lógica de reconexión automática
 - Manejo de estados de conexión
 - Health checks de conexión
 
 **Interfaces requeridas**:
+
 ```typescript
 interface ConnectionConfig {
   url: string;
@@ -225,62 +271,74 @@ interface ConnectionState {
 ```
 
 #### 2. **EventManager** (`app/services/websocket/events.ts`)
+
 **Líneas aproximadas**: 150-200
 **Funciones a extraer**:
+
 - `addEventListener()`, `removeEventListener()`
 - `emitEvent()`, `broadcastEvent()`
 - Manejo de callbacks de eventos
 - Sistema de suscripción a eventos
 
 **Eventos principales a manejar**:
+
 - `connect`, `disconnect`, `connect_error`
 - `rideStatusUpdate`, `driverLocationUpdate`
 - `newMessage`, `typingStart`, `typingStop`
 - `earningsUpdate`, `performanceUpdate`, `rideNotification`
 
 #### 3. **MessageQueue** (`app/services/websocket/queue.ts`)
+
 **Líneas aproximadas**: 100-150
 **Funciones a extraer**:
+
 - Queue management (`addToQueue`, `processQueue`)
 - Rate limiting logic
 - Message prioritization
 - Queue persistence (opcional)
 
 **Estructuras de datos**:
+
 ```typescript
 interface QueuedMessage {
   id: string;
   event: string;
   data: any;
   timestamp: number;
-  priority: 'low' | 'normal' | 'high' | 'critical';
+  priority: "low" | "normal" | "high" | "critical";
   retryCount: number;
 }
 ```
 
 #### 4. **MetricsMonitor** (`app/services/websocket/metrics.ts`)
+
 **Líneas aproximadas**: 80-120
 **Funciones a extraer**:
+
 - `updateMetrics()`, `getMetrics()`, `resetMetrics()`
 - Performance tracking (latencia, throughput)
 - Connection health monitoring
 - Error rate tracking
 
 **Métricas a trackear**:
+
 - Messages sent/received per minute
 - Connection uptime/downtime
 - Average response time
 - Error rates by type
 
 #### 5. **RoomManager** (`app/services/websocket/rooms.ts`)
+
 **Líneas aproximadas**: 50-80
 **Funciones a extraer**:
+
 - `joinRoom()`, `leaveRoom()`, `leaveAllRooms()`
 - Room state tracking
 - Room membership validation
 - Broadcast to room members
 
 **Estructuras**:
+
 ```typescript
 interface RoomState {
   roomId: string;
@@ -293,6 +351,7 @@ interface RoomState {
 ### Servicio Principal Refactorizado
 
 #### Estructura Final
+
 ```typescript
 // app/services/websocket/index.ts
 export class WebSocketService {
@@ -319,7 +378,7 @@ export class WebSocketService {
 
   // Métodos públicos delegados
   sendMessage(rideId: number, message: string) {
-    this.messageQueue.addMessage('sendMessage', { rideId, message });
+    this.messageQueue.addMessage("sendMessage", { rideId, message });
   }
 
   joinRideRoom(rideId: number) {
@@ -331,6 +390,7 @@ export class WebSocketService {
 ```
 
 #### Interfaces Compartidas
+
 ```typescript
 // app/services/websocket/types.ts
 export interface WebSocketConfig {
@@ -356,11 +416,13 @@ export interface HealthStatus {
 ### Orden de Implementación
 
 #### Fase 1: Interfaces y Tipos (Día 1)
+
 1. Crear `app/services/websocket/types.ts` con todas las interfaces
 2. Definir contratos entre módulos
 3. Crear interfaces de testing
 
 #### Fase 2: Módulos Independientes (Días 2-4)
+
 1. **ConnectionManager** - Más crítico, empezar aquí
 2. **MessageQueue** - Independiente, fácil de testear
 3. **RoomManager** - Simple, depende de ConnectionManager
@@ -368,12 +430,14 @@ export interface HealthStatus {
 5. **MetricsMonitor** - Puede ser último
 
 #### Fase 3: Integración (Días 5-6)
+
 1. Crear servicio principal con composición
 2. Implementar forwarding de eventos entre módulos
 3. Añadir manejo de errores cross-module
 4. Crear tests de integración
 
 #### Fase 4: Migración y Testing (Días 7-8)
+
 1. Reemplazar código original módulo por módulo
 2. Mantener compatibilidad de API
 3. Tests exhaustivos de cada módulo
@@ -382,26 +446,29 @@ export interface HealthStatus {
 ### Estrategia de Migración
 
 #### Backward Compatibility
+
 - Mantener constructor existente
 - Preservar todas las APIs públicas
 - Gradual replacement de internals
 - Feature flags para testing
 
 #### Testing Strategy
+
 ```typescript
 // tests/websocket/WebSocketService.test.ts
-describe('WebSocketService', () => {
-  it('should maintain API compatibility', () => {
+describe("WebSocketService", () => {
+  it("should maintain API compatibility", () => {
     // Test that all public methods exist and work
   });
 
-  it('should use new modular architecture internally', () => {
+  it("should use new modular architecture internally", () => {
     // Test that modules are properly instantiated
   });
 });
 ```
 
 #### Risk Mitigation
+
 - **Branch strategy**: Feature branch con PRs pequeños
 - **Gradual rollout**: Reemplazo módulo por módulo
 - **Fallback mechanism**: Capacidad de rollback rápido
@@ -425,6 +492,6 @@ describe('WebSocketService', () => {
 
 ---
 
-*Análisis completado el: 2025-09-26*
-*Tamaño del archivo: 2,387 líneas*
-*Módulos identificados: 8 responsabilidades principales*
+_Análisis completado el: 2025-09-26_
+_Tamaño del archivo: 2,387 líneas_
+_Módulos identificados: 8 responsabilidades principales_

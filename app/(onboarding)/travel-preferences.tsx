@@ -1,42 +1,67 @@
 import { router } from "expo-router";
-import React, { useState } from "react";
-import { View, Text, TouchableOpacity, ScrollView, Alert } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import React, { useEffect, useState } from "react";
+import { Alert, Text, View } from "react-native";
 
-import { Button } from "@/components/ui";
-import ProgressBar from "@/components/onboarding/ProgressBar";
-import { Tabs, RadioGroup, Select, Card } from "@/components/ui";
+import { TravelIllustration } from "@/components/onboarding/illustrations";
+import { OnboardingScaffold } from "@/components/onboarding/OnboardingScaffold";
+import { Card, Select, Tabs, RadioGroup } from "@/components/ui";
 import { fetchAPI } from "@/lib/fetch";
 import { useOnboardingStore } from "@/store";
 
 const VEHICLE_TYPES = [
   {
     id: "standard",
-    name: "Standard Car",
-    description: "Most common",
+    name: "Carro estándar",
+    description: "La opción más común",
     icon: "🚗",
   },
-  { id: "suv", name: "SUV/Van", description: "Extra space", icon: "🚐" },
-  { id: "motorcycle", name: "Motorcycle", description: "Quick", icon: "🏍️" },
-  { id: "bike", name: "Bike/Scooter", description: "Eco-friendly", icon: "🚲" },
+  { id: "suv", name: "SUV / Van", description: "Más espacio", icon: "🚐" },
+  {
+    id: "motorcycle",
+    name: "Motocicleta",
+    description: "Más rápido",
+    icon: "🏍️",
+  },
+  { id: "bike", name: "Bici / Scooter", description: "Ecológico", icon: "🚲" },
 ];
 
 const SERVICE_LEVELS = [
-  { id: "economy", name: "Economy", description: "Affordable", price: "$2.50" },
-  { id: "comfort", name: "Comfort", description: "More space", price: "$4.00" },
-  { id: "premium", name: "Premium", description: "Luxury", price: "$6.00" },
+  {
+    id: "economy",
+    name: "Economy",
+    description: "Más accesible",
+    price: "$2.50",
+  },
+  {
+    id: "comfort",
+    name: "Comfort",
+    description: "Mayor espacio",
+    price: "$4.00",
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    description: "Experiencia lujo",
+    price: "$6.00",
+  },
+];
+
+const LANGUAGES = [
+  { label: "Español", value: "es", subtitle: "Recomendado" },
+  { label: "English", value: "en", subtitle: "Disponible" },
+];
+
+const CURRENCIES = [
+  { label: "USD", value: "USD" },
+  { label: "VES", value: "VES" },
+  { label: "COP", value: "COP" },
 ];
 
 export default function TravelPreferences() {
-  console.log("[TravelPreferences] Rendering travel preferences");
-
   const {
     currentStep,
-    progress,
     userData,
     updateUserData,
-    nextStep,
-    previousStep,
     setLoading,
     setError,
     isLoading,
@@ -56,187 +81,166 @@ export default function TravelPreferences() {
     currency: userData.currency || "USD",
   });
 
-  const handleVehicleSelect = (
-    vehicleType: "standard" | "suv" | "motorcycle" | "bike",
-  ) => {
-    console.log("[TravelPreferences] Selected vehicle type:", vehicleType);
-    setPreferences((prev) => ({ ...prev, preferredVehicleType: vehicleType }));
-  };
-
-  const handleServiceSelect = (
-    serviceLevel: "economy" | "comfort" | "premium",
-  ) => {
-    console.log("[TravelPreferences] Selected service level:", serviceLevel);
-    setPreferences((prev) => ({
-      ...prev,
-      preferredServiceLevel: serviceLevel,
-    }));
-  };
+  useEffect(() => {
+    if (Number.isFinite(currentStep) && currentStep !== 1) {
+      router.replace("/");
+    }
+  }, [currentStep]);
 
   const handleContinue = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log("[TravelPreferences] Saving preferences:", preferences);
-
-      // Update local state (store preferences for later saving)
       updateUserData({
-        preferredVehicleType: preferences.preferredVehicleType as any,
-        preferredServiceLevel: preferences.preferredServiceLevel as any,
+        preferredVehicleType: preferences.preferredVehicleType,
+        preferredServiceLevel: preferences.preferredServiceLevel,
         preferredLanguage: preferences.language,
-        timezone: "America/Caracas",
         currency: preferences.currency,
       });
 
-      // TODO: Backend doesn't have /api/onboarding/preferences endpoint yet
-      // According to documentation, it should accept:
-      // { preferredVehicleType, preferredServiceLevel, preferredLanguage, timezone, currency }
-      // For now, preferences are stored locally and saved with profile completion
-      console.log(
-        "[TravelPreferences] Preferences stored locally, will save with profile completion",
-      );
+      await fetchAPI("onboarding/preferences", {
+        method: "POST",
+        requiresAuth: true,
+        body: JSON.stringify({
+          preferredVehicleType: preferences.preferredVehicleType,
+          preferredServiceLevel: preferences.preferredServiceLevel,
+          preferredLanguage: preferences.language,
+          currency: preferences.currency,
+        }),
+      }).catch(() => null);
 
-      // Continue to next step (preferences saved locally)
-      nextStep();
-      router.replace("/");
+      const { completeStep } = useOnboardingStore.getState();
+      completeStep("travel-preferences", {
+        preferredVehicleType: preferences.preferredVehicleType,
+        preferredServiceLevel: preferences.preferredServiceLevel,
+        preferredLanguage: preferences.language,
+        currency: preferences.currency,
+      });
+
+      router.replace("./phone-verification");
     } catch (error: any) {
-      console.error("[TravelPreferences] Error saving preferences:", error);
-
-      // Handle authentication errors specially
-      if (
-        error.message?.includes("Authentication expired") ||
-        error.message?.includes("Token inválido") ||
-        error.statusCode === 401
-      ) {
-        setError("Your session has expired. Please log in again.");
-        Alert.alert(
-          "Session Expired",
-          "Your session has expired. Please log in again.",
-          [
-            {
-              text: "OK",
-              onPress: () => router.replace("/(auth)/sign-in"),
-            },
-          ],
-        );
-        return;
-      }
-
-      setError(error.message || "Failed to save travel preferences");
+      setError(error.message || "No pudimos guardar tus preferencias");
       Alert.alert(
         "Error",
-        error.message || "Failed to save travel preferences",
+        error.message || "No pudimos guardar tus preferencias",
       );
     } finally {
       setLoading(false);
     }
   };
 
+  if (currentStep !== 1) {
+    return null;
+  }
+
   return (
-    <SafeAreaView className="flex-1 bg-white">
-      {/* Header */}
-      <View className="flex-row items-center justify-between p-5">
-        <TouchableOpacity
-          onPress={() => {
-            previousStep();
-            router.back();
-          }}
-          className="p-2"
+    <OnboardingScaffold
+      illustration={TravelIllustration}
+      title="Personaliza tu experiencia"
+      subtitle="Elige tus tipos de viaje favoritos"
+      onContinue={handleContinue}
+      onBack={() => router.replace("./country-selection")}
+      onSkip={() => router.replace("./phone-verification")}
+      showBackButton
+      continueButtonText="Guardar y continuar"
+      isLoading={isLoading}
+    >
+      <View className="space-y-6">
+        <Card
+          header={
+            <Text className="text-lg font-Jakarta-Bold text-gray-900 dark:text-white">
+              Tipo de vehículo preferido
+            </Text>
+          }
         >
-          <Text className="text-xl text-gray-600">←</Text>
-        </TouchableOpacity>
-        <Text className="text-lg font-Jakarta-Bold text-gray-800">
-          Travel Preferences
-        </Text>
-        <View className="w-10" /> {/* Spacer for centering */}
-      </View>
-
-      {/* Progress Bar */}
-      <ProgressBar
-        progress={progress}
-        currentStep={currentStep}
-        totalSteps={4}
-      />
-
-      <ScrollView className="flex-1 px-5">
-        {/* Title */}
-        <View className="mb-8">
-          <Text className="text-2xl font-Jakarta-Bold text-center text-gray-800 mb-2">
-            Customize your ride experience
-          </Text>
-        </View>
-
-        {/* Vehicle Type Selection Card */}
-        <Card title="🚗 Preferred Vehicle Type" className="mb-6">
           <Tabs
             variant="segmented"
             items={VEHICLE_TYPES.map((v) => ({
               key: v.id,
-              label: v.icon + " " + v.name,
+              label: `${v.icon} ${v.name}`,
             }))}
             value={preferences.preferredVehicleType}
-            onChange={(k) =>
-              handleVehicleSelect(
-                k as "standard" | "suv" | "motorcycle" | "bike",
-              )
+            onChange={(key) =>
+              setPreferences((prev) => ({
+                ...prev,
+                preferredVehicleType: key as
+                  | "standard"
+                  | "suv"
+                  | "motorcycle"
+                  | "bike",
+              }))
             }
           />
+          <Text className="text-sm text-gray-500 dark:text-gray-300 mt-3">
+            {
+              VEHICLE_TYPES.find(
+                (v) => v.id === preferences.preferredVehicleType,
+              )?.description
+            }
+          </Text>
         </Card>
 
-        {/* Service Level Selection Card */}
-        <Card title="💎 Service Level Preference" className="mb-6">
+        <Card
+          header={
+            <Text className="text-lg font-Jakarta-Bold text-gray-900 dark:text-white">
+              Nivel de servicio
+            </Text>
+          }
+        >
           <RadioGroup
-            options={SERVICE_LEVELS.map((s) => ({
-              value: s.id,
-              label: `${s.name} — ${s.description} (${s.price})`,
+            options={SERVICE_LEVELS.map((service) => ({
+              value: service.id,
+              label: `${service.name} — ${service.description}`,
+              subtitle: service.price,
             }))}
             value={preferences.preferredServiceLevel}
-            onChange={(v) =>
-              handleServiceSelect(v as "economy" | "comfort" | "premium")
+            onChange={(value) =>
+              setPreferences((prev) => ({
+                ...prev,
+                preferredServiceLevel: value as
+                  | "economy"
+                  | "comfort"
+                  | "premium",
+              }))
             }
           />
         </Card>
 
-        {/* Language & Currency Card */}
-        <Card title="🌐 Language & Currency" className="mb-8">
-          <View className="mb-3">
+        <Card
+          header={
+            <Text className="text-lg font-Jakarta-Bold text-gray-900 dark:text-white">
+              Idioma y moneda
+            </Text>
+          }
+        >
+          <View className="space-y-4">
             <Select
               value={preferences.language}
-              onChange={(v) => setPreferences((p) => ({ ...p, language: v }))}
-              options={[
-                { label: "Español", value: "es" },
-                { label: "English", value: "en" },
-              ]}
-              placeholder="Language"
+              onChange={(value) =>
+                setPreferences((prev) => ({
+                  ...prev,
+                  language: value,
+                }))
+              }
+              options={LANGUAGES}
+              placeholder="Selecciona un idioma"
+              variant="primary"
+            />
+            <Select
+              value={preferences.currency}
+              onChange={(value) =>
+                setPreferences((prev) => ({
+                  ...prev,
+                  currency: value,
+                }))
+              }
+              options={CURRENCIES}
+              placeholder="Selecciona moneda"
             />
           </View>
-          <Select
-            value={preferences.currency}
-            onChange={(v) => setPreferences((p) => ({ ...p, currency: v }))}
-            options={[
-              { label: "USD", value: "USD" },
-              { label: "VES", value: "VES" },
-              { label: "COP", value: "COP" },
-            ]}
-            placeholder="Currency"
-          />
         </Card>
-
-        {/* Continue Button */}
-        <View className="mb-8">
-          <Button
-            title="Continue"
-            onPress={handleContinue}
-            loading={isLoading}
-            disabled={
-              !preferences.preferredVehicleType ||
-              !preferences.preferredServiceLevel
-            }
-            className="w-full"
-          />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
+      </View>
+    </OnboardingScaffold>
   );
 }

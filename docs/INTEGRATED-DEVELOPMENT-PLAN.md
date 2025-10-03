@@ -17,6 +17,7 @@
 ### **Módulo de Drivers - Estado Actual**
 
 #### **APIs Implementadas:**
+
 ```
 app/(api)/driver/
 ├── register+api.ts       ✅ Registro de drivers
@@ -26,6 +27,7 @@ app/(api)/driver/
 ```
 
 #### **Funcionalidades Actuales:**
+
 - ✅ **Registro completo**: first_name, last_name, email, clerkId, car_model, license_plate, car_seats
 - ✅ **Estados del driver**: offline, online, in_ride
 - ✅ **Sistema de documentos**: driver_documents table para verificación
@@ -33,6 +35,7 @@ app/(api)/driver/
 - ✅ **Validaciones básicas**: Campos requeridos y tipos de estado válidos
 
 #### **Estado del Driver Store:**
+
 ```typescript
 // store/driver/driver.ts
 interface DriverStore {
@@ -45,6 +48,7 @@ interface DriverStore {
 ```
 
 #### **UI del Driver:**
+
 ```
 app/(driver)/
 ├── dashboard/           ✅ Dashboard principal
@@ -56,6 +60,7 @@ app/(driver)/
 ### **Sistema de Maps - Estado Actual**
 
 #### **Componentes de Mapa:**
+
 ```typescript
 // components/Map.tsx - Funcionalidades principales:
 ✅ Integración con Google Maps API
@@ -67,6 +72,7 @@ app/(driver)/
 ```
 
 #### **Funciones de Utilidad:**
+
 ```typescript
 // lib/map.ts
 ✅ generateMarkersFromData()  - Genera marcadores desde datos de drivers
@@ -75,6 +81,7 @@ app/(driver)/
 ```
 
 #### **Limitaciones Actuales:**
+
 - ❌ **Datos dummy en ride-requests**: No conecta con API real de rides
 - ❌ **Cálculo de precios básico**: Solo tiempo × 0.5, no usa tiers
 - ❌ **Sin estados de ride**: No maneja estados como requested, accepted, in_progress
@@ -84,6 +91,7 @@ app/(driver)/
 ### **Esquema de Base de Datos Actual:**
 
 #### **Tablas Principales:**
+
 ```sql
 ✅ drivers (id, first_name, last_name, profile_image_url, car_image_url, car_model, license_plate, car_seats, status, verification_status, can_do_deliveries)
 
@@ -105,68 +113,78 @@ app/(driver)/
 ### **6 Endpoints Principales del RIDES Module:**
 
 #### **1. POST `/api/ride/create`** ✅ Implementado
+
 - **Estado**: ✅ Implementado
 - **Funcionalidad**: Crear ride inmediato
 - **Integración necesaria**: Conectar con sistema de notificaciones para drivers
 
 #### **2. GET `/api/ride/:id`** ✅ Implementado
+
 - **Estado**: ✅ Implementado
 - **Funcionalidad**: Historial de rides por usuario
 - **Integración necesaria**: Conectar con UI de perfil de usuario
 
 #### **3. POST `/api/ride/schedule`** ✅ Implementado
+
 - **Estado**: ✅ Implementado
 - **Funcionalidad**: Programar ride futuro
 - **Integración necesaria**: Sistema de recordatorios y activación automática
 
 #### **4. GET `/api/ride/estimate`** ✅ Implementado
+
 - **Estado**: ✅ Implementado
 - **Funcionalidad**: Estimación de tarifa por tier
 - **Integración necesaria**: Mejorar cálculo con datos reales de tiers
 
 #### **5. POST `/api/ride/:rideId/accept`** ✅ Implementado
+
 - **Estado**: ✅ Implementado
 - **Funcionalidad**: Conductor acepta ride
 - **Integración necesaria**: **CRÍTICO** - Conectar con UI de ride-requests
 
 #### **6. POST `/api/ride/:rideId/rate`** ✅ Implementado
+
 - **Estado**: ✅ Implementado
 - **Funcionalidad**: Calificar ride completado
 - **Integración necesaria**: UI de calificación post-ride
 
 ### **Estados del Ride (7 estados definidos):**
+
 ```typescript
 type RideStatus =
-  | "requested"     // Ride creado, esperando conductor
-  | "scheduled"     // Ride programado para futuro
-  | "accepted"      // Conductor asignado
-  | "in_progress"   // Viaje en curso
-  | "completed"     // Viaje terminado
-  | "rated"         // Usuario calificó
-  | "cancelled";    // Ride cancelado
+  | "requested" // Ride creado, esperando conductor
+  | "scheduled" // Ride programado para futuro
+  | "accepted" // Conductor asignado
+  | "in_progress" // Viaje en curso
+  | "completed" // Viaje terminado
+  | "rated" // Usuario calificó
+  | "cancelled"; // Ride cancelado
 ```
 
 ### **Funcionalidades Críticas del RIDES Module:**
 
 #### **Sistema de Matching:**
+
 - 🔄 **Búsqueda automática** de conductores en radio de 5km
 - 🔄 **Filtros**: estado = 'online', verificación = 'approved'
 - 🔄 **Ordenamiento**: por distancia
 - 🔄 **Timeout**: 30 segundos para respuesta
 
 #### **Notificaciones Automáticas:**
+
 - 🔄 **Ride creado** → Notificar conductores cercanos
 - 🔄 **Ride aceptado** → Notificar pasajero
 - 🔄 **Ride completado** → Actualizar estado y notificar
 - 🔄 **Estado actualizado** → WebSocket broadcasts
 
 #### **Métodos Internos Adicionales:**
+
 ```typescript
 // NO expuestos como endpoints pero CRÍTICOS
-startRide(rideId)      // Inicia viaje cuando conductor llega
-driverArrived(rideId)  // Notifica llegada del conductor
-completeRide(rideId)   // Completa viaje al llegar a destino
-cancelRide(rideId, reason) // Cancela con motivo
+startRide(rideId); // Inicia viaje cuando conductor llega
+driverArrived(rideId); // Notifica llegada del conductor
+completeRide(rideId); // Completa viaje al llegar a destino
+cancelRide(rideId, reason); // Cancela con motivo
 ```
 
 ---
@@ -176,6 +194,7 @@ cancelRide(rideId, reason) // Cancela con motivo
 ### **Estado Actual vs Nueva API**
 
 #### **🔴 Endpoints de Expo Actuales (A REMOVER):**
+
 ```
 app/(api)/
 ├── ride/create+api.ts          ❌ REMOVER - Usar nueva API
@@ -186,6 +205,7 @@ app/(api)/
 ```
 
 #### **🟢 Nueva API Externa (A USAR):**
+
 ```typescript
 // Base URL: process.env.EXPO_PUBLIC_SERVER_URL
 const API_BASE_URL = "https://gnuhealth-back.alcaravan.com.ve/api";
@@ -202,20 +222,24 @@ const API_BASE_URL = "https://gnuhealth-back.alcaravan.com.ve/api";
 ### **¿Qué Cambiar en la App?**
 
 #### **1. Actualizar lib/fetch.ts**
+
 ```typescript
 // ✅ YA CONFIGURADO - Apunta a nueva API externa
-const API_BASE_URL = (process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000") + "/api";
+const API_BASE_URL =
+  (process.env.EXPO_PUBLIC_SERVER_URL || "http://localhost:3000") + "/api";
 ```
 
 #### **2. Cambiar Todas las Llamadas de API**
 
 ##### **De (Expo API):**
+
 ```typescript
 // ❌ ANTES - Usando Expo API local
 const response = await fetchAPI("/(api)/ride/create", { ... })
 ```
 
 ##### **A (Nueva API Externa):**
+
 ```typescript
 // ✅ AHORA - Usando nueva API externa
 const response = await fetchAPI("ride/create", { ... })
@@ -224,6 +248,7 @@ const response = await fetchAPI("ride/create", { ... })
 #### **3. Archivos que Necesitan Cambios:**
 
 ##### **app/(root)/confirm-ride.tsx**
+
 ```typescript
 // ❌ ANTES
 await fetchAPI("/(api)/ride/create", { ... })
@@ -233,6 +258,7 @@ await fetchAPI("ride/create", { ... })
 ```
 
 ##### **app/(driver)/ride-requests/index.tsx**
+
 ```typescript
 // ❌ ANTES - Usando datos dummy
 const DUMMY_RIDE_REQUESTS = [...]
@@ -242,6 +268,7 @@ const { data: rideRequests } = useFetch("ride/requests");
 ```
 
 ##### **Map.tsx - Integración con Drivers**
+
 ```typescript
 // ❌ ANTES - Llamada a Expo API
 const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
@@ -253,17 +280,20 @@ const { data: drivers, loading, error } = useFetch<Driver[]>("driver");
 #### **4. Endpoints que Faltan en Nueva API**
 
 ##### **❌ CRÍTICOS - Necesitan Implementación:**
+
 ```typescript
 // Estos endpoints NO existen en la nueva API documentada
-GET /api/ride/requests           // Para conductores obtener rides disponibles
-POST /api/ride/[rideId]/start    // Conductor inicia viaje
-POST /api/ride/[rideId]/complete // Conductor completa viaje
-GET /api/driver/[driverId]/rides // Historial de rides del conductor
-GET /api/driver                  // Lista de todos los drivers
+GET / api / ride / requests; // Para conductores obtener rides disponibles
+POST / api / ride / [rideId] / start; // Conductor inicia viaje
+POST / api / ride / [rideId] / complete; // Conductor completa viaje
+GET / api / driver / [driverId] / rides; // Historial de rides del conductor
+GET / api / driver; // Lista de todos los drivers
 ```
 
 ##### **⚠️ ADVERTENCIA IMPORTANTE:**
+
 **La nueva API documentada en RIDES-MODULE-DOCUMENTATION.md NO incluye:**
+
 - Endpoint para obtener rides disponibles por ubicación
 - Endpoints para iniciar/completar viajes
 - Endpoint para obtener historial de rides por conductor
@@ -272,6 +302,7 @@ GET /api/driver                  // Lista de todos los drivers
 ### **Endpoints Faltantes Críticos**
 
 #### **1. GET `/api/ride/requests`**
+
 ```typescript
 // Para conductores obtener rides disponibles
 Query params: driverLat, driverLng, radius
@@ -281,6 +312,7 @@ Status: ❌ NO IMPLEMENTADO en nueva API
 ```
 
 #### **2. POST `/api/ride/[rideId]/start`**
+
 ```typescript
 // Conductor inicia el viaje (llegó al pasajero)
 Body: { driverId, actualPickupTime }
@@ -289,6 +321,7 @@ Status: ❌ NO IMPLEMENTADO en nueva API
 ```
 
 #### **3. POST `/api/ride/[rideId]/complete`**
+
 ```typescript
 // Conductor completa el viaje
 Body: { driverId, finalDistance, finalTime }
@@ -297,6 +330,7 @@ Status: ❌ NO IMPLEMENTADO en nueva API
 ```
 
 #### **4. GET `/api/driver/[driverId]/rides`**
+
 ```typescript
 // Historial de rides del conductor
 Query params: status, dateFrom, dateTo
@@ -305,6 +339,7 @@ Status: ❌ NO IMPLEMENTADO en nueva API
 ```
 
 #### **5. GET `/api/driver`**
+
 ```typescript
 // Lista de todos los drivers para mapa
 Filters: status='online', location
@@ -324,12 +359,14 @@ Status: ❌ NO IMPLEMENTADO en nueva API
 #### **Tareas de Migración:**
 
 ##### **0.1 Configurar Variables de Entorno**
+
 ```bash
 # Asegurarse que esté configurado:
 EXPO_PUBLIC_SERVER_URL=https://gnuhealth-back.alcaravan.com.ve
 ```
 
 ##### **0.2 Actualizar Todas las Llamadas de API**
+
 ```typescript
 // ❌ PATRÓN A CAMBIAR (en TODOS los archivos):
 await fetchAPI("/(api)/ride/create", { ... })
@@ -341,12 +378,14 @@ await fetchAPI("driver", { ... })
 ```
 
 **Archivos que necesitan actualización inmediata:**
+
 - ✅ `app/(root)/confirm-ride.tsx` - `/(api)/ride/create` → `ride/create`
 - ❌ `components/Map.tsx` - `/(api)/driver` → `driver`
 - ❌ `app/(driver)/ride-requests/index.tsx` - Conectar con API real
 - ❌ Todos los demás archivos que usen Expo API
 
 ##### **0.3 Remover Endpoints de Expo (Después de migrar)**
+
 ```bash
 # Una vez completada la migración, eliminar:
 rm -rf app/(api)/ride/
@@ -366,6 +405,7 @@ rm -rf app/(api)/user/
 #### **✅ ENDPOINTS CRÍTICOS IMPLEMENTADOS:**
 
 ##### **1.1 ✅ GET `/api/ride/requests`** - COMPLETADO
+
 ```typescript
 // ✅ IMPLEMENTADO - Lógica completa:
 - ✅ Filtro por ubicación con fórmula Haversine
@@ -377,6 +417,7 @@ rm -rf app/(api)/user/
 ```
 
 ##### **1.2 ✅ POST `/api/ride/[rideId]/start`** - COMPLETADO
+
 ```typescript
 // ✅ IMPLEMENTADO - Funcionalidades:
 - ✅ Validación de conductor asignado
@@ -387,6 +428,7 @@ rm -rf app/(api)/user/
 ```
 
 ##### **1.3 ✅ POST `/api/ride/[rideId]/complete`** - COMPLETADO
+
 ```typescript
 // ✅ IMPLEMENTADO - Características avanzadas:
 - ✅ Recálculo dinámico de tarifa
@@ -397,6 +439,7 @@ rm -rf app/(api)/user/
 ```
 
 ##### **1.4 ✅ GET `/api/driver/[driverId]/rides`** - COMPLETADO
+
 ```typescript
 // ✅ IMPLEMENTADO - Historial completo:
 - ✅ Estadísticas detalladas (earnings, ratings, etc.)
@@ -407,6 +450,7 @@ rm -rf app/(api)/user/
 ```
 
 ##### **1.5 ✅ GET `/api/driver`** - COMPLETADO
+
 ```typescript
 // ✅ IMPLEMENTADO - Filtros avanzados:
 - ✅ Filtro por status (online/offline/in_ride)
@@ -417,6 +461,7 @@ rm -rf app/(api)/user/
 ```
 
 ##### **1.6 ✅ POST `/api/ride/[rideId]/cancel`** - COMPLETADO
+
 ```typescript
 // ✅ IMPLEMENTADO - Sistema de cancelaciones:
 - ✅ Soporte para pasajero y conductor
@@ -436,6 +481,7 @@ rm -rf app/(api)/user/
 #### **Tareas de Conexión:**
 
 ##### **2.1 Reemplazar Datos Dummy en Ride Requests**
+
 ```typescript
 // app/(driver)/ride-requests/index.tsx
 ❌ const DUMMY_RIDE_REQUESTS = [...] // REMOVER
@@ -454,13 +500,14 @@ useEffect(() => {
 ```
 
 ##### **2.2 Implementar Ride Acceptance Flow**
+
 ```typescript
 // Conectar handleAcceptRide con nueva API
 const handleAcceptRide = async (rideId: string) => {
   try {
     const response = await fetchAPI(`ride/${rideId}/accept`, {
-      method: 'POST',
-      body: JSON.stringify({ driverId: currentDriver.id })
+      method: "POST",
+      body: JSON.stringify({ driverId: currentDriver.id }),
     });
 
     if (response?.success) {
@@ -468,12 +515,13 @@ const handleAcceptRide = async (rideId: string) => {
       router.push(`/driver/active-ride/${rideId}`);
     }
   } catch (error) {
-    Alert.alert('Error', 'No se pudo aceptar el ride');
+    Alert.alert("Error", "No se pudo aceptar el ride");
   }
 };
 ```
 
 ##### **2.3 Conectar Mapa con Nueva API**
+
 ```typescript
 // components/Map.tsx
 ❌ const { data: drivers, loading, error } = useFetch<Driver[]>("/(api)/driver");
@@ -481,9 +529,10 @@ const handleAcceptRide = async (rideId: string) => {
 ```
 
 ##### **2.4 Crear Pantalla de Ride Activo**
+
 ```typescript
 // Nueva pantalla necesaria
-app/(driver)/active-ride/[rideId].tsx
+app / driver / active - ride / [rideId].tsx;
 
 // Funcionalidades:
 // - Mostrar detalles del ride actual
@@ -502,6 +551,7 @@ app/(driver)/active-ride/[rideId].tsx
 #### **Estados a Implementar:**
 
 ##### **3.1 Ride State Management**
+
 ```typescript
 // Nuevo store para manejar estados del ride
 interface RideState {
@@ -514,6 +564,7 @@ interface RideState {
 ```
 
 ##### **2.2 Transiciones Automáticas**
+
 ```typescript
 // Cuando conductor acepta ride
 "requested" → "accepted"
@@ -529,6 +580,7 @@ interface RideState {
 ```
 
 ##### **2.3 UI por Estado**
+
 ```
 Ride solicitado → Pantalla de "Buscando conductor"
 Ride aceptado → Pantalla de "Conductor en camino"
@@ -543,6 +595,7 @@ Ride completado → Pantalla de "Viaje terminado" + calificación
 #### **Mejoras Necesarias:**
 
 ##### **3.1 Marcadores Dinámicos por Estado**
+
 ```typescript
 // Map.tsx - Mejorar marcadores según estado del ride
 {rideStatus === 'accepted' && (
@@ -555,10 +608,11 @@ Ride completado → Pantalla de "Viaje terminado" + calificación
 ```
 
 ##### **3.2 Rutas en Tiempo Real**
+
 ```typescript
 // Actualizar ruta mientras el viaje está en progreso
 useEffect(() => {
-  if (rideStatus === 'in_progress') {
+  if (rideStatus === "in_progress") {
     // Actualizar ruta cada 30 segundos
     const interval = setInterval(updateRoute, 30000);
     return () => clearInterval(interval);
@@ -567,17 +621,14 @@ useEffect(() => {
 ```
 
 ##### **3.3 Cálculo de Precios Real**
+
 ```typescript
 // Integrar con tiers de la base de datos
-const calculateRealFare = (
-  distance: number,
-  time: number,
-  tierId: number
-) => {
-  const tier = rideTiers.find(t => t.id === tierId);
-  return tier.baseFare +
-         (time * tier.perMinuteRate) +
-         (distance * tier.perMileRate);
+const calculateRealFare = (distance: number, time: number, tierId: number) => {
+  const tier = rideTiers.find((t) => t.id === tierId);
+  return (
+    tier.baseFare + time * tier.perMinuteRate + distance * tier.perMileRate
+  );
 };
 ```
 
@@ -586,6 +637,7 @@ const calculateRealFare = (
 #### **Objetivo:** Implementar comunicación en tiempo real
 
 #### **4.1 WebSocket Integration**
+
 ```typescript
 // services/websocketService.ts
 ✅ Conectar a servidor WebSocket
@@ -595,6 +647,7 @@ const calculateRealFare = (
 ```
 
 #### **4.2 Push Notifications**
+
 ```typescript
 // services/notificationService.ts
 ✅ Ride aceptado → Push al pasajero
@@ -608,6 +661,7 @@ const calculateRealFare = (
 #### **Objetivo:** Implementar flujo completo de calificaciones
 
 #### **5.1 UI de Calificación Post-Ride**
+
 ```typescript
 // components/RatingModal.tsx
 ✅ Estrellas 1-5
@@ -617,6 +671,7 @@ const calculateRealFare = (
 ```
 
 #### **5.2 Cálculo de Promedios**
+
 ```typescript
 // API endpoint para actualizar rating promedio
 POST /api/driver/:driverId/update-rating
@@ -655,6 +710,7 @@ api/
 ### **Nuevos Endpoints Críticos:**
 
 #### **1. GET `/api/ride/requests`**
+
 ```typescript
 // Para conductores obtener rides disponibles
 Query params: driverLat, driverLng, radius
@@ -663,13 +719,17 @@ Orden: por distancia
 ```
 
 #### **2. POST `/api/ride/[rideId]/start`**
+
 ```typescript
 // Conductor inicia el viaje (llegó al pasajero)
-Body: { driverId, actualPickupTime }
-Actualiza: ride.status = 'in_progress'
+Body: {
+  (driverId, actualPickupTime);
+}
+Actualiza: ride.status = "in_progress";
 ```
 
 #### **3. POST `/api/ride/[rideId]/complete`**
+
 ```typescript
 // Conductor completa el viaje
 Body: { driverId, finalDistance, finalTime }
@@ -678,6 +738,7 @@ Calcula: precio final si es necesario
 ```
 
 #### **4. GET `/api/driver/[driverId]/rides`**
+
 ```typescript
 // Historial de rides del conductor
 Query params: status, dateFrom, dateTo
@@ -691,6 +752,7 @@ Include: ride details, ratings, earnings
 ### **Módulo 1: Ride Flow Completo (Prioridad Máxima)**
 
 #### **Archivos a Crear/Modificar:**
+
 ```
 ✅ app/(api)/ride/requests+api.ts
 ✅ app/(api)/ride/[rideId]/start+api.ts
@@ -705,6 +767,7 @@ Include: ride details, ratings, earnings
 ### **Módulo 2: Estado del Ride Management**
 
 #### **Archivos a Crear/Modificar:**
+
 ```
 ✅ store/ride/ride.ts (completar)
 ✅ components/RideStatusIndicator.tsx
@@ -717,6 +780,7 @@ Include: ride details, ratings, earnings
 ### **Módulo 3: Integración Maps Mejorada**
 
 #### **Archivos a Modificar:**
+
 ```
 ✅ components/Map.tsx (mejorar con estados de ride)
 ✅ lib/map.ts (funciones adicionales)
@@ -728,6 +792,7 @@ Include: ride details, ratings, earnings
 ### **Módulo 4: Notificaciones y WebSocket**
 
 #### **Archivos a Crear:**
+
 ```
 ✅ services/websocketService.ts
 ✅ services/notificationService.ts
@@ -740,6 +805,7 @@ Include: ride details, ratings, earnings
 ### **Módulo 5: Sistema de Calificaciones**
 
 #### **Archivos a Crear:**
+
 ```
 ✅ components/RatingModal.tsx
 ✅ app/(api)/ratings/
@@ -755,6 +821,7 @@ Include: ride details, ratings, earnings
 ### **Base de Datos - Optimizaciones Necesarias:**
 
 #### **Índices Recomendados:**
+
 ```sql
 -- Para búsquedas de rides por ubicación
 CREATE INDEX idx_rides_origin_coords ON rides(origin_latitude, origin_longitude);
@@ -768,6 +835,7 @@ CREATE INDEX idx_ratings_driver ON ratings(rated_clerk_id, created_at);
 ```
 
 #### **Nuevas Columnas Necesarias:**
+
 ```sql
 -- Para ubicación en tiempo real
 ALTER TABLE drivers ADD COLUMN current_latitude DECIMAL(9,6);
@@ -784,12 +852,14 @@ ALTER TABLE rides ADD COLUMN status_updated_at TIMESTAMP;
 ### **Performance Considerations:**
 
 #### **Caching Strategy:**
+
 ```typescript
 // Redis para estimaciones frecuentes
 const cacheKey = `${tierId}_${originLat}_${originLng}_${destLat}_${destLng}`;
 ```
 
 #### **API Rate Limiting:**
+
 ```typescript
 // Límite de requests por usuario/hora
 - Ride creation: 10/hour
@@ -800,6 +870,7 @@ const cacheKey = `${tierId}_${originLat}_${originLng}_${destLat}_${destLng}`;
 ### **Testing Strategy:**
 
 #### **Endpoints Críticos a Testear:**
+
 ```bash
 # Ride creation flow
 POST /api/ride/create
@@ -818,15 +889,16 @@ POST /api/ride/123/complete
 ### **Security Considerations:**
 
 #### **Validaciones de Seguridad:**
+
 ```typescript
 // Verificar que el driver aceptando el ride está autorizado
 if (ride.driver_id && ride.driver_id !== driverId) {
-  throw new ConflictException('Ride already assigned to another driver');
+  throw new ConflictException("Ride already assigned to another driver");
 }
 
 // Verificar que el usuario calificando es quien realizó el ride
 if (rateDto.ratedByClerkId !== ride.user_id) {
-  throw new ForbiddenException('Unauthorized to rate this ride');
+  throw new ForbiddenException("Unauthorized to rate this ride");
 }
 ```
 
@@ -846,21 +918,25 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 ### **Plan de Ejecución Recomendado:**
 
 #### **Semana 1: Conexión Crítica**
+
 - Conectar ride-requests con API real
 - Implementar ride acceptance flow
 - Crear pantalla de ride activo
 
 #### **Semana 2: Estados y Transiciones**
+
 - Implementar ride state management
 - Crear UI para diferentes estados
 - Testing de transiciones
 
 #### **Semana 3: Maps y Notificaciones**
+
 - Mejorar integración de mapas
 - Implementar WebSocket básico
 - Push notifications
 
 #### **Semana 4: Calificaciones y Testing**
+
 - Sistema de calificaciones
 - Testing completo
 - Optimizaciones de performance
@@ -868,35 +944,43 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 ### **Riesgos y Mitigaciones:**
 
 #### **Riesgo 1: Migración de API**
+
 - **Mitigación**: Realizar migración gradual, archivo por archivo, con testing
 
 #### **Riesgo 2: Endpoints Faltantes**
+
 - **Mitigación**: Implementar endpoints críticos primero (ride/requests, start, complete)
 
 #### **Riesgo 3: Complejidad de Estados**
+
 - **Mitigación**: Implementar state machine clara con validaciones estrictas
 
 #### **Riesgo 4: Performance con Muchos Drivers**
+
 - **Mitigación**: Implementar caching y optimizar queries de ubicación
 
 ### **Métricas de Éxito:**
 
 #### **Fase 0 (Migración):**
+
 - ✅ Todas las llamadas API actualizadas a nueva URL
 - ✅ Sin errores de conexión a nueva API
 - ✅ Funcionalidades básicas funcionando
 
 #### **Fase 1 (Backend):**
+
 - ✅ 5 endpoints críticos implementados
 - ✅ API responde correctamente con datos reales
 - ✅ Validaciones de seguridad implementadas
 
 #### **Fase 2 (Frontend):**
+
 - ✅ UI conectada con nueva API
 - ✅ Ride acceptance funcionando
 - ✅ Pantalla de ride activo creada
 
 #### **Fase 3+ (Funcionalidades Avanzadas):**
+
 - ✅ Estados del ride funcionando correctamente
 - ✅ Notificaciones en tiempo real
 - ✅ Sistema de calificaciones completo
@@ -909,6 +993,7 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 ### **Estado Actual del Proyecto:**
 
 ✅ **FORTALEZAS:**
+
 - APIs de RIDES completas y bien documentadas
 - Arquitectura modular y escalable
 - Sistema de mapas avanzado con Google Maps
@@ -916,6 +1001,7 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 - **✅ TODOS LOS ENDPOINTS CRÍTICOS IMPLEMENTADOS**
 
 ✅ **LOGROS RECIENTES:**
+
 - **✅ Migración completa** de Expo API → Nueva API externa
 - **✅ 6 endpoints críticos implementados** con lógica completa
 - **✅ Sistema de matching geográfico** con fórmula Haversine
@@ -926,6 +1012,7 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 ### **Estado Actual - POST IMPLEMENTACIÓN:**
 
 #### **🚀 APIs Completamente Funcionales:**
+
 ```typescript
 ✅ GET /api/ride/requests     // Matching geográfico avanzado
 ✅ POST /api/ride/[id]/start  // Inicio de viajes con validaciones
@@ -936,6 +1023,7 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 ```
 
 #### **🔧 Frontend Conectado:**
+
 ```typescript
 ✅ app/(root)/confirm-ride.tsx     // Ride creation
 ✅ app/(root)/(tabs)/home.tsx      // Historial de rides
@@ -948,6 +1036,7 @@ El proyecto actual tiene una **base sólida** pero necesita **conexión crítica
 ### **Próximos Pasos - Optimización y Testing:**
 
 #### **🔄 SEMANA ACTUAL: Testing y Optimizaciones**
+
 ```bash
 Día 1-2: Testing de integración completa
 Día 3-4: Optimizaciones de performance
@@ -957,6 +1046,7 @@ Día 5-7: Testing de casos edge y errores
 ### **Resultado Final Esperado:**
 
 🎉 **Sistema de Rides Completamente Funcional:**
+
 - ✅ Conductores ven rides disponibles en tiempo real
 - ✅ Acceptance y matching automático
 - ✅ Estados del ride manejados correctamente

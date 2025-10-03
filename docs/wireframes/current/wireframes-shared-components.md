@@ -1,6 +1,7 @@
 # Uber-like App Wireframes: Shared Components
 
 ## Overview
+
 This document contains ASCII wireframes for shared components used across all modes of the Uber-like multi-modal application.
 
 ## 1. Real-time Chat Interface
@@ -353,6 +354,7 @@ This document contains ASCII wireframes for shared components used across all mo
 ## Component Architecture
 
 ### Atomic Design Pattern
+
 - **Atoms**: Buttons, inputs, icons
 - **Molecules**: Search bars, notification items, payment cards
 - **Organisms**: Chat interface, map component, navigation drawer
@@ -360,12 +362,14 @@ This document contains ASCII wireframes for shared components used across all mo
 - **Pages**: Complete screens with specific content
 
 ### State Management
+
 - **Local State**: useState for component-specific state
 - **Global State**: Zustand stores for app-wide state
 - **Server State**: Real-time updates via WebSocket
 - **Persistent State**: AsyncStorage for user preferences
 
 ### Reusability
+
 - **Custom Hooks**: useChat, useNotifications, useWebSocket
 - **Shared Components**: CustomButton, GoogleTextInput, Map
 - **Utility Functions**: Date formatting, currency formatting

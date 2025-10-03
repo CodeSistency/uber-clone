@@ -55,7 +55,8 @@ export class DocumentService {
 
       formData.append("type", request.type);
       if (request.fileName) formData.append("fileName", request.fileName);
-      if (request.description) formData.append("description", request.description);
+      if (request.description)
+        formData.append("description", request.description);
 
       const response = await fetchAPI("driver/documents", {
         method: "POST",
@@ -71,7 +72,10 @@ export class DocumentService {
   }
 
   // Update an existing document
-  async updateDocument(documentId: string, updates: Partial<Document>): Promise<Document> {
+  async updateDocument(
+    documentId: string,
+    updates: Partial<Document>,
+  ): Promise<Document> {
     try {
       console.log("[DocumentService] Updating document:", documentId, updates);
       const response = await fetchAPI(`driver/documents/${documentId}`, {
@@ -109,13 +113,18 @@ export class DocumentService {
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error fetching verification status:", error);
+      console.error(
+        "[DocumentService] Error fetching verification status:",
+        error,
+      );
       throw error;
     }
   }
 
   // Get required document types
-  async getRequiredDocumentTypes(): Promise<{ type: DocumentType; name: string; description: string }[]> {
+  async getRequiredDocumentTypes(): Promise<
+    { type: DocumentType; name: string; description: string }[]
+  > {
     try {
       console.log("[DocumentService] Fetching required document types");
       const response = await fetchAPI("driver/document-types", {
@@ -129,7 +138,11 @@ export class DocumentService {
   }
 
   // Re-upload a rejected document
-  async reuploadDocument(documentId: string, file: File | string, fileName?: string): Promise<Document> {
+  async reuploadDocument(
+    documentId: string,
+    file: File | string,
+    fileName?: string,
+  ): Promise<Document> {
     try {
       console.log("[DocumentService] Re-uploading document:", documentId);
 
@@ -143,11 +156,14 @@ export class DocumentService {
 
       if (fileName) formData.append("fileName", fileName);
 
-      const response = await fetchAPI(`driver/documents/${documentId}/reupload`, {
-        method: "POST",
-        body: formData,
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `driver/documents/${documentId}/reupload`,
+        {
+          method: "POST",
+          body: formData,
+          requiresAuth: true,
+        },
+      );
       return response;
     } catch (error) {
       console.error("[DocumentService] Error re-uploading document:", error);
@@ -159,27 +175,43 @@ export class DocumentService {
   async getDocumentHistory(documentId: string): Promise<any[]> {
     try {
       console.log("[DocumentService] Fetching document history:", documentId);
-      const response = await fetchAPI(`driver/documents/${documentId}/history`, {
-        requiresAuth: true,
-      });
+      const response = await fetchAPI(
+        `driver/documents/${documentId}/history`,
+        {
+          requiresAuth: true,
+        },
+      );
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error fetching document history:", error);
+      console.error(
+        "[DocumentService] Error fetching document history:",
+        error,
+      );
       throw error;
     }
   }
 
   // Request expedited verification
-  async requestExpeditedVerification(documentId: string, priority: "normal" | "high" | "urgent"): Promise<void> {
+  async requestExpeditedVerification(
+    documentId: string,
+    priority: "normal" | "high" | "urgent",
+  ): Promise<void> {
     try {
-      console.log("[DocumentService] Requesting expedited verification:", documentId, priority);
+      console.log(
+        "[DocumentService] Requesting expedited verification:",
+        documentId,
+        priority,
+      );
       await fetchAPI(`driver/documents/${documentId}/expedite`, {
         method: "POST",
         body: JSON.stringify({ priority }),
         requiresAuth: true,
       });
     } catch (error) {
-      console.error("[DocumentService] Error requesting expedited verification:", error);
+      console.error(
+        "[DocumentService] Error requesting expedited verification:",
+        error,
+      );
       throw error;
     }
   }
@@ -187,10 +219,16 @@ export class DocumentService {
   // Get document download URL
   async getDocumentDownloadUrl(documentId: string): Promise<string> {
     try {
-      console.log("[DocumentService] Getting download URL for document:", documentId);
-      const response = await fetchAPI(`driver/documents/${documentId}/download`, {
-        requiresAuth: true,
-      });
+      console.log(
+        "[DocumentService] Getting download URL for document:",
+        documentId,
+      );
+      const response = await fetchAPI(
+        `driver/documents/${documentId}/download`,
+        {
+          requiresAuth: true,
+        },
+      );
       return response.url;
     } catch (error) {
       console.error("[DocumentService] Error getting download URL:", error);
@@ -199,9 +237,14 @@ export class DocumentService {
   }
 
   // Bulk upload multiple documents
-  async bulkUploadDocuments(documents: UploadDocumentRequest[]): Promise<Document[]> {
+  async bulkUploadDocuments(
+    documents: UploadDocumentRequest[],
+  ): Promise<Document[]> {
     try {
-      console.log("[DocumentService] Bulk uploading documents:", documents.length);
+      console.log(
+        "[DocumentService] Bulk uploading documents:",
+        documents.length,
+      );
 
       const formData = new FormData();
 
@@ -248,7 +291,10 @@ export class DocumentService {
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error fetching document statistics:", error);
+      console.error(
+        "[DocumentService] Error fetching document statistics:",
+        error,
+      );
       throw error;
     }
   }

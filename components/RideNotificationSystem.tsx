@@ -217,4 +217,3 @@ const RideNotificationSystem: React.FC<RideNotificationSystemProps> = ({
 };
 
 export default RideNotificationSystem;
-

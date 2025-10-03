@@ -1,12 +1,19 @@
 import { useMemo } from "react";
-import { Dimensions, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
-import Animated, { type SharedValue, useAnimatedStyle } from "react-native-reanimated";
+import {
+  Dimensions,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import Animated, {
+  type SharedValue,
+  useAnimatedStyle,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import {
-  AnimatedDrawerLayout,
-  DrawerRenderParams,
-} from "@/components/drawer";
+import { AnimatedDrawerLayout } from "@/components/drawer";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
@@ -50,7 +57,9 @@ const TestDrawerScreen = () => {
       borderRadius={28}
       secondaryScaleFactor={0.75}
       secondaryTranslateMultiplier={0.75}
-      renderBackdrop={({ progress }) => <AnimatedBackdrop progress={progress} />}
+      renderBackdrop={({ progress }) => (
+        <AnimatedBackdrop progress={progress} />
+      )}
       renderDrawer={(params) => (
         <DrawerContent items={drawerItems} drawerParams={params} />
       )}
@@ -64,7 +73,12 @@ const AnimatedBackdrop = ({ progress }: { progress: SharedValue<number> }) => {
     opacity: progress.value,
   }));
 
-  return <Animated.View pointerEvents="none" style={[styles.backdrop, animatedStyle]} />;
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[styles.backdrop, animatedStyle]}
+    />
+  );
 };
 
 const DrawerContent = ({
@@ -72,7 +86,7 @@ const DrawerContent = ({
   drawerParams,
 }: {
   items: Array<{ emoji: string; title: string; subtitle: string }>;
-  drawerParams: DrawerRenderParams;
+  drawerParams: { close: () => void; open: () => void; isOpen: boolean };
 }) => {
   return (
     <SafeAreaView style={styles.drawerContainer}>
@@ -93,9 +107,17 @@ const DrawerContent = ({
   );
 };
 
-const MainContent = ({ drawerParams }: { drawerParams: DrawerRenderParams }) => {
+const MainContent = ({
+  drawerParams,
+}: {
+  drawerParams: { close: () => void; open?: () => void; isOpen: boolean };
+}) => {
   return (
-    <Pressable style={styles.flexOne} onPress={drawerParams.close} disabled={!drawerParams.isOpen}>
+    <Pressable
+      style={styles.flexOne}
+      onPress={drawerParams.close}
+      disabled={!drawerParams.isOpen}
+    >
       <SafeAreaView style={styles.mainSafeArea}>
         <View style={styles.header}>
           <Pressable style={styles.hamburgerButton} onPress={drawerParams.open}>
@@ -105,7 +127,9 @@ const MainContent = ({ drawerParams }: { drawerParams: DrawerRenderParams }) => 
           </Pressable>
           <View>
             <Text style={styles.headerTitle}>Demo Drawer</Text>
-            <Text style={styles.headerSubtitle}>Escala + translación coordinadas</Text>
+            <Text style={styles.headerSubtitle}>
+              Escala + translación coordinadas
+            </Text>
           </View>
         </View>
 
@@ -116,31 +140,32 @@ const MainContent = ({ drawerParams }: { drawerParams: DrawerRenderParams }) => 
         >
           <Text style={styles.sectionTitle}>Contenido principal</Text>
           <Text style={styles.sectionDescription}>
-            Toca el botón de menú para ver el efecto. Mientras el drawer está abierto, toda esta
-            vista actúa como un área para cerrarlo.
+            Toca el botón de menú para ver el efecto. Mientras el drawer está
+            abierto, toda esta vista actúa como un área para cerrarlo.
           </Text>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Transiciones coordinadas</Text>
             <Text style={styles.cardDescription}>
-              La escala reduce la vista al 58% y la traslada lo suficiente para dejar libre el ancho
-              del drawer más un margen extra.
+              La escala reduce la vista al 58% y la traslada lo suficiente para
+              dejar libre el ancho del drawer más un margen extra.
             </Text>
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Animaciones del Drawer</Text>
             <Text style={styles.cardDescription}>
-              El menú lateral se desliza suavemente y aparece con un fade-in coordinado para que la
-              transición se perciba como una sola interacción.
+              El menú lateral se desliza suavemente y aparece con un fade-in
+              coordinado para que la transición se perciba como una sola
+              interacción.
             </Text>
           </View>
 
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Cierre intuitivo</Text>
             <Text style={styles.cardDescription}>
-              Al tocar cualquier punto del contenido escalado se invierte la animación, restaurando
-              la vista a escala 1 y ocultando el menú.
+              Al tocar cualquier punto del contenido escalado se invierte la
+              animación, restaurando la vista a escala 1 y ocultando el menú.
             </Text>
           </View>
         </ScrollView>
@@ -275,5 +300,3 @@ const styles = StyleSheet.create({
 });
 
 export default TestDrawerScreen;
-
-

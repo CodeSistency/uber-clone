@@ -11,9 +11,11 @@ Basado en el análisis completo de los flujos existentes y la implementación ac
 ### Phase 1: Foundation (Week 1-2) - HIGH PRIORITY
 
 #### 1.1 Unified Map Architecture
+
 **Impact:** Alto | **Difficulty:** Media | **Time:** 3-4 días
 
 **Changes Required:**
+
 ```typescript
 // New component: MapViewWithBottomSheet
 interface MapViewWithBottomSheetProps {
@@ -34,17 +36,22 @@ interface MapViewWithBottomSheetProps {
 ```
 
 **Files to Modify:**
+
 - `app/(root)/(tabs)/home.tsx` - Replace static map
 - `components/Map.tsx` - Extend with bottom sheet integration
 - `store/locationStore.ts` - Add bottom sheet state management
 
 #### 1.2 Smart Service Mode Switcher
+
 **Impact:** Alto | **Difficulty:** Baja | **Time:** 1-2 días
 
 **Current Issue:**
+
 ```typescript
 // Current implementation in home.tsx
-const [serviceType, setServiceType] = useState<"transport" | "delivery">("transport");
+const [serviceType, setServiceType] = useState<"transport" | "delivery">(
+  "transport",
+);
 
 // Navigation logic needs improvement
 if (serviceType === "delivery") {
@@ -53,10 +60,11 @@ if (serviceType === "delivery") {
 ```
 
 **Recommended Enhancement:**
+
 ```typescript
 // Enhanced service mode management
 const ServiceModeManager = {
-  currentMode: 'transport' | 'delivery' | 'business',
+  currentMode: "transport" | "delivery" | "business",
 
   switchMode: (newMode: ServiceMode) => {
     this.currentMode = newMode;
@@ -69,27 +77,29 @@ const ServiceModeManager = {
   },
 
   navigateToService: () => {
-    switch(this.currentMode) {
-      case 'transport':
-        router.push('/(root)/find-ride');
+    switch (this.currentMode) {
+      case "transport":
+        router.push("/(root)/find-ride");
         break;
-      case 'delivery':
-        router.push('/(marketplace)');
+      case "delivery":
+        router.push("/(marketplace)");
         break;
-      case 'business':
-        router.push('/(business)/dashboard');
+      case "business":
+        router.push("/(business)/dashboard");
         break;
     }
-  }
+  },
 };
 ```
 
 ### Phase 2: User Experience (Week 3-4) - HIGH PRIORITY
 
 #### 2.1 AI-Powered Suggestions
+
 **Impact:** Muy Alto | **Difficulty:** Alta | **Time:** 4-5 días
 
 **Implementation:**
+
 ```typescript
 // New AI Service Discovery
 const AIServiceDiscovery = {
@@ -101,7 +111,7 @@ const AIServiceDiscovery = {
       location,
       time,
       weather,
-      recentOrders: history.slice(0, 5)
+      recentOrders: history.slice(0, 5),
     });
 
     return suggestions;
@@ -110,20 +120,22 @@ const AIServiceDiscovery = {
   generateSuggestions: async (context) => {
     return {
       quickActions: [
-        { type: 'transport', text: 'Ride home', icon: '🏠', relevance: 0.9 },
-        { type: 'delivery', text: 'Order lunch', icon: '🍕', relevance: 0.8 }
+        { type: "transport", text: "Ride home", icon: "🏠", relevance: 0.9 },
+        { type: "delivery", text: "Order lunch", icon: "🍕", relevance: 0.8 },
       ],
       nearbyServices: await this.findNearbyServices(context.location),
-      personalizedOffers: await this.getPersonalizedOffers(context)
+      personalizedOffers: await this.getPersonalizedOffers(context),
     };
-  }
+  },
 };
 ```
 
 #### 2.2 Enhanced Search Experience
+
 **Impact:** Alto | **Difficulty:** Media | **Time:** 3 días
 
 **Current Implementation:**
+
 ```typescript
 // components/GoogleTextInput.tsx - Basic search
 <GoogleTextInput
@@ -134,6 +146,7 @@ const AIServiceDiscovery = {
 ```
 
 **Enhanced Implementation:**
+
 ```typescript
 // New SmartSearch component
 const SmartSearch = ({ mode, onResultSelect }) => {
@@ -180,15 +193,18 @@ const SmartSearch = ({ mode, onResultSelect }) => {
 ### Phase 3: Marketplace Integration (Week 5-6) - MEDIUM PRIORITY
 
 #### 3.1 Unified Marketplace Experience
+
 **Impact:** Alto | **Difficulty:** Media | **Time:** 4-5 días
 
 **Current Marketplace Issues:**
+
 - ❌ Separado del flujo principal
 - ❌ Sin mapa integrado
 - ❌ Búsqueda básica
 - ❌ Sin recomendaciones inteligentes
 
 **Enhanced Implementation:**
+
 ```typescript
 // Enhanced Marketplace with Map Integration
 const EnhancedMarketplace = () => {
@@ -236,6 +252,7 @@ const EnhancedMarketplace = () => {
 ```
 
 #### 3.2 Smart Cart Management
+
 **Impact:** Medio | **Difficulty:** Media | **Time:** 3 días
 
 ```typescript
@@ -258,20 +275,21 @@ const SmartCart = {
       subtotal: this.calculateSubtotal(),
       deliveryFees: this.calculateDeliveryFees(byStore),
       serviceFees: this.calculateServiceFees(),
-      total: this.calculateTotal()
+      total: this.calculateTotal(),
     };
   },
 
   optimizeDelivery: () => {
     // Group items by store for optimal delivery
     return this.groupByStore();
-  }
+  },
 };
 ```
 
 ### Phase 4: Advanced Features (Week 7-8) - LOW PRIORITY
 
 #### 4.1 Real-time Collaboration
+
 **Impact:** Medio | **Difficulty:** Alta | **Time:** 5-6 días
 
 ```typescript
@@ -286,7 +304,7 @@ const RealTimeCollaboration = {
 
     invitePassengers: async (groupId, passengers) => {
       await sendInvitations(groupId, passengers);
-    }
+    },
   },
 
   // Group ordering
@@ -298,12 +316,13 @@ const RealTimeCollaboration = {
 
     addToGroupOrder: async (groupId, items) => {
       await addItemsToGroup(groupId, items);
-    }
-  }
+    },
+  },
 };
 ```
 
 #### 4.2 Predictive Intelligence
+
 **Impact:** Alto | **Difficulty:** Alta | **Time:** 6-7 días
 
 ```typescript
@@ -314,7 +333,7 @@ const PredictiveEngine = {
     return {
       driverSupply: calculateDriverSupply(location, time),
       userDemand: predictUserDemand(location, time, weather),
-      priceOptimization: optimizePricing(demand, supply)
+      priceOptimization: optimizePricing(demand, supply),
     };
   },
 
@@ -328,9 +347,9 @@ const PredictiveEngine = {
     return {
       favoriteRestaurants: getFavorites(userHistory),
       preferredVehicleTypes: analyzePreferences(userHistory),
-      optimalPickupTimes: predictBestTimes(userHistory)
+      optimalPickupTimes: predictBestTimes(userHistory),
     };
-  }
+  },
 };
 ```
 
@@ -356,11 +375,11 @@ const useUnifiedStore = create((set, get) => ({
   searchResults: [],
 
   // Service State
-  currentMode: 'transport', // 'transport' | 'delivery' | 'business'
+  currentMode: "transport", // 'transport' | 'delivery' | 'business'
   activeService: null,
 
   // UI State
-  mapSize: 'medium', // 'small' | 'medium' | 'large'
+  mapSize: "medium", // 'small' | 'medium' | 'large'
   bottomSheetContent: null,
   isLoading: false,
 
@@ -377,13 +396,14 @@ const useUnifiedStore = create((set, get) => ({
   setMapSize: (size) => {
     set({ mapSize: size });
     get().adjustUIForMapSize(size);
-  }
+  },
 }));
 ```
 
 ### 2. Component Architecture
 
 **Recommended Structure:**
+
 ```
 components/
 ├── core/
@@ -407,6 +427,7 @@ components/
 ### 3. API Architecture
 
 **Recommended API Structure:**
+
 ```typescript
 // Service Layer Enhancement
 const APIService = {
@@ -414,12 +435,12 @@ const APIService = {
   search: async (params: SearchParams) => {
     const { query, mode, location, filters } = params;
 
-    switch(mode) {
-      case 'transport':
+    switch (mode) {
+      case "transport":
         return transportAPI.search(query, location, filters);
-      case 'delivery':
+      case "delivery":
         return deliveryAPI.search(query, location, filters);
-      case 'business':
+      case "business":
         return businessAPI.search(query, location, filters);
     }
   },
@@ -432,7 +453,7 @@ const APIService = {
   // AI-powered suggestions
   getSuggestions: async (context: UserContext) => {
     return aiService.generateSuggestions(context);
-  }
+  },
 };
 ```
 
@@ -441,12 +462,14 @@ const APIService = {
 ## 📊 Success Metrics & KPIs
 
 ### User Experience Metrics
+
 - **Task Completion Time:** -40% (de 5 a 3 pasos)
 - **Error Rate:** -67% (de 15% a 5%)
 - **User Satisfaction:** +44% (de 3.2 a 4.6/5)
 - **Service Discovery:** +300% (AI-powered vs manual)
 
 ### Business Metrics
+
 - **Conversion Rate:** +100% (de 2.1% a 4.2%)
 - **Average Order Value:** +26% (de $12.50 a $15.80)
 - **User Retention (30d):** +51% (de 45% a 68%)
@@ -457,24 +480,28 @@ const APIService = {
 ## 🎯 Implementation Timeline
 
 ### Week 1-2: Foundation
+
 - ✅ Unified Map Architecture
 - ✅ Dynamic Bottom Sheets
 - ✅ Smart Search Component
 - ✅ Service Mode Integration
 
 ### Week 3-4: Core Features
+
 - ✅ AI Service Discovery
 - ✅ Enhanced Marketplace
 - ✅ Unified Payment System
 - ✅ Real-time Updates
 
 ### Week 5-6: Polish & Optimization
+
 - ✅ Advanced Animations
 - ✅ Performance Optimization
 - ✅ Accessibility Improvements
 - ✅ Comprehensive Testing
 
 ### Week 7-8: Launch Preparation
+
 - ✅ Beta Testing
 - ✅ User Feedback Integration
 - ✅ Performance Monitoring
@@ -485,12 +512,14 @@ const APIService = {
 ## 🚨 Risk Mitigation
 
 ### Technical Risks
+
 1. **Map Performance:** Implement clustering y lazy loading
 2. **Real-time Updates:** WebSocket connection management
 3. **AI Integration:** Fallbacks para cuando AI no esté disponible
 4. **Offline Support:** Cache strategy para mapas y datos
 
 ### User Experience Risks
+
 1. **Learning Curve:** Progressive disclosure de features
 2. **Performance Issues:** Loading states y skeleton screens
 3. **Error Handling:** Graceful degradation
@@ -501,12 +530,14 @@ const APIService = {
 ## 🔮 Future Roadmap
 
 ### Phase 2 (Post-Launch)
+
 - **Autonomous Vehicle Integration**
 - **Advanced AI Recommendations**
 - **Social Features & Sharing**
 - **Cryptocurrency Payments**
 
 ### Phase 3 (6 Months)
+
 - **Smart City Integration**
 - **Multi-modal Transportation**
 - **Advanced Analytics Dashboard**
@@ -517,12 +548,14 @@ const APIService = {
 ## 📞 Support & Resources
 
 ### Development Resources
+
 - **Design System:** Componentes y patrones establecidos
 - **API Documentation:** Endpoints y contratos definidos
 - **Testing Strategy:** Unit, integration, y E2E tests
 - **Performance Benchmarks:** Métricas y objetivos definidos
 
 ### Team Requirements
+
 - **Frontend:** React Native + TypeScript expertise
 - **Backend:** Node.js + real-time services
 - **DevOps:** CI/CD + monitoring setup
@@ -533,6 +566,7 @@ const APIService = {
 ## ✅ Ready for Implementation
 
 Esta propuesta proporciona:
+
 - ✅ **Arquitectura técnica clara** con componentes específicos
 - ✅ **Timeline realista** con milestones definidos
 - ✅ **Métricas de éxito** cuantificables

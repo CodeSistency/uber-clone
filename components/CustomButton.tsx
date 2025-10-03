@@ -53,11 +53,14 @@ const CustomButtonComponent = ({
   ...props
 }: CustomButtonProps) => {
   // Memoize the press handler to prevent unnecessary re-renders
-  const handlePress = useCallback((event?: any) => {
-    if (onPress && !loading && !disabled) {
-      onPress(event);
-    }
-  }, [onPress, loading, disabled]);
+  const handlePress = useCallback(
+    (event?: any) => {
+      if (onPress && !loading && !disabled) {
+        onPress(event);
+      }
+    },
+    [onPress, loading, disabled],
+  );
 
   // Memoize computed styles
   const bgStyle = getBgVariantStyle(bgVariant);

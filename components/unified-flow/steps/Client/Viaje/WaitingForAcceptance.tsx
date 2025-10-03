@@ -10,8 +10,10 @@ import {
 import { Button, TextField, Card } from "@/components/ui";
 import { driverMatchingService } from "@/app/services/driverMatchingService";
 import { websocketService } from "@/app/services/websocketService";
+import { websocketEventManager } from "@/lib/websocketEventManager";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import { useAutoNavigation } from "@/hooks/useAutoNavigation";
 import { useRealtimeStore } from "@/store";
 
 import FlowHeader from "../../../FlowHeader";
@@ -29,11 +31,19 @@ const WaitingForAcceptance: React.FC = () => {
   } = useMapFlow() as any;
   const { showError, showSuccess } = useUI();
   const realtime = useRealtimeStore();
+  const { navigationState } = useAutoNavigation(); // 🚀 NUEVO: Hook de navegación automática
   const [confirmationResponse, setConfirmationResponse] = useState<any>(null);
 
   // Estados locales
   const [timeLeft, setTimeLeft] = useState(acceptanceTimeout);
   const [isCancelling, setIsCancelling] = useState(false);
+
+  // 🚀 NUEVO: Estados para feedback en tiempo real
+  const [driversContacted, setDriversContacted] = useState(0);
+  const [totalDrivers, setTotalDrivers] = useState(5); // Estimado inicial
+  const [connectionStatus, setConnectionStatus] = useState<
+    "connected" | "disconnected"
+  >("connected");
 
   // Animaciones
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -137,89 +147,85 @@ const WaitingForAcceptance: React.FC = () => {
     return () => clearInterval(interval);
   }, [acceptanceStartTime, acceptanceTimeout]);
 
-  // Escuchar eventos WebSocket reales para aceptación/rechazo del conductor
+  // 🚀 NUEVO: Escuchar eventos WebSocket en tiempo real usando WebSocketEventManager
   useEffect(() => {
     if (!rideId) return;
 
     console.log(
-      "[WaitingForAcceptance] Setting up WebSocket listeners for ride:",
+      "[WaitingForAcceptance] Setting up WebSocket EventManager listeners for ride:",
       rideId,
     );
 
-    // Listener para aceptación del conductor
+    // 🚀 NUEVO: Listeners simplificados - navegación automática manejada por useAutoNavigation
     const handleRideAccepted = (data: any) => {
-      console.log("[WaitingForAcceptance] Ride accepted via WebSocket:", data);
+      console.log(
+        "[WaitingForAcceptance] 🚨 WebSocket ride:accepted received:",
+        data,
+      );
 
       if (data.rideId === rideId) {
-        handleDriverAccepted(data);
+        setConnectionStatus("connected");
+        // La navegación automática la maneja useAutoNavigation
+        // Solo mostrar feedback visual aquí
+        showSuccess("¡Conductor aceptado!", "Preparando tu viaje...");
       }
     };
 
-    // Listener para rechazo del conductor
     const handleRideRejected = (data: any) => {
-      console.log("[WaitingForAcceptance] Ride rejected via WebSocket:", data);
+      console.log(
+        "[WaitingForAcceptance] 🚨 WebSocket ride:rejected received:",
+        data,
+      );
 
       if (data.rideId === rideId) {
-        handleDriverRejected(data);
+        setConnectionStatus("connected");
+        setDriversContacted((prev) => prev + 1); // Incrementar contador de conductores contactados
+        // La navegación automática la maneja useAutoNavigation
+        showError("Conductor no disponible", "Buscando otro conductor...");
       }
     };
 
-    // Suscribirse a los eventos
-    websocketService.on("rideAccepted", handleRideAccepted);
-    websocketService.on("rideRejected", handleRideRejected);
+    // Listener para estado de conexión WebSocket
+    const handleConnectionStatus = (status: any) => {
+      setConnectionStatus(
+        status.websocketConnected ? "connected" : "disconnected",
+      );
+    };
 
-    // Polling de respaldo para estados del backend (cada 10 segundos)
-    const pollInterval = setInterval(async () => {
-      if (!rideId) return;
+    // Suscribirse a los eventos usando WebSocketEventManager
+    websocketEventManager.on("ride:accepted", handleRideAccepted);
+    websocketEventManager.on("ride:rejected", handleRideRejected);
 
-      try {
-        // Aquí podríamos hacer polling a un endpoint de estado
-        // const statusResponse = await fetchAPI(`rides/${rideId}/status`);
-        // const status = statusResponse.data?.status;
+    // Escuchar estado de conexión (si está disponible en el store)
+    const connectionState = useRealtimeStore.getState().connectionStatus;
+    setConnectionStatus(
+      connectionState.websocketConnected ? "connected" : "disconnected",
+    );
 
-        // Por ahora, solo verificamos el estado local
-        const currentStatus = useRealtimeStore.getState().rideStatus;
-
-        // Si el estado cambió a accepted o rejected, manejar automáticamente
-        if (currentStatus === "accepted") {
-          console.log(
-            "[WaitingForAcceptance] Status changed to accepted via polling",
-          );
-          handleDriverAccepted();
-          clearInterval(pollInterval);
-        } else if (currentStatus === "cancelled") {
-          console.log(
-            "[WaitingForAcceptance] Status changed to rejected via polling",
-          );
-          handleDriverRejected({ reason: "Conductor rechazó la solicitud" });
-          clearInterval(pollInterval);
-        }
-      } catch (error) {
-        console.warn("[WaitingForAcceptance] Polling error:", error);
-      }
-    }, 10000); // Cada 10 segundos
+    console.log(
+      "[WaitingForAcceptance] ✅ WebSocket listeners active, no polling needed",
+    );
 
     return () => {
-      // Limpiar listeners y polling
-      websocketService.off("rideAccepted", handleRideAccepted);
-      websocketService.off("rideRejected", handleRideRejected);
-      clearInterval(pollInterval);
+      // Limpiar listeners
+      websocketEventManager.off("ride:accepted", handleRideAccepted);
+      websocketEventManager.off("ride:rejected", handleRideRejected);
+      console.log("[WaitingForAcceptance] 🧹 WebSocket listeners cleaned up");
     };
   }, [rideId]);
 
+  // 🚀 NUEVO: Handlers simplificados - navegación automática manejada por useAutoNavigation
   const handleDriverAccepted = (data?: any) => {
     console.log("[WaitingForAcceptance] Driver accepted the ride!", data);
 
     stopAcceptanceTimer();
-    showSuccess("¡Conductor aceptado!", "Tu viaje comenzará pronto");
 
     // Actualizar estado del ride a "accepted"
     useRealtimeStore.getState().updateRideStatus(rideId, "accepted");
 
-    // Ir a DURANTE_FINALIZACION
-    setTimeout(() => {
-      next();
-    }, 2000);
+    // La navegación automática la maneja useAutoNavigation
+    // Solo feedback visual aquí
+    showSuccess("¡Conductor aceptado!", "Tu viaje comenzará pronto");
   };
 
   const handleDriverRejected = (data: any) => {
@@ -230,11 +236,8 @@ const WaitingForAcceptance: React.FC = () => {
     const reason = data.reason || "El conductor no pudo aceptar tu solicitud";
     showError("Conductor no disponible", reason);
 
-    // El conductor rechazó, buscar otro automáticamente
-    setTimeout(() => {
-      // Volver a buscar conductor (BUSCANDO_CONDUCTOR)
-      back();
-    }, 3000);
+    // La navegación automática la maneja useAutoNavigation
+    // Solo feedback visual aquí
   };
 
   const handleTimeout = () => {
@@ -304,6 +307,46 @@ const WaitingForAcceptance: React.FC = () => {
         subtitle={`Esperando respuesta de ${matchedDriver.first_name}`}
         onBack={handleCancelRide}
       />
+
+      {/* 🚀 NUEVO: Indicador de conexión y progreso */}
+      <View className="bg-white border-b border-gray-100 px-6 py-3">
+        <View className="flex-row items-center justify-between mb-2">
+          <View className="flex-row items-center">
+            <View
+              className={`w-2 h-2 rounded-full mr-2 ${
+                connectionStatus === "connected" ? "bg-green-500" : "bg-red-500"
+              }`}
+            />
+            <Text
+              className={`text-sm font-JakartaMedium ${
+                connectionStatus === "connected"
+                  ? "text-green-700"
+                  : "text-red-700"
+              }`}
+            >
+              {connectionStatus === "connected"
+                ? "🟢 Conectado"
+                : "🔴 Desconectado"}
+            </Text>
+          </View>
+          <Text className="text-sm text-gray-500 font-Jakarta">
+            ⏱️ {formatTime(timeLeft)}
+          </Text>
+        </View>
+
+        {/* Barra de progreso de conductores contactados */}
+        <View className="bg-gray-200 rounded-full h-2 mb-1">
+          <View
+            className="bg-blue-500 h-2 rounded-full"
+            style={{
+              width: `${Math.min((driversContacted / totalDrivers) * 100, 100)}%`,
+            }}
+          />
+        </View>
+        <Text className="text-xs text-gray-600 font-Jakarta text-center">
+          Buscando conductores... {driversContacted}/{totalDrivers}
+        </Text>
+      </View>
 
       <View className="flex-1 justify-center items-center px-6">
         {/* Animated Driver Card */}

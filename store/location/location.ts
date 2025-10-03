@@ -103,60 +103,73 @@ export const useLocationStore = create<{
 // ===== OPTIMIZED SELECTORS =====
 // These selectors prevent unnecessary re-renders by only returning the specific data that components need
 
-export const useUserLocation = () => useLocationStore((state) => ({
-  latitude: state.userLatitude,
-  longitude: state.userLongitude,
-  address: state.userAddress,
-}));
-
-export const useUserCoordinates = () => useLocationStore((state) => ({
-  latitude: state.userLatitude,
-  longitude: state.userLongitude,
-}));
-
-export const useUserAddress = () => useLocationStore((state) => state.userAddress);
-
-export const useDestinationLocation = () => useLocationStore((state) => ({
-  latitude: state.destinationLatitude,
-  longitude: state.destinationLongitude,
-  address: state.destinationAddress,
-}));
-
-export const useDestinationCoordinates = () => useLocationStore((state) => ({
-  latitude: state.destinationLatitude,
-  longitude: state.destinationLongitude,
-}));
-
-export const useDestinationAddress = () => useLocationStore((state) => state.destinationAddress);
-
-export const useHasUserLocation = () => useLocationStore((state) =>
-  state.userLatitude !== null && state.userLongitude !== null
-);
-
-export const useHasDestinationLocation = () => useLocationStore((state) =>
-  state.destinationLatitude !== null && state.destinationLongitude !== null
-);
-
-export const useHasCompleteRoute = () => useLocationStore((state) =>
-  state.userLatitude !== null &&
-  state.userLongitude !== null &&
-  state.destinationLatitude !== null &&
-  state.destinationLongitude !== null
-);
-
-export const useRouteCoordinates = () => useLocationStore((state) => ({
-  origin: {
+export const useUserLocation = () =>
+  useLocationStore((state) => ({
     latitude: state.userLatitude,
     longitude: state.userLongitude,
-  },
-  destination: {
+    address: state.userAddress,
+  }));
+
+export const useUserCoordinates = () =>
+  useLocationStore((state) => ({
+    latitude: state.userLatitude,
+    longitude: state.userLongitude,
+  }));
+
+export const useUserAddress = () =>
+  useLocationStore((state) => state.userAddress);
+
+export const useDestinationLocation = () =>
+  useLocationStore((state) => ({
     latitude: state.destinationLatitude,
     longitude: state.destinationLongitude,
-  },
-}));
+    address: state.destinationAddress,
+  }));
+
+export const useDestinationCoordinates = () =>
+  useLocationStore((state) => ({
+    latitude: state.destinationLatitude,
+    longitude: state.destinationLongitude,
+  }));
+
+export const useDestinationAddress = () =>
+  useLocationStore((state) => state.destinationAddress);
+
+export const useHasUserLocation = () =>
+  useLocationStore(
+    (state) => state.userLatitude !== null && state.userLongitude !== null,
+  );
+
+export const useHasDestinationLocation = () =>
+  useLocationStore(
+    (state) =>
+      state.destinationLatitude !== null && state.destinationLongitude !== null,
+  );
+
+export const useHasCompleteRoute = () =>
+  useLocationStore(
+    (state) =>
+      state.userLatitude !== null &&
+      state.userLongitude !== null &&
+      state.destinationLatitude !== null &&
+      state.destinationLongitude !== null,
+  );
+
+export const useRouteCoordinates = () =>
+  useLocationStore((state) => ({
+    origin: {
+      latitude: state.userLatitude,
+      longitude: state.userLongitude,
+    },
+    destination: {
+      latitude: state.destinationLatitude,
+      longitude: state.destinationLongitude,
+    },
+  }));
 
 // Action selectors
-export const useLocationActions = () => useLocationStore((state) => ({
-  setUserLocation: state.setUserLocation,
-  setDestinationLocation: state.setDestinationLocation,
-}));
+export const useLocationActions = () =>
+  useLocationStore((state) => ({
+    setUserLocation: state.setUserLocation,
+    setDestinationLocation: state.setDestinationLocation,
+  }));

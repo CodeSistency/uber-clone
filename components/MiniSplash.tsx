@@ -103,7 +103,7 @@ const MiniSplash: React.FC<MiniSplashProps> = ({
     type: config?.type,
     visible,
     title: config?.title,
-    module: config?.moduleSpecific?.toModule
+    module: config?.moduleSpecific?.toModule,
   });
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -178,7 +178,7 @@ const MiniSplash: React.FC<MiniSplashProps> = ({
   return (
     <Animated.View
       style={{
-        position: 'absolute',
+        position: "absolute",
         top: 0,
         left: 0,
         right: 0,

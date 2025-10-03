@@ -12,7 +12,7 @@ import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore, useChatStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 const DriverTransportInProgress: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -143,7 +143,7 @@ const DriverTransportInProgress: React.FC = () => {
   };
 
   const handleEndRide = () => {
-    goTo(FLOW_STEPS.DRIVER_TRANSPORT.COMPLETAR_VIAJE);
+    goTo(FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE);
   };
 
   // Chat management

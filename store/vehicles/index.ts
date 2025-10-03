@@ -1,2 +1,1 @@
-export { useVehiclesStore } from './vehicles';
-
+export { useVehiclesStore } from "./vehicles";

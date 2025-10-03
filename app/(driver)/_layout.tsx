@@ -1,6 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { Stack } from "expo-router";
-import { View, Text, ActivityIndicator, TouchableOpacity, Alert } from "react-native";
+import {
+  View,
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  Alert,
+} from "react-native";
 import { router } from "expo-router";
 
 import { useUI } from "@/components/UIWrapper";
@@ -10,7 +16,13 @@ import { useDriverRoleStore } from "@/store/driverRole";
 export default function DriverLayout() {
   const { theme, showError } = useUI();
   const { user, isAuthenticated, isLoading: authLoading } = useUserStore();
-  const { isDriver, driverRole, isLoading: roleLoading, error: roleError, checkDriverRole } = useDriverRoleStore();
+  const {
+    isDriver,
+    driverRole,
+    isLoading: roleLoading,
+    error: roleError,
+    checkDriverRole,
+  } = useDriverRoleStore();
   const [authChecked, setAuthChecked] = useState(false);
   const verificationInProgressRef = useRef(false);
   const authCheckCompletedRef = useRef(false);
@@ -19,7 +31,9 @@ export default function DriverLayout() {
   const checkAuthorization = useCallback(async () => {
     // Prevent multiple simultaneous verifications
     if (verificationInProgressRef.current) {
-      console.log("[DriverLayout] Verification already in progress, skipping...");
+      console.log(
+        "[DriverLayout] Verification already in progress, skipping...",
+      );
       return;
     }
 
@@ -42,7 +56,9 @@ export default function DriverLayout() {
 
       // Check if user is authenticated
       if (!isAuthenticated) {
-        console.log("[DriverLayout] User not authenticated, redirecting to auth");
+        console.log(
+          "[DriverLayout] User not authenticated, redirecting to auth",
+        );
         Alert.alert("No se pudo cambiar el módulo", "Usuario no autenticado");
         router.replace("/(auth)/sign-in");
         setAuthChecked(true);
@@ -65,10 +81,12 @@ export default function DriverLayout() {
       // Role check is handled by the store
       setAuthChecked(true);
       authCheckCompletedRef.current = true;
-
     } catch (error: any) {
       console.error("[DriverLayout] Error checking authorization:", error);
-      Alert.alert("No se pudo cambiar el módulo", "Error al verificar permisos");
+      Alert.alert(
+        "No se pudo cambiar el módulo",
+        "Error al verificar permisos",
+      );
       setAuthChecked(true);
       authCheckCompletedRef.current = true;
     } finally {
@@ -102,7 +120,8 @@ export default function DriverLayout() {
           Driver Access Required
         </Text>
         <Text className="text-secondary-600 text-center mb-6">
-          You need to complete the driver onboarding process to access this section.
+          You need to complete the driver onboarding process to access this
+          section.
         </Text>
         <TouchableOpacity
           onPress={() => router.replace("/(driver)/onboarding" as any)}

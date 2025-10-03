@@ -1,22 +1,26 @@
-import { act, renderHook, waitFor } from '@testing-library/react-native';
-import { Platform } from 'react-native';
+import { act, renderHook, waitFor } from "@testing-library/react-native";
+import { Platform } from "react-native";
 
 // Mock completo del sistema
-jest.mock('@/app/services/expo-notifications', () => ({
+jest.mock("@/app/services/expo-notifications", () => ({
   expoNotificationService: {
     initialize: jest.fn().mockResolvedValue(undefined),
-    sendLocalNotification: jest.fn().mockResolvedValue('notification-1'),
-    scheduleNotification: jest.fn().mockResolvedValue('scheduled-1'),
+    sendLocalNotification: jest.fn().mockResolvedValue("notification-1"),
+    scheduleNotification: jest.fn().mockResolvedValue("scheduled-1"),
     cancelNotification: jest.fn().mockResolvedValue(undefined),
     cancelAllNotifications: jest.fn().mockResolvedValue(undefined),
-    requestPermissions: jest.fn().mockResolvedValue({ granted: true, status: 'granted' }),
-    getPushToken: jest.fn().mockResolvedValue({ type: 'expo', data: 'expo-token-123' }),
+    requestPermissions: jest
+      .fn()
+      .mockResolvedValue({ granted: true, status: "granted" }),
+    getPushToken: jest
+      .fn()
+      .mockResolvedValue({ type: "expo", data: "expo-token-123" }),
     setBadgeCount: jest.fn().mockResolvedValue(undefined),
-    getDeviceToken: jest.fn().mockResolvedValue('expo-token-123'),
+    getDeviceToken: jest.fn().mockResolvedValue("expo-token-123"),
   },
 }));
 
-jest.mock('@/store/expo-notifications/expoNotificationStore', () => ({
+jest.mock("@/store/expo-notifications/expoNotificationStore", () => ({
   useExpoNotificationStore: jest.fn(() => ({
     notifications: [],
     unreadCount: 0,
@@ -45,7 +49,7 @@ jest.mock('@/store/expo-notifications/expoNotificationStore', () => ({
   })),
 }));
 
-jest.mock('@/app/lib/storage', () => ({
+jest.mock("@/app/lib/storage", () => ({
   notificationStorage: {
     savePreferences: jest.fn().mockResolvedValue(undefined),
     getPreferences: jest.fn().mockResolvedValue(null),
@@ -54,7 +58,7 @@ jest.mock('@/app/lib/storage', () => ({
   },
 }));
 
-jest.mock('@/lib/logger', () => ({
+jest.mock("@/lib/logger", () => ({
   log: {
     info: jest.fn(),
     error: jest.fn(),
@@ -63,9 +67,9 @@ jest.mock('@/lib/logger', () => ({
   },
 }));
 
-import { useNotifications } from '@/app/hooks/useNotifications';
+import { useNotifications } from "@/app/hooks/useNotifications";
 
-describe('End-to-End Notifications Flow', () => {
+describe("End-to-End Notifications Flow", () => {
   let mockStore: any;
   let mockService: any;
   let mockStorage: any;
@@ -73,9 +77,11 @@ describe('End-to-End Notifications Flow', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockStore = require('@/store/expo-notifications/expoNotificationStore').useExpoNotificationStore;
-    mockService = require('@/app/services/expo-notifications').expoNotificationService;
-    mockStorage = require('@/app/lib/storage').notificationStorage;
+    mockStore =
+      require("@/store/expo-notifications/expoNotificationStore").useExpoNotificationStore;
+    mockService =
+      require("@/app/services/expo-notifications").expoNotificationService;
+    mockStorage = require("@/app/lib/storage").notificationStorage;
 
     // Reset store state
     mockStore.mockReturnValue({
@@ -106,8 +112,8 @@ describe('End-to-End Notifications Flow', () => {
     });
   });
 
-  describe('Complete User Journey: App Launch → Notification → Interaction', () => {
-    it('should handle complete notification lifecycle', async () => {
+  describe("Complete User Journey: App Launch → Notification → Interaction", () => {
+    it("should handle complete notification lifecycle", async () => {
       // 1. App Launch - Hook Initialization
       const { result } = renderHook(() => useNotifications());
 
@@ -122,7 +128,7 @@ describe('End-to-End Notifications Flow', () => {
         permissions = await result.current.requestPermissions();
       });
 
-      expect(permissions).toEqual({ granted: true, status: 'granted' });
+      expect(permissions).toEqual({ granted: true, status: "granted" });
       expect(mockService.requestPermissions).toHaveBeenCalled();
 
       // 3. Token Retrieval
@@ -131,17 +137,18 @@ describe('End-to-End Notifications Flow', () => {
         token = await result.current.getDeviceToken();
       });
 
-      expect(token).toBe('expo-token-123');
+      expect(token).toBe("expo-token-123");
       expect(mockService.getDeviceToken).toHaveBeenCalled();
 
       // 4. Receive First Notification (Ride Request)
       const rideNotification = {
-        id: 'ride-123',
-        type: 'RIDE_REQUEST' as const,
-        title: 'New Ride Request',
-        message: 'Pickup at 123 Main St',
-        data: { rideId: '123', pickupLocation: '123 Main St' },
+        id: "ride-123",
+        type: "RIDE_REQUEST" as const,
+        title: "New Ride Request",
+        message: "Pickup at 123 Main St",
+        data: { rideId: "123", pickupLocation: "123 Main St" },
         timestamp: new Date(),
+        priority: "normal" as const,
         isRead: false,
       };
 
@@ -153,7 +160,7 @@ describe('End-to-End Notifications Flow', () => {
       // Verificar que se agregó
       await waitFor(() => {
         expect(result.current.notifications).toHaveLength(1);
-        expect(result.current.notifications[0].title).toBe('New Ride Request');
+        expect(result.current.notifications[0].title).toBe("New Ride Request");
         expect(result.current.unreadCount).toBe(1);
       });
 
@@ -162,7 +169,7 @@ describe('End-to-End Notifications Flow', () => {
 
       // 6. User Interaction - Mark as Read
       act(() => {
-        result.current.markAsRead('ride-123');
+        result.current.markAsRead("ride-123");
       });
 
       await waitFor(() => {
@@ -173,12 +180,13 @@ describe('End-to-End Notifications Flow', () => {
 
       // 7. Receive Second Notification (Driver Accepted)
       const driverNotification = {
-        id: 'driver-456',
-        type: 'RIDE_ACCEPTED' as const,
-        title: 'Driver Found!',
-        message: 'Your driver John is on the way',
-        data: { driverId: '456', driverName: 'John' },
+        id: "driver-456",
+        type: "RIDE_ACCEPTED" as const,
+        title: "Driver Found!",
+        message: "Your driver John is on the way",
+        data: { driverId: "456", driverName: "John" },
         timestamp: new Date(),
+        priority: "normal" as const,
         isRead: false,
       };
 
@@ -195,31 +203,31 @@ describe('End-to-End Notifications Flow', () => {
       let localNotificationId;
       await act(async () => {
         localNotificationId = await result.current.sendLocalNotification(
-          'Ride Reminder',
-          'Your driver will arrive in 5 minutes',
-          { type: 'reminder', rideId: '123' }
+          "Ride Reminder",
+          "Your driver will arrive in 5 minutes",
+          { type: "reminder", rideId: "123" },
         );
       });
 
-      expect(localNotificationId).toBe('notification-1');
+      expect(localNotificationId).toBe("notification-1");
       expect(mockService.sendLocalNotification).toHaveBeenCalledWith(
-        'Ride Reminder',
-        'Your driver will arrive in 5 minutes',
-        { type: 'reminder', rideId: '123' }
+        "Ride Reminder",
+        "Your driver will arrive in 5 minutes",
+        { type: "reminder", rideId: "123" },
       );
 
       // 9. Schedule Future Notification
       let scheduledId;
       await act(async () => {
         scheduledId = await result.current.scheduleNotification(
-          'Pickup Reminder',
-          'Time to meet your driver',
+          "Pickup Reminder",
+          "Time to meet your driver",
           300, // 5 minutes
-          { type: 'pickup_reminder', rideId: '123' }
+          { type: "pickup_reminder", rideId: "123" },
         );
       });
 
-      expect(scheduledId).toBe('scheduled-1');
+      expect(scheduledId).toBe("scheduled-1");
 
       // 10. User Clears Notifications
       act(() => {
@@ -237,6 +245,10 @@ describe('End-to-End Notifications Flow', () => {
         soundEnabled: false,
         vibrationEnabled: true,
         promotional: true,
+        smsEnabled: true,
+        rideUpdates: true,
+        driverMessages: true,
+        emergencyAlerts: true,
       };
 
       act(() => {
@@ -249,10 +261,10 @@ describe('End-to-End Notifications Flow', () => {
       });
     });
 
-    it('should handle error scenarios gracefully', async () => {
+    it("should handle error scenarios gracefully", async () => {
       // Simular error en servicio
       mockService.sendLocalNotification.mockRejectedValueOnce(
-        new Error('Network error')
+        new Error("Network error"),
       );
 
       const { result } = renderHook(() => useNotifications());
@@ -260,26 +272,29 @@ describe('End-to-End Notifications Flow', () => {
       // Intentar enviar notificación con error
       await expect(
         act(async () => {
-          await result.current.sendLocalNotification('Title', 'Message');
-        })
-      ).rejects.toThrow('Network error');
+          await result.current.sendLocalNotification("Title", "Message");
+        }),
+      ).rejects.toThrow("Network error");
 
       // Verificar que el estado permanece consistente
       expect(result.current.notifications).toEqual([]);
       expect(result.current.unreadCount).toBe(0);
     });
 
-    it('should maintain data persistence across sessions', async () => {
+    it("should maintain data persistence across sessions", async () => {
       // Primera sesión - agregar datos
-      const { result: result1, rerender } = renderHook(() => useNotifications());
+      const { result: result1, rerender } = renderHook(() =>
+        useNotifications(),
+      );
 
       const notification = {
-        id: 'persistent-1',
-        type: 'SYSTEM_UPDATE' as const,
-        title: 'Welcome',
-        message: 'Welcome to the app',
+        id: "persistent-1",
+        type: "SYSTEM_UPDATE" as const,
+        title: "Welcome",
+        message: "Welcome to the app",
         data: {},
         timestamp: new Date(),
+        priority: "normal" as const,
         isRead: false,
       };
 
@@ -298,18 +313,18 @@ describe('End-to-End Notifications Flow', () => {
       mockStorage.getNotificationHistory.mockResolvedValueOnce([notification]);
 
       // Re-render hook (simula nueva sesión)
-      rerender();
+      rerender({});
 
       await waitFor(() => {
         expect(result1.current.notifications).toHaveLength(1);
-        expect(result1.current.notifications[0].id).toBe('persistent-1');
+        expect(result1.current.notifications[0].id).toBe("persistent-1");
       });
     });
   });
 
-  describe('Cross-Platform Compatibility', () => {
-    it('should work on iOS', async () => {
-      Platform.OS = 'ios';
+  describe("Cross-Platform Compatibility", () => {
+    it("should work on iOS", async () => {
+      Platform.OS = "ios";
 
       const { result } = renderHook(() => useNotifications());
 
@@ -318,8 +333,8 @@ describe('End-to-End Notifications Flow', () => {
       expect(result.current.websocketConnected).toBe(true);
     });
 
-    it('should work on Android', async () => {
-      Platform.OS = 'android';
+    it("should work on Android", async () => {
+      Platform.OS = "android";
 
       const { result } = renderHook(() => useNotifications());
 
@@ -329,24 +344,25 @@ describe('End-to-End Notifications Flow', () => {
     });
   });
 
-  describe('Performance and Memory Management', () => {
-    it('should handle large number of notifications efficiently', async () => {
+  describe("Performance and Memory Management", () => {
+    it("should handle large number of notifications efficiently", async () => {
       const { result } = renderHook(() => useNotifications());
 
       // Crear 50 notificaciones
       const notifications = Array.from({ length: 50 }, (_, i) => ({
         id: `bulk-${i}`,
-        type: 'SYSTEM_UPDATE' as const,
+        type: "SYSTEM_UPDATE" as const,
         title: `Notification ${i}`,
         message: `Message ${i}`,
         data: { index: i },
         timestamp: new Date(Date.now() - i * 1000),
+        priority: "normal" as const,
         isRead: i % 2 === 0,
       }));
 
       // Agregar todas las notificaciones
       act(() => {
-        notifications.forEach(notification => {
+        notifications.forEach((notification) => {
           result.current.addNotification(notification);
         });
       });
@@ -363,31 +379,33 @@ describe('End-to-End Notifications Flow', () => {
 
       await waitFor(() => {
         expect(result.current.unreadCount).toBe(0);
-        expect(result.current.notifications.every(n => n.isRead)).toBe(true);
+        expect(result.current.notifications.every((n) => n.isRead)).toBe(true);
       });
     });
 
-    it('should cleanup old notifications automatically', async () => {
+    it("should cleanup old notifications automatically", async () => {
       const { result } = renderHook(() => useNotifications());
 
       // Crear notificaciones antiguas y recientes
       const oldNotification = {
-        id: 'old-1',
-        type: 'SYSTEM_UPDATE' as const,
-        title: 'Old Notification',
-        message: 'This is old',
+        id: "old-1",
+        type: "SYSTEM_UPDATE" as const,
+        title: "Old Notification",
+        message: "This is old",
         data: {},
         timestamp: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000), // 40 días atrás
+        priority: "normal" as const,
         isRead: false,
       };
 
       const newNotification = {
-        id: 'new-1',
-        type: 'RIDE_REQUEST' as const,
-        title: 'New Ride',
-        message: 'Recent ride request',
+        id: "new-1",
+        type: "RIDE_REQUEST" as const,
+        title: "New Ride",
+        message: "Recent ride request",
         data: {},
         timestamp: new Date(),
+        priority: "normal" as const,
         isRead: false,
       };
 
@@ -399,24 +417,27 @@ describe('End-to-End Notifications Flow', () => {
       await waitFor(() => {
         // El sistema debería mantener solo notificaciones recientes
         expect(result.current.notifications.length).toBeLessThanOrEqual(2);
-        expect(result.current.notifications.some(n => n.id === 'new-1')).toBe(true);
+        expect(result.current.notifications.some((n) => n.id === "new-1")).toBe(
+          true,
+        );
       });
     });
   });
 
-  describe('Real-time Updates and Synchronization', () => {
-    it('should update badge count automatically', async () => {
+  describe("Real-time Updates and Synchronization", () => {
+    it("should update badge count automatically", async () => {
       const { result } = renderHook(() => useNotifications());
 
       // Agregar notificación no leída
       act(() => {
         result.current.addNotification({
-          id: 'badge-test',
-          type: 'CHAT_MESSAGE' as const,
-          title: 'New Message',
-          message: 'Hello there',
+          id: "badge-test",
+          type: "CHAT_MESSAGE" as const,
+          title: "New Message",
+          message: "Hello there",
           data: {},
           timestamp: new Date(),
+          priority: "normal" as const,
           isRead: false,
         });
       });
@@ -430,7 +451,7 @@ describe('End-to-End Notifications Flow', () => {
 
       // Marcar como leída
       act(() => {
-        result.current.markAsRead('badge-test');
+        result.current.markAsRead("badge-test");
       });
 
       await waitFor(() => {
@@ -441,7 +462,7 @@ describe('End-to-End Notifications Flow', () => {
       expect(mockService.setBadgeCount).toHaveBeenCalledWith(0);
     });
 
-    it('should handle preference changes that affect notifications', async () => {
+    it("should handle preference changes that affect notifications", async () => {
       const { result } = renderHook(() => useNotifications());
 
       // Cambiar preferencias para deshabilitar notificaciones de rides
@@ -449,6 +470,12 @@ describe('End-to-End Notifications Flow', () => {
         result.current.updatePreferences({
           rideUpdates: false,
           pushEnabled: true,
+          smsEnabled: true,
+          soundEnabled: true,
+          vibrationEnabled: true,
+          driverMessages: true,
+          promotional: true,
+          emergencyAlerts: true,
         });
       });
 
@@ -461,5 +488,3 @@ describe('End-to-End Notifications Flow', () => {
     });
   });
 });
-
-

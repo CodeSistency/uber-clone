@@ -1,15 +1,15 @@
-import { NotificationService } from '../../app/services/notificationService';
-import { logger } from '../../lib/logger';
+import { NotificationService } from "../../app/services/notificationService";
+import { logger } from "../../lib/logger";
 
 // Mock AsyncStorage first
-jest.mock('@react-native-async-storage/async-storage', () => ({
+jest.mock("@react-native-async-storage/async-storage", () => ({
   setItem: jest.fn(),
   getItem: jest.fn(),
   removeItem: jest.fn(),
 }));
 
 // Mock expo-notifications
-jest.mock('expo-notifications', () => ({
+jest.mock("expo-notifications", () => ({
   setNotificationHandler: jest.fn(),
   requestPermissionsAsync: jest.fn(),
   getPermissionsAsync: jest.fn(),
@@ -19,47 +19,47 @@ jest.mock('expo-notifications', () => ({
   presentNotificationAsync: jest.fn(),
   setBadgeCountAsync: jest.fn(),
   AndroidNotificationPriority: {
-    DEFAULT: 'default',
-    HIGH: 'high',
-    LOW: 'low',
-    MAX: 'max',
-    MIN: 'min'
+    DEFAULT: "default",
+    HIGH: "high",
+    LOW: "low",
+    MAX: "max",
+    MIN: "min",
   },
   SchedulableTriggerInputTypes: {
-    TIME_INTERVAL: 'timeInterval'
-  }
+    TIME_INTERVAL: "timeInterval",
+  },
 }));
 
 // Mock firebase service
-jest.mock('../../app/services/firebaseService', () => ({
+jest.mock("../../app/services/firebaseService", () => ({
   firebaseService: {
     getFCMToken: jest.fn(),
     requestPermissions: jest.fn(),
-    initializeFirebase: jest.fn()
-  }
+    initializeFirebase: jest.fn(),
+  },
 }));
 
 // Mock logger
-jest.mock('../../lib/logger', () => ({
+jest.mock("../../lib/logger", () => ({
   logger: {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
     debug: jest.fn(),
-    critical: jest.fn()
+    critical: jest.fn(),
   },
   log: {
     info: jest.fn(),
     warn: jest.fn(),
     error: jest.fn(),
     debug: jest.fn(),
-    critical: jest.fn()
-  }
+    critical: jest.fn(),
+  },
 }));
 
-const mockLogger = require('../../lib/logger').logger;
+const mockLogger = require("../../lib/logger").logger;
 
-describe('NotificationService', () => {
+describe("NotificationService", () => {
   let notificationService: NotificationService;
 
   beforeEach(() => {
@@ -67,316 +67,339 @@ describe('NotificationService', () => {
     notificationService = NotificationService.getInstance();
   });
 
-  describe('Initialization', () => {
-    it('should return singleton instance', () => {
+  describe("Initialization", () => {
+    it("should return singleton instance", () => {
       const instance1 = NotificationService.getInstance();
       const instance2 = NotificationService.getInstance();
       expect(instance1).toBe(instance2);
     });
   });
 
-  describe('Device Token', () => {
-    it('should get device token successfully', async () => {
-      const mockToken = 'mock-fcm-token-123';
-      const mockFirebaseService = require('../../app/services/firebaseService').firebaseService;
+  describe("Device Token", () => {
+    it("should get device token successfully", async () => {
+      const mockToken = "mock-fcm-token-123";
+      const mockFirebaseService =
+        require("../../app/services/firebaseService").firebaseService;
       mockFirebaseService.getFCMToken.mockResolvedValue(mockToken);
 
       const token = await notificationService.getDeviceToken();
 
       expect(token).toBe(mockToken);
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'Requesting FCM device token',
+        "NotificationService",
+        "Requesting FCM device token",
         expect.objectContaining({
           tokenRequestId: expect.any(String),
           platform: expect.any(String),
-          hasFirebaseService: true
-        })
+          hasFirebaseService: true,
+        }),
       );
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'FCM device token retrieved successfully',
+        "NotificationService",
+        "FCM device token retrieved successfully",
         expect.objectContaining({
           tokenRequestId: expect.any(String),
           tokenLength: mockToken.length,
-          tokenPrefix: 'mock-fcm-...'
-        })
+          tokenPrefix: "mock-fcm-...",
+        }),
       );
     });
 
-    it('should handle token retrieval failure', async () => {
-      const mockFirebaseService = require('../../app/services/firebaseService').firebaseService;
+    it("should handle token retrieval failure", async () => {
+      const mockFirebaseService =
+        require("../../app/services/firebaseService").firebaseService;
       mockFirebaseService.getFCMToken.mockResolvedValue(null);
 
       const token = await notificationService.getDeviceToken();
 
       expect(token).toBeNull();
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'NotificationService',
-        'FCM device token retrieval failed',
+        "NotificationService",
+        "FCM device token retrieval failed",
         expect.objectContaining({
           tokenRequestId: expect.any(String),
-          reason: 'Token is null or undefined'
-        })
+          reason: "Token is null or undefined",
+        }),
       );
     });
 
-    it('should handle errors during token retrieval', async () => {
-      const mockError = new Error('Firebase error');
-      const mockFirebaseService = require('../../app/services/firebaseService').firebaseService;
+    it("should handle errors during token retrieval", async () => {
+      const mockError = new Error("Firebase error");
+      const mockFirebaseService =
+        require("../../app/services/firebaseService").firebaseService;
       mockFirebaseService.getFCMToken.mockRejectedValue(mockError);
 
       const token = await notificationService.getDeviceToken();
 
       expect(token).toBeNull();
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'NotificationService',
-        'Failed to get device token',
+        "NotificationService",
+        "Failed to get device token",
         expect.objectContaining({
           tokenRequestId: expect.any(String),
-          error: 'Firebase error'
+          error: "Firebase error",
         }),
-        mockError
+        mockError,
       );
     });
   });
 
-  describe('Scheduled Notifications', () => {
-    const mockNotifications = require('expo-notifications');
+  describe("Scheduled Notifications", () => {
+    const mockNotifications = require("expo-notifications");
 
-    it('should schedule notification successfully', async () => {
-      const mockNotificationId = 'scheduled-notification-123';
-      mockNotifications.scheduleNotificationAsync.mockResolvedValue(mockNotificationId);
+    it("should schedule notification successfully", async () => {
+      const mockNotificationId = "scheduled-notification-123";
+      mockNotifications.scheduleNotificationAsync.mockResolvedValue(
+        mockNotificationId,
+      );
 
       const result = await notificationService.scheduleNotification(
-        'Test Title',
-        'Test Body',
+        "Test Title",
+        "Test Body",
         300,
-        { userId: '123' }
+        { userId: "123" },
       );
 
       expect(result).toBe(mockNotificationId);
       expect(mockNotifications.scheduleNotificationAsync).toHaveBeenCalledWith({
         content: {
-          title: 'Test Title',
-          body: 'Test Body',
-          data: { userId: '123' },
-          sound: 'default',
-          priority: 'default',
+          title: "Test Title",
+          body: "Test Body",
+          data: { userId: "123" },
+          sound: "default",
+          priority: "default",
           sticky: false,
           autoDismiss: true,
         },
         trigger: {
           seconds: 300,
-          type: 'timeInterval',
+          type: "timeInterval",
         },
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'Scheduling local notification',
+        "NotificationService",
+        "Scheduling local notification",
         expect.objectContaining({
           notificationId: expect.any(String),
-          title: 'Test Title',
+          title: "Test Title",
           bodyLength: 9,
           delayInSeconds: 300,
           hasData: true,
           soundEnabled: true,
-          vibrationEnabled: true
-        })
+          vibrationEnabled: true,
+        }),
       );
     });
 
-    it('should handle scheduling errors with fallback', async () => {
-      const mockError = new Error('Scheduling failed');
+    it("should handle scheduling errors with fallback", async () => {
+      const mockError = new Error("Scheduling failed");
       mockNotifications.scheduleNotificationAsync.mockRejectedValue(mockError);
 
       const result = await notificationService.scheduleNotification(
-        'Test Title',
-        'Test Body',
-        300
+        "Test Title",
+        "Test Body",
+        300,
       );
 
       expect(result).toMatch(/^scheduled_/);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'NotificationService',
-        'Failed to schedule local notification',
+        "NotificationService",
+        "Failed to schedule local notification",
         expect.objectContaining({
           notificationId: expect.any(String),
-          title: 'Test Title',
+          title: "Test Title",
           delayInSeconds: 300,
-          error: 'Scheduling failed'
+          error: "Scheduling failed",
         }),
-        mockError
+        mockError,
       );
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'NotificationService',
-        'Using fallback notification (not scheduled)',
+        "NotificationService",
+        "Using fallback notification (not scheduled)",
         expect.objectContaining({
           notificationId: expect.any(String),
-          reason: 'expo-notifications scheduling failed'
-        })
+          reason: "expo-notifications scheduling failed",
+        }),
       );
     });
   });
 
-  describe('Push Notifications', () => {
-    const mockNotifications = require('expo-notifications');
+  describe("Push Notifications", () => {
+    const mockNotifications = require("expo-notifications");
 
-    it('should send push notification successfully', async () => {
-      const mockPushId = 'push-notification-123';
+    it("should send push notification successfully", async () => {
+      const mockPushId = "push-notification-123";
       mockNotifications.presentNotificationAsync.mockResolvedValue(mockPushId);
 
       const result = await notificationService.sendPushNotification(
-        'Push Title',
-        'Push Body',
-        { type: 'ride_request' },
-        { sound: true, priority: 'high' }
+        "Push Title",
+        "Push Body",
+        { type: "ride_request" },
+        { sound: true, priority: "high" },
       );
 
       expect(result).toBe(mockPushId);
       expect(mockNotifications.presentNotificationAsync).toHaveBeenCalledWith({
-        title: 'Push Title',
-        body: 'Push Body',
-        data: { type: 'ride_request' },
+        title: "Push Title",
+        body: "Push Body",
+        data: { type: "ride_request" },
         sound: true,
-        priority: 'high'
+        priority: "high",
       });
 
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'Push notification sent successfully',
+        "NotificationService",
+        "Push notification sent successfully",
         expect.objectContaining({
           notificationId: expect.any(String),
           pushId: mockPushId,
-          title: 'Push Title',
-          immediate: true
-        })
+          title: "Push Title",
+          immediate: true,
+        }),
       );
     });
 
-    it('should handle push notification errors with fallback', async () => {
-      const mockError = new Error('Push failed');
+    it("should handle push notification errors with fallback", async () => {
+      const mockError = new Error("Push failed");
       mockNotifications.presentNotificationAsync.mockRejectedValue(mockError);
 
       const result = await notificationService.sendPushNotification(
-        'Push Title',
-        'Push Body'
+        "Push Title",
+        "Push Body",
       );
 
       expect(result).toMatch(/^push_/);
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'NotificationService',
-        'Failed to send push notification',
+        "NotificationService",
+        "Failed to send push notification",
         expect.objectContaining({
           notificationId: expect.any(String),
-          title: 'Push Title',
-          error: 'Push failed'
+          title: "Push Title",
+          error: "Push failed",
         }),
-        mockError
+        mockError,
       );
       expect(mockLogger.warn).toHaveBeenCalledWith(
-        'NotificationService',
-        'Using fallback notification (no push sent)',
+        "NotificationService",
+        "Using fallback notification (no push sent)",
         expect.objectContaining({
           notificationId: expect.any(String),
-          reason: 'expo-notifications present failed'
-        })
+          reason: "expo-notifications present failed",
+        }),
       );
     });
   });
 
-  describe('Notification Management', () => {
-    const mockNotifications = require('expo-notifications');
+  describe("Notification Management", () => {
+    const mockNotifications = require("expo-notifications");
 
-    it('should cancel notification successfully', async () => {
-      mockNotifications.cancelScheduledNotificationAsync.mockResolvedValue(undefined);
+    it("should cancel notification successfully", async () => {
+      mockNotifications.cancelScheduledNotificationAsync.mockResolvedValue(
+        undefined,
+      );
 
-      await notificationService.cancelNotification('notification-123');
+      await notificationService.cancelNotification("notification-123");
 
-      expect(mockNotifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('notification-123');
+      expect(
+        mockNotifications.cancelScheduledNotificationAsync,
+      ).toHaveBeenCalledWith("notification-123");
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'Notification cancelled successfully',
-        { notificationId: 'notification-123' }
+        "NotificationService",
+        "Notification cancelled successfully",
+        { notificationId: "notification-123" },
       );
     });
 
-    it('should handle cancellation errors gracefully', async () => {
-      const mockError = new Error('Cancellation failed');
-      mockNotifications.cancelScheduledNotificationAsync.mockRejectedValue(mockError);
+    it("should handle cancellation errors gracefully", async () => {
+      const mockError = new Error("Cancellation failed");
+      mockNotifications.cancelScheduledNotificationAsync.mockRejectedValue(
+        mockError,
+      );
 
       // Should not throw
-      await expect(notificationService.cancelNotification('notification-123')).resolves.toBeUndefined();
+      await expect(
+        notificationService.cancelNotification("notification-123"),
+      ).resolves.toBeUndefined();
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'NotificationService',
-        'Failed to cancel notification',
+        "NotificationService",
+        "Failed to cancel notification",
         expect.objectContaining({
-          notificationId: 'notification-123',
-          error: 'Cancellation failed'
+          notificationId: "notification-123",
+          error: "Cancellation failed",
         }),
-        mockError
+        mockError,
       );
     });
 
-    it('should cancel all notifications successfully', async () => {
-      mockNotifications.cancelAllScheduledNotificationsAsync.mockResolvedValue(undefined);
+    it("should cancel all notifications successfully", async () => {
+      mockNotifications.cancelAllScheduledNotificationsAsync.mockResolvedValue(
+        undefined,
+      );
 
       await notificationService.cancelAllNotifications();
 
-      expect(mockNotifications.cancelAllScheduledNotificationsAsync).toHaveBeenCalled();
+      expect(
+        mockNotifications.cancelAllScheduledNotificationsAsync,
+      ).toHaveBeenCalled();
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'All scheduled notifications cancelled successfully'
+        "NotificationService",
+        "All scheduled notifications cancelled successfully",
       );
     });
 
-    it('should handle cancel all errors gracefully', async () => {
-      const mockError = new Error('Cancel all failed');
-      mockNotifications.cancelAllScheduledNotificationsAsync.mockRejectedValue(mockError);
+    it("should handle cancel all errors gracefully", async () => {
+      const mockError = new Error("Cancel all failed");
+      mockNotifications.cancelAllScheduledNotificationsAsync.mockRejectedValue(
+        mockError,
+      );
 
-      await expect(notificationService.cancelAllNotifications()).resolves.toBeUndefined();
+      await expect(
+        notificationService.cancelAllNotifications(),
+      ).resolves.toBeUndefined();
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'NotificationService',
-        'Failed to cancel all notifications',
-        { error: 'Cancel all failed' },
-        mockError
+        "NotificationService",
+        "Failed to cancel all notifications",
+        { error: "Cancel all failed" },
+        mockError,
       );
     });
   });
 
-  describe('Badge Management', () => {
-    const mockNotifications = require('expo-notifications');
+  describe("Badge Management", () => {
+    const mockNotifications = require("expo-notifications");
 
-    it('should set badge count successfully', async () => {
+    it("should set badge count successfully", async () => {
       mockNotifications.setBadgeCountAsync.mockResolvedValue(undefined);
 
       await notificationService.setBadgeCount(5);
 
       expect(mockNotifications.setBadgeCountAsync).toHaveBeenCalledWith(5);
       expect(mockLogger.info).toHaveBeenCalledWith(
-        'NotificationService',
-        'Badge count set successfully',
-        { count: 5, platform: expect.any(String) }
+        "NotificationService",
+        "Badge count set successfully",
+        { count: 5, platform: expect.any(String) },
       );
     });
 
-    it('should handle badge count errors gracefully', async () => {
-      const mockError = new Error('Badge count failed');
+    it("should handle badge count errors gracefully", async () => {
+      const mockError = new Error("Badge count failed");
       mockNotifications.setBadgeCountAsync.mockRejectedValue(mockError);
 
-      await expect(notificationService.setBadgeCount(5)).resolves.toBeUndefined();
+      await expect(
+        notificationService.setBadgeCount(5),
+      ).resolves.toBeUndefined();
 
       expect(mockLogger.error).toHaveBeenCalledWith(
-        'NotificationService',
-        'Failed to set badge count',
+        "NotificationService",
+        "Failed to set badge count",
         expect.objectContaining({
           count: 5,
-          error: 'Badge count failed'
+          error: "Badge count failed",
         }),
-        mockError
+        mockError,
       );
     });
   });

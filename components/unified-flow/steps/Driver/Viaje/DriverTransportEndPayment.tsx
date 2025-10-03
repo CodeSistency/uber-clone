@@ -8,7 +8,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 interface PaymentInfo {
   totalAmount: number;
@@ -103,7 +103,7 @@ const DriverTransportEndPayment: React.FC = () => {
       showSuccess("¡Viaje completado!", "Pago registrado correctamente");
 
       // Go to transport-specific rating step
-      goTo(FLOW_STEPS.DRIVER_FINALIZACION_RATING as any);
+      goTo(FLOW_STEPS.DRIVER_FINALIZACION_RATING);
     } catch (error) {
       console.error(
         "[DriverTransportEndPayment] Error completing ride:",

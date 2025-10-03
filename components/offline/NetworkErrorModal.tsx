@@ -1,8 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, Modal, ActivityIndicator } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { useConnectivity } from '@/hooks/useConnectivity';
-import { offlineQueue } from '@/lib/offline/OfflineQueue';
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Modal,
+  ActivityIndicator,
+} from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { useConnectivity } from "@/hooks/useConnectivity";
+import { offlineQueue } from "@/lib/offline/OfflineQueue";
 
 interface NetworkErrorModalProps {
   visible: boolean;
@@ -31,20 +37,25 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
   // Auto-retry logic
   useEffect(() => {
     if (visible && isOnline && onRetry && retryCount < 3) {
-      const timer = setTimeout(async () => {
-        console.log(`[NetworkErrorModal] Auto-retrying (attempt ${retryCount + 1})`);
-        setRetryCount(prev => prev + 1);
+      const timer = setTimeout(
+        async () => {
+          console.log(
+            `[NetworkErrorModal] Auto-retrying (attempt ${retryCount + 1})`,
+          );
+          setRetryCount((prev) => prev + 1);
 
-        try {
-          setRetrying(true);
-          await onRetry();
-          onClose();
-        } catch (error) {
-          console.error('[NetworkErrorModal] Auto-retry failed:', error);
-        } finally {
-          setRetrying(false);
-        }
-      }, 2000 + (retryCount * 1000)); // 2s, 3s, 4s delays
+          try {
+            setRetrying(true);
+            await onRetry();
+            onClose();
+          } catch (error) {
+            console.error("[NetworkErrorModal] Auto-retry failed:", error);
+          } finally {
+            setRetrying(false);
+          }
+        },
+        2000 + retryCount * 1000,
+      ); // 2s, 3s, 4s delays
 
       return () => clearTimeout(timer);
     }
@@ -54,13 +65,13 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
     if (!onRetry) return;
 
     setRetrying(true);
-    setRetryCount(prev => prev + 1);
+    setRetryCount((prev) => prev + 1);
 
     try {
       await onRetry();
       onClose();
     } catch (error) {
-      console.error('[NetworkErrorModal] Manual retry failed:', error);
+      console.error("[NetworkErrorModal] Manual retry failed:", error);
     } finally {
       setRetrying(false);
     }
@@ -75,7 +86,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
       await onSaveOffline();
       onClose();
     } catch (error) {
-      console.error('[NetworkErrorModal] Save offline failed:', error);
+      console.error("[NetworkErrorModal] Save offline failed:", error);
     } finally {
       setSavingOffline(false);
     }
@@ -86,14 +97,15 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
       await syncNow();
       onClose();
     } catch (error) {
-      console.error('[NetworkErrorModal] Sync failed:', error);
+      console.error("[NetworkErrorModal] Sync failed:", error);
     }
   };
 
   const defaultError = {
-    title: 'Error de Conexión',
-    message: 'No se pudo completar la acción debido a problemas de conectividad.',
-    action: '¿Qué te gustaría hacer?',
+    title: "Error de Conexión",
+    message:
+      "No se pudo completar la acción debido a problemas de conectividad.",
+    action: "¿Qué te gustaría hacer?",
   };
 
   const currentError = error || defaultError;
@@ -136,7 +148,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
                   <Ionicons name="refresh" size={20} color="#FFFFFF" />
                 )}
                 <Text className="text-white font-JakartaMedium ml-2">
-                  {retrying ? 'Reintentando...' : 'Reintentar'}
+                  {retrying ? "Reintentando..." : "Reintentar"}
                 </Text>
               </TouchableOpacity>
             )}
@@ -153,7 +165,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
                   <Ionicons name="cloud-offline" size={20} color="#FFFFFF" />
                 )}
                 <Text className="text-white font-JakartaMedium ml-2">
-                  {savingOffline ? 'Guardando...' : 'Guardar Offline'}
+                  {savingOffline ? "Guardando..." : "Guardar Offline"}
                 </Text>
               </TouchableOpacity>
             )}
@@ -182,8 +194,10 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
                 size={16}
                 color={isOnline ? "#10B981" : "#EF4444"}
               />
-              <Text className={`ml-2 text-sm ${isOnline ? 'text-green-600' : 'text-red-600'}`}>
-                {isOnline ? 'Conectado' : 'Sin conexión'}
+              <Text
+                className={`ml-2 text-sm ${isOnline ? "text-green-600" : "text-red-600"}`}
+              >
+                {isOnline ? "Conectado" : "Sin conexión"}
               </Text>
             </View>
 
@@ -225,7 +239,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
 export const useNetworkErrorModal = () => {
   const [modalState, setModalState] = useState<{
     visible: boolean;
-    error?: NetworkErrorModalProps['error'];
+    error?: NetworkErrorModalProps["error"];
     onRetry?: () => Promise<void>;
     onSaveOffline?: () => Promise<void>;
   }>({
@@ -233,11 +247,11 @@ export const useNetworkErrorModal = () => {
   });
 
   const showNetworkError = (
-    error: NetworkErrorModalProps['error'],
+    error: NetworkErrorModalProps["error"],
     options?: {
       onRetry?: () => Promise<void>;
       onSaveOffline?: () => Promise<void>;
-    }
+    },
   ) => {
     setModalState({
       visible: true,

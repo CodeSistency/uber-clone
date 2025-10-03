@@ -92,7 +92,7 @@ android {
         applicationId 'com.codesistency_dev.uber'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 10000
+        versionCode 100
         versionName "1.0.0"
     }
     signingConfigs {
@@ -175,5 +175,3 @@ dependencies {
         implementation jscFlavor
     }
 }
-
-apply plugin: 'com.google.gms.google-services'

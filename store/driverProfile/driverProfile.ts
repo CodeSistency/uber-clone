@@ -37,7 +37,11 @@ interface DriverProfileState {
   // Acciones de documentos
   setDocuments: (documents: Document[]) => void;
   fetchDocuments: () => Promise<void>;
-  uploadDocument: (type: DocumentType, file: File | string, description?: string) => Promise<void>;
+  uploadDocument: (
+    type: DocumentType,
+    file: File | string,
+    description?: string,
+  ) => Promise<void>;
   updateDocumentStatus: (id: string, status: DocumentStatus) => void;
   deleteDocument: (id: string) => Promise<void>;
 
@@ -73,8 +77,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const response = await driverService.updateProfile(updates);
 
       // Validate response structure
-      if (!response || typeof response !== 'object') {
-        throw new Error('Invalid response format from update profile API');
+      if (!response || typeof response !== "object") {
+        throw new Error("Invalid response format from update profile API");
       }
 
       // Update local state with API response
@@ -146,8 +150,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
           longitude: 0,
           accuracy: 0,
           timestamp: new Date(),
-          address: ""
-        }
+          address: "",
+        },
       };
 
       state.setProfile(profile);
@@ -186,8 +190,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
           longitude: -80.1918,
           accuracy: 10,
           timestamp: new Date(),
-          address: "Miami, FL"
-        }
+          address: "Miami, FL",
+        },
       };
       state.setProfile(mockProfile);
       throw error;
@@ -198,7 +202,11 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   // Acciones de vehículos
   setVehicles: (vehicles) => {
-    console.log("[DriverProfileStore] setVehicles called with:", vehicles.length, "vehicles");
+    console.log(
+      "[DriverProfileStore] setVehicles called with:",
+      vehicles.length,
+      "vehicles",
+    );
     set({ vehicles });
   },
 
@@ -214,7 +222,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const vehiclesData = await vehicleService.getVehicles();
 
       // Transform API response if needed
-      const vehicles: Vehicle[] = vehiclesData.map(vehicle => ({
+      const vehicles: Vehicle[] = vehiclesData.map((vehicle) => ({
         id: vehicle.id,
         driverId: vehicle.driverId,
         make: vehicle.make,
@@ -296,7 +304,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         driverId: "current_driver", // This should come from auth
         status: "pending",
         createdAt: new Date(),
-        updatedAt: new Date()
+        updatedAt: new Date(),
       };
       const updatedVehicles = [...state.vehicles, newVehicle];
       state.setVehicles(updatedVehicles);
@@ -308,7 +316,12 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   updateVehicle: async (id: string, updates: UpdateVehicleRequest) => {
     const state = get();
-    console.log("[DriverProfileStore] updateVehicle called for:", id, "with:", updates);
+    console.log(
+      "[DriverProfileStore] updateVehicle called for:",
+      id,
+      "with:",
+      updates,
+    );
 
     try {
       state.setLoading(true);
@@ -318,13 +331,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const response = await vehicleService.updateVehicle(id, updates);
 
       // Validate response
-      if (!response || typeof response !== 'object') {
-        throw new Error('Invalid response format from update vehicle API');
+      if (!response || typeof response !== "object") {
+        throw new Error("Invalid response format from update vehicle API");
       }
 
       // Optimistic update: Update local state immediately with API response
-      const updatedVehicles = state.vehicles.map(vehicle =>
-        vehicle.id === id ? response : vehicle
+      const updatedVehicles = state.vehicles.map((vehicle) =>
+        vehicle.id === id ? response : vehicle,
       );
 
       state.setVehicles(updatedVehicles);
@@ -367,7 +380,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       await vehicleService.deleteVehicle(id);
 
       // Remove vehicle from local state after successful API call
-      const updatedVehicles = state.vehicles.filter(vehicle => vehicle.id !== id);
+      const updatedVehicles = state.vehicles.filter(
+        (vehicle) => vehicle.id !== id,
+      );
       state.setVehicles(updatedVehicles);
 
       console.log("[DriverProfileStore] Vehicle deleted successfully via API");
@@ -379,7 +394,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       if (error.message) {
         errorMessage = error.message;
       } else if (error.statusCode === 400) {
-        errorMessage = "Cannot delete vehicle - it may be in use or have active reservations";
+        errorMessage =
+          "Cannot delete vehicle - it may be in use or have active reservations";
       } else if (error.statusCode === 401) {
         errorMessage = "Authentication required. Please log in again.";
       } else if (error.statusCode === 403) {
@@ -387,7 +403,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       } else if (error.statusCode === 404) {
         errorMessage = "Vehicle not found";
       } else if (error.statusCode === 409) {
-        errorMessage = "Cannot delete vehicle - it has pending documents or payments";
+        errorMessage =
+          "Cannot delete vehicle - it has pending documents or payments";
       } else if (error.statusCode >= 500) {
         errorMessage = "Server error. Please try again later.";
       }
@@ -401,7 +418,11 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   // Acciones de documentos
   setDocuments: (documents) => {
-    console.log("[DriverProfileStore] setDocuments called with:", documents.length, "documents");
+    console.log(
+      "[DriverProfileStore] setDocuments called with:",
+      documents.length,
+      "documents",
+    );
     set({ documents });
   },
 
@@ -417,7 +438,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const documentsData = await documentService.getDocuments();
 
       // Transform API response if needed
-      const documents: Document[] = documentsData.map(doc => ({
+      const documents: Document[] = documentsData.map((doc) => ({
         id: doc.id,
         driverId: doc.driverId,
         type: doc.type,
@@ -450,7 +471,11 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
     }
   },
 
-  uploadDocument: async (type: DocumentType, file: File | string, description?: string) => {
+  uploadDocument: async (
+    type: DocumentType,
+    file: File | string,
+    description?: string,
+  ) => {
     const state = get();
     console.log("[DriverProfileStore] uploadDocument called for type:", type);
 
@@ -496,12 +521,14 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       state.setError(error.message || "Failed to upload document");
 
       // Fallback to local document creation for development
-      console.log("[DriverProfileStore] Using fallback local document creation");
+      console.log(
+        "[DriverProfileStore] Using fallback local document creation",
+      );
       const newDocument: Document = {
         id: `doc_${Date.now()}`,
         driverId: "current_driver",
         type,
-        name: `${type.replace('_', ' ').toUpperCase()} Document`,
+        name: `${type.replace("_", " ").toUpperCase()} Document`,
         status: "pending_review",
         uploadedAt: new Date(),
         isRequired: true,
@@ -516,9 +543,16 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
   },
 
   updateDocumentStatus: (id: string, status: DocumentStatus) => {
-    console.log("[DriverProfileStore] updateDocumentStatus called for:", id, "status:", status);
-    const updatedDocuments = get().documents.map(doc =>
-      doc.id === id ? { ...doc, status, updatedAt: new Date().toISOString() } : doc
+    console.log(
+      "[DriverProfileStore] updateDocumentStatus called for:",
+      id,
+      "status:",
+      status,
+    );
+    const updatedDocuments = get().documents.map((doc) =>
+      doc.id === id
+        ? { ...doc, status, updatedAt: new Date().toISOString() }
+        : doc,
     );
     set({ documents: updatedDocuments });
   },
@@ -535,7 +569,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       await documentService.deleteDocument(id);
 
       // Remove from local state
-      const updatedDocuments = state.documents.filter(doc => doc.id !== id);
+      const updatedDocuments = state.documents.filter((doc) => doc.id !== id);
       state.setDocuments(updatedDocuments);
 
       console.log("[DriverProfileStore] Document deleted successfully");

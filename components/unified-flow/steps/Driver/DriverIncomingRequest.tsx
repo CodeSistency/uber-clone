@@ -6,7 +6,13 @@ import {
   PendingRequest,
 } from "@/app/services/driverTransportService";
 import { websocketService } from "@/app/services/websocketService";
+import { websocketEventManager } from "@/lib/websocketEventManager";
+import { pendingRequestsCache } from "@/lib/PendingRequestsCache";
+import { smartRequestManager, RequestState } from "@/lib/RequestStateManager";
 import { Button, Card, Badge } from "@/components/ui";
+import RequestStateIndicator, {
+  RequestProgressBar,
+} from "@/components/ui/RequestStateIndicator";
 import { useUI } from "@/components/UIWrapper";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
@@ -20,57 +26,234 @@ const DriverIncomingRequest: React.FC = () => {
   const driverState = useDriverStateStore();
   const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
   const [loading, setLoading] = useState(true);
+  const [listening, setListening] = useState(true); // 🚀 NUEVO: Estado para mostrar "escuchando"
   const [processing, setProcessing] = useState<string | null>(null);
+  const [hasNewRequest, setHasNewRequest] = useState(false); // ✅ OPTIMIZED: Estado para notificación preview
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // 🚀 NUEVO: Reemplazo de polling con WebSocket listener
   useEffect(() => {
-    const loadPendingRequests = async () => {
-      try {
-        console.log("[DriverIncomingRequest] Loading pending requests...");
-        const response = await driverTransportService.getPendingRequests(
-          driverState.currentLocation?.lat || 0,
-          driverState.currentLocation?.lng || 0,
-        );
-        const requests = response?.data || [];
 
-        if (requests.length > 0) {
-          setPendingRequests(requests);
-          console.log(
-            "[DriverIncomingRequest] Pending requests loaded:",
-            requests.length,
-          );
-        } else {
-          console.log("[DriverIncomingRequest] No pending requests found");
-          // If no requests, go back to availability after a short delay
-          setTimeout(() => {
-            startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
-          }, 2000);
-        }
+    const handleRideRequested = async (data: any) => {
+      console.log(
+        "[DriverIncomingRequest] 🚨 WebSocket: ride:requested received (optimized)",
+        {
+          rideId: data.rideId,
+          area: data.area,
+          timestamp: data.timestamp,
+        },
+      );
+
+      // ✅ INTEGRATED: Usar SmartRequestManager para manejar estados
+      try {
+        // Transición a estado NOTIFIED
+        smartRequestManager.transitionTo(RequestState.NOTIFIED, {
+          rideId: data.rideId,
+          area: data.area,
+          timestamp: data.timestamp,
+        });
+
+        setLoading(false); // Ya no estamos cargando
+        setListening(false); // Ya no estamos solo escuchando
+        setHasNewRequest(true); // ✅ Estado para mostrar notificación
+
+        // Mostrar notificación visual al conductor
+        showSuccess(
+          "Nueva solicitud disponible",
+          `Hay una solicitud en el área de ${data.area}`,
+          3000,
+        );
+
+        console.log(
+          "[DriverIncomingRequest] ✅ Preview notification shown, waiting for user interaction",
+        );
+
+        // ❌ REMOVED: No llamar API automáticamente
+        // La API se llamará solo cuando el conductor toque la notificación
+
+        // Limpiar timeout ya que tenemos una notificación activa
+        // Note: timeoutId is not currently used, this is for future timeout implementation
       } catch (error) {
         console.error(
-          "[DriverIncomingRequest] Error loading pending requests:",
+          "[DriverIncomingRequest] ❌ Error handling ride requested notification:",
           error,
         );
-        showError("Error", "No se pudieron cargar las solicitudes pendientes");
-        setTimeout(() => {
-          startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
-        }, 2000);
-      } finally {
-        setLoading(false);
+
+        // Transición a estado ERROR
+        smartRequestManager.transitionTo(RequestState.ERROR, {
+          error: error instanceof Error ? error.message : String(error),
+          context: "handleRideRequested",
+        });
+
+        // En caso de error, mostrar mensaje pero no fallar completamente
+        showError(
+          "Notificación",
+          "Nueva solicitud disponible, toca para ver detalles",
+        );
       }
     };
 
-    loadPendingRequests();
+    // Suscribirse al evento ride:requested
+    websocketEventManager.on("ride:requested", handleRideRequested);
 
-    // Refresh requests every 10 seconds
-    intervalRef.current = setInterval(loadPendingRequests, 10000) as any;
+    // Estado inicial: escuchando
+    setLoading(true);
+    setListening(true);
+    console.log(
+      "[DriverIncomingRequest] 🎧 Listening for ride:requested events...",
+    );
 
     return () => {
+      // Cleanup
+      websocketEventManager.off("ride:requested", handleRideRequested);
+      // Note: timeoutId cleanup removed since it's not currently used
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
       }
     };
-  }, []);
+  }, [driverState.currentLocation?.lat, driverState.currentLocation?.lng]);
+
+  // ✅ OPTIMIZED: Función para cargar datos completos al interactuar (con cache inteligente y state management)
+  const loadFullRequestData = async () => {
+    if (loading) return; // Evitar múltiples llamadas
+
+    const lat = driverState.currentLocation?.lat || 0;
+    const lng = driverState.currentLocation?.lng || 0;
+
+    console.log(
+      "[DriverIncomingRequest] 🔄 Loading full request data on user interaction...",
+      {
+        location: { lat, lng },
+      },
+    );
+
+    // ✅ INTEGRATED: Transición a estado LOADING
+    smartRequestManager.transitionTo(RequestState.LOADING, {
+      context: "loadFullRequestData",
+      location: { lat, lng },
+    });
+
+    setLoading(true);
+    setHasNewRequest(false); // Ocultar notificación preview
+
+    try {
+      // ✅ CACHE INTELIGENTE: Primero intentar obtener del cache
+      let requests = pendingRequestsCache.get(lat, lng);
+
+      if (requests) {
+        // ✅ Cache hit - usar datos del cache (instantáneo)
+        console.log(
+          "[DriverIncomingRequest] ✅ Cache hit - using cached data:",
+          requests.length,
+        );
+        setPendingRequests(requests);
+
+        // ✅ INTEGRATED: Transición a estado LOADED
+        smartRequestManager.transitionTo(RequestState.LOADED, {
+          source: "cache",
+          requestsCount: requests.length,
+          cacheStats: pendingRequestsCache.getStats(),
+        });
+
+        setLoading(false);
+        return;
+      }
+
+      // ❌ Cache miss - hacer llamada a API
+      console.log(
+        "[DriverIncomingRequest] ❌ Cache miss - fetching from API...",
+      );
+      showSuccess(
+        "Cargando detalles...",
+        "Obteniendo información actualizada",
+        2000,
+      );
+
+      const response = await driverTransportService.getPendingRequests(
+        lat,
+        lng,
+      );
+      requests = response?.data || [];
+
+      if (requests.length > 0) {
+        // ✅ Guardar en cache para futuras consultas
+        pendingRequestsCache.set(lat, lng, requests);
+        setPendingRequests(requests);
+
+        console.log(
+          "[DriverIncomingRequest] ✅ Full request data loaded and cached:",
+          {
+            requests: requests.length,
+            cacheStats: pendingRequestsCache.getStats(),
+          },
+        );
+
+        // ✅ INTEGRATED: Transición a estado LOADED
+        smartRequestManager.transitionTo(RequestState.LOADED, {
+          source: "api",
+          requestsCount: requests.length,
+          cacheStats: pendingRequestsCache.getStats(),
+        });
+      } else {
+        // No hay solicitudes disponibles después de la interacción
+        showError(
+          "Sin solicitudes",
+          "No hay solicitudes disponibles en este momento",
+        );
+        startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
+
+        // ✅ INTEGRATED: Reset a estado IDLE
+        smartRequestManager.transitionTo(RequestState.IDLE, {
+          reason: "no_requests_available",
+        });
+      }
+    } catch (error) {
+      console.error(
+        "[DriverIncomingRequest] ❌ Error loading full request data:",
+        error,
+      );
+
+      // ✅ INTEGRATED: Transición a estado ERROR
+      smartRequestManager.transitionTo(RequestState.ERROR, {
+        error: error instanceof Error ? error.message : String(error),
+        context: "loadFullRequestData",
+      });
+
+      // En caso de error, intentar usar datos del cache como fallback (aunque expirados)
+      const cachedFallback = pendingRequestsCache.get(lat, lng);
+      if (cachedFallback && cachedFallback.length > 0) {
+        console.log(
+          "[DriverIncomingRequest] ⚠️ Using expired cache as fallback",
+        );
+        setPendingRequests(cachedFallback);
+        showError(
+          "Error de conexión",
+          "Mostrando datos anteriores. Verifica tu conexión.",
+        );
+
+        // ✅ INTEGRATED: Transición a LOADED con datos de fallback
+        smartRequestManager.transitionTo(RequestState.LOADED, {
+          source: "cache_fallback",
+          requestsCount: cachedFallback.length,
+        });
+      } else {
+        showError(
+          "Error",
+          "No se pudieron cargar los detalles de la solicitud",
+        );
+        setHasNewRequest(true); // Volver a mostrar notificación si falla completamente
+
+        // ✅ INTEGRATED: Reset a estado IDLE en error completo
+        setTimeout(() => {
+          smartRequestManager.transitionTo(RequestState.IDLE, {
+            reason: "complete_failure",
+          });
+        }, 2000);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAccept = async (request: PendingRequest) => {
     if (processing) return;
@@ -105,7 +288,7 @@ const DriverIncomingRequest: React.FC = () => {
       } as any);
 
       showSuccess("¡Solicitud aceptada!", "Dirígete al punto de recogida");
-      goTo(FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN);
+      goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
     } catch (error) {
       console.error("[DriverIncomingRequest] Error accepting request:", error);
       showError("Error", "No se pudo aceptar la solicitud. Intenta de nuevo.");
@@ -166,14 +349,59 @@ const DriverIncomingRequest: React.FC = () => {
     );
   };
 
-  if (loading) {
+  // ✅ OPTIMIZED: Mostrar notificación preview cuando hay nueva solicitud
+  if (hasNewRequest && !loading) {
     return (
       <View className="flex-1">
-        <FlowHeader title="Buscando solicitudes..." />
+        <FlowHeader title="Nueva solicitud disponible" />
         <View className="flex-1 justify-center items-center p-6">
-          <Text className="text-4xl mb-4">🔍</Text>
-          <Text className="font-JakartaMedium text-lg text-gray-600 text-center">
-            Buscando solicitudes de viaje disponibles
+          {/* ✅ ENHANCED: Indicador de estado visual */}
+          <RequestStateIndicator className="mb-4" size="lg" showLabels={true} />
+          <View className="bg-blue-50 border border-blue-200 rounded-xl p-6 w-full max-w-sm mb-6">
+            <View className="items-center mb-4">
+              <Text className="text-4xl mb-2">🔔</Text>
+              <Text className="font-JakartaBold text-lg text-blue-800 text-center mb-2">
+                ¡Nueva solicitud de viaje!
+              </Text>
+              <Text className="font-Jakarta text-sm text-blue-700 text-center">
+                Hay una solicitud disponible cerca de tu ubicación
+              </Text>
+            </View>
+
+            <Button
+              variant="primary"
+              title="Ver detalles"
+              onPress={loadFullRequestData}
+              className="w-full"
+            />
+
+            <Text className="font-Jakarta text-xs text-blue-600 text-center mt-3">
+              Toca para cargar los detalles completos
+            </Text>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  if (loading && listening) {
+    return (
+      <View className="flex-1">
+        <FlowHeader title="Escuchando solicitudes..." />
+        <View className="flex-1 justify-center items-center p-6">
+          <View className="flex-row items-center mb-4">
+            <Text className="text-4xl mr-3">📡</Text>
+            <View className="flex-row">
+              <View className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></View>
+              <View className="w-2 h-2 bg-green-500 rounded-full mr-1 animate-pulse"></View>
+              <View className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></View>
+            </View>
+          </View>
+          <Text className="font-JakartaMedium text-lg text-gray-600 text-center mb-2">
+            Escuchando nuevas solicitudes en tiempo real
+          </Text>
+          <Text className="font-Jakarta text-sm text-gray-500 text-center">
+            Las solicitudes aparecerán automáticamente cuando estén disponibles
           </Text>
         </View>
       </View>
@@ -203,10 +431,7 @@ const DriverIncomingRequest: React.FC = () => {
       processing === `reject-${request.rideId}`;
 
     return (
-      <Card
-        key={request.rideId}
-        className="mb-4"
-      >
+      <Card key={request.rideId} className="mb-4">
         {/* Header with service type and rating */}
         <View className="flex-row items-center justify-between mb-3">
           <Text className="font-JakartaBold text-lg">{request.tier.name}</Text>
@@ -306,7 +531,7 @@ const DriverIncomingRequest: React.FC = () => {
             disabled={isProcessing}
           />
         </View>
-    </Card>
+      </Card>
     );
   };
 

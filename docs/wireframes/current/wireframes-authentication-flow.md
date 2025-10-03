@@ -1,6 +1,7 @@
 # Uber-like App Wireframes: Authentication Flow
 
 ## Overview
+
 This document contains ASCII wireframes for the authentication flow of the Uber-like multi-modal application.
 
 ## 1. Welcome Screen (Onboarding)
@@ -69,6 +70,7 @@ This document contains ASCII wireframes for the authentication flow of the Uber-
 ```
 
 **Actual Implementation Notes:**
+
 - Header image (signUpCar) with overlay text
 - Uses InputField components with icons
 - Three fields: Name, Email, Password (no confirm password)
@@ -135,6 +137,7 @@ This document contains ASCII wireframes for the authentication flow of the Uber-
 ```
 
 **Actual Implementation Notes:**
+
 - Same header image as sign-up
 - "Welcome 👋" text overlay on image
 - Two fields: Email and Password
@@ -175,6 +178,7 @@ Welcome Screen (Onboarding)
 ## Implementation Details
 
 ### Components Used
+
 - **ScrollView**: Main container for scrollable content
 - **Image**: Header images from constants/images
 - **InputField**: Custom input component with icons
@@ -183,12 +187,14 @@ Welcome Screen (Onboarding)
 - **UIWrapper**: Context for loading/success/error states
 
 ### State Management
+
 - **Local State**: Form data with useState
 - **Validation**: Client-side validation before submission
 - **Authentication**: Integration with auth library
 - **Navigation**: Automatic redirects based on auth status
 
 ### Styling
+
 - **NativeWind**: Tailwind CSS classes for styling
 - **Jakarta Font**: Consistent typography throughout
 - **Image Overlays**: Text positioned over images

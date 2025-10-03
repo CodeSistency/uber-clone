@@ -1,1 +1,1 @@
-export * from './driverConfig';
+export * from "./driverConfig";

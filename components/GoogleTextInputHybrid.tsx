@@ -15,7 +15,10 @@ import {
 import { icons } from "@/constants";
 import { endpoints } from "@/lib/endpoints";
 import { GoogleInputProps } from "@/types/type";
-import { criticalDataCache, CachedLocation } from "@/lib/cache/CriticalDataCache";
+import {
+  criticalDataCache,
+  CachedLocation,
+} from "@/lib/cache/CriticalDataCache";
 import { useConnectivity } from "@/hooks/useConnectivity";
 
 interface PlaceResult {
@@ -98,10 +101,14 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
 
   const loadOfflineCache = async () => {
     try {
-      const cachedLocations = await criticalDataCache.getCachedLocations(maxOfflineResults);
+      const cachedLocations =
+        await criticalDataCache.getCachedLocations(maxOfflineResults);
       setOfflineResults(cachedLocations);
     } catch (error) {
-      console.error('[GoogleTextInputHybrid] Failed to load offline cache:', error);
+      console.error(
+        "[GoogleTextInputHybrid] Failed to load offline cache:",
+        error,
+      );
     }
   };
 
@@ -116,39 +123,43 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
 
     try {
       // Try online search first if connected
-      if (isOnline && isFeatureAvailable('maps')) {
+      if (isOnline && isFeatureAvailable("maps")) {
         const onlineResults = await performOnlineSearch(text);
         setResults(onlineResults);
         setUsingOffline(false);
       } else {
         // Fallback to offline search
         const offlineResults = await performOfflineSearch(text);
-        setResults(offlineResults.map(loc => ({
-          place_id: loc.id,
-          description: loc.address,
-          structured_formatting: {
-            main_text: loc.address,
-            secondary_text: loc.formattedAddress,
-          },
-        })));
+        setResults(
+          offlineResults.map((loc) => ({
+            place_id: loc.id,
+            description: loc.address,
+            structured_formatting: {
+              main_text: loc.address,
+              secondary_text: loc.formattedAddress,
+            },
+          })),
+        );
         setUsingOffline(true);
       }
 
       setShowResults(true);
     } catch (error) {
-      console.error('[GoogleTextInputHybrid] Search failed:', error);
+      console.error("[GoogleTextInputHybrid] Search failed:", error);
 
       // Fallback to offline if online fails
       if (offlineResults.length > 0) {
         const offlineResults = await performOfflineSearch(text);
-        setResults(offlineResults.map(loc => ({
-          place_id: loc.id,
-          description: loc.address,
-          structured_formatting: {
-            main_text: loc.address,
-            secondary_text: loc.formattedAddress,
-          },
-        })));
+        setResults(
+          offlineResults.map((loc) => ({
+            place_id: loc.id,
+            description: loc.address,
+            structured_formatting: {
+              main_text: loc.address,
+              secondary_text: loc.formattedAddress,
+            },
+          })),
+        );
         setUsingOffline(true);
         setShowResults(true);
       }
@@ -163,19 +174,21 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
     const response = await fetch(url);
     const data: PlacesApiResponse = await response.json();
 
-    if (data.status === 'OK' && data.predictions) {
+    if (data.status === "OK" && data.predictions) {
       return data.predictions;
     }
 
-    throw new Error(data.error_message || 'Failed to fetch places');
+    throw new Error(data.error_message || "Failed to fetch places");
   };
 
-  const performOfflineSearch = async (text: string): Promise<CachedLocation[]> => {
+  const performOfflineSearch = async (
+    text: string,
+  ): Promise<CachedLocation[]> => {
     try {
       const results = await criticalDataCache.searchLocations(text);
       return results.slice(0, maxOfflineResults);
     } catch (error) {
-      console.error('[GoogleTextInputHybrid] Offline search failed:', error);
+      console.error("[GoogleTextInputHybrid] Offline search failed:", error);
       return [];
     }
   };
@@ -203,7 +216,9 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
 
       if (usingOffline) {
         // Get from cache
-        const cachedLocation = offlineResults.find(loc => loc.id === result.place_id);
+        const cachedLocation = offlineResults.find(
+          (loc) => loc.id === result.place_id,
+        );
         if (cachedLocation) {
           latitude = cachedLocation.latitude;
           longitude = cachedLocation.longitude;
@@ -216,13 +231,14 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
         const detailsResponse = await fetch(detailsUrl);
         const detailsData = await detailsResponse.json();
 
-        if (detailsData.status === 'OK' && detailsData.result) {
+        if (detailsData.status === "OK" && detailsData.result) {
           const location = detailsData.result.geometry?.location;
           if (location) {
             latitude = location.lat;
             longitude = location.lng;
           }
-          formattedAddress = detailsData.result.formatted_address || result.description;
+          formattedAddress =
+            detailsData.result.formatted_address || result.description;
         }
       }
 
@@ -234,7 +250,7 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
           address: result.description,
           formattedAddress,
           placeId: result.place_id,
-          source: 'search',
+          source: "search",
         });
       }
 
@@ -244,9 +260,11 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
         longitude,
         address: formattedAddress,
       });
-
     } catch (error) {
-      console.error('[GoogleTextInputHybrid] Failed to get place details:', error);
+      console.error(
+        "[GoogleTextInputHybrid] Failed to get place details:",
+        error,
+      );
       // Still call handler with basic info
       handlePress({
         latitude: 0,
@@ -298,7 +316,11 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
 
     return (
       <View className="flex-row items-center bg-orange-50 px-3 py-1 rounded-full">
-        <Image source={icons.target} className="w-4 h-4 mr-1" tintColor="#EA580C" />
+        <Image
+          source={icons.target}
+          className="w-4 h-4 mr-1"
+          tintColor="#EA580C"
+        />
         <Text className="font-Jakarta text-xs text-orange-700">
           Modo offline
         </Text>
@@ -415,7 +437,11 @@ export const useGoogleTextInputHybrid = (props: GoogleTextInputHybridProps) => {
     address: string;
   } | null>(null);
 
-  const handleLocationSelect = (location: { latitude: number; longitude: number; address: string }) => {
+  const handleLocationSelect = (location: {
+    latitude: number;
+    longitude: number;
+    address: string;
+  }) => {
     setSelectedLocation(location);
     props.handlePress?.(location);
   };
@@ -423,10 +449,7 @@ export const useGoogleTextInputHybrid = (props: GoogleTextInputHybridProps) => {
   return {
     selectedLocation,
     GoogleTextInputComponent: (
-      <GoogleTextInputHybrid
-        {...props}
-        handlePress={handleLocationSelect}
-      />
+      <GoogleTextInputHybrid {...props} handlePress={handleLocationSelect} />
     ),
   };
 };

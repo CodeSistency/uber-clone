@@ -1,5 +1,19 @@
 import { Driver, MarkerData } from "@/types/type";
 import { endpoints } from "@/lib/endpoints";
+import { DARK_MODERN_STYLE } from "@/constants/mapStyles";
+
+// Debug function para verificar estilos del mapa
+export const debugMapStyles = () => {
+  console.log("[debugMapStyles] 🎨 DARK_MODERN_STYLE sample:", {
+    name: DARK_MODERN_STYLE.name,
+    jsonLength: DARK_MODERN_STYLE.json.length,
+    firstElement: DARK_MODERN_STYLE.json[0],
+    hasGeometryFill: DARK_MODERN_STYLE.json.some((style: any) => style.elementType === "geometry.fill"),
+    darkColors: DARK_MODERN_STYLE.json.filter((style: any) =>
+      style.stylers?.some((s: any) => s.color && s.color.includes("#1d"))
+    ),
+  });
+};
 
 export const generateMarkersFromData = ({
   data,
@@ -20,8 +34,8 @@ export const generateMarkersFromData = ({
     const lngOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
 
     // Handle both camelCase and snake_case naming conventions
-    const firstName = driver.first_name || 'Unknown';
-    const lastName = driver.last_name || 'Driver';
+    const firstName = driver.first_name || "Unknown";
+    const lastName = driver.last_name || "Driver";
 
     console.log("[generateMarkersFromData] Driver data structure:", {
       driver,
@@ -39,7 +53,7 @@ export const generateMarkersFromData = ({
       ...driver,
       id: driver.id || index + 1, // Ensure we have an ID (placed after spread to avoid override)
       first_name: firstName, // Ensure consistent naming for compatibility
-      last_name: lastName,   // Ensure consistent naming for compatibility
+      last_name: lastName, // Ensure consistent naming for compatibility
     };
 
     console.log("[generateMarkersFromData] Creating marker:", {
@@ -139,9 +153,9 @@ export const calculateDriverTimes = async ({
         longitude: marker.longitude,
       });
       const responseToUser = await fetch(
-        endpoints.googleMaps.directions('json', {
+        endpoints.googleMaps.directions("json", {
           origin: `${marker.latitude},${marker.longitude}`,
-          destination: `${userLatitude},${userLongitude}`
+          destination: `${userLatitude},${userLongitude}`,
         }),
       );
       const dataToUser = await responseToUser.json();
@@ -153,9 +167,9 @@ export const calculateDriverTimes = async ({
       const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
 
       const responseToDestination = await fetch(
-        endpoints.googleMaps.directions('json', {
+        endpoints.googleMaps.directions("json", {
           origin: `${userLatitude},${userLongitude}`,
-          destination: `${destinationLatitude},${destinationLongitude}`
+          destination: `${destinationLatitude},${destinationLongitude}`,
         }),
       );
       const dataToDestination = await responseToDestination.json();
@@ -176,7 +190,7 @@ export const calculateDriverTimes = async ({
         timeToDestination: timeToDestination / 60,
         totalTime,
         roundedTime,
-        price
+        price,
       });
 
       return { ...marker, time: roundedTime, price };

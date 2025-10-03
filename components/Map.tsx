@@ -12,22 +12,32 @@ import { ActivityIndicator, Text, View, Platform } from "react-native";
 import MapView, {
   Marker,
   Polyline,
-  PROVIDER_DEFAULT,
+  PROVIDER_GOOGLE,
   Region,
   LatLng,
 } from "react-native-maps";
 
 import { icons } from "@/constants";
 import { Restaurant } from "@/constants/dummyData";
+import {
+  getMapStyle,
+  validateMapConfig,
+  DARK_MODERN_STYLE,
+  MAP_COLORS,
+  type MapConfiguration,
+} from "@/constants/mapStyles";
 import { endpoints } from "@/lib/endpoints";
 import { useFetch } from "@/lib/fetch";
 import {
   calculateDriverTimes,
   calculateRegion,
   generateMarkersFromData,
+  debugMapStyles,
 } from "@/lib/map";
 import { useDriverStore, useLocationStore, useRealtimeStore } from "@/store";
 import { Driver, MarkerData } from "@/types/type";
+
+// 🎨 Importar sistema de estilos de mapas
 
 export interface MapHandle {
   animateToRegion: (region: Region, duration?: number) => void;
@@ -57,6 +67,9 @@ interface MapProps {
   serviceType?: "transport" | "delivery";
   restaurants?: Restaurant[];
   isLoadingRestaurants?: boolean;
+
+  // 🎨 Configuración de estilos del mapa
+  mapConfig?: Partial<MapConfiguration>;
 }
 
 const Map = forwardRef<MapHandle, MapProps>(
@@ -65,9 +78,15 @@ const Map = forwardRef<MapHandle, MapProps>(
       serviceType = "transport",
       restaurants = [],
       isLoadingRestaurants = false,
+      mapConfig,
     }: MapProps,
     ref,
   ) => {
+    // Debug estilos del mapa al inicio
+    React.useEffect(() => {
+      debugMapStyles();
+    }, []);
+
     const mapRef = useRef<MapView | null>(null);
     const {
       userLongitude,
@@ -95,12 +114,6 @@ const Map = forwardRef<MapHandle, MapProps>(
       destLng: number,
     ) => {
       try {
-        console.log("[Map] Getting route coordinates:", {
-          originLat,
-          originLng,
-          destLat,
-          destLng,
-        });
 
         const response = await fetch(
           endpoints.googleMaps.directions("json", {
@@ -116,24 +129,16 @@ const Map = forwardRef<MapHandle, MapProps>(
         );
 
         const data = await response.json();
-        console.log("[Map] Directions API response:", data.status);
 
         if (data.status === "OK" && data.routes && data.routes[0]) {
           const points = data.routes[0].overview_polyline.points;
           const decodedPoints = decodePolyline(points);
 
-          console.log(
-            "[Map] Route decoded with",
-            decodedPoints.length,
-            "points",
-          );
           setRouteCoordinates(decodedPoints);
         } else {
-          console.warn("[Map] No route found:", data.status);
           setRouteCoordinates([]);
         }
       } catch (error) {
-        console.error("[Map] Error getting route:", error);
         setRouteCoordinates([]);
       }
     };
@@ -194,7 +199,6 @@ const Map = forwardRef<MapHandle, MapProps>(
           // When manual route is set via controller, skip auto calculation
           return;
         }
-        console.log("[Map] Origin and destination available, getting route...");
         getRouteCoordinates(
           userLatitude,
           userLongitude,
@@ -202,7 +206,6 @@ const Map = forwardRef<MapHandle, MapProps>(
           destinationLongitude,
         );
       } else {
-        console.log("[Map] Clearing route - missing coordinates");
         setRouteCoordinates([]);
       }
     }, [
@@ -222,25 +225,15 @@ const Map = forwardRef<MapHandle, MapProps>(
       if (Array.isArray(driversArray) && driversArray.length > 0) {
         if (!userLatitude || !userLongitude) return;
 
-        console.log("[Map] drivers loaded", {
-          count: driversArray.length,
-          userLatitude,
-          userLongitude,
-          originalFormat: Array.isArray(drivers) ? "array" : "object",
-          firstDriver: driversArray[0],
-          firstDriverKeys: driversArray[0] ? Object.keys(driversArray[0]) : [],
-        });
         const newMarkers = generateMarkersFromData({
           data: driversArray,
           userLatitude,
           userLongitude,
         });
 
-        console.log("[Map] markers generated", { count: newMarkers.length });
         setMarkers(newMarkers);
 
         // Set basic drivers to store immediately for UI display
-        console.log("[Map] Setting basic drivers to store for UI");
         setDrivers(newMarkers as MarkerData[]);
       }
     }, [drivers, userLatitude, userLongitude]);
@@ -251,11 +244,6 @@ const Map = forwardRef<MapHandle, MapProps>(
         destinationLatitude !== undefined &&
         destinationLongitude !== undefined
       ) {
-        console.log("[Map] calculating driver times", {
-          markers: markers.length,
-          destinationLatitude,
-          destinationLongitude,
-        });
         calculateDriverTimes({
           markers,
           userLatitude,
@@ -263,12 +251,8 @@ const Map = forwardRef<MapHandle, MapProps>(
           destinationLatitude,
           destinationLongitude,
         }).then((driversWithTimes) => {
-          console.log("[Map] driver times calculated", {
-            driversCount: driversWithTimes?.length,
-          });
           if (driversWithTimes && driversWithTimes.length > 0) {
             // Update existing drivers with time and price information
-            console.log("[Map] Updating drivers with calculated times");
             setDrivers(driversWithTimes as MarkerData[]);
           }
         });
@@ -282,7 +266,22 @@ const Map = forwardRef<MapHandle, MapProps>(
       destinationLongitude,
     });
 
-    console.log("[Map] region", region);
+    // 🎨 Configuración validada del mapa
+    const validatedMapConfig = validateMapConfig(mapConfig || {});
+
+    const mapStyleJson = getMapStyle(validatedMapConfig);
+
+    const handleMapReady = useCallback(() => {
+      if (!mapRef.current) return;
+
+      if (validatedMapConfig.mapId) {
+        return; // mapId ya maneja el estilo en la nube
+      }
+
+      (mapRef.current as any)?.setNativeProps({
+        customMapStyle: mapStyleJson,
+      });
+    }, [mapStyleJson, validatedMapConfig.mapId]);
 
     // Expose imperative map controls - must be declared unconditionally before any return
     useImperativeHandle(
@@ -336,14 +335,32 @@ const Map = forwardRef<MapHandle, MapProps>(
         ref={(r) => {
           mapRef.current = r;
         }}
-        provider={PROVIDER_DEFAULT}
+        provider={PROVIDER_GOOGLE}
         className="w-full h-full rounded-2xl"
-        tintColor="black"
-        mapType={Platform.OS === "ios" ? "mutedStandard" : "standard"}
-        showsPointsOfInterest={false}
+        googleMapId={validatedMapConfig.mapId}
+        customMapStyle={validatedMapConfig.mapId ? undefined : mapStyleJson}
+        userInterfaceStyle={validatedMapConfig.userInterfaceStyle}
+        onMapReady={handleMapReady}
+        // 🎛️ Configuración de controles y elementos
+        showsUserLocation={validatedMapConfig.showsUserLocation}
+        showsPointsOfInterest={validatedMapConfig.showsPointsOfInterest}
+        showsBuildings={validatedMapConfig.showsBuildings}
+        showsTraffic={validatedMapConfig.showsTraffic}
+        showsCompass={validatedMapConfig.showsCompass}
+        showsScale={validatedMapConfig.showsScale}
+        showsMyLocationButton={validatedMapConfig.showsMyLocationButton}
+        // 🎯 Controles de interacción
+        zoomEnabled={validatedMapConfig.zoomEnabled}
+        scrollEnabled={validatedMapConfig.scrollEnabled}
+        rotateEnabled={validatedMapConfig.rotateEnabled}
+        pitchEnabled={validatedMapConfig.pitchEnabled}
+        // 📍 Configuración de zoom
+        maxZoomLevel={validatedMapConfig.maxZoomLevel}
+        minZoomLevel={validatedMapConfig.minZoomLevel}
+        // 🎨 Color del tinte
+        tintColor={validatedMapConfig.tintColor}
+        // 📍 Región inicial
         initialRegion={region}
-        showsUserLocation={true}
-        userInterfaceStyle="light"
       >
         {/* Transport mode markers */}
         {serviceType === "transport" &&
@@ -426,7 +443,7 @@ const Map = forwardRef<MapHandle, MapProps>(
         {routeCoordinates.length > 0 && (
           <Polyline
             coordinates={routeCoordinates}
-            strokeColor="#4285F4" // Google Maps blue
+            strokeColor={validatedMapConfig.routeColor}
             strokeWidth={4}
             lineDashPattern={[0]}
           />

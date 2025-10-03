@@ -1,5 +1,7 @@
 import { useEffect, useCallback } from "react";
 
+import { NotificationType, NotificationData } from "../../types/type";
+
 // MIGRATION: Ahora usa el wrapper de compatibilidad que internamente usa Expo
 // El código legacy se mantiene comentado para referencia durante la transición
 // import { useNotificationStore, useRealtimeStore } from "../../store";
@@ -79,8 +81,11 @@ export const useNotifications = () => {
   // MIGRATION: Auto-update badge count cuando cambia unreadCount
   useEffect(() => {
     if (setBadgeCount) {
-      setBadgeCount(unreadCount).catch(error => {
-        console.error("[useNotifications] Failed to update badge count:", error);
+      setBadgeCount(unreadCount).catch((error) => {
+        console.error(
+          "[useNotifications] Failed to update badge count:",
+          error,
+        );
       });
     }
   }, [unreadCount, setBadgeCount]);

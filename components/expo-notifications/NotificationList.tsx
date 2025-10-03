@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo } from "react";
 import {
   View,
   Text,
@@ -8,11 +8,14 @@ import {
   TextInput,
   TouchableOpacity,
   Alert,
-} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import NotificationItem from './NotificationItem';
-import { ExpoNotificationData, ExpoNotificationType } from '../../types/expo-notifications';
-import { useExpoNotifications } from '@/app/hooks/expo-notifications';
+} from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import NotificationItem from "./NotificationItem";
+import {
+  ExpoNotificationData,
+  ExpoNotificationType,
+} from "../../types/expo-notifications";
+import { useExpoNotifications } from "@/app/hooks/expo-notifications";
 
 interface NotificationListProps {
   onNotificationPress?: (notification: ExpoNotificationData) => void;
@@ -35,37 +38,45 @@ const NotificationList: React.FC<NotificationListProps> = ({
   showFilters = true,
   maxHeight,
 }) => {
-  const { notifications, markAsRead, clearNotifications } = useExpoNotifications();
+  const { notifications, markAsRead, clearNotifications } =
+    useExpoNotifications();
   const [refreshing, setRefreshing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState<ExpoNotificationType | 'all'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedFilter, setSelectedFilter] = useState<
+    ExpoNotificationType | "all"
+  >("all");
 
   // Filtros y búsqueda
   const filteredNotifications = useMemo(() => {
     let filtered = notifications;
 
     // Filtrar por tipo
-    if (selectedFilter !== 'all') {
-      filtered = filtered.filter(notification => notification.type === selectedFilter);
+    if (selectedFilter !== "all") {
+      filtered = filtered.filter(
+        (notification) => notification.type === selectedFilter,
+      );
     }
 
     // Filtrar por búsqueda
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(notification =>
-        notification.title.toLowerCase().includes(query) ||
-        notification.message.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (notification) =>
+          notification.title.toLowerCase().includes(query) ||
+          notification.message.toLowerCase().includes(query),
       );
     }
 
     // Ordenar por fecha (más recientes primero)
-    return filtered.sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    return filtered.sort(
+      (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
+    );
   }, [notifications, selectedFilter, searchQuery]);
 
   // Filtros disponibles basados en notificaciones existentes
   const availableFilters = useMemo(() => {
-    const types = new Set(notifications.map(n => n.type));
-    return ['all' as const, ...Array.from(types)];
+    const types = new Set(notifications.map((n) => n.type));
+    return ["all" as const, ...Array.from(types)];
   }, [notifications]);
 
   const handleRefresh = async () => {
@@ -75,7 +86,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
     try {
       await onRefresh();
     } catch (error) {
-      console.error('Error refreshing notifications:', error);
+      console.error("Error refreshing notifications:", error);
     } finally {
       setRefreshing(false);
     }
@@ -91,16 +102,16 @@ const NotificationList: React.FC<NotificationListProps> = ({
 
   const handleClearAll = () => {
     Alert.alert(
-      'Clear All Notifications',
-      'Are you sure you want to clear all notifications? This action cannot be undone.',
+      "Clear All Notifications",
+      "Are you sure you want to clear all notifications? This action cannot be undone.",
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: "Cancel", style: "cancel" },
         {
-          text: 'Clear All',
-          style: 'destructive',
+          text: "Clear All",
+          style: "destructive",
           onPress: clearNotifications,
         },
-      ]
+      ],
     );
   };
 
@@ -120,7 +131,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
     </View>
   );
 
-  const renderFilterButton = (filter: ExpoNotificationType | 'all') => (
+  const renderFilterButton = (filter: ExpoNotificationType | "all") => (
     <TouchableOpacity
       key={filter}
       style={[
@@ -135,7 +146,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
           selectedFilter === filter && styles.filterButtonTextActive,
         ]}
       >
-        {filter === 'all' ? 'All' : filter.replace('_', ' ')}
+        {filter === "all" ? "All" : filter.replace("_", " ")}
       </Text>
     </TouchableOpacity>
   );
@@ -187,9 +198,11 @@ const NotificationList: React.FC<NotificationListProps> = ({
             />
           ) : undefined
         }
-        style={[styles.list, maxHeight && { maxHeight }]}
+        style={[styles.list, maxHeight ? { maxHeight } : undefined]}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={filteredNotifications.length === 0 ? styles.emptyList : undefined}
+        contentContainerStyle={
+          filteredNotifications.length === 0 ? styles.emptyList : undefined
+        }
       />
     </SafeAreaView>
   );
@@ -198,55 +211,55 @@ const NotificationList: React.FC<NotificationListProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
   },
 
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     paddingHorizontal: 16,
     paddingVertical: 12,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: "#E5E7EB",
   },
 
   headerTitle: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#111827',
+    fontWeight: "bold",
+    color: "#111827",
   },
 
   clearButton: {
     fontSize: 14,
-    color: '#EF4444',
-    fontWeight: '500',
+    color: "#EF4444",
+    fontWeight: "500",
   },
 
   searchContainer: {
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
 
   searchInput: {
     height: 40,
     borderWidth: 1,
-    borderColor: '#D1D5DB',
+    borderColor: "#D1D5DB",
     borderRadius: 8,
     paddingHorizontal: 12,
     fontSize: 16,
-    backgroundColor: '#F9FAFB',
+    backgroundColor: "#F9FAFB",
   },
 
   filtersContainer: {
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 16,
     paddingVertical: 8,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
     borderBottomWidth: 1,
-    borderBottomColor: '#E5E7EB',
+    borderBottomColor: "#E5E7EB",
   },
 
   filterButton: {
@@ -254,22 +267,22 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderRadius: 16,
     marginRight: 8,
-    backgroundColor: '#F3F4F6',
+    backgroundColor: "#F3F4F6",
   },
 
   filterButtonActive: {
-    backgroundColor: '#0286FF',
+    backgroundColor: "#0286FF",
   },
 
   filterButtonText: {
     fontSize: 12,
-    fontWeight: '500',
-    color: '#6B7280',
-    textTransform: 'capitalize',
+    fontWeight: "500",
+    color: "#6B7280",
+    textTransform: "capitalize",
   },
 
   filterButtonTextActive: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
   },
 
   list: {
@@ -278,12 +291,12 @@ const styles = StyleSheet.create({
 
   emptyList: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: "center",
   },
 
   emptyContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingVertical: 48,
     paddingHorizontal: 32,
   },
@@ -295,19 +308,17 @@ const styles = StyleSheet.create({
 
   emptyTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
     marginBottom: 8,
   },
 
   emptyMessage: {
     fontSize: 14,
-    color: '#6B7280',
-    textAlign: 'center',
+    color: "#6B7280",
+    textAlign: "center",
     lineHeight: 20,
   },
 });
 
 export default NotificationList;
-
-

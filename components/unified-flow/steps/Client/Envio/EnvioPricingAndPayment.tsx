@@ -10,7 +10,7 @@ import {
   mapPaymentMethodToAPI,
   validatePaymentMethod,
 } from "@/lib/paymentValidation";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -65,7 +65,7 @@ const EnvioPricingAndPayment: React.FC = () => {
             await withUI(() => parcelClient.join(id), {
               loadingMessage: "Uniéndote al tracking...",
             });
-            goTo(FLOW_STEPS.CUSTOMER_ENVIO.SEGUIMIENTO_PAQUETE);
+            goTo(FLOW_STEPS.CUSTOMER_ENVIO_SEGUIMIENTO_PAQUETE);
           }}
           disabled={!canPay}
           className="rounded-xl p-4"

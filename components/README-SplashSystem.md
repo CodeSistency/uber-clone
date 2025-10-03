@@ -7,12 +7,14 @@ El sistema de splash screens permite mostrar pantallas de carga atractivas duran
 ## 🏗️ **Arquitectura**
 
 ### **Componentes Principales**
+
 - **SplashStore**: Gestión centralizada del estado de splash screens
 - **MiniSplash**: Componente visual para mostrar splash screens
 - **ModuleDataService**: Servicio para cargar datos por módulo
 - **useModuleTransition**: Hook para transiciones con splash
 
 ### **Flujo de Trabajo**
+
 1. Usuario inicia transición de módulo
 2. Se muestra MiniSplash con datos específicos del módulo
 3. Se cargan datos críticos en paralelo
@@ -22,6 +24,7 @@ El sistema de splash screens permite mostrar pantallas de carga atractivas duran
 ## 🚗 **Transiciones Específicas por Módulo**
 
 ### **Customer → Driver**
+
 ```typescript
 import { useModuleTransition } from '@/store/module';
 
@@ -46,6 +49,7 @@ const MyComponent = () => {
 ```
 
 **Datos cargados durante la transición:**
+
 - ✅ Perfil de conductor
 - ✅ Estado del vehículo
 - ✅ Ubicación GPS
@@ -53,6 +57,7 @@ const MyComponent = () => {
 - ✅ Historial de viajes
 
 ### **Customer → Business**
+
 ```typescript
 const { switchToBusiness } = useModuleTransition();
 
@@ -64,6 +69,7 @@ await switchToBusiness();
 ```
 
 **Datos cargados durante la transición:**
+
 - ✅ Perfil del negocio
 - ✅ Productos activos
 - ✅ Estadísticas de ventas
@@ -71,6 +77,7 @@ await switchToBusiness();
 - ✅ Pedidos pendientes
 
 ### **Driver/Business → Customer**
+
 ```typescript
 const { switchToCustomer } = useModuleTransition();
 
@@ -81,36 +88,39 @@ await switchToCustomer();
 ## 🎨 **Personalización de Splash**
 
 ### **Splash Personalizado**
+
 ```typescript
-import { useSplashStore, splashConfigs } from '@/store';
+import { useSplashStore, splashConfigs } from "@/store";
 
 const splashStore = useSplashStore.getState();
 
 // Splash personalizado
 splashStore.showSplash({
-  id: 'custom-splash',
-  type: 'module_transition',
-  title: 'Cargando...',
-  subtitle: 'Preparando tu experiencia',
-  backgroundColor: '#FF6B35',
+  id: "custom-splash",
+  type: "module_transition",
+  title: "Cargando...",
+  subtitle: "Preparando tu experiencia",
+  backgroundColor: "#FF6B35",
   showProgress: true,
   progress: 0,
   moduleSpecific: {
-    dataQueries: ['Datos personalizados']
-  }
+    dataQueries: ["Datos personalizados"],
+  },
 });
 ```
 
 ### **Actualizar Progreso**
+
 ```typescript
 // Actualizar progreso manualmente
-splashStore.updateProgress(50, 'custom-splash');
-splashStore.updateProgress(100, 'custom-splash'); // Se oculta automáticamente
+splashStore.updateProgress(50, "custom-splash");
+splashStore.updateProgress(100, "custom-splash"); // Se oculta automáticamente
 ```
 
 ## 🔧 **Hooks y Utilidades**
 
 ### **useModuleTransition Hook**
+
 ```typescript
 const {
   // Estado
@@ -129,6 +139,7 @@ const {
 ```
 
 ### **Componente ModuleSwitcherWithSplash**
+
 ```typescript
 import ModuleSwitcherWithSplash from '@/components/ModuleSwitcherWithSplash';
 
@@ -141,8 +152,13 @@ import ModuleSwitcherWithSplash from '@/components/ModuleSwitcherWithSplash';
 ## 📊 **Sistema de Datos por Módulo**
 
 ### **ModuleDataService**
+
 ```typescript
-import { loadDriverData, loadBusinessData, loadCustomerData } from '@/app/services/moduleDataService';
+import {
+  loadDriverData,
+  loadBusinessData,
+  loadCustomerData,
+} from "@/app/services/moduleDataService";
 
 // Cargar datos con callback de progreso
 const result = await loadDriverData((completed, total, currentTask) => {
@@ -150,13 +166,14 @@ const result = await loadDriverData((completed, total, currentTask) => {
 });
 
 if (result.success) {
-  console.log('Datos cargados:', result.data);
+  console.log("Datos cargados:", result.data);
 } else {
-  console.error('Errores:', result.errors);
+  console.error("Errores:", result.errors);
 }
 ```
 
 ### **Sistema de Prioridades**
+
 - **CRITICAL**: Datos esenciales (bloquean la transición)
 - **HIGH**: Datos importantes (se intentan cargar)
 - **MEDIUM**: Datos opcionales
@@ -165,6 +182,7 @@ if (result.success) {
 ## 🎭 **Ejemplos de UI**
 
 ### **Splash Driver**
+
 ```
 🚗 Activando Modo Conductor
 Preparando tu vehículo y ruta...
@@ -178,6 +196,7 @@ Cargando:
 ```
 
 ### **Splash Business**
+
 ```
 🏢 Activando Modo Negocio
 Cargando tu panel administrativo...
@@ -193,6 +212,7 @@ Cargando:
 ## 🔄 **Integración con Componentes Existentes**
 
 ### **Actualizar useDrawer**
+
 ```typescript
 // Ya actualizado automáticamente para usar transiciones con splash
 const { switchModule } = useDrawer();
@@ -200,6 +220,7 @@ const { switchModule } = useDrawer();
 ```
 
 ### **UIWrapper Integration**
+
 ```typescript
 // Automáticamente integrado - no se requiere configuración adicional
 <UIWrapper>
@@ -210,6 +231,7 @@ const { switchModule } = useDrawer();
 ## 🚨 **Manejo de Errores**
 
 ### **Fallback Automático**
+
 ```typescript
 // Si falla la carga de datos críticos, se revierte la transición
 try {
@@ -217,11 +239,12 @@ try {
 } catch (error) {
   // Splash se oculta automáticamente
   // Usuario permanece en módulo anterior
-  console.error('Transition failed:', error);
+  console.error("Transition failed:", error);
 }
 ```
 
 ### **Recuperación de Errores**
+
 ```typescript
 // El sistema maneja errores automáticamente:
 // - Oculta splash en caso de error
@@ -232,6 +255,7 @@ try {
 ## 📈 **Métricas y Monitoreo**
 
 ### **Estado de Transición**
+
 ```typescript
 const { currentTransition, splashProgress } = useModuleTransition();
 
@@ -242,6 +266,7 @@ const { currentTransition, splashProgress } = useModuleTransition();
 ```
 
 ### **Logging Automático**
+
 ```typescript
 // Todos los eventos se loggean automáticamente:
 // [ModuleStore] switchToModuleWithSplash called with: driver

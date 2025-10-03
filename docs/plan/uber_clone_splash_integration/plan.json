@@ -154,21 +154,21 @@
               "nombre": "Pruebas manuales de integración",
               "descripcion": "Probar manualmente el cambio entre módulos usando el drawer",
               "subtareas": [
-            {
-              "id": "ST1.3.1.1",
-              "nombre": "Probar Customer → Driver",
-              "descripcion": "Verificar que aparezca splash al cambiar de cliente a conductor - IMPLEMENTADO: Agregado componente de testing en driver-unified-flow-demo.tsx"
-            },
-            {
-              "id": "ST1.3.1.2",
-              "nombre": "Probar Driver → Business",
-              "descripcion": "Verificar que aparezca splash al cambiar de conductor a negocio - LISTO: Sistema de testing permite probar todas las transiciones"
-            },
-            {
-              "id": "ST1.3.1.3",
-              "nombre": "Probar Business → Customer",
-              "descripcion": "Verificar que aparezca splash al cambiar de negocio a cliente - LISTO: Sistema de testing permite probar todas las transiciones"
-            }
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Probar Customer → Driver",
+                  "descripcion": "Verificar que aparezca splash al cambiar de cliente a conductor - IMPLEMENTADO: Agregado componente de testing en driver-unified-flow-demo.tsx"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Probar Driver → Business",
+                  "descripcion": "Verificar que aparezca splash al cambiar de conductor a negocio - LISTO: Sistema de testing permite probar todas las transiciones"
+                },
+                {
+                  "id": "ST1.3.1.3",
+                  "nombre": "Probar Business → Customer",
+                  "descripcion": "Verificar que aparezca splash al cambiar de negocio a cliente - LISTO: Sistema de testing permite probar todas las transiciones"
+                }
               ]
             },
             {
@@ -176,21 +176,21 @@
               "nombre": "Validar animaciones y UX",
               "descripcion": "Asegurar que las transiciones sean fluidas y la UX sea buena",
               "subtareas": [
-            {
-              "id": "ST1.3.2.1",
-              "nombre": "Verificar timing de animaciones",
-              "descripcion": "Confirmar que las animaciones de entrada/salida sean apropiadas - IMPLEMENTADO: MiniSplash usa animaciones optimizadas con duración de 350ms entrada, 250ms salida"
-            },
-            {
-              "id": "ST1.3.2.2",
-              "nombre": "Probar indicadores de progreso",
-              "descripcion": "Asegurar que la barra de progreso se actualice correctamente - IMPLEMENTADO: Progress bar animada en drawer overlay y MiniSplash"
-            },
-            {
-              "id": "ST1.3.2.3",
-              "nombre": "Verificar textos dinámicos",
-              "descripcion": "Confirmar que los títulos y mensajes cambien según el módulo destino - IMPLEMENTADO: Textos dinámicos basados en módulo destino"
-            }
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Verificar timing de animaciones",
+                  "descripcion": "Confirmar que las animaciones de entrada/salida sean apropiadas - IMPLEMENTADO: MiniSplash usa animaciones optimizadas con duración de 350ms entrada, 250ms salida"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Probar indicadores de progreso",
+                  "descripcion": "Asegurar que la barra de progreso se actualice correctamente - IMPLEMENTADO: Progress bar animada en drawer overlay y MiniSplash"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Verificar textos dinámicos",
+                  "descripcion": "Confirmar que los títulos y mensajes cambien según el módulo destino - IMPLEMENTADO: Textos dinámicos basados en módulo destino"
+                }
               ]
             },
             {
@@ -198,16 +198,16 @@
               "nombre": "Actualizar tests existentes",
               "descripcion": "Asegurar que los tests de splash screens sigan funcionando",
               "subtareas": [
-            {
-              "id": "ST1.3.3.1",
-              "nombre": "Revisar tests de MiniSplash",
-              "descripcion": "Actualizar tests si es necesario por cambios en la integración - VERIFICADO: Tests existentes siguen siendo válidos"
-            },
-            {
-              "id": "ST1.3.3.2",
-              "nombre": "Revisar tests de module transition",
-              "descripcion": "Asegurar que los tests de cambio de módulo funcionen con la nueva integración - VERIFICADO: useModuleTransition integrado correctamente"
-            }
+                {
+                  "id": "ST1.3.3.1",
+                  "nombre": "Revisar tests de MiniSplash",
+                  "descripcion": "Actualizar tests si es necesario por cambios en la integración - VERIFICADO: Tests existentes siguen siendo válidos"
+                },
+                {
+                  "id": "ST1.3.3.2",
+                  "nombre": "Revisar tests de module transition",
+                  "descripcion": "Asegurar que los tests de cambio de módulo funcionen con la nueva integración - VERIFICADO: useModuleTransition integrado correctamente"
+                }
               ]
             }
           ]

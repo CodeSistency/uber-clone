@@ -1,4 +1,4 @@
-import { config } from './config';
+import { config } from "./config";
 
 /**
  * Endpoint Types and Structures
@@ -15,32 +15,36 @@ export interface BaseEndpoint {
 
 // API Endpoint types
 export interface APIEndpoint extends BaseEndpoint {
-  type: 'api';
+  type: "api";
   basePath?: string;
   version?: string;
   requiresAuth?: boolean;
 }
 
 export interface WebSocketEndpoint extends BaseEndpoint {
-  type: 'websocket';
+  type: "websocket";
   protocols?: string[];
   heartbeat?: number; // in milliseconds
   reconnectDelay?: number;
 }
 
 export interface CDNEndpoint extends BaseEndpoint {
-  type: 'cdn';
+  type: "cdn";
   regions?: string[];
 }
 
 export interface ThirdPartyEndpoint extends BaseEndpoint {
-  type: 'third-party';
+  type: "third-party";
   provider: string;
   apiKey?: string;
 }
 
 // Union type for all endpoint types
-export type Endpoint = APIEndpoint | WebSocketEndpoint | CDNEndpoint | ThirdPartyEndpoint;
+export type Endpoint =
+  | APIEndpoint
+  | WebSocketEndpoint
+  | CDNEndpoint
+  | ThirdPartyEndpoint;
 
 // Environment-specific endpoint configurations
 export interface EnvironmentEndpoints {
@@ -54,195 +58,207 @@ export const ENDPOINTS: EnvironmentEndpoints = {
   development: {
     // Core API endpoints
     api: {
-      type: 'api',
+      type: "api",
       url: config.apiUrl,
       timeout: 30000,
       retries: 3,
       enabled: true,
       requiresAuth: false,
-      version: 'v1'
+      version: "v1",
     } as APIEndpoint,
 
     // WebSocket for real-time features
     websocket: {
-      type: 'websocket',
+      type: "websocket",
       url: config.wsUrl,
       timeout: 30000,
       retries: 5,
       enabled: true,
       heartbeat: 30000,
-      reconnectDelay: 1000
+      reconnectDelay: 1000,
     } as WebSocketEndpoint,
 
     // Google Maps APIs
     googleMapsPlaces: {
-      type: 'third-party',
-      provider: 'google-maps',
-      url: 'https://maps.googleapis.com/maps/api/place',
+      type: "third-party",
+      provider: "google-maps",
+      url: "https://maps.googleapis.com/maps/api/place",
       timeout: 10000,
       retries: 2,
       enabled: true,
-      apiKey: config.googleMaps.placesApiKey
+      apiKey: config.googleMaps.placesApiKey,
     } as ThirdPartyEndpoint,
 
     googleMapsDirections: {
-      type: 'third-party',
-      provider: 'google-maps',
-      url: 'https://maps.googleapis.com/maps/api/directions',
+      type: "third-party",
+      provider: "google-maps",
+      url: "https://maps.googleapis.com/maps/api/directions",
       timeout: 15000,
       retries: 2,
       enabled: true,
-      apiKey: config.googleMaps.directionsApiKey
+      apiKey: config.googleMaps.directionsApiKey,
     } as ThirdPartyEndpoint,
 
     // Stripe payment processing
     stripe: {
-      type: 'third-party',
-      provider: 'stripe',
-      url: 'https://api.stripe.com/v1',
+      type: "third-party",
+      provider: "stripe",
+      url: "https://api.stripe.com/v1",
       timeout: 30000,
       retries: 2,
       enabled: true,
-      apiKey: config.stripe.publishableKey
+      apiKey: config.stripe.publishableKey,
     } as ThirdPartyEndpoint,
 
     // Geoapify (alternative geocoding)
     geoapify: {
-      type: 'third-party',
-      provider: 'geoapify',
-      url: 'https://api.geoapify.com/v1',
+      type: "third-party",
+      provider: "geoapify",
+      url: "https://api.geoapify.com/v1",
       timeout: 10000,
       retries: 2,
       enabled: !!config.geoapify.apiKey,
-      apiKey: config.geoapify.apiKey
-    } as ThirdPartyEndpoint
+      apiKey: config.geoapify.apiKey,
+    } as ThirdPartyEndpoint,
   },
 
   staging: {
     // Staging environment endpoints - same structure but different URLs
     api: {
-      type: 'api',
-      url: 'https://api-staging.uber-clone.com',
+      type: "api",
+      url: "https://api-staging.uber-clone.com",
       timeout: 30000,
       retries: 3,
       enabled: true,
       requiresAuth: false,
-      version: 'v1'
+      version: "v1",
     } as APIEndpoint,
 
     websocket: {
-      type: 'websocket',
-      url: 'wss://ws-staging.uber-clone.com',
+      type: "websocket",
+      url: "wss://ws-staging.uber-clone.com",
       timeout: 30000,
       retries: 5,
       enabled: true,
       heartbeat: 30000,
-      reconnectDelay: 1000
+      reconnectDelay: 1000,
     } as WebSocketEndpoint,
 
     googleMapsPlaces: {
-      type: 'third-party',
-      provider: 'google-maps',
-      url: 'https://maps.googleapis.com/maps/api/place',
+      type: "third-party",
+      provider: "google-maps",
+      url: "https://maps.googleapis.com/maps/api/place",
       timeout: 10000,
       retries: 2,
       enabled: true,
-      apiKey: process.env.EXPO_PUBLIC_PLACES_API_KEY_STAGING || config.googleMaps.placesApiKey
+      apiKey:
+        process.env.EXPO_PUBLIC_PLACES_API_KEY_STAGING ||
+        config.googleMaps.placesApiKey,
     } as ThirdPartyEndpoint,
 
     googleMapsDirections: {
-      type: 'third-party',
-      provider: 'google-maps',
-      url: 'https://maps.googleapis.com/maps/api/directions',
+      type: "third-party",
+      provider: "google-maps",
+      url: "https://maps.googleapis.com/maps/api/directions",
       timeout: 15000,
       retries: 2,
       enabled: true,
-      apiKey: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY_STAGING || config.googleMaps.directionsApiKey
+      apiKey:
+        process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY_STAGING ||
+        config.googleMaps.directionsApiKey,
     } as ThirdPartyEndpoint,
 
     stripe: {
-      type: 'third-party',
-      provider: 'stripe',
-      url: 'https://api.stripe.com/v1',
+      type: "third-party",
+      provider: "stripe",
+      url: "https://api.stripe.com/v1",
       timeout: 30000,
       retries: 2,
       enabled: true,
-      apiKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_STAGING || config.stripe.publishableKey
+      apiKey:
+        process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_STAGING ||
+        config.stripe.publishableKey,
     } as ThirdPartyEndpoint,
 
     geoapify: {
-      type: 'third-party',
-      provider: 'geoapify',
-      url: 'https://api.geoapify.com/v1',
+      type: "third-party",
+      provider: "geoapify",
+      url: "https://api.geoapify.com/v1",
       timeout: 10000,
       retries: 2,
       enabled: !!config.geoapify.apiKey,
-      apiKey: config.geoapify.apiKey
-    } as ThirdPartyEndpoint
+      apiKey: config.geoapify.apiKey,
+    } as ThirdPartyEndpoint,
   },
 
   production: {
     // Production environment endpoints
     api: {
-      type: 'api',
-      url: 'https://api.uber-clone.com',
+      type: "api",
+      url: "https://api.uber-clone.com",
       timeout: 30000,
       retries: 3,
       enabled: true,
       requiresAuth: false,
-      version: 'v1'
+      version: "v1",
     } as APIEndpoint,
 
     websocket: {
-      type: 'websocket',
-      url: 'wss://ws.uber-clone.com',
+      type: "websocket",
+      url: "wss://ws.uber-clone.com",
       timeout: 30000,
       retries: 5,
       enabled: true,
       heartbeat: 30000,
-      reconnectDelay: 2000
+      reconnectDelay: 2000,
     } as WebSocketEndpoint,
 
     googleMapsPlaces: {
-      type: 'third-party',
-      provider: 'google-maps',
-      url: 'https://maps.googleapis.com/maps/api/place',
+      type: "third-party",
+      provider: "google-maps",
+      url: "https://maps.googleapis.com/maps/api/place",
       timeout: 10000,
       retries: 2,
       enabled: true,
-      apiKey: process.env.EXPO_PUBLIC_PLACES_API_KEY_PROD || config.googleMaps.placesApiKey
+      apiKey:
+        process.env.EXPO_PUBLIC_PLACES_API_KEY_PROD ||
+        config.googleMaps.placesApiKey,
     } as ThirdPartyEndpoint,
 
     googleMapsDirections: {
-      type: 'third-party',
-      provider: 'google-maps',
-      url: 'https://maps.googleapis.com/maps/api/directions',
+      type: "third-party",
+      provider: "google-maps",
+      url: "https://maps.googleapis.com/maps/api/directions",
       timeout: 15000,
       retries: 2,
       enabled: true,
-      apiKey: process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY_PROD || config.googleMaps.directionsApiKey
+      apiKey:
+        process.env.EXPO_PUBLIC_DIRECTIONS_API_KEY_PROD ||
+        config.googleMaps.directionsApiKey,
     } as ThirdPartyEndpoint,
 
     stripe: {
-      type: 'third-party',
-      provider: 'stripe',
-      url: 'https://api.stripe.com/v1',
+      type: "third-party",
+      provider: "stripe",
+      url: "https://api.stripe.com/v1",
       timeout: 30000,
       retries: 2,
       enabled: true,
-      apiKey: process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_PROD || config.stripe.publishableKey
+      apiKey:
+        process.env.EXPO_PUBLIC_STRIPE_PUBLISHABLE_KEY_PROD ||
+        config.stripe.publishableKey,
     } as ThirdPartyEndpoint,
 
     geoapify: {
-      type: 'third-party',
-      provider: 'geoapify',
-      url: 'https://api.geoapify.com/v1',
+      type: "third-party",
+      provider: "geoapify",
+      url: "https://api.geoapify.com/v1",
       timeout: 10000,
       retries: 2,
       enabled: !!config.geoapify.apiKey,
-      apiKey: config.geoapify.apiKey
-    } as ThirdPartyEndpoint
-  }
+      apiKey: config.geoapify.apiKey,
+    } as ThirdPartyEndpoint,
+  },
 };
 
 /**
@@ -253,7 +269,9 @@ export function getEndpoint(name: string): Endpoint | null {
   const endpoints = ENDPOINTS[env];
 
   if (!endpoints || !endpoints[name]) {
-    console.warn(`[Endpoints] Endpoint '${name}' not found for environment '${env}'`);
+    console.warn(
+      `[Endpoints] Endpoint '${name}' not found for environment '${env}'`,
+    );
     return null;
   }
 
@@ -299,7 +317,7 @@ export function buildApiUrl(path: string, version?: string): string {
   const baseUrl = getApiBaseUrl();
 
   // Remove leading slash from path if present
-  const cleanPath = path.startsWith('/') ? path.substring(1) : path;
+  const cleanPath = path.startsWith("/") ? path.substring(1) : path;
 
   // For backward compatibility, use the same format as the original fetch.ts
   // Original: `${API_BASE_URL}/${endpoint}` where API_BASE_URL = `${serverUrl}/api`
@@ -309,7 +327,11 @@ export function buildApiUrl(path: string, version?: string): string {
 /**
  * Build third-party API URL with authentication
  */
-export function buildThirdPartyUrl(provider: string, path: string, params?: Record<string, string>): string {
+export function buildThirdPartyUrl(
+  provider: string,
+  path: string,
+  params?: Record<string, string>,
+): string {
   const endpoint = getEndpoint(provider) as ThirdPartyEndpoint;
 
   if (!endpoint || !endpoint.enabled) {
@@ -321,7 +343,7 @@ export function buildThirdPartyUrl(provider: string, path: string, params?: Reco
   // Add API key if required
   if (endpoint.apiKey && params) {
     const urlObj = new URL(url);
-    urlObj.searchParams.set('key', endpoint.apiKey);
+    urlObj.searchParams.set("key", endpoint.apiKey);
 
     // Add additional parameters
     Object.entries(params).forEach(([key, value]) => {
@@ -330,7 +352,7 @@ export function buildThirdPartyUrl(provider: string, path: string, params?: Reco
 
     url = urlObj.toString();
   } else if (endpoint.apiKey) {
-    const separator = url.includes('?') ? '&' : '?';
+    const separator = url.includes("?") ? "&" : "?";
     url += `${separator}key=${endpoint.apiKey}`;
   }
 
@@ -347,7 +369,9 @@ export interface HealthCheckResult {
 }
 
 // Connectivity validation functions
-export async function checkEndpointConnectivity(endpointName: string): Promise<HealthCheckResult> {
+export async function checkEndpointConnectivity(
+  endpointName: string,
+): Promise<HealthCheckResult> {
   const startTime = Date.now();
   const endpoint = getEndpoint(endpointName);
 
@@ -356,7 +380,7 @@ export async function checkEndpointConnectivity(endpointName: string): Promise<H
       endpoint: endpointName,
       available: false,
       error: `Endpoint '${endpointName}' not configured`,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
@@ -365,48 +389,60 @@ export async function checkEndpointConnectivity(endpointName: string): Promise<H
       endpoint: endpointName,
       available: false,
       error: `Endpoint '${endpointName}' is disabled`,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 
   try {
     switch (endpoint.type) {
-      case 'api':
+      case "api":
         return await checkApiEndpoint(endpoint as APIEndpoint, startTime);
-      case 'websocket':
-        return await checkWebSocketEndpoint(endpoint as WebSocketEndpoint, startTime);
-      case 'third-party':
-        return await checkThirdPartyEndpoint(endpoint as ThirdPartyEndpoint, startTime);
+      case "websocket":
+        return await checkWebSocketEndpoint(
+          endpoint as WebSocketEndpoint,
+          startTime,
+        );
+      case "third-party":
+        return await checkThirdPartyEndpoint(
+          endpoint as ThirdPartyEndpoint,
+          startTime,
+        );
       default:
         return {
           endpoint: endpointName,
           available: false,
           error: `Unknown endpoint type: ${endpoint.type}`,
           timestamp: new Date(),
-          responseTime: Date.now() - startTime
+          responseTime: Date.now() - startTime,
         };
     }
   } catch (error) {
     return {
       endpoint: endpointName,
       available: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
       timestamp: new Date(),
-      responseTime: Date.now() - startTime
+      responseTime: Date.now() - startTime,
     };
   }
 }
 
-async function checkApiEndpoint(endpoint: APIEndpoint, startTime: number): Promise<HealthCheckResult> {
+async function checkApiEndpoint(
+  endpoint: APIEndpoint,
+  startTime: number,
+): Promise<HealthCheckResult> {
   try {
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), endpoint.timeout || 5000);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      endpoint.timeout || 5000,
+    );
 
     const response = await fetch(`${endpoint.url}/health`, {
-      method: 'GET',
+      method: "GET",
       signal: controller.signal,
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
     });
 
@@ -416,40 +452,43 @@ async function checkApiEndpoint(endpoint: APIEndpoint, startTime: number): Promi
 
     if (response.ok) {
       return {
-        endpoint: 'api',
+        endpoint: "api",
         available: true,
         responseTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } else {
       return {
-        endpoint: 'api',
+        endpoint: "api",
         available: false,
         error: `HTTP ${response.status}: ${response.statusText}`,
         responseTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   } catch (error) {
     const responseTime = Date.now() - startTime;
     return {
-      endpoint: 'api',
+      endpoint: "api",
       available: false,
-      error: error instanceof Error ? error.message : 'Network error',
+      error: error instanceof Error ? error.message : "Network error",
       responseTime,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 }
 
-async function checkWebSocketEndpoint(endpoint: WebSocketEndpoint, startTime: number): Promise<HealthCheckResult> {
+async function checkWebSocketEndpoint(
+  endpoint: WebSocketEndpoint,
+  startTime: number,
+): Promise<HealthCheckResult> {
   return new Promise(async (resolve) => {
     try {
       // Use Socket.IO for WebSocket health check instead of native WebSocket
       // This matches the actual client implementation
-      const { io } = await import('socket.io-client');
+      const { io } = await import("socket.io-client");
 
-      const socket = io(endpoint.url.replace('/uber-realtime', ''), {
+      const socket = io(endpoint.url.replace("/uber-realtime", ""), {
         transports: ["websocket"],
         timeout: endpoint.timeout || 5000,
         forceNew: true,
@@ -458,11 +497,11 @@ async function checkWebSocketEndpoint(endpoint: WebSocketEndpoint, startTime: nu
       const timeout = setTimeout(() => {
         socket.disconnect();
         resolve({
-          endpoint: 'websocket',
+          endpoint: "websocket",
           available: false,
-          error: 'Connection timeout',
+          error: "Connection timeout",
           responseTime: Date.now() - startTime,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       }, endpoint.timeout || 5000);
 
@@ -470,10 +509,10 @@ async function checkWebSocketEndpoint(endpoint: WebSocketEndpoint, startTime: nu
         clearTimeout(timeout);
         socket.disconnect();
         resolve({
-          endpoint: 'websocket',
+          endpoint: "websocket",
           available: true,
           responseTime: Date.now() - startTime,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       });
 
@@ -481,38 +520,48 @@ async function checkWebSocketEndpoint(endpoint: WebSocketEndpoint, startTime: nu
         clearTimeout(timeout);
         socket.disconnect();
         resolve({
-          endpoint: 'websocket',
+          endpoint: "websocket",
           available: false,
           error: `Socket.IO connection failed: ${error.message}`,
           responseTime: Date.now() - startTime,
-          timestamp: new Date()
+          timestamp: new Date(),
         });
       });
-
     } catch (error) {
       resolve({
-        endpoint: 'websocket',
+        endpoint: "websocket",
         available: false,
-        error: error instanceof Error ? error.message : 'Socket.IO initialization failed',
+        error:
+          error instanceof Error
+            ? error.message
+            : "Socket.IO initialization failed",
         responseTime: Date.now() - startTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       });
     }
   });
 }
 
-async function checkThirdPartyEndpoint(endpoint: ThirdPartyEndpoint, startTime: number): Promise<HealthCheckResult> {
+async function checkThirdPartyEndpoint(
+  endpoint: ThirdPartyEndpoint,
+  startTime: number,
+): Promise<HealthCheckResult> {
   try {
     // For third-party endpoints, we'll do a simple connectivity check
     // This is a basic implementation - in production you might want more sophisticated checks
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), endpoint.timeout || 5000);
+    const timeoutId = setTimeout(
+      () => controller.abort(),
+      endpoint.timeout || 5000,
+    );
 
     // Try to reach the base URL
     const response = await fetch(endpoint.url, {
-      method: 'HEAD', // Use HEAD to avoid downloading content
+      method: "HEAD", // Use HEAD to avoid downloading content
       signal: controller.signal,
-      headers: endpoint.apiKey ? { 'Authorization': `Bearer ${endpoint.apiKey}` } : undefined,
+      headers: endpoint.apiKey
+        ? { Authorization: `Bearer ${endpoint.apiKey}` }
+        : undefined,
     });
 
     clearTimeout(timeoutId);
@@ -524,7 +573,7 @@ async function checkThirdPartyEndpoint(endpoint: ThirdPartyEndpoint, startTime: 
         endpoint: endpoint.provider,
         available: true,
         responseTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     } else {
       return {
@@ -532,7 +581,7 @@ async function checkThirdPartyEndpoint(endpoint: ThirdPartyEndpoint, startTime: 
         available: false,
         error: `HTTP ${response.status}: ${response.statusText}`,
         responseTime,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
     }
   } catch (error) {
@@ -540,9 +589,12 @@ async function checkThirdPartyEndpoint(endpoint: ThirdPartyEndpoint, startTime: 
     return {
       endpoint: endpoint.provider,
       available: false,
-      error: error instanceof Error ? error.message : 'Third-party service unreachable',
+      error:
+        error instanceof Error
+          ? error.message
+          : "Third-party service unreachable",
       responseTime,
-      timestamp: new Date()
+      timestamp: new Date(),
     };
   }
 }
@@ -551,7 +603,7 @@ async function checkThirdPartyEndpoint(endpoint: ThirdPartyEndpoint, startTime: 
  * Check connectivity for all critical endpoints
  */
 export async function checkAllEndpoints(): Promise<HealthCheckResult[]> {
-  const criticalEndpoints = ['api', 'websocket'];
+  const criticalEndpoints = ["api", "websocket"];
   const results: HealthCheckResult[] = [];
 
   for (const endpointName of criticalEndpoints) {
@@ -567,7 +619,7 @@ export async function checkAllEndpoints(): Promise<HealthCheckResult[]> {
  */
 export async function areAllEndpointsAvailable(): Promise<boolean> {
   const results = await checkAllEndpoints();
-  return results.every(result => result.available);
+  return results.every((result) => result.available);
 }
 
 // Export specific endpoint getters for convenience
@@ -575,30 +627,30 @@ export const endpoints = {
   api: {
     baseUrl: getApiBaseUrl,
     buildUrl: buildApiUrl,
-    endpoint: () => getEndpoint('api') as APIEndpoint
+    endpoint: () => getEndpoint("api") as APIEndpoint,
   },
   websocket: {
     url: getWebSocketUrl,
-    endpoint: () => getEndpoint('websocket') as WebSocketEndpoint
+    endpoint: () => getEndpoint("websocket") as WebSocketEndpoint,
   },
   googleMaps: {
     apiKey: {
       places: () => config.googleMaps.placesApiKey,
-      directions: () => config.googleMaps.directionsApiKey
+      directions: () => config.googleMaps.directionsApiKey,
     },
     places: (path: string, params?: Record<string, string>) =>
-      buildThirdPartyUrl('googleMapsPlaces', path, params),
+      buildThirdPartyUrl("googleMapsPlaces", path, params),
     directions: (path: string, params?: Record<string, string>) =>
-      buildThirdPartyUrl('googleMapsDirections', path, params)
+      buildThirdPartyUrl("googleMapsDirections", path, params),
   },
   stripe: {
     apiKey: () => config.stripe.publishableKey,
     url: (path: string, params?: Record<string, string>) =>
-      buildThirdPartyUrl('stripe', path, params)
+      buildThirdPartyUrl("stripe", path, params),
   },
   geoapify: {
     apiKey: () => config.geoapify.apiKey,
     url: (path: string, params?: Record<string, string>) =>
-      buildThirdPartyUrl('geoapify', path, params)
-  }
+      buildThirdPartyUrl("geoapify", path, params),
+  },
 };

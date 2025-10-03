@@ -1,11 +1,5 @@
 import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-} from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, Alert } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
@@ -23,7 +17,7 @@ const DriverVehicles = () => {
     addVehicle,
     updateVehicle,
     deleteVehicle,
-    fetchVehicles
+    fetchVehicles,
   } = useDriverProfileStore();
   const { showError, showSuccess } = useUI();
   const { hasActiveRide, currentServiceType } = useDriverNavigation();
@@ -69,7 +63,7 @@ const DriverVehicles = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot add vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot add vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       return;
     }
@@ -77,7 +71,7 @@ const DriverVehicles = () => {
     Alert.alert(
       "Add New Vehicle",
       "Add vehicle form - integrate with form component",
-      [{ text: "OK" }]
+      [{ text: "OK" }],
     );
   };
 
@@ -85,7 +79,7 @@ const DriverVehicles = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot edit vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot edit vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       return;
     }
@@ -93,7 +87,7 @@ const DriverVehicles = () => {
     Alert.alert(
       "Edit Vehicle",
       `Edit vehicle ${vehicleId} - integrate with form component`,
-      [{ text: "OK" }]
+      [{ text: "OK" }],
     );
   };
 
@@ -101,7 +95,7 @@ const DriverVehicles = () => {
     if (hasActiveRide) {
       showError(
         "Action Not Available",
-        `You cannot delete vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`
+        `You cannot delete vehicles while on an active ${currentServiceType || "service"}. Please complete your current service first.`,
       );
       return;
     }
@@ -121,21 +115,23 @@ const DriverVehicles = () => {
             } catch (error) {
               showError("Error", "Failed to delete vehicle");
             }
-          }
-        }
-      ]
+          },
+        },
+      ],
     );
   };
 
   const toggleVehicleStatus = async (vehicleId: string) => {
-
     try {
-      const vehicle = vehicles.find(v => v.id === vehicleId);
+      const vehicle = vehicles.find((v) => v.id === vehicleId);
       if (!vehicle) return;
 
       const newStatus = vehicle.status === "active" ? "inactive" : "active";
       await updateVehicle(vehicleId, { status: newStatus });
-      showSuccess("Success", `Vehicle ${newStatus === "active" ? "activated" : "deactivated"}`);
+      showSuccess(
+        "Success",
+        `Vehicle ${newStatus === "active" ? "activated" : "deactivated"}`,
+      );
     } catch (error) {
       showError("Error", "Failed to update vehicle status");
     }
@@ -170,7 +166,8 @@ const DriverVehicles = () => {
               </Text>
             </View>
             <Text className="text-warning-700 text-sm">
-              You cannot modify vehicles while on an active service. Please complete your current service first.
+              You cannot modify vehicles while on an active service. Please
+              complete your current service first.
             </Text>
           </View>
         )}
@@ -185,86 +182,100 @@ const DriverVehicles = () => {
         </View>
 
         {/* Vehicles List - Using @ui/ Card component */}
-        {vehicles.length > 0 ? vehicles.map((vehicle) => (
-          <Card key={vehicle.id} className="mb-4">
-            {/* Vehicle Header */}
-            <View className="flex-row items-center justify-between mb-3">
-              <View className="flex-row items-center">
-                <Text className="text-lg mr-3">
-                  {getStatusIcon(vehicle.status)}
-                </Text>
-                <View>
-                  <Text className="text-lg font-JakartaBold">
-                    {vehicle.year} {vehicle.make} {vehicle.model}
+        {vehicles.length > 0 ? (
+          vehicles.map((vehicle) => (
+            <Card key={vehicle.id} className="mb-4">
+              {/* Vehicle Header */}
+              <View className="flex-row items-center justify-between mb-3">
+                <View className="flex-row items-center">
+                  <Text className="text-lg mr-3">
+                    {getStatusIcon(vehicle.status)}
                   </Text>
-                  <Text className={`text-sm font-JakartaMedium ${getStatusColor(vehicle.status)}`}>
-                    {vehicle.status.toUpperCase()}
+                  <View>
+                    <Text className="text-lg font-JakartaBold">
+                      {vehicle.year} {vehicle.make} {vehicle.model}
+                    </Text>
+                    <Text
+                      className={`text-sm font-JakartaMedium ${getStatusColor(vehicle.status)}`}
+                    >
+                      {vehicle.status.toUpperCase()}
+                    </Text>
+                  </View>
+                </View>
+                <Button
+                  title={
+                    vehicle.status === "active" ? "Deactivate" : "Activate"
+                  }
+                  onPress={() => toggleVehicleStatus(vehicle.id)}
+                  className="px-4 py-2"
+                  variant={vehicle.status === "active" ? "danger" : "success"}
+                />
+              </View>
+
+              {/* Vehicle Details */}
+              <View className="space-y-2 mb-4">
+                <View className="flex-row justify-between">
+                  <Text className="text-secondary-600">License Plate:</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.licensePlate}
+                  </Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-secondary-600">Color:</Text>
+                  <Text className="font-JakartaMedium">{vehicle.color}</Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-secondary-600">Seats:</Text>
+                  <Text className="font-JakartaMedium">{vehicle.seats}</Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-secondary-600">Insurance Expiry:</Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.insuranceExpiry
+                      ? new Date(vehicle.insuranceExpiry).toLocaleDateString()
+                      : "N/A"}
+                  </Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-secondary-600">
+                    Registration Expiry:
+                  </Text>
+                  <Text className="font-JakartaMedium">
+                    {vehicle.registrationExpiry
+                      ? new Date(
+                          vehicle.registrationExpiry,
+                        ).toLocaleDateString()
+                      : "N/A"}
                   </Text>
                 </View>
               </View>
-              <Button
-                title={vehicle.status === "active" ? "Deactivate" : "Activate"}
-                onPress={() => toggleVehicleStatus(vehicle.id)}
-                className="px-4 py-2"
-                variant={vehicle.status === "active" ? "danger" : "success"}
-              />
-            </View>
 
-            {/* Vehicle Details */}
-            <View className="space-y-2 mb-4">
-              <View className="flex-row justify-between">
-                <Text className="text-secondary-600">License Plate:</Text>
-                <Text className="font-JakartaMedium">{vehicle.licensePlate}</Text>
+              {/* Action Buttons - Using @ui/ Button component */}
+              <View className="flex-row space-x-3">
+                <Button
+                  title="Edit Vehicle"
+                  onPress={() => router.push(`/vehicles/${vehicle.id}` as any)}
+                  className="flex-1"
+                  variant="outline"
+                />
+                <Button
+                  title="Delete"
+                  onPress={() => handleDeleteVehicle(vehicle.id)}
+                  className="flex-1"
+                  variant="danger"
+                />
               </View>
-              <View className="flex-row justify-between">
-                <Text className="text-secondary-600">Color:</Text>
-                <Text className="font-JakartaMedium">{vehicle.color}</Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-secondary-600">Seats:</Text>
-                <Text className="font-JakartaMedium">{vehicle.seats}</Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-secondary-600">Insurance Expiry:</Text>
-                <Text className="font-JakartaMedium">
-                  {vehicle.insuranceExpiry ? new Date(vehicle.insuranceExpiry).toLocaleDateString() : 'N/A'}
-                </Text>
-              </View>
-              <View className="flex-row justify-between">
-                <Text className="text-secondary-600">Registration Expiry:</Text>
-                <Text className="font-JakartaMedium">
-                  {vehicle.registrationExpiry ? new Date(vehicle.registrationExpiry).toLocaleDateString() : 'N/A'}
-                </Text>
-              </View>
-            </View>
-
-            {/* Action Buttons - Using @ui/ Button component */}
-            <View className="flex-row space-x-3">
-              <Button
-                title="Edit Vehicle"
-                onPress={() => router.push(`/vehicles/${vehicle.id}` as any)}
-                className="flex-1"
-                variant="outline"
-              />
-              <Button
-                title="Delete"
-                onPress={() => handleDeleteVehicle(vehicle.id)}
-                className="flex-1"
-                variant="danger"
-              />
-            </View>
-          </Card>
-        )) : (
+            </Card>
+          ))
+        ) : (
           <View className="bg-white rounded-lg p-8 mb-4 items-center">
             <Text className="text-4xl mb-4">🚗</Text>
             <Text className="text-lg font-JakartaBold mb-2">No Vehicles</Text>
             <Text className="text-secondary-600 text-center mb-4">
-              You haven't registered any vehicles yet. Add your first vehicle to start driving.
+              You haven't registered any vehicles yet. Add your first vehicle to
+              start driving.
             </Text>
-            <Button
-              title="Add Your First Vehicle"
-              onPress={handleAddVehicle}
-            />
+            <Button title="Add Your First Vehicle" onPress={handleAddVehicle} />
           </View>
         )}
 
@@ -283,9 +294,7 @@ const DriverVehicles = () => {
             <Text className="text-orange-800 font-JakartaMedium mb-2">
               Unable to load vehicles
             </Text>
-            <Text className="text-orange-600 text-sm mb-3">
-              {error}
-            </Text>
+            <Text className="text-orange-600 text-sm mb-3">{error}</Text>
             <TouchableOpacity
               onPress={() => fetchVehicles()}
               className="bg-orange-500 px-4 py-2 rounded"
@@ -294,7 +303,6 @@ const DriverVehicles = () => {
             </TouchableOpacity>
           </View>
         )}
-
       </ScrollView>
 
       {/* Floating Add Button - Using @ui/ Button component */}

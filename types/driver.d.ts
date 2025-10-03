@@ -32,7 +32,11 @@ export interface DriverProfile {
 }
 
 export type DriverStatus = "active" | "inactive" | "pending" | "suspended";
-export type DriverVerificationStatus = "pending" | "approved" | "rejected" | "expired";
+export type DriverVerificationStatus =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "expired";
 
 // Driver Status Types
 export interface DriverStatusData {
@@ -102,7 +106,11 @@ export interface VehicleVerificationStatus {
   expiresAt?: Date;
 }
 
-export type VehicleVerificationStatusType = "pending" | "approved" | "rejected" | "expired";
+export type VehicleVerificationStatusType =
+  | "pending"
+  | "approved"
+  | "rejected"
+  | "expired";
 
 export interface VehicleMaintenanceRecord {
   id: string;
@@ -188,7 +196,12 @@ export interface DocumentVerificationResult {
 
 export interface DriverVerificationStatus {
   isFullyVerified: boolean;
-  overallStatus: "not_started" | "in_progress" | "pending_review" | "approved" | "rejected";
+  overallStatus:
+    | "not_started"
+    | "in_progress"
+    | "pending_review"
+    | "approved"
+    | "rejected";
   requiredDocuments: {
     type: DocumentType;
     name: string;
@@ -398,7 +411,11 @@ export interface DriverProfileState {
   // Acciones de documentos
   setDocuments: (documents: Document[]) => void;
   fetchDocuments: () => Promise<void>;
-  uploadDocument: (type: DocumentType, file: File | string, description?: string) => Promise<void>;
+  uploadDocument: (
+    type: DocumentType,
+    file: File | string,
+    description?: string,
+  ) => Promise<void>;
   updateDocumentStatus: (id: string, status: DocumentStatus) => void;
 }
 
@@ -413,4 +430,3 @@ export type {
   PaginatedResponse as PaginatedResponseType,
   ErrorResponse as ErrorResponseType,
 };
-

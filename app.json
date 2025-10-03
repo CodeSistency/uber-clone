@@ -55,7 +55,8 @@
     "extra": {
       "eas": {
         "projectId": "80da4700-4d63-4bfd-a86b-9f8e4bcbf620"
-      }
+      },
+      "googleMapsApiKey": "AIzaSyC4o0Jqu8FvUxqn2Xw2UVU2oDn2e2uvdG8"
     },
     "experiments": {
       "typedRoutes": true

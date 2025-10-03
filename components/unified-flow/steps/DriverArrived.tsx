@@ -30,7 +30,9 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
   // Usar datos reales del store
   const actualRideId = rideId || storeRideId;
   const actualDriverName = matchedDriver?.title || driverName || "Conductor";
-  const actualVehicleInfo = matchedDriver?.car_seats ? `${matchedDriver.car_seats} asientos` : vehicleInfo || "";
+  const actualVehicleInfo = matchedDriver?.car_seats
+    ? `${matchedDriver.car_seats} asientos`
+    : vehicleInfo || "";
 
   // Estado para confirmación bidireccional
   const [isConfirming, setIsConfirming] = useState(false);
@@ -43,7 +45,9 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
     setIsConfirming(true);
 
     try {
-      console.log("[DriverArrived] Confirming driver arrival", { actualRideId });
+      console.log("[DriverArrived] Confirming driver arrival", {
+        actualRideId,
+      });
 
       if (actualRideId && connectionStatus.websocketConnected) {
         // Enviar notificación de confirmación vía WebSocket
@@ -51,14 +55,15 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
         setConfirmationSent(true);
         showSuccess("Confirmación enviada", "El conductor ha sido notificado");
       } else {
-        console.warn("[DriverArrived] No rideId or not connected, using fallback");
+        console.warn(
+          "[DriverArrived] No rideId or not connected, using fallback",
+        );
       }
 
       // Esperar un momento para feedback visual
       setTimeout(() => {
         onReady();
       }, 1000);
-
     } catch (error) {
       console.error("[DriverArrived] Error confirming arrival:", error);
       showError("Error", "No se pudo confirmar la llegada");
@@ -80,14 +85,22 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
       <View className="px-6 pt-4">
         <View className="flex-row items-center justify-between mb-2">
           <View className="flex-row items-center">
-            <View className={`w-2 h-2 rounded-full mr-2 ${connectionStatus.websocketConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-            <Text className={`text-xs font-JakartaMedium ${connectionStatus.websocketConnected ? 'text-green-700' : 'text-red-700'}`}>
-              {connectionStatus.websocketConnected ? 'Conectado' : 'Desconectado'}
+            <View
+              className={`w-2 h-2 rounded-full mr-2 ${connectionStatus.websocketConnected ? "bg-green-500" : "bg-red-500"}`}
+            />
+            <Text
+              className={`text-xs font-JakartaMedium ${connectionStatus.websocketConnected ? "text-green-700" : "text-red-700"}`}
+            >
+              {connectionStatus.websocketConnected
+                ? "Conectado"
+                : "Desconectado"}
             </Text>
           </View>
           {confirmationSent && (
             <View className="flex-row items-center">
-              <Text className="text-xs text-green-700 font-JakartaMedium mr-1">✓ Confirmado</Text>
+              <Text className="text-xs text-green-700 font-JakartaMedium mr-1">
+                ✓ Confirmado
+              </Text>
             </View>
           )}
         </View>

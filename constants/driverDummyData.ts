@@ -18,35 +18,35 @@ export const dummyDriverProfile = {
   verificationStatus: "approved" as const,
   joinedDate: new Date("2023-01-15"),
   totalRides: 1234,
-  totalEarnings: 18765.40,
-  averageRating: 4.8
+  totalEarnings: 18765.4,
+  averageRating: 4.8,
 };
 
 export const dummyEarningsSummary = {
   today: {
     rides: 12,
-    earnings: 144.50,
+    earnings: 144.5,
     hours: 8.5,
-    averagePerRide: 12.04
+    averagePerRide: 12.04,
   },
   week: {
     rides: 67,
-    earnings: 892.30,
+    earnings: 892.3,
     hours: 45.2,
-    averagePerRide: 13.32
+    averagePerRide: 13.32,
   },
   month: {
     rides: 234,
-    earnings: 3245.80,
+    earnings: 3245.8,
     hours: 156.7,
-    averagePerRide: 13.87
+    averagePerRide: 13.87,
   },
   total: {
     rides: 1234,
-    earnings: 18765.40,
+    earnings: 18765.4,
     hours: 987.3,
-    averagePerRide: 15.21
-  }
+    averagePerRide: 15.21,
+  },
 };
 
 export const dummyTripHistory = [
@@ -56,14 +56,14 @@ export const dummyTripHistory = [
     passengerName: "John Doe",
     pickupLocation: "123 Main St",
     dropoffLocation: "456 Oak Ave",
-    fare: 12.50,
-    tip: 3.00,
+    fare: 12.5,
+    tip: 3.0,
     bonus: 0,
-    total: 15.50,
+    total: 15.5,
     duration: 18,
     distance: 4.2,
     serviceType: "UberX",
-    rating: 5
+    rating: 5,
   },
   {
     id: "2",
@@ -73,12 +73,12 @@ export const dummyTripHistory = [
     dropoffLocation: "321 Elm St",
     fare: 8.75,
     tip: 2.25,
-    bonus: 5.00,
-    total: 16.00,
+    bonus: 5.0,
+    total: 16.0,
     duration: 12,
     distance: 2.8,
     serviceType: "UberX",
-    rating: 4
+    rating: 4,
   },
   {
     id: "3",
@@ -89,12 +89,12 @@ export const dummyTripHistory = [
     fare: 15.25,
     tip: 4.75,
     bonus: 0,
-    total: 20.00,
+    total: 20.0,
     duration: 22,
     distance: 5.1,
     serviceType: "UberXL",
-    rating: 5
-  }
+    rating: 5,
+  },
 ];
 
 export const dummyPromotions = [
@@ -110,7 +110,7 @@ export const dummyPromotions = [
     endDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     isActive: true,
     requirements: ["Complete 20 rides", "Drive during weekend hours"],
-    reward: "$50 bonus"
+    reward: "$50 bonus",
   },
   {
     id: "2",
@@ -124,7 +124,7 @@ export const dummyPromotions = [
     endDate: new Date(Date.now() + 6 * 60 * 60 * 1000),
     isActive: true,
     requirements: ["Drive in downtown area", "During peak hours"],
-    reward: "2.5x multiplier"
+    reward: "2.5x multiplier",
   },
   {
     id: "3",
@@ -138,8 +138,8 @@ export const dummyPromotions = [
     endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
     isActive: true,
     requirements: ["Complete 5 rides", "Before 8:00 AM"],
-    reward: "$25 bonus"
-  }
+    reward: "$25 bonus",
+  },
 ];
 
 export const dummyChallenges = [
@@ -153,20 +153,20 @@ export const dummyChallenges = [
     startDate: new Date(),
     endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
     isActive: true,
-    category: "rides" as const
+    category: "rides" as const,
   },
   {
     id: "2",
     name: "Earnings Goal",
     description: "Earn $200 in one day",
     target: 200,
-    progress: 144.50,
+    progress: 144.5,
     reward: 50,
     startDate: new Date(),
     endDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
     isActive: true,
-    category: "earnings" as const
-  }
+    category: "earnings" as const,
+  },
 ];
 
 export const dummyRatingSummary = {
@@ -177,19 +177,19 @@ export const dummyRatingSummary = {
     four: 234,
     three: 89,
     two: 23,
-    one: 9
+    one: 9,
   },
   categoryAverages: {
     driving: 4.9,
     cleanliness: 4.7,
     communication: 4.6,
     punctuality: 4.8,
-    safety: 4.9
+    safety: 4.9,
   },
-  recentTrend: 'up' as const,
+  recentTrend: "up" as const,
   lastRatingDate: new Date(),
   averageRatingLastWeek: 4.7,
-  averageRatingLastMonth: 4.6
+  averageRatingLastMonth: 4.6,
 };
 
 export const dummyRecentRatings = [
@@ -206,10 +206,10 @@ export const dummyRecentRatings = [
       cleanliness: 5,
       communication: 5,
       punctuality: 5,
-      safety: 5
+      safety: 5,
     },
     tags: ["professional", "friendly", "clean"],
-    isPublic: true
+    isPublic: true,
   },
   {
     id: "2",
@@ -224,10 +224,10 @@ export const dummyRecentRatings = [
       cleanliness: 4,
       communication: 4,
       punctuality: 5,
-      safety: 4
+      safety: 4,
     },
     tags: ["punctual"],
-    isPublic: true
+    isPublic: true,
   },
   {
     id: "3",
@@ -242,11 +242,11 @@ export const dummyRecentRatings = [
       cleanliness: 5,
       communication: 5,
       punctuality: 5,
-      safety: 5
+      safety: 5,
     },
     tags: ["conversational", "safe"],
-    isPublic: true
-  }
+    isPublic: true,
+  },
 ];
 
 export const dummyPerformanceMetrics = {
@@ -260,7 +260,7 @@ export const dummyPerformanceMetrics = {
   cleanlinessScore: 4.7,
   communicationScore: 4.6,
   drivingScore: 4.9,
-  punctualityScore: 4.8
+  punctualityScore: 4.8,
 };
 
 export const dummyEmergencyContacts = [
@@ -270,7 +270,7 @@ export const dummyEmergencyContacts = [
     phone: "+1 (555) 123-4567",
     relationship: "Spouse",
     isPrimary: true,
-    isVerified: true
+    isVerified: true,
   },
   {
     id: "2",
@@ -278,7 +278,7 @@ export const dummyEmergencyContacts = [
     phone: "+1 (555) 987-6543",
     relationship: "Son",
     isPrimary: false,
-    isVerified: true
+    isVerified: true,
   },
   {
     id: "3",
@@ -286,8 +286,8 @@ export const dummyEmergencyContacts = [
     phone: "+1 (555) 456-7890",
     relationship: "Sister",
     isPrimary: false,
-    isVerified: false
-  }
+    isVerified: false,
+  },
 ];
 
 export const dummyIncidentReports = [
@@ -297,8 +297,8 @@ export const dummyIncidentReports = [
     timestamp: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
     location: {
       latitude: 40.7128,
-      longitude: -74.0060,
-      address: "123 Main St, New York, NY"
+      longitude: -74.006,
+      address: "123 Main St, New York, NY",
     },
     description: "Passenger was acting suspiciously during the ride",
     severity: "medium" as const,
@@ -309,10 +309,10 @@ export const dummyIncidentReports = [
     evidence: {
       photos: [],
       videos: [],
-      audio: []
+      audio: [],
     },
     followUpRequired: true,
-    followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000)
+    followUpDate: new Date(Date.now() + 24 * 60 * 60 * 1000),
   },
   {
     id: "2",
@@ -321,7 +321,7 @@ export const dummyIncidentReports = [
     location: {
       latitude: 40.7589,
       longitude: -73.9851,
-      address: "456 Broadway, New York, NY"
+      address: "456 Broadway, New York, NY",
     },
     description: "Vehicle had a flat tire during ride",
     severity: "high" as const,
@@ -332,11 +332,11 @@ export const dummyIncidentReports = [
     evidence: {
       photos: ["tire_photo_1.jpg"],
       videos: [],
-      audio: []
+      audio: [],
     },
     followUpRequired: false,
-    resolvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000)
-  }
+    resolvedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000),
+  },
 ];
 
 export const dummyFeedback = [
@@ -350,7 +350,7 @@ export const dummyFeedback = [
     message: "Great conversation during the ride!",
     timestamp: new Date(Date.now() - 7200000),
     status: "new" as const,
-    priority: "low" as const
+    priority: "low" as const,
   },
   {
     id: "2",
@@ -362,8 +362,8 @@ export const dummyFeedback = [
     message: "Consider adding phone chargers for passengers",
     timestamp: new Date(Date.now() - 14400000),
     status: "acknowledged" as const,
-    priority: "low" as const
-  }
+    priority: "low" as const,
+  },
 ];
 
 export const dummyVehicleDocuments = [
@@ -374,7 +374,7 @@ export const dummyVehicleDocuments = [
     expiryDate: new Date("2025-12-31"),
     status: "valid" as const,
     uploadedAt: new Date("2023-01-15"),
-    verifiedAt: new Date("2023-01-16")
+    verifiedAt: new Date("2023-01-16"),
   },
   {
     id: "2",
@@ -384,7 +384,7 @@ export const dummyVehicleDocuments = [
     expiryDate: new Date("2024-12-31"),
     status: "valid" as const,
     uploadedAt: new Date("2023-01-15"),
-    verifiedAt: new Date("2023-01-16")
+    verifiedAt: new Date("2023-01-16"),
   },
   {
     id: "3",
@@ -393,8 +393,8 @@ export const dummyVehicleDocuments = [
     expiryDate: new Date("2024-12-31"),
     status: "valid" as const,
     uploadedAt: new Date("2023-01-15"),
-    verifiedAt: new Date("2023-01-16")
-  }
+    verifiedAt: new Date("2023-01-16"),
+  },
 ];
 
 export const dummyServiceTypes = [
@@ -404,15 +404,19 @@ export const dummyServiceTypes = [
     description: "Affordable rides for up to 4 passengers",
     isActive: true,
     requirements: ["Valid driver's license", "Clean driving record"],
-    earnings: "Standard rates"
+    earnings: "Standard rates",
   },
   {
     id: "2",
     name: "UberXL",
     description: "Larger vehicles for up to 6 passengers",
     isActive: true,
-    requirements: ["Valid driver's license", "XL vehicle", "Clean driving record"],
-    earnings: "Higher rates"
+    requirements: [
+      "Valid driver's license",
+      "XL vehicle",
+      "Clean driving record",
+    ],
+    earnings: "Higher rates",
   },
   {
     id: "3",
@@ -420,19 +424,19 @@ export const dummyServiceTypes = [
     description: "Pet-friendly rides",
     isActive: false,
     requirements: ["Valid driver's license", "Pet-friendly vehicle"],
-    earnings: "Standard rates + pet fee"
-  }
+    earnings: "Standard rates + pet fee",
+  },
 ];
 
 export const dummyAppSettings = {
-  theme: 'auto' as const,
-  language: 'en',
+  theme: "auto" as const,
+  language: "en",
   notifications: {
     rideRequests: true,
     earnings: true,
     promotions: true,
     safety: true,
-    system: true
+    system: true,
   },
   autoAccept: false,
   destinationFilter: false,
@@ -443,6 +447,6 @@ export const dummyAppSettings = {
     thursday: { start: "08:00", end: "18:00", enabled: true },
     friday: { start: "08:00", end: "20:00", enabled: true },
     saturday: { start: "10:00", end: "22:00", enabled: true },
-    sunday: { start: "10:00", end: "18:00", enabled: false }
-  }
+    sunday: { start: "10:00", end: "18:00", enabled: false },
+  },
 };

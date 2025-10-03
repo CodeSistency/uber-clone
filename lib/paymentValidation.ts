@@ -2,12 +2,11 @@
 
 export interface VenezuelanPaymentMethod {
   id: string;
-  type: "cash" | "transfer" | "pago_movil" | "zelle" | "bitcoin";
+  type: "cash" | "transfer" | "pago_movil" | "zelle" | "bitcoin" | "wallet";
   bankCode?: string;
   requiresReference: boolean;
   description: string;
 }
-
 
 // Información completa de bancos venezolanos
 export interface VenezuelanBank {
@@ -29,7 +28,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: true,
     maxTransferAmount: 5000000, // 5M Bs por día
-    description: "Banco más grande de Venezuela, operaciones 24/7"
+    description: "Banco más grande de Venezuela, operaciones 24/7",
   },
   "0105": {
     code: "0105",
@@ -38,7 +37,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: true,
     maxTransferAmount: 3000000, // 3M Bs por día
-    description: "Banco con red extensa de agencias"
+    description: "Banco con red extensa de agencias",
   },
   "0104": {
     code: "0104",
@@ -47,7 +46,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: true,
     maxTransferAmount: 2000000, // 2M Bs por día
-    description: "Banco del estado venezolano"
+    description: "Banco del estado venezolano",
   },
   "0108": {
     code: "0108",
@@ -56,7 +55,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: true,
     maxTransferAmount: 4000000, // 4M Bs por día
-    description: "Banco con fuerte presencia en el interior"
+    description: "Banco con fuerte presencia en el interior",
   },
   "0115": {
     code: "0115",
@@ -65,7 +64,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: true,
     maxTransferAmount: 2500000, // 2.5M Bs por día
-    description: "Especializado en banca internacional"
+    description: "Especializado en banca internacional",
   },
   "0137": {
     code: "0137",
@@ -74,7 +73,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: false,
     maxTransferAmount: 1000000, // 1M Bs por día
-    description: "Banco con enfoque en pymes"
+    description: "Banco con enfoque en pymes",
   },
   "0151": {
     code: "0151",
@@ -83,7 +82,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: false,
     maxTransferAmount: 800000, // 800k Bs por día
-    description: "Banco cooperativo"
+    description: "Banco cooperativo",
   },
   "0156": {
     code: "0156",
@@ -92,7 +91,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: false,
     maxTransferAmount: 500000, // 500k Bs por día
-    description: "Banco microfinanciero"
+    description: "Banco microfinanciero",
   },
   "0171": {
     code: "0171",
@@ -101,7 +100,7 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: false,
     maxTransferAmount: 1200000, // 1.2M Bs por día
-    description: "Banco con enfoque digital"
+    description: "Banco con enfoque digital",
   },
   "0172": {
     code: "0172",
@@ -110,8 +109,8 @@ export const VENEZUELAN_BANKS: Record<string, VenezuelanBank> = {
     supportsTransfers: true,
     supportsPagoMovil: false,
     maxTransferAmount: 600000, // 600k Bs por día
-    description: "Banco microfinanciero con red de cajeros"
-  }
+    description: "Banco microfinanciero con red de cajeros",
+  },
 };
 
 // Función para obtener información completa del banco por código
@@ -120,8 +119,10 @@ export const getBankInfo = (bankCode: string): VenezuelanBank | null => {
 };
 
 // Función para obtener bancos que soportan un tipo específico de pago
-export const getBanksByPaymentType = (paymentType: "transfer" | "pago_movil"): VenezuelanBank[] => {
-  return Object.values(VENEZUELAN_BANKS).filter(bank => {
+export const getBanksByPaymentType = (
+  paymentType: "transfer" | "pago_movil",
+): VenezuelanBank[] => {
+  return Object.values(VENEZUELAN_BANKS).filter((bank) => {
     switch (paymentType) {
       case "transfer":
         return bank.supportsTransfers;
@@ -135,9 +136,9 @@ export const getBanksByPaymentType = (paymentType: "transfer" | "pago_movil"): V
 
 // Función para formatear montos en bolívares venezolanos
 export const formatAmount = (amount: number): string => {
-  return new Intl.NumberFormat('es-VE', {
-    style: 'currency',
-    currency: 'VES',
+  return new Intl.NumberFormat("es-VE", {
+    style: "currency",
+    currency: "VES",
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(amount);
@@ -150,43 +151,49 @@ const generatePaymentMethods = (): Record<string, VenezuelanPaymentMethod> => {
       id: "cash",
       type: "cash",
       requiresReference: false,
-      description: "Pago en efectivo directo al conductor"
+      description: "Pago en efectivo directo al conductor",
+    },
+    wallet: {
+      id: "wallet",
+      type: "wallet",
+      requiresReference: false,
+      description: "Pago desde wallet digital",
     },
     zelle: {
       id: "zelle",
       type: "zelle",
       requiresReference: false,
-      description: "Pago Zelle - Confirmación directa"
+      description: "Pago Zelle - Confirmación directa",
     },
     bitcoin: {
       id: "bitcoin",
       type: "bitcoin",
       requiresReference: false,
-      description: "Pago en Bitcoin - Dirección de wallet"
-    }
+      description: "Pago en Bitcoin - Dirección de wallet",
+    },
   };
 
   // Agregar métodos de transferencia para todos los bancos que lo soportan
   const transferBanks = getBanksByPaymentType("transfer");
-  transferBanks.forEach(bank => {
+  transferBanks.forEach((bank) => {
     methods[`transfer_${bank.code}`] = {
       id: `transfer_${bank.code}`,
       type: "transfer",
       bankCode: bank.code,
       requiresReference: true,
-      description: `Transferencia ${bank.shortName} - 20 dígitos (máx. ${formatAmount(bank.maxTransferAmount || 0)})`
+      description: `Transferencia ${bank.shortName} - 20 dígitos (máx. ${formatAmount(bank.maxTransferAmount || 0)})`,
     };
   });
 
   // Agregar métodos de pago móvil para bancos que lo soportan
   const pagoMovilBanks = getBanksByPaymentType("pago_movil");
-  pagoMovilBanks.forEach(bank => {
+  pagoMovilBanks.forEach((bank) => {
     methods[`pago_movil_${bank.code}`] = {
       id: `pago_movil_${bank.code}`,
       type: "pago_movil",
       bankCode: bank.code,
       requiresReference: true,
-      description: `Pago móvil ${bank.shortName} - 20 dígitos`
+      description: `Pago móvil ${bank.shortName} - 20 dígitos`,
     };
   });
 
@@ -194,11 +201,18 @@ const generatePaymentMethods = (): Record<string, VenezuelanPaymentMethod> => {
 };
 
 // Métodos de pago venezolanos generados dinámicamente
-export const VENEZUELAN_PAYMENT_METHODS: Record<string, VenezuelanPaymentMethod> = generatePaymentMethods();
+export const VENEZUELAN_PAYMENT_METHODS: Record<
+  string,
+  VenezuelanPaymentMethod
+> = generatePaymentMethods();
 
 // Función para mapear ID de método de pago a método API
-export const mapPaymentMethodToAPI = (paymentMethodId: string): { method: "cash" | "card" | "wallet"; bankCode?: string } => {
-  const method = VENEZUELAN_PAYMENT_METHODS[paymentMethodId];
+export const mapPaymentMethodToAPI = (
+  paymentMethodId: string,
+): { method: "cash" | "card" | "wallet"; bankCode?: string } => {
+  // First map frontend ID to backend ID
+  const backendId = mapFrontendPaymentMethodToBackend(paymentMethodId);
+  const method = VENEZUELAN_PAYMENT_METHODS[backendId];
 
   if (!method) {
     // Fallback para métodos no reconocidos
@@ -226,12 +240,67 @@ export const mapPaymentMethodToAPI = (paymentMethodId: string): { method: "cash"
 
   return {
     method: apiMethod,
-    bankCode: method.bankCode
+    bankCode: method.bankCode,
   };
 };
 
+// Función para mapear IDs del frontend a IDs del backend
+export const mapFrontendPaymentMethodToBackend = (
+  frontendId: string,
+): string => {
+  // Validate input
+  if (!frontendId || typeof frontendId !== 'string') {
+    console.warn('[PaymentValidation] mapFrontendPaymentMethodToBackend: Invalid frontendId:', frontendId);
+    return 'cash'; // Fallback to cash
+  }
+
+  switch (frontendId) {
+    case "cash":
+      return "cash";
+    case "wallet":
+      return "cash"; // Wallet se mapea a cash por ahora (se valida en backend)
+    case "transfer_banesco":
+      return "transfer_0102"; // Banesco
+    case "transfer_mercantil":
+      return "transfer_0105"; // Mercantil
+    case "transfer_venezolano":
+      return "transfer_0104"; // Venezolano de Crédito
+    case "transfer_provincial":
+      return "transfer_0108"; // Provincial
+    case "transfer_bancaribe":
+      return "transfer_0115"; // Bancaribe
+    case "pago_movil_banesco":
+      return "pago_movil_0102"; // Pago Móvil Banesco
+    case "pago_movil_mercantil":
+      return "pago_movil_0105"; // Pago Móvil Mercantil
+    case "zelle":
+      return "zelle";
+    case "bitcoin":
+      return "bitcoin";
+    default:
+      // Para métodos con códigos bancarios dinámicos
+      if (frontendId.startsWith("transfer_")) {
+        // Intentar extraer código bancario
+        const bankCode = frontendId.replace("transfer_", "");
+        if (VENEZUELAN_BANKS[bankCode]) {
+          return `transfer_${bankCode}`;
+        }
+      }
+      if (frontendId.startsWith("pago_movil_")) {
+        // Intentar extraer código bancario
+        const bankCode = frontendId.replace("pago_movil_", "");
+        if (VENEZUELAN_BANKS[bankCode]) {
+          return `pago_movil_${bankCode}`;
+        }
+      }
+      return frontendId; // Retornar como está si no hay mapeo
+  }
+};
+
 // Función para validar método de pago
-export const validatePaymentMethod = (paymentMethodId: string): {
+export const validatePaymentMethod = (
+  paymentMethodId: string,
+): {
   isValid: boolean;
   method: VenezuelanPaymentMethod | null;
   error?: string;
@@ -240,31 +309,146 @@ export const validatePaymentMethod = (paymentMethodId: string): {
     return {
       isValid: false,
       method: null,
-      error: "Método de pago no seleccionado"
+      error: "Método de pago no seleccionado",
     };
   }
 
-  const method = VENEZUELAN_PAYMENT_METHODS[paymentMethodId];
+  // Mapear ID del frontend al backend
+  const backendId = mapFrontendPaymentMethodToBackend(paymentMethodId);
+  const method = VENEZUELAN_PAYMENT_METHODS[backendId];
 
   if (!method) {
     return {
       isValid: false,
       method: null,
-      error: "Método de pago no reconocido"
+      error: `Método de pago no reconocido: ${paymentMethodId} (backend: ${backendId})`,
     };
   }
 
   return {
     isValid: true,
-    method
+    method,
   };
+};
+
+// Función de validación específica que incluye datos adicionales por método
+export const validatePaymentWithData = (
+  paymentMethodId: string,
+  bankCode?: string,
+  amount?: number,
+  totalAmount?: number
+): {
+  isValid: boolean;
+  method: VenezuelanPaymentMethod | null;
+  error?: string;
+  requiresBankCode?: boolean;
+  requiresAmount?: boolean;
+} => {
+  // Primero validar el método base
+  const baseValidation = validatePaymentMethod(paymentMethodId);
+
+  if (!baseValidation.isValid) {
+    return {
+      ...baseValidation,
+      requiresBankCode: false,
+      requiresAmount: false,
+    };
+  }
+
+  const method = baseValidation.method!;
+
+  // Validaciones específicas por método según documentación del backend
+  switch (method.type) {
+    case "cash":
+      // Cash no requiere datos adicionales
+      return {
+        isValid: true,
+        method,
+        requiresBankCode: false,
+        requiresAmount: false,
+      };
+
+    case "transfer":
+    case "pago_movil":
+      // Estos métodos requieren bankCode
+      if (!bankCode) {
+        return {
+          isValid: false,
+          method,
+          error: `Código de banco requerido para ${method.description}`,
+          requiresBankCode: true,
+          requiresAmount: false,
+        };
+      }
+
+      // Validar que el bankCode existe en la lista de bancos
+      if (!VENEZUELAN_BANKS[bankCode]) {
+        return {
+          isValid: false,
+          method,
+          error: "Código de banco inválido",
+          requiresBankCode: true,
+          requiresAmount: false,
+        };
+      }
+
+      // Validar que el banco soporte el método
+      const bank = VENEZUELAN_BANKS[bankCode];
+      if (method.type === "transfer" && !bank.supportsTransfers) {
+        return {
+          isValid: false,
+          method,
+          error: `${bank.shortName} no soporta transferencias`,
+          requiresBankCode: true,
+          requiresAmount: false,
+        };
+      }
+
+      if (method.type === "pago_movil" && !bank.supportsPagoMovil) {
+        return {
+          isValid: false,
+          method,
+          error: `${bank.shortName} no soporta Pago Móvil`,
+          requiresBankCode: true,
+          requiresAmount: false,
+        };
+      }
+
+      return {
+        isValid: true,
+        method,
+        requiresBankCode: true,
+        requiresAmount: false,
+      };
+
+    case "zelle":
+    case "bitcoin":
+    case "wallet":
+      // Estos métodos no requieren datos adicionales específicos
+      // (wallet requiere saldo, pero eso se valida en el backend)
+      return {
+        isValid: true,
+        method,
+        requiresBankCode: false,
+        requiresAmount: false,
+      };
+
+    default:
+      return {
+        isValid: false,
+        method: null,
+        error: "Tipo de método no soportado",
+        requiresBankCode: false,
+        requiresAmount: false,
+      };
+  }
 };
 
 // Función para validar referencias bancarias simples (20 dígitos)
 export const validateBankReferenceSimple = (reference: string): boolean => {
   // Debe tener exactamente 20 dígitos
   const digitRegex = /^\d{20}$/;
-  return digitRegex.test(reference.replace(/\s+/g, ''));
+  return digitRegex.test(reference.replace(/\s+/g, ""));
 };
 
 // Sistema avanzado de referencias bancarias venezolanas
@@ -287,7 +471,7 @@ export interface BankReference {
 export const generateBankReference = (
   bankCode: string,
   amount: number,
-  serviceId?: number
+  serviceId?: number,
 ): BankReference => {
   // Validar código bancario
   const bankValidation = validateBankCode(bankCode);
@@ -299,14 +483,21 @@ export const generateBankReference = (
   const timestamp = Date.now().toString().slice(-8);
 
   // Generar componente aleatorio único
-  const random1 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-  const random2 = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+  const random1 = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, "0");
+  const random2 = Math.floor(Math.random() * 10000)
+    .toString()
+    .padStart(4, "0");
 
   // Incluir serviceId si está disponible para mayor unicidad
-  const servicePart = serviceId ? (serviceId % 1000).toString().padStart(3, '0') : '000';
+  const servicePart = serviceId
+    ? (serviceId % 1000).toString().padStart(3, "0")
+    : "000";
 
   // Construir referencia: BANKCODE + TIMESTAMP + SERVICE + RANDOM1 + RANDOM2
-  const referenceNumber = `${bankCode}${timestamp}${servicePart}${random1}${random2}`.slice(0, 20);
+  const referenceNumber =
+    `${bankCode}${timestamp}${servicePart}${random1}${random2}`.slice(0, 20);
 
   // Calcular expiración (24 horas desde ahora)
   const createdAt = new Date();
@@ -326,25 +517,27 @@ export const generateBankReference = (
     expiresAt,
     isExpired: false,
     timeRemaining,
-    formattedReference
+    formattedReference,
   };
 };
 
 // Función para validar referencia bancaria completa
-export const validateBankReference = (reference: string): {
+export const validateBankReference = (
+  reference: string,
+): {
   isValid: boolean;
   bankCode?: string;
   bankName?: string;
   error?: string;
 } => {
   // Limpiar espacios y caracteres no numéricos
-  const cleanReference = reference.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+  const cleanReference = reference.replace(/\s+/g, "").replace(/[^0-9]/g, "");
 
   // Debe tener exactamente 20 dígitos
   if (cleanReference.length !== 20) {
     return {
       isValid: false,
-      error: "La referencia debe tener exactamente 20 dígitos"
+      error: "La referencia debe tener exactamente 20 dígitos",
     };
   }
 
@@ -356,21 +549,21 @@ export const validateBankReference = (reference: string): {
   if (!bankValidation.isValid) {
     return {
       isValid: false,
-      error: bankValidation.error
+      error: bankValidation.error,
     };
   }
 
   return {
     isValid: true,
     bankCode,
-    bankName: bankValidation.bank?.shortName
+    bankName: bankValidation.bank?.shortName,
   };
 };
 
 // Función para formatear referencia bancaria con espacios
 export const formatBankReference = (reference: string): string => {
   // Limpiar referencia
-  const clean = reference.replace(/\s+/g, '').replace(/[^0-9]/g, '');
+  const clean = reference.replace(/\s+/g, "").replace(/[^0-9]/g, "");
 
   // Formatear en grupos de 4 dígitos
   const groups = [];
@@ -378,11 +571,13 @@ export const formatBankReference = (reference: string): string => {
     groups.push(clean.substring(i, i + 4));
   }
 
-  return groups.join(' ');
+  return groups.join(" ");
 };
 
 // Función para calcular tiempo restante hasta expiración
-export const calculateTimeRemaining = (expiresAt: Date): {
+export const calculateTimeRemaining = (
+  expiresAt: Date,
+): {
   hours: number;
   minutes: number;
   seconds: number;
@@ -398,7 +593,7 @@ export const calculateTimeRemaining = (expiresAt: Date): {
       minutes: 0,
       seconds: 0,
       totalSeconds: 0,
-      isExpired: true
+      isExpired: true,
     };
   }
 
@@ -412,18 +607,21 @@ export const calculateTimeRemaining = (expiresAt: Date): {
     minutes,
     seconds,
     totalSeconds,
-    isExpired: false
+    isExpired: false,
   };
 };
 
 // Función para verificar si una referencia está expirada
 export const isReferenceExpired = (expiresAt: Date | string): boolean => {
-  const expiryDate = typeof expiresAt === 'string' ? new Date(expiresAt) : expiresAt;
+  const expiryDate =
+    typeof expiresAt === "string" ? new Date(expiresAt) : expiresAt;
   return new Date() > expiryDate;
 };
 
 // Función para obtener información completa de una referencia
-export const getReferenceInfo = (reference: string): {
+export const getReferenceInfo = (
+  reference: string,
+): {
   isValid: boolean;
   bankInfo?: VenezuelanBank;
   formattedReference: string;
@@ -435,7 +633,7 @@ export const getReferenceInfo = (reference: string): {
     return {
       isValid: false,
       formattedReference: formatBankReference(reference),
-      error: validation.error
+      error: validation.error,
     };
   }
 
@@ -444,22 +642,24 @@ export const getReferenceInfo = (reference: string): {
   return {
     isValid: true,
     bankInfo: bankInfo || undefined,
-    formattedReference: formatBankReference(reference)
+    formattedReference: formatBankReference(reference),
   };
 };
 
 // Función para generar referencias por lotes (útil para pagos múltiples)
 export const generateBulkReferences = (
   payments: Array<{ bankCode: string; amount: number }>,
-  serviceId?: number
+  serviceId?: number,
 ): BankReference[] => {
-  return payments.map(payment =>
-    generateBankReference(payment.bankCode, payment.amount, serviceId)
+  return payments.map((payment) =>
+    generateBankReference(payment.bankCode, payment.amount, serviceId),
   );
 };
 
 // Función para validar código bancario
-export const validateBankCode = (bankCode: string): {
+export const validateBankCode = (
+  bankCode: string,
+): {
   isValid: boolean;
   bank?: VenezuelanBank;
   error?: string;
@@ -467,7 +667,7 @@ export const validateBankCode = (bankCode: string): {
   if (!bankCode || bankCode.length !== 4) {
     return {
       isValid: false,
-      error: "Código bancario debe tener 4 dígitos"
+      error: "Código bancario debe tener 4 dígitos",
     };
   }
 
@@ -475,18 +675,20 @@ export const validateBankCode = (bankCode: string): {
   if (!bank) {
     return {
       isValid: false,
-      error: "Código bancario no reconocido"
+      error: "Código bancario no reconocido",
     };
   }
 
   return {
     isValid: true,
-    bank
+    bank,
   };
 };
 
 // Función para obtener bancos disponibles para un método de pago
-export const getAvailableBanksForMethod = (methodType: "transfer" | "pago_movil"): VenezuelanBank[] => {
+export const getAvailableBanksForMethod = (
+  methodType: "transfer" | "pago_movil",
+): VenezuelanBank[] => {
   return getBanksByPaymentType(methodType);
 };
 
@@ -516,7 +718,7 @@ export interface MultiplePaymentData {
 export const createSplitPayment = (
   methodId: string,
   amount: number,
-  totalAmount: number
+  totalAmount: number,
 ): SplitPayment => {
   const paymentMethod = VENEZUELAN_PAYMENT_METHODS[methodId];
   const percentage = (amount / totalAmount) * 100;
@@ -549,7 +751,7 @@ export const createSplitPayment = (
     percentage,
     bankCode: paymentMethod.bankCode,
     description: paymentMethod.description,
-    status: "pending"
+    status: "pending",
   };
 };
 
@@ -557,7 +759,7 @@ export const createSplitPayment = (
 export const validatePaymentSplit = (
   payments: SplitPayment[],
   totalAmount: number,
-  tolerance: number = 0.01
+  tolerance: number = 0.01,
 ): { isValid: boolean; error?: string; totalSplit: number } => {
   const totalSplit = payments.reduce((sum, payment) => sum + payment.amount, 0);
   const difference = Math.abs(totalAmount - totalSplit);
@@ -566,7 +768,7 @@ export const validatePaymentSplit = (
     return {
       isValid: false,
       error: `La suma de los pagos (${totalSplit.toFixed(2)}) no coincide con el total (${totalAmount.toFixed(2)})`,
-      totalSplit
+      totalSplit,
     };
   }
 
@@ -574,30 +776,30 @@ export const validatePaymentSplit = (
     return {
       isValid: false,
       error: "Debe seleccionar al menos un método de pago",
-      totalSplit
+      totalSplit,
     };
   }
 
   // Validar que no haya pagos con monto cero o negativo
-  const invalidPayment = payments.find(p => p.amount <= 0);
+  const invalidPayment = payments.find((p) => p.amount <= 0);
   if (invalidPayment) {
     return {
       isValid: false,
       error: `El monto del pago debe ser mayor a cero`,
-      totalSplit
+      totalSplit,
     };
   }
 
   return {
     isValid: true,
-    totalSplit
+    totalSplit,
   };
 };
 
 // Función para calcular sugerencias de división automática
 export const calculatePaymentSuggestions = (
   totalAmount: number,
-  availableMethods: string[]
+  availableMethods: string[],
 ): SplitPayment[][] => {
   const suggestions: SplitPayment[][] = [];
 
@@ -606,7 +808,7 @@ export const calculatePaymentSuggestions = (
     const halfAmount = totalAmount / 2;
     suggestions.push([
       createSplitPayment(availableMethods[0], halfAmount, totalAmount),
-      createSplitPayment(availableMethods[1], halfAmount, totalAmount)
+      createSplitPayment(availableMethods[1], halfAmount, totalAmount),
     ]);
   }
 
@@ -614,31 +816,36 @@ export const calculatePaymentSuggestions = (
   if (availableMethods.includes("cash") && availableMethods.length >= 2) {
     const cash70 = totalAmount * 0.7;
     const other30 = totalAmount * 0.3;
-    const otherMethod = availableMethods.find(m => m !== "cash")!;
+    const otherMethod = availableMethods.find((m) => m !== "cash")!;
 
     suggestions.push([
       createSplitPayment("cash", cash70, totalAmount),
-      createSplitPayment(otherMethod, other30, totalAmount)
+      createSplitPayment(otherMethod, other30, totalAmount),
     ]);
   }
 
   // Sugerencia 3: 60% transferencia + 40% efectivo
-  if (availableMethods.includes("cash") && availableMethods.some(m => m.includes("transfer"))) {
+  if (
+    availableMethods.includes("cash") &&
+    availableMethods.some((m) => m.includes("transfer"))
+  ) {
     const transfer60 = totalAmount * 0.6;
     const cash40 = totalAmount * 0.4;
-    const transferMethod = availableMethods.find(m => m.includes("transfer"))!;
+    const transferMethod = availableMethods.find((m) =>
+      m.includes("transfer"),
+    )!;
 
     suggestions.push([
       createSplitPayment(transferMethod, transfer60, totalAmount),
-      createSplitPayment("cash", cash40, totalAmount)
+      createSplitPayment("cash", cash40, totalAmount),
     ]);
   }
 
   // Sugerencia 4: Dividir en partes iguales
   if (availableMethods.length >= 3) {
     const equalAmount = totalAmount / availableMethods.length;
-    const equalSplit = availableMethods.map(method =>
-      createSplitPayment(method, equalAmount, totalAmount)
+    const equalSplit = availableMethods.map((method) =>
+      createSplitPayment(method, equalAmount, totalAmount),
     );
     suggestions.push(equalSplit);
   }
@@ -651,7 +858,7 @@ export const calculatePaymentSuggestions = (
 // Función para validar monto contra límites bancarios
 export const validateAmountAgainstBankLimits = (
   amount: number,
-  bankCode: string
+  bankCode: string,
 ): {
   isValid: boolean;
   maxAllowed?: number;
@@ -661,7 +868,7 @@ export const validateAmountAgainstBankLimits = (
   if (!bank) {
     return {
       isValid: false,
-      error: "Banco no encontrado"
+      error: "Banco no encontrado",
     };
   }
 
@@ -673,7 +880,7 @@ export const validateAmountAgainstBankLimits = (
     return {
       isValid: false,
       maxAllowed: bank.maxTransferAmount,
-      error: `Monto excede el límite diario de ${formatAmount(bank.maxTransferAmount)} para ${bank.shortName}`
+      error: `Monto excede el límite diario de ${formatAmount(bank.maxTransferAmount)} para ${bank.shortName}`,
     };
   }
 
@@ -683,44 +890,46 @@ export const validateAmountAgainstBankLimits = (
 // Función para obtener métodos de pago recomendados por monto
 export const getRecommendedPaymentMethods = (
   amount: number,
-  preferredBankCodes?: string[]
+  preferredBankCodes?: string[],
 ): VenezuelanPaymentMethod[] => {
   const allMethods = Object.values(VENEZUELAN_PAYMENT_METHODS);
 
   // Filtrar métodos que no requieren referencia para montos pequeños
-  if (amount < 50000) { // Menos de 50k Bs
-    return allMethods.filter(method =>
-      !method.requiresReference ||
-      method.type === "cash"
+  if (amount < 50000) {
+    // Menos de 50k Bs
+    return allMethods.filter(
+      (method) => !method.requiresReference || method.type === "cash",
     );
   }
 
   // Para montos mayores, preferir métodos con referencia
-  let recommended = allMethods.filter(method =>
-    method.requiresReference && method.bankCode
+  let recommended = allMethods.filter(
+    (method) => method.requiresReference && method.bankCode,
   );
 
   // Si hay bancos preferidos, priorizarlos
   if (preferredBankCodes && preferredBankCodes.length > 0) {
-    const preferred = recommended.filter(method =>
-      method.bankCode && preferredBankCodes.includes(method.bankCode)
+    const preferred = recommended.filter(
+      (method) =>
+        method.bankCode && preferredBankCodes.includes(method.bankCode),
     );
-    const others = recommended.filter(method =>
-      !method.bankCode || !preferredBankCodes.includes(method.bankCode)
+    const others = recommended.filter(
+      (method) =>
+        !method.bankCode || !preferredBankCodes.includes(method.bankCode),
     );
 
     recommended = [...preferred, ...others];
   }
 
   // Validar contra límites bancarios
-  recommended = recommended.filter(method => {
+  recommended = recommended.filter((method) => {
     if (!method.bankCode) return true;
     const validation = validateAmountAgainstBankLimits(amount, method.bankCode);
     return validation.isValid;
   });
 
   // Incluir siempre efectivo como opción
-  const cashMethod = allMethods.find(method => method.type === "cash");
+  const cashMethod = allMethods.find((method) => method.type === "cash");
   if (cashMethod) {
     recommended.push(cashMethod);
   }
@@ -730,7 +939,7 @@ export const getRecommendedPaymentMethods = (
 
 // Función para generar resumen de pago para UI
 export const generatePaymentSummary = (
-  payments: SplitPayment[]
+  payments: SplitPayment[],
 ): {
   totalAmount: number;
   totalMethods: number;
@@ -742,15 +951,18 @@ export const generatePaymentSummary = (
   const totalMethods = payments.length;
 
   // Contar métodos por tipo
-  const methodsByType = payments.reduce((acc, payment) => {
-    const type = payment.method;
-    acc[type] = (acc[type] || 0) + 1;
-    return acc;
-  }, {} as Record<string, number>);
+  const methodsByType = payments.reduce(
+    (acc, payment) => {
+      const type = payment.method;
+      acc[type] = (acc[type] || 0) + 1;
+      return acc;
+    },
+    {} as Record<string, number>,
+  );
 
   // Estimar tiempo de completación basado en tipos de pago
   let estimatedCompletionTime = 0;
-  payments.forEach(payment => {
+  payments.forEach((payment) => {
     switch (payment.method) {
       case "cash":
         estimatedCompletionTime += 2; // 2 minutos (entrega)
@@ -774,7 +986,7 @@ export const generatePaymentSummary = (
     totalMethods,
     methodsByType,
     estimatedCompletionTime,
-    riskLevel
+    riskLevel,
   };
 };
 
@@ -782,7 +994,7 @@ export const generatePaymentSummary = (
 export const validatePaymentConfiguration = (
   payments: SplitPayment[],
   serviceType: string,
-  serviceId: number
+  serviceId: number,
 ): {
   isValid: boolean;
   errors: string[];
@@ -812,13 +1024,22 @@ export const validatePaymentConfiguration = (
       errors.push(`Pago ${index + 1}: El monto debe ser mayor a cero`);
     }
 
-    if (payment.amount > 10000000) { // 10M Bs
-      warnings.push(`Pago ${index + 1}: Monto muy alto, puede tomar más tiempo`);
+    if (payment.amount > 10000000) {
+      // 10M Bs
+      warnings.push(
+        `Pago ${index + 1}: Monto muy alto, puede tomar más tiempo`,
+      );
     }
 
     // Validar límites bancarios
-    if (payment.bankCode && (payment.method === "card" || payment.method === "wallet")) {
-      const bankValidation = validateAmountAgainstBankLimits(payment.amount, payment.bankCode);
+    if (
+      payment.bankCode &&
+      (payment.method === "card" || payment.method === "wallet")
+    ) {
+      const bankValidation = validateAmountAgainstBankLimits(
+        payment.amount,
+        payment.bankCode,
+      );
       if (!bankValidation.isValid) {
         errors.push(`Pago ${index + 1}: ${bankValidation.error}`);
       }
@@ -826,7 +1047,7 @@ export const validatePaymentConfiguration = (
   });
 
   // Validar diversidad de métodos
-  const uniqueMethods = new Set(payments.map(p => p.method));
+  const uniqueMethods = new Set(payments.map((p) => p.method));
   if (uniqueMethods.size === 1 && payments.length > 1) {
     warnings.push("Usar el mismo método múltiples veces puede ser ineficiente");
   }
@@ -834,7 +1055,7 @@ export const validatePaymentConfiguration = (
   return {
     isValid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 };
 
@@ -842,7 +1063,7 @@ export const validatePaymentConfiguration = (
 export const formatMultiplePaymentsForAPI = (
   serviceType: "ride" | "delivery" | "errand" | "parcel",
   serviceId: number,
-  payments: SplitPayment[]
+  payments: SplitPayment[],
 ): MultiplePaymentData => {
   const totalAmount = payments.reduce((sum, p) => sum + p.amount, 0);
 
@@ -850,14 +1071,15 @@ export const formatMultiplePaymentsForAPI = (
     serviceType,
     serviceId,
     totalAmount,
-    payments: payments.map(p => ({
+    payments: payments.map((p) => ({
       id: p.id,
       method: p.method,
       amount: p.amount,
       percentage: p.percentage,
       bankCode: p.bankCode,
       description: p.description,
-      status: p.status
-    }))
+      status: p.status,
+    })),
   };
 };
+

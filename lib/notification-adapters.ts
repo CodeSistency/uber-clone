@@ -1,5 +1,13 @@
-import { NotificationData, NotificationPreferences, NotificationType } from "../types/type";
-import { ExpoNotificationData, ExpoNotificationPreferences, ExpoNotificationType } from "../types/expo-notifications";
+import {
+  NotificationData,
+  NotificationPreferences,
+  NotificationType,
+} from "../types/type";
+import {
+  ExpoNotificationData,
+  ExpoNotificationPreferences,
+  ExpoNotificationType,
+} from "../types/expo-notifications";
 
 /**
  * Utilidades para adaptar entre tipos legacy y nuevos del sistema de notificaciones
@@ -8,7 +16,9 @@ import { ExpoNotificationData, ExpoNotificationPreferences, ExpoNotificationType
 /**
  * Convierte NotificationData (legacy) a ExpoNotificationData (nuevo)
  */
-export const adaptToExpoNotification = (legacy: NotificationData): ExpoNotificationData => {
+export const adaptToExpoNotification = (
+  legacy: NotificationData,
+): ExpoNotificationData => {
   // Mapear tipos legacy a tipos Expo
   const typeMapping: Record<NotificationType, ExpoNotificationType> = {
     RIDE_REQUEST: "RIDE_REQUEST",
@@ -41,7 +51,9 @@ export const adaptToExpoNotification = (legacy: NotificationData): ExpoNotificat
 /**
  * Convierte ExpoNotificationData (nuevo) a NotificationData (legacy)
  */
-export const adaptToLegacyNotification = (expo: ExpoNotificationData): NotificationData => {
+export const adaptToLegacyNotification = (
+  expo: ExpoNotificationData,
+): NotificationData => {
   // Mapear tipos Expo a tipos legacy (algunos tipos nuevos se mapean a existentes)
   const typeMapping: Record<ExpoNotificationType, NotificationType> = {
     RIDE_REQUEST: "RIDE_REQUEST",
@@ -65,6 +77,7 @@ export const adaptToLegacyNotification = (expo: ExpoNotificationData): Notificat
     message: expo.message,
     data: expo.data,
     timestamp: expo.timestamp,
+    priority: expo.priority || "normal",
     isRead: expo.isRead,
   };
 };
@@ -72,7 +85,9 @@ export const adaptToLegacyNotification = (expo: ExpoNotificationData): Notificat
 /**
  * Convierte NotificationPreferences (legacy) a ExpoNotificationPreferences (nuevo)
  */
-export const adaptToExpoPreferences = (legacy: NotificationPreferences): ExpoNotificationPreferences => {
+export const adaptToExpoPreferences = (
+  legacy: NotificationPreferences,
+): ExpoNotificationPreferences => {
   return {
     pushEnabled: legacy.pushEnabled,
     smsEnabled: legacy.smsEnabled ?? false,
@@ -80,8 +95,8 @@ export const adaptToExpoPreferences = (legacy: NotificationPreferences): ExpoNot
     driverMessages: legacy.driverMessages,
     promotional: legacy.promotional ?? false,
     emergencyAlerts: legacy.emergencyAlerts,
-    soundEnabled: legacy.soundEnabled,
-    vibrationEnabled: legacy.vibrationEnabled,
+    soundEnabled: legacy.soundEnabled ?? true,
+    vibrationEnabled: legacy.vibrationEnabled ?? true,
     badgeEnabled: legacy.badgeEnabled ?? true,
     quietHoursEnabled: legacy.quietHoursEnabled ?? false,
     quietHoursStart: legacy.quietHoursStart ?? "22:00",
@@ -92,7 +107,9 @@ export const adaptToExpoPreferences = (legacy: NotificationPreferences): ExpoNot
 /**
  * Convierte ExpoNotificationPreferences (nuevo) a NotificationPreferences (legacy)
  */
-export const adaptToLegacyPreferences = (expo: ExpoNotificationPreferences): NotificationPreferences => {
+export const adaptToLegacyPreferences = (
+  expo: ExpoNotificationPreferences,
+): NotificationPreferences => {
   return {
     pushEnabled: expo.pushEnabled,
     smsEnabled: expo.smsEnabled,
@@ -102,19 +119,19 @@ export const adaptToLegacyPreferences = (expo: ExpoNotificationPreferences): Not
     emergencyAlerts: expo.emergencyAlerts,
     soundEnabled: expo.soundEnabled,
     vibrationEnabled: expo.vibrationEnabled,
-    // Campos legacy adicionales que no existen en Expo
-    badgeEnabled: expo.badgeEnabled,
-    quietHoursEnabled: expo.quietHoursEnabled,
-    quietHoursStart: expo.quietHoursStart,
-    quietHoursEnd: expo.quietHoursEnd,
   };
 };
 
 /**
  * Determina la prioridad basada en el tipo de notificación legacy
  */
-export const getPriorityFromType = (type: NotificationType): "low" | "normal" | "high" | "critical" => {
-  const priorityMapping: Record<NotificationType, "low" | "normal" | "high" | "critical"> = {
+export const getPriorityFromType = (
+  type: NotificationType,
+): "low" | "normal" | "high" | "critical" => {
+  const priorityMapping: Record<
+    NotificationType,
+    "low" | "normal" | "high" | "critical"
+  > = {
     EMERGENCY_ALERT: "critical",
     RIDE_REQUEST: "high",
     DRIVER_ARRIVED: "high",
@@ -126,6 +143,7 @@ export const getPriorityFromType = (type: NotificationType): "low" | "normal" | 
     RIDE_ACCEPTED: "normal",
     SYSTEM_UPDATE: "low",
     PROMOTIONAL: "low",
+    MAINTENANCE: "low",
   };
 
   return priorityMapping[type] || "normal";
@@ -150,23 +168,21 @@ export const adaptNotificationArray = {
 export const validateTypeCompatibility = {
   notification: (notification: any): notification is NotificationData => {
     return (
-      typeof notification === 'object' &&
-      typeof notification.id === 'string' &&
-      typeof notification.title === 'string' &&
-      typeof notification.message === 'string' &&
-      typeof notification.isRead === 'boolean' &&
+      typeof notification === "object" &&
+      typeof notification.id === "string" &&
+      typeof notification.title === "string" &&
+      typeof notification.message === "string" &&
+      typeof notification.isRead === "boolean" &&
       notification.timestamp instanceof Date
     );
   },
 
   preferences: (preferences: any): preferences is NotificationPreferences => {
     return (
-      typeof preferences === 'object' &&
-      typeof preferences.pushEnabled === 'boolean' &&
-      typeof preferences.rideUpdates === 'boolean' &&
-      typeof preferences.driverMessages === 'boolean'
+      typeof preferences === "object" &&
+      typeof preferences.pushEnabled === "boolean" &&
+      typeof preferences.rideUpdates === "boolean" &&
+      typeof preferences.driverMessages === "boolean"
     );
   },
 };
-
-

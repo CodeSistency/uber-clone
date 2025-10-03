@@ -11,7 +11,11 @@
           "progreso": 100,
           "prioridad": "Alta",
           "descripcion": "Analizar la configuración actual del splash screen y el sistema de módulos",
-          "dependencias": ["app.json", "store/module/module.ts", "components/UIWrapper.tsx"],
+          "dependencias": [
+            "app.json",
+            "store/module/module.ts",
+            "components/UIWrapper.tsx"
+          ],
           "tareas": [
             {
               "id": "T1.1.1",

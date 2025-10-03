@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-const fs = require('fs');
-const path = require('path');
+const fs = require("fs");
+const path = require("path");
 
 /**
  * Advanced Import Analysis Script
  * Analyzes import patterns to identify optimization opportunities
  */
 
-console.log('🔍 Analyzing Import Patterns...\n');
+console.log("🔍 Analyzing Import Patterns...\n");
 
 // Function to recursively find all TypeScript/JavaScript files
-function findFiles(dir, extensions = ['.ts', '.tsx', '.js', '.jsx']) {
+function findFiles(dir, extensions = [".ts", ".tsx", ".js", ".jsx"]) {
   const files = [];
 
   function traverse(currentDir) {
@@ -21,9 +21,16 @@ function findFiles(dir, extensions = ['.ts', '.tsx', '.js', '.jsx']) {
       const fullPath = path.join(currentDir, item);
       const stat = fs.statSync(fullPath);
 
-      if (stat.isDirectory() && !item.startsWith('.') && item !== 'node_modules') {
+      if (
+        stat.isDirectory() &&
+        !item.startsWith(".") &&
+        item !== "node_modules"
+      ) {
         traverse(fullPath);
-      } else if (stat.isFile() && extensions.some(ext => item.endsWith(ext))) {
+      } else if (
+        stat.isFile() &&
+        extensions.some((ext) => item.endsWith(ext))
+      ) {
         files.push(fullPath);
       }
     }
@@ -45,19 +52,26 @@ function analyzeImports(files) {
 
   for (const file of files) {
     try {
-      const content = fs.readFileSync(file, 'utf8');
-      const lines = content.split('\n');
+      const content = fs.readFileSync(file, "utf8");
+      const lines = content.split("\n");
 
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i].trim();
 
         // Skip comments and empty lines
-        if (!line || line.startsWith('//') || line.startsWith('/*') || line.startsWith('*')) {
+        if (
+          !line ||
+          line.startsWith("//") ||
+          line.startsWith("/*") ||
+          line.startsWith("*")
+        ) {
           continue;
         }
 
         // Check for import statements
-        const importMatch = line.match(/^import\s+.*?\s+from\s+['"]([^'"]+)['"]/);
+        const importMatch = line.match(
+          /^import\s+.*?\s+from\s+['"]([^'"]+)['"]/,
+        );
         if (importMatch) {
           const packageName = importMatch[1];
 
@@ -73,7 +87,9 @@ function analyzeImports(files) {
         }
 
         // Check for dynamic imports
-        const dynamicImportMatch = line.match(/import\s*\(\s*['"]([^'"]+)['"]\s*\)/);
+        const dynamicImportMatch = line.match(
+          /import\s*\(\s*['"]([^'"]+)['"]\s*\)/,
+        );
         if (dynamicImportMatch) {
           importStats.dynamicImports.push({
             file: path.relative(process.cwd(), file),
@@ -93,25 +109,25 @@ function analyzeImports(files) {
 // Analyze bundle impact
 function analyzeBundleImpact(importStats) {
   const heavyPackages = [
-    'react-native-maps',
-    'expo-location',
-    '@stripe/stripe-react-native',
-    '@stripe/stripe-js',
-    'firebase',
-    'socket.io-client',
-    'react-native-reanimated',
-    'react-native-gesture-handler',
-    'expo-router',
-    'zustand',
-    'date-fns',
-    'lodash',
-    'moment',
+    "react-native-maps",
+    "expo-location",
+    "@stripe/stripe-react-native",
+    "@stripe/stripe-js",
+    "firebase",
+    "socket.io-client",
+    "react-native-reanimated",
+    "react-native-gesture-handler",
+    "expo-router",
+    "zustand",
+    "date-fns",
+    "lodash",
+    "moment",
   ];
 
   const impact = new Map();
 
   for (const [pkg, count] of importStats.importsByPackage) {
-    const isHeavy = heavyPackages.some(heavy => pkg.includes(heavy));
+    const isHeavy = heavyPackages.some((heavy) => pkg.includes(heavy));
     const fullImports = importStats.fullImports.get(pkg) || 0;
     const efficiency = count > 0 ? ((count - fullImports) / count) * 100 : 100;
 
@@ -129,17 +145,17 @@ function analyzeBundleImpact(importStats) {
 
 function getRecommendation(packageName, efficiency, isHeavy) {
   if (efficiency < 50 && isHeavy) {
-    return 'HIGH: Consider tree-shaking or lazy loading';
+    return "HIGH: Consider tree-shaking or lazy loading";
   } else if (efficiency < 70) {
-    return 'MEDIUM: Review imports for optimization';
+    return "MEDIUM: Review imports for optimization";
   } else if (isHeavy) {
-    return 'LOW: Monitor for future optimizations';
+    return "LOW: Monitor for future optimizations";
   }
-  return 'GOOD: No action needed';
+  return "GOOD: No action needed";
 }
 
 // Main analysis
-const files = findFiles('./app');
+const files = findFiles("./app");
 const importStats = analyzeImports(files);
 const bundleImpact = analyzeBundleImpact(importStats);
 
@@ -148,10 +164,10 @@ console.log(`==========================`);
 console.log(`Total files analyzed: ${importStats.totalFiles}`);
 console.log(`Unique packages imported: ${importStats.importsByPackage.size}`);
 console.log(`Dynamic imports found: ${importStats.dynamicImports.length}`);
-console.log('');
+console.log("");
 
-console.log('📦 Top 10 Most Imported Packages:');
-console.log('==================================');
+console.log("📦 Top 10 Most Imported Packages:");
+console.log("==================================");
 
 const sortedPackages = Array.from(importStats.importsByPackage.entries())
   .sort(([, a], [, b]) => b - a)
@@ -159,23 +175,25 @@ const sortedPackages = Array.from(importStats.importsByPackage.entries())
 
 sortedPackages.forEach(([pkg, count], index) => {
   const impact = bundleImpact.get(pkg);
-  const marker = impact?.isHeavy ? '⚠️' : '✅';
+  const marker = impact?.isHeavy ? "⚠️" : "✅";
   console.log(`${index + 1}. ${marker} ${pkg} (${count} imports)`);
   if (impact) {
-    console.log(`   Efficiency: ${impact.efficiency}% | ${impact.recommendation}`);
+    console.log(
+      `   Efficiency: ${impact.efficiency}% | ${impact.recommendation}`,
+    );
   }
 });
 
-console.log('');
-console.log('🚨 Heavy Packages Analysis:');
-console.log('===========================');
+console.log("");
+console.log("🚨 Heavy Packages Analysis:");
+console.log("===========================");
 
 const heavyPackages = Array.from(bundleImpact.entries())
   .filter(([, impact]) => impact.isHeavy)
   .sort(([, a], [, b]) => a.efficiency - b.efficiency); // Sort by lowest efficiency first
 
 if (heavyPackages.length === 0) {
-  console.log('✅ No heavy packages detected');
+  console.log("✅ No heavy packages detected");
 } else {
   heavyPackages.forEach(([pkg, impact]) => {
     console.log(`🔴 ${pkg}`);
@@ -183,18 +201,20 @@ if (heavyPackages.length === 0) {
     console.log(`   Full imports: ${impact.fullImports}`);
     console.log(`   Efficiency: ${impact.efficiency}%`);
     console.log(`   Recommendation: ${impact.recommendation}`);
-    console.log('');
+    console.log("");
   });
 }
 
-console.log('💡 Optimization Suggestions:');
-console.log('============================');
+console.log("💡 Optimization Suggestions:");
+console.log("============================");
 
 // Specific suggestions based on findings
 const suggestions = [];
 
 if (importStats.dynamicImports.length === 0) {
-  suggestions.push('Consider using dynamic imports for heavy components (Map, Payment, etc.)');
+  suggestions.push(
+    "Consider using dynamic imports for heavy components (Map, Payment, etc.)",
+  );
 }
 
 const lowEfficiencyPackages = Array.from(bundleImpact.entries())
@@ -202,19 +222,22 @@ const lowEfficiencyPackages = Array.from(bundleImpact.entries())
   .map(([pkg]) => pkg);
 
 if (lowEfficiencyPackages.length > 0) {
-  suggestions.push(`Review imports for: ${lowEfficiencyPackages.slice(0, 3).join(', ')}`);
+  suggestions.push(
+    `Review imports for: ${lowEfficiencyPackages.slice(0, 3).join(", ")}`,
+  );
 }
 
 suggestions.forEach((suggestion, index) => {
   console.log(`${index + 1}. ${suggestion}`);
 });
 
-console.log('');
-console.log('📋 Next Steps:');
-console.log('   1. Address HIGH priority recommendations first');
-console.log('   2. Implement lazy loading for heavy components');
-console.log('   3. Use specific imports instead of full imports where possible');
-console.log('   4. Consider code splitting for different app sections');
+console.log("");
+console.log("📋 Next Steps:");
+console.log("   1. Address HIGH priority recommendations first");
+console.log("   2. Implement lazy loading for heavy components");
+console.log(
+  "   3. Use specific imports instead of full imports where possible",
+);
+console.log("   4. Consider code splitting for different app sections");
 
-console.log('\n✨ Import analysis complete!\n');
-
+console.log("\n✨ Import analysis complete!\n");

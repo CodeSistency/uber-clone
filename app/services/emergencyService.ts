@@ -11,10 +11,10 @@ interface EmergencyContact {
 
 interface EmergencyHistory {
   id: string;
-  type: 'sos' | 'accident' | 'medical' | 'other';
+  type: "sos" | "accident" | "medical" | "other";
   description: string;
   timestamp: string;
-  status: 'active' | 'resolved' | 'cancelled';
+  status: "active" | "resolved" | "cancelled";
   location?: {
     latitude: number;
     longitude: number;
@@ -25,7 +25,7 @@ interface EmergencyHistory {
 }
 
 interface EmergencyTriggerData {
-  type: 'sos' | 'accident' | 'medical' | 'other';
+  type: "sos" | "accident" | "medical" | "other";
   description: string;
   location: {
     latitude: number;
@@ -39,47 +39,64 @@ class EmergencyService {
   async getEmergencyContacts(): Promise<EmergencyContact[]> {
     try {
       console.log("[EmergencyService] Fetching emergency contacts");
-      const response = await fetchAPI('driver/emergency/contacts', {
-        requiresAuth: true
+      const response = await fetchAPI("driver/emergency/contacts", {
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency contacts fetched:", response);
       return response.data || response;
     } catch (error) {
-      console.error("[EmergencyService] Error fetching emergency contacts:", error);
+      console.error(
+        "[EmergencyService] Error fetching emergency contacts:",
+        error,
+      );
       throw error;
     }
   }
 
   // Add emergency contact
-  async addEmergencyContact(contactData: Omit<EmergencyContact, 'id'>): Promise<EmergencyContact> {
+  async addEmergencyContact(
+    contactData: Omit<EmergencyContact, "id">,
+  ): Promise<EmergencyContact> {
     try {
       console.log("[EmergencyService] Adding emergency contact:", contactData);
-      const response = await fetchAPI('driver/emergency/contacts', {
-        method: 'POST',
+      const response = await fetchAPI("driver/emergency/contacts", {
+        method: "POST",
         body: JSON.stringify(contactData),
-        requiresAuth: true
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency contact added:", response);
       return response.data || response;
     } catch (error) {
-      console.error("[EmergencyService] Error adding emergency contact:", error);
+      console.error(
+        "[EmergencyService] Error adding emergency contact:",
+        error,
+      );
       throw error;
     }
   }
 
   // Update emergency contact
-  async updateEmergencyContact(id: string, updates: Partial<EmergencyContact>): Promise<EmergencyContact> {
+  async updateEmergencyContact(
+    id: string,
+    updates: Partial<EmergencyContact>,
+  ): Promise<EmergencyContact> {
     try {
-      console.log("[EmergencyService] Updating emergency contact:", { id, updates });
+      console.log("[EmergencyService] Updating emergency contact:", {
+        id,
+        updates,
+      });
       const response = await fetchAPI(`driver/emergency/contacts/${id}`, {
-        method: 'PUT',
+        method: "PUT",
         body: JSON.stringify(updates),
-        requiresAuth: true
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency contact updated:", response);
       return response.data || response;
     } catch (error) {
-      console.error("[EmergencyService] Error updating emergency contact:", error);
+      console.error(
+        "[EmergencyService] Error updating emergency contact:",
+        error,
+      );
       throw error;
     }
   }
@@ -89,12 +106,15 @@ class EmergencyService {
     try {
       console.log("[EmergencyService] Removing emergency contact:", id);
       await fetchAPI(`driver/emergency/contacts/${id}`, {
-        method: 'DELETE',
-        requiresAuth: true
+        method: "DELETE",
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency contact removed");
     } catch (error) {
-      console.error("[EmergencyService] Error removing emergency contact:", error);
+      console.error(
+        "[EmergencyService] Error removing emergency contact:",
+        error,
+      );
       throw error;
     }
   }
@@ -103,25 +123,30 @@ class EmergencyService {
   async getEmergencyHistory(): Promise<EmergencyHistory[]> {
     try {
       console.log("[EmergencyService] Fetching emergency history");
-      const response = await fetchAPI('driver/emergency/history', {
-        requiresAuth: true
+      const response = await fetchAPI("driver/emergency/history", {
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency history fetched:", response);
       return response.data || response;
     } catch (error) {
-      console.error("[EmergencyService] Error fetching emergency history:", error);
+      console.error(
+        "[EmergencyService] Error fetching emergency history:",
+        error,
+      );
       throw error;
     }
   }
 
   // Trigger emergency
-  async triggerEmergency(emergencyData: EmergencyTriggerData): Promise<EmergencyHistory> {
+  async triggerEmergency(
+    emergencyData: EmergencyTriggerData,
+  ): Promise<EmergencyHistory> {
     try {
       console.log("[EmergencyService] Triggering emergency:", emergencyData);
-      const response = await fetchAPI('driver/emergency/trigger', {
-        method: 'POST',
+      const response = await fetchAPI("driver/emergency/trigger", {
+        method: "POST",
         body: JSON.stringify(emergencyData),
-        requiresAuth: true
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency triggered:", response);
       return response.data || response;
@@ -136,8 +161,8 @@ class EmergencyService {
     try {
       console.log("[EmergencyService] Resolving emergency:", emergencyId);
       await fetchAPI(`driver/emergency/${emergencyId}/resolve`, {
-        method: 'POST',
-        requiresAuth: true
+        method: "POST",
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Emergency resolved");
     } catch (error) {
@@ -148,21 +173,21 @@ class EmergencyService {
 
   // Report issue (non-emergency)
   async reportIssue(issueData: {
-    type: 'safety' | 'vehicle' | 'passenger' | 'other';
+    type: "safety" | "vehicle" | "passenger" | "other";
     description: string;
     location?: {
       latitude: number;
       longitude: number;
       address: string;
     };
-    severity: 'low' | 'medium' | 'high';
+    severity: "low" | "medium" | "high";
   }): Promise<any> {
     try {
       console.log("[EmergencyService] Reporting issue:", issueData);
-      const response = await fetchAPI('driver/emergency/report-issue', {
-        method: 'POST',
+      const response = await fetchAPI("driver/emergency/report-issue", {
+        method: "POST",
         body: JSON.stringify(issueData),
-        requiresAuth: true
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Issue reported:", response);
       return response.data || response;
@@ -176,13 +201,16 @@ class EmergencyService {
   async getSafetyResources(): Promise<any[]> {
     try {
       console.log("[EmergencyService] Fetching safety resources");
-      const response = await fetchAPI('driver/emergency/safety-resources', {
-        requiresAuth: true
+      const response = await fetchAPI("driver/emergency/safety-resources", {
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Safety resources fetched:", response);
       return response.data || response;
     } catch (error) {
-      console.error("[EmergencyService] Error fetching safety resources:", error);
+      console.error(
+        "[EmergencyService] Error fetching safety resources:",
+        error,
+      );
       throw error;
     }
   }
@@ -191,9 +219,9 @@ class EmergencyService {
   async sendTestEmergency(): Promise<any> {
     try {
       console.log("[EmergencyService] Sending test emergency alert");
-      const response = await fetchAPI('driver/emergency/test', {
-        method: 'POST',
-        requiresAuth: true
+      const response = await fetchAPI("driver/emergency/test", {
+        method: "POST",
+        requiresAuth: true,
       });
       console.log("[EmergencyService] Test emergency sent:", response);
       return response.data || response;
