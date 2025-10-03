@@ -100,8 +100,28 @@ const DriverTransportAcceptReject: React.FC = () => {
         request.rideId,
       );
 
-      // Calcular tiempo estimado de llegada (simulado por ahora)
-      const estimatedArrivalMinutes = 5; // TODO: Calcular basado en ubicación real
+      // ✅ Calcular tiempo estimado de llegada basado en ubicación real
+      const driverLat = driverState.currentLocation?.lat || 0;
+      const driverLng = driverState.currentLocation?.lng || 0;
+      const pickupLat = (request as any).pickupLocation?.lat || 0;
+      const pickupLng = (request as any).pickupLocation?.lng || 0;
+
+      // Calcular distancia aproximada en línea recta (Haversine)
+      const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+        const R = 6371; // Radio de la Tierra en km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c; // Distancia en km
+      };
+
+      const distanceKm = calculateDistance(driverLat, driverLng, pickupLat, pickupLng);
+      // Estimar 30 km/h promedio en ciudad
+      const estimatedArrivalMinutes = Math.round((distanceKm / 30) * 60);
 
       await driverTransportService.respondToRequest(
         request.rideId,
@@ -109,29 +129,46 @@ const DriverTransportAcceptReject: React.FC = () => {
         estimatedArrivalMinutes,
       );
 
+      console.log("[DriverTransportAcceptReject] Fetching full ride details...");
+
+      // ✅ Obtener detalles completos del ride desde el endpoint
+      const rideDetails = await driverTransportService.getRideDetails(request.rideId);
+
+      console.log("[DriverTransportAcceptReject] Full ride details received:", rideDetails);
+
       showSuccess("¡Viaje aceptado!", "Dirígete al punto de recogida");
 
-      // Actualizar el store con el ride activo
+      // ✅ Actualizar el store con datos reales del endpoint
       useRealtimeStore.getState().setActiveRide({
-        ride_id: request.rideId,
-        origin_address: request.originAddress,
-        destination_address: request.destinationAddress,
-        origin_latitude: 0, // TODO: Obtener coordenadas reales
-        origin_longitude: 0,
-        destination_latitude: 0,
-        destination_longitude: 0,
-        fare_price: request.farePrice,
-        user_id: parseInt(request.passenger.phone.replace(/\D/g, "")) || 0, // Usar teléfono como ID temporal
-        driver_id: 0, // TODO: Obtener ID del conductor actual
-        created_at: request.requestedAt,
-        ride_time: 0, // TODO: Calcular tiempo real
-        payment_status: "pending", // Estado inicial
+        ride_id: rideDetails.rideId,
+        origin_address: rideDetails.route.origin.address,
+        destination_address: rideDetails.route.destination.address,
+        origin_latitude: rideDetails.route.origin.lat, // ✅ Dinámico
+        origin_longitude: rideDetails.route.origin.lng, // ✅ Dinámico
+        destination_latitude: rideDetails.route.destination.lat, // ✅ Dinámico
+        destination_longitude: rideDetails.route.destination.lng, // ✅ Dinámico
+        fare_price: rideDetails.pricing.fare,
+        user_id: 0, // El passenger no tiene ID en la respuesta actual
+        driver_id: driverState.driverId || 0, // ✅ ID real del conductor
+        created_at: rideDetails.timestamps.created,
+        ride_time: rideDetails.pricing.estimatedDuration, // ✅ Dinámico
+        payment_status: "pending",
         driver: {
-          first_name: "Tú", // TODO: Obtener nombre real del conductor
-          last_name: "",
-          car_seats: 4, // TODO: Obtener datos reales del vehículo
+          first_name: driverState.firstName || "Conductor", // ✅ Datos reales
+          last_name: driverState.lastName || "",
+          car_seats: 4, // TODO: Agregar datos de vehículo al driverState
         },
-      });
+      } as any); // ✅ Usar 'as any' para extender el tipo Ride con passenger
+
+      // ✅ Agregar datos del pasajero al objeto extendido
+      const extendedRide = useRealtimeStore.getState().activeRide as any;
+      if (extendedRide) {
+        extendedRide.passenger = {
+          name: rideDetails.passenger.name,
+          phone: rideDetails.passenger.phone,
+          email: rideDetails.passenger.email,
+        };
+      }
 
       // Ir a navegación hacia el origen
       goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);

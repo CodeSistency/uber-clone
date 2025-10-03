@@ -308,6 +308,33 @@ export const driverTransportService = {
     } as any);
   },
 
+  // ===== EXCHANGE RATE =====
+
+  getExchangeRate: async (): Promise<{ rate: number; currency: string; lastUpdate: string }> => {
+    try {
+      // TODO: Implementar endpoint real cuando esté disponible
+      // return fetchAPI("currency/exchange-rate", {
+      //   requiresAuth: true,
+      //   skipApiPrefix: true,
+      // } as any);
+      
+      // Por ahora retornamos un valor por defecto
+      console.log("[DriverTransportService] Exchange rate endpoint not implemented, using default");
+      return {
+        rate: 35.5,
+        currency: "VES/USD",
+        lastUpdate: new Date().toISOString(),
+      };
+    } catch (error) {
+      console.error("[DriverTransportService] Error getting exchange rate:", error);
+      return {
+        rate: 35.5,
+        currency: "VES/USD",
+        lastUpdate: new Date().toISOString(),
+      };
+    }
+  },
+
   // ===== SIMULACIÓN Y GESTIÓN DE SOLICITUDES =====
 
   simulateRequest: async () => {

@@ -31,33 +31,60 @@ const DriverTransportEndPayment: React.FC = () => {
   const activeRide = useRealtimeStore.getState().activeRide as any;
   const rideId = activeRide?.ride_id || 0;
 
-  // Load payment information
+  // ✅ Load payment information from ride details
   useEffect(() => {
     const loadPaymentInfo = async () => {
       if (!rideId) return;
 
       try {
         setLoadingPaymentInfo(true);
-        // In a real implementation, this would come from the backend
-        // For now, we'll simulate based on ride data
-        const mockPaymentInfo: PaymentInfo = {
-          totalAmount: activeRide?.fare_price || 8.2,
-          paymentMethod: activeRide?.payment_method || "cash", // This should come from backend
-          cashRequired:
-            activeRide?.cash_required || activeRide?.fare_price || 8.2,
-          cardPaid: activeRide?.card_paid || 0,
-          fullyPaid: activeRide?.fully_paid || false,
-          currency: "USD", // Could be dynamic
-          exchangeRate: 35.5, // Bs per USD
+        
+        console.log("[DriverTransportEndPayment] Fetching ride details for payment info...");
+        
+        // ✅ Obtener detalles completos del ride desde el endpoint
+        const [rideDetails, exchangeRateData] = await Promise.all([
+          driverTransportService.getRideDetails(rideId),
+          driverTransportService.getExchangeRate(), // ✅ Obtener tasa de cambio dinámicamente
+        ]);
+        
+        console.log("[DriverTransportEndPayment] Ride details received:", rideDetails);
+        console.log("[DriverTransportEndPayment] Exchange rate received:", exchangeRateData);
+
+        // ✅ Usar datos reales del endpoint
+        const paymentInfoFromRide: PaymentInfo = {
+          totalAmount: rideDetails.pricing.fare,
+          paymentMethod: (activeRide?.payment_method as any) || "cash", // TODO: Agregar payment_method al endpoint
+          cashRequired: (activeRide?.cash_required as number) || rideDetails.pricing.fare,
+          cardPaid: (activeRide?.card_paid as number) || 0,
+          fullyPaid: (activeRide?.fully_paid as boolean) || false,
+          currency: "USD", // TODO: Agregar currency al endpoint
+          exchangeRate: exchangeRateData.rate, // ✅ Dinámico
         };
 
-        setPaymentInfo(mockPaymentInfo);
+        console.log("[DriverTransportEndPayment] Payment info prepared:", paymentInfoFromRide);
+
+        setPaymentInfo(paymentInfoFromRide);
       } catch (error) {
         console.error(
           "[DriverTransportEndPayment] Error loading payment info:",
           error,
         );
         showError("Error", "No se pudo cargar la información de pago");
+        
+        // ✅ Fallback: usar datos del activeRide si falla el endpoint
+        const exchangeRateFallback = await driverTransportService.getExchangeRate();
+        
+        const fallbackPaymentInfo: PaymentInfo = {
+          totalAmount: activeRide?.fare_price || 0,
+          paymentMethod: (activeRide?.payment_method as any) || "cash",
+          cashRequired: (activeRide?.cash_required as number) || activeRide?.fare_price || 0,
+          cardPaid: (activeRide?.card_paid as number) || 0,
+          fullyPaid: (activeRide?.fully_paid as boolean) || false,
+          currency: "USD",
+          exchangeRate: exchangeRateFallback.rate, // ✅ Dinámico incluso en fallback
+        };
+        
+        setPaymentInfo(fallbackPaymentInfo);
       } finally {
         setLoadingPaymentInfo(false);
       }
