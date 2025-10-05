@@ -39,7 +39,7 @@ const STATES_BY_COUNTRY: Record<string, { code: string; name: string }[]> = {
 };
 
 export default function StateSelection() {
-  console.log("[StateSelection] Rendering state selection");
+  
 
   const {
     currentStep,
@@ -60,10 +60,7 @@ export default function StateSelection() {
   const countryStates = STATES_BY_COUNTRY[userData.country || "VE"] || [];
 
   useEffect(() => {
-    console.log(
-      "[StateSelection] Component mounted, country:",
-      userData.country,
-    );
+    
     const filtered = countryStates.filter((state) =>
       state.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
@@ -71,7 +68,7 @@ export default function StateSelection() {
   }, [searchQuery, userData.country]);
 
   const handleStateSelect = (stateCode: string) => {
-    console.log("[StateSelection] Selected state:", stateCode);
+    
     setSelectedState(stateCode);
   };
 
@@ -85,7 +82,7 @@ export default function StateSelection() {
       setLoading(true);
       setError(null);
 
-      console.log("[StateSelection] Saving state selection:", selectedState);
+      
 
       // Update local state
       updateUserData({ state: selectedState });
@@ -101,16 +98,16 @@ export default function StateSelection() {
         }),
       });
 
-      console.log("[StateSelection] API response:", response);
+      
 
       if (response.success) {
-        console.log("[StateSelection] State saved successfully");
+        
         nextStep();
       } else {
         throw new Error(response.message || "Failed to save state");
       }
     } catch (error: any) {
-      console.error("[StateSelection] Error saving state:", error);
+      
       setError(error.message || "Failed to save state selection");
       Alert.alert("Error", error.message || "Failed to save state selection");
     } finally {

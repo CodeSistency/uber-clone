@@ -49,30 +49,28 @@ const DrawerContent = ({
           style: "destructive",
           onPress: async () => {
             try {
-              console.log("[Drawer] Logging out user...");
+              
 
               // Logout user with internal authentication
               const result = await logoutUser();
 
               if (result.success) {
-                console.log(
-                  "[Drawer] Logout successful, redirecting to welcome",
-                );
+                
                 // Navigate to welcome screen
                 router.replace("/(auth)/welcome");
               } else {
-                console.error("[Drawer] Logout failed:", result.message);
+                
                 Alert.alert("Error", "Failed to logout. Please try again.");
               }
             } catch (error) {
-              console.error("[Drawer] Error during logout:", error);
+              
               Alert.alert("Error", "Failed to logout. Please try again.");
             }
           },
         },
       ]);
     } catch (error) {
-      console.error("[Drawer] Error in logout handler:", error);
+      
       Alert.alert("Error", "Failed to logout. Please try again.");
     }
   };

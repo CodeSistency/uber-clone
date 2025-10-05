@@ -98,13 +98,7 @@ const MiniSplash: React.FC<MiniSplashProps> = ({
   onComplete,
   visible,
 }) => {
-  console.log("[MiniSplash] Render called with:", {
-    config: config?.id,
-    type: config?.type,
-    visible,
-    title: config?.title,
-    module: config?.moduleSpecific?.toModule,
-  });
+  
 
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const scaleAnim = useRef(new Animated.Value(0.8)).current;

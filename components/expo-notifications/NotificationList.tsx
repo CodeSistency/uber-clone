@@ -86,7 +86,7 @@ const NotificationList: React.FC<NotificationListProps> = ({
     try {
       await onRefresh();
     } catch (error) {
-      console.error("Error refreshing notifications:", error);
+      
     } finally {
       setRefreshing(false);
     }

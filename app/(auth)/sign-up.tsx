@@ -10,7 +10,7 @@ import { registerUser, isAuthenticated } from "../../lib/auth";
 import { firebaseService } from "../services/firebaseService";
 
 const SignUp = () => {
-  console.log("[SignUp] Rendering sign-up screen");
+  
 
   const [form, setForm] = useState({
     name: "",
@@ -21,21 +21,21 @@ const SignUp = () => {
   const { withUI, showError } = useUI();
 
   const handleInputChange = (field: string, value: string) => {
-    console.log(`[SignUp] Input change - ${field}:`, value);
+    
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
   useEffect(() => {
-    console.log("[SignUp] useEffect triggered, checking authentication");
+    
     // Check if user is already authenticated
     const checkAuth = async () => {
       const authenticated = await isAuthenticated();
-      console.log("[SignUp] User authenticated:", authenticated);
+      
       if (authenticated) {
-        console.log("[SignUp] User already authenticated, redirecting to home");
+        
         router.replace("/");
       } else {
-        console.log("[SignUp] User not authenticated, staying on sign-up");
+        
       }
     };
     checkAuth();
@@ -43,29 +43,29 @@ const SignUp = () => {
     // Initialize Firebase service for push notifications
     const initializeFirebase = async () => {
       try {
-        console.log("[SignUp] Initializing Firebase service");
+        
         await firebaseService.requestPermissions();
         firebaseService.setupNotificationListeners();
       } catch (error) {
-        console.error("[SignUp] Error initializing Firebase:", error);
+        
       }
     };
     initializeFirebase();
   }, []);
 
   const onSignUpPress = async () => {
-    console.log("[SignUp] Form data before submission:", form);
+    
 
     // Validate form data
     if (!form.name || !form.email || !form.password) {
-      console.log("[SignUp] Form validation failed - missing fields");
+      
       showError("Validation Error", "Please fill in all fields");
       return;
     }
 
     const result = await withUI(
       async () => {
-        console.log("[SignUp] Registering user...");
+        
 
         // Register user with internal authentication
         const registerResult = await registerUser({
@@ -74,7 +74,7 @@ const SignUp = () => {
           password: form.password,
         });
 
-        console.log("[SignUp] Registration result:", registerResult);
+        
 
         if (!registerResult.success) {
           throw new Error(registerResult.message || "Registration failed");
@@ -87,15 +87,13 @@ const SignUp = () => {
         successMessage: "Account created successfully! Welcome to UberClone!",
         errorTitle: "Registration Failed",
         onSuccess: () => {
-          console.log(
-            "[SignUp] Registration successful, redirecting to index for onboarding check",
-          );
+          
           setTimeout(() => {
             router.replace("/");
           }, 1000); // Give time for success message to show
         },
         onError: (error) => {
-          console.error("[SignUp] Registration error:", error);
+          
         },
       },
     );

@@ -16,38 +16,38 @@ const env =
 const isProduction = env === "production";
 const isDevelopment = env === "development";
 
-console.log(`🚀 Starting prebuild process for ${env} environment...`);
+
 
 try {
   // 1. Environment Configuration
-  console.log("📝 Configuring environment...");
+  
   configureEnvironment();
 
   // 2. Asset Preparation
-  console.log("🎨 Preparing assets...");
+  
   prepareAssets();
 
   // 3. Configuration Files
-  console.log("⚙️  Generating configuration files...");
+  
   generateConfigFiles();
 
   // 4. Firebase Configuration
-  console.log("🔥 Setting up Firebase...");
+  
   setupFirebase();
 
   // 5. Build Optimization
   if (isProduction) {
-    console.log("⚡ Optimizing for production...");
+    
     optimizeForProduction();
   }
 
   // 6. Version Management
-  console.log("📦 Managing version...");
+  
   manageVersion();
 
-  console.log(`✅ Prebuild completed successfully for ${env} environment!`);
+  
 } catch (error) {
-  console.error("❌ Prebuild failed:", error.message);
+  
   process.exit(1);
 }
 
@@ -56,9 +56,7 @@ function configureEnvironment() {
   const envPath = path.join(process.cwd(), envFile);
 
   if (!fs.existsSync(envPath)) {
-    console.warn(
-      `⚠️  Environment file ${envFile} not found. Creating template...`,
-    );
+    
     createEnvTemplate(envPath);
   }
 
@@ -66,7 +64,7 @@ function configureEnvironment() {
   const targetEnvPath = path.join(process.cwd(), ".env");
   if (fs.existsSync(envPath)) {
     fs.copyFileSync(envPath, targetEnvPath);
-    console.log(`✅ Environment configured from ${envFile}`);
+    
   }
 }
 
@@ -98,7 +96,7 @@ function prepareAssets() {
     copyAssets(assetsDir, buildAssetsDir);
   }
 
-  console.log("✅ Assets prepared");
+  
 }
 
 function copyAssets(source, target) {
@@ -187,7 +185,7 @@ export default {
 `;
 
     fs.writeFileSync(appConfigPath, configContent);
-    console.log("✅ Dynamic app.config.js generated");
+    
   }
 }
 
@@ -207,11 +205,9 @@ function setupFirebase() {
 
     if (fs.existsSync(configPath)) {
       fs.copyFileSync(configPath, googleServicesPath);
-      console.log(`✅ Firebase config updated for ${env}`);
+      
     } else {
-      console.warn(
-        `⚠️  Firebase config ${configFile} not found, using default`,
-      );
+      
     }
   }
 }
@@ -228,12 +224,12 @@ function optimizeForProduction() {
     const filePath = path.join(process.cwd(), file);
     if (fs.existsSync(filePath)) {
       fs.unlinkSync(filePath);
-      console.log(`🗑️  Removed development file: ${file}`);
+      
     }
   });
 
   // Minify/optimize bundle
-  console.log("📦 Bundle optimization completed");
+  
 }
 
 function manageVersion() {
@@ -246,9 +242,9 @@ function manageVersion() {
     updateAndroidVersion(version);
     updateIOSVersion(version);
 
-    console.log(`✅ Version ${version} synchronized across platforms`);
+    
   } catch (error) {
-    console.warn("⚠️  Version management failed:", error.message);
+    
   }
 }
 

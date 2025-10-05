@@ -72,7 +72,7 @@ const DriverMatching: React.FC = () => {
         !locationStore.userLatitude ||
         !locationStore.userLongitude
       ) {
-        console.error("[DriverMatching] Missing location data for matching");
+        
         showError("Error", "Ubicación no disponible para buscar conductores");
         back();
         return;
@@ -88,7 +88,7 @@ const DriverMatching: React.FC = () => {
       });
 
       if (!success) {
-        console.error("[DriverMatching] Failed to start async search");
+        
         showError("Error", "No se pudo iniciar la búsqueda de conductores");
         back();
       }
@@ -163,7 +163,7 @@ const DriverMatching: React.FC = () => {
 
   // Función para manejar cuando se encuentra un conductor
   const handleDriverFound = async (driver: any) => {
-    console.log("[DriverMatching] Driver found:", driver);
+    
 
     try {
       // Confirmar el conductor automáticamente
@@ -181,21 +181,21 @@ const DriverMatching: React.FC = () => {
         }, 2000);
       }
     } catch (error) {
-      console.error("[DriverMatching] Error confirming driver:", error);
+      
       showError("Error", "No se pudo confirmar el conductor seleccionado");
     }
   };
 
   // Función para manejar timeout de búsqueda
   const handleSearchTimeout = () => {
-    console.log("[DriverMatching] Search timeout, attempting expansion");
+    
 
     const newRetryCount = retryCount + 1;
     setRetryCount(newRetryCount);
 
     if (newRetryCount >= MAX_RETRIES) {
       // Máximo de reintentos alcanzado - mostrar opciones finales
-      console.log("[DriverMatching] Max retries reached, showing final options");
+      
       setShowFinalOptions(true);
       return;
     }
@@ -204,7 +204,7 @@ const DriverMatching: React.FC = () => {
     const newRadius = Math.min(currentRadius + RADIUS_INCREMENT, MAX_RADIUS);
     setCurrentRadius(newRadius);
 
-    console.log(`[DriverMatching] Expanding search radius to ${newRadius}km (attempt ${newRetryCount}/${MAX_RETRIES})`);
+    
 
     // Reiniciar búsqueda con radio mayor
     setTimeout(async () => {
@@ -214,7 +214,7 @@ const DriverMatching: React.FC = () => {
       });
 
       if (!success) {
-        console.error("[DriverMatching] Failed to restart search with expanded radius");
+        
         setShowFinalOptions(true);
       }
     }, 1000); // Pequeño delay para mejor UX
@@ -222,7 +222,7 @@ const DriverMatching: React.FC = () => {
 
   // Función para manejar cancelación de búsqueda
   const handleSearchCancelled = () => {
-    console.log("[DriverMatching] Search cancelled by user");
+    
     showSuccess(
       "Búsqueda cancelada",
       "Puedes modificar tu pedido e intentar nuevamente"
@@ -244,7 +244,7 @@ const DriverMatching: React.FC = () => {
       await cancelSearch();
       // handleSearchCancelled será llamado por el useEffect que monitorea el estado
     } catch (error) {
-      console.error("[DriverMatching] Error cancelling search:", error);
+      
       showError("Error", "No se pudo cancelar la búsqueda");
     } finally {
       setIsCancelling(false);
@@ -253,7 +253,7 @@ const DriverMatching: React.FC = () => {
 
   // Función para reintentar búsqueda desde opciones finales
   const handleRetrySearch = async () => {
-    console.log("[DriverMatching] User requested retry from final options");
+    
 
     // Resetear estado
     setShowFinalOptions(false);
@@ -271,7 +271,7 @@ const DriverMatching: React.FC = () => {
 
   // Función para salir desde opciones finales
   const handleExitSearch = () => {
-    console.log("[DriverMatching] User chose to exit from final options");
+    
 
     showSuccess(
       "Búsqueda finalizada",

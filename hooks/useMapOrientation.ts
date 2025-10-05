@@ -82,9 +82,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
         !isFinite(lat2) ||
         !isFinite(lng2)
       ) {
-        console.warn(
-          "[useMapOrientation] Invalid coordinates for bearing calculation",
-        );
+        
         return 0;
       }
 
@@ -102,10 +100,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
 
       // Additional validation
       if (!isFinite(bearing) || bearing < 0 || bearing > 360) {
-        console.warn(
-          "[useMapOrientation] Invalid bearing calculated:",
-          bearing,
-        );
+        
         return 0;
       }
 
@@ -128,14 +123,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
       // Fallback: if we have previous position, calculate from movement
       // This would be enhanced with position history tracking
 
-      console.log(
-        "[useMapOrientation] Using velocity-based bearing calculation:",
-        {
-          speed,
-          course,
-          accuracy,
-        },
-      );
+      
 
       return course || 0;
     },
@@ -269,13 +257,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
           controller.setCamera(camera);
         }
 
-        console.log("[useMapOrientation] Camera updated with bearing:", {
-          bearing: adjustedBearing,
-          speed: currentSpeed,
-          autoRotate: isAutoRotating,
-          animated: options?.animated !== false,
-          duration: options?.duration || config.animationDuration,
-        });
+        
       }
     },
     [
@@ -353,13 +335,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
 
       animateStep();
 
-      console.log("[useMapOrientation] Starting bearing animation:", {
-        from: startBearing,
-        to: targetBearing,
-        duration: config.duration,
-        easing: config.easing,
-        steps: config.steps,
-      });
+      
     },
     [currentBearing, updateMapBearing],
   );
@@ -368,7 +344,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
   const startOrientationTracking = useCallback(() => {
     if (!enabled) return;
 
-    console.log("[useMapOrientation] Starting orientation tracking");
+    
 
     // Configure high accuracy for better heading data
     Geolocation.setRNConfiguration({
@@ -414,17 +390,11 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
           // Update previous coordinates for next calculation
           setPreviousCoords({ latitude, longitude });
 
-          console.log("[useMapOrientation] Bearing updated:", {
-            rawHeading: heading,
-            calculatedBearing: optimalBearing,
-            smoothedBearing,
-            speed: speedKmh,
-            accuracy,
-          });
+          
         }
       },
       (error) => {
-        console.error("[useMapOrientation] GPS tracking error:", error);
+        
       },
       {
         enableHighAccuracy: true,
@@ -448,7 +418,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
 
   // Stop GPS watching
   const stopOrientationTracking = useCallback(() => {
-    console.log("[useMapOrientation] Stopping orientation tracking");
+    
 
     if (watchIdRef.current !== null) {
       Geolocation.clearWatch(watchIdRef.current);
@@ -469,7 +439,7 @@ export const useMapOrientation = (options: UseMapOrientationOptions = {}) => {
       updateMapBearing(0);
     }
 
-    console.log("[useMapOrientation] Auto-rotate toggled:", newState);
+    
   }, [
     isAutoRotating,
     startOrientationTracking,

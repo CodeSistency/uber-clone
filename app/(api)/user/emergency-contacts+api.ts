@@ -19,7 +19,7 @@ export async function GET(request: Request) {
 
     return Response.json({ data: contacts });
   } catch (error) {
-    console.error("Error fetching emergency contacts:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       status: 201,
     });
   } catch (error) {
-    console.error("Error adding emergency contact:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

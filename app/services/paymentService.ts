@@ -100,7 +100,7 @@ export class PaymentService {
     request: MultiplePaymentRequest,
   ): Promise<MultiplePaymentResponse> {
     try {
-      console.log("[PaymentService] Initiating multiple payments:", request);
+      
 
       const payload = {
         serviceType: request.serviceType,
@@ -123,13 +123,10 @@ export class PaymentService {
         requiresAuth: true,
       });
 
-      console.log("[PaymentService] Multiple payments initiated:", response);
+      
       return response;
     } catch (error) {
-      console.error(
-        "[PaymentService] Error initiating multiple payments:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -142,7 +139,7 @@ export class PaymentService {
     request: PaymentConfirmationRequest,
   ): Promise<PaymentConfirmationResponse> {
     try {
-      console.log("[PaymentService] Confirming partial payment:", request);
+      
 
       const payload = {
         referenceNumber: request.referenceNumber,
@@ -157,13 +154,10 @@ export class PaymentService {
         requiresAuth: true,
       });
 
-      console.log("[PaymentService] Partial payment confirmed:", response);
+      
       return response;
     } catch (error) {
-      console.error(
-        "[PaymentService] Error confirming partial payment:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -174,7 +168,7 @@ export class PaymentService {
    */
   async getGroupStatus(groupId: string): Promise<GroupStatusResponse> {
     try {
-      console.log("[PaymentService] Getting group status:", groupId);
+      
 
       const response = await fetchAPI(
         `${PAYMENT_BASE_URL}/group-status/${groupId}`,
@@ -183,10 +177,10 @@ export class PaymentService {
         },
       );
 
-      console.log("[PaymentService] Group status retrieved:", response);
+      
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error getting group status:", error);
+      
       throw error;
     }
   }
@@ -201,7 +195,7 @@ export class PaymentService {
     idempotencyKey?: string,
   ): Promise<CancelGroupResponse> {
     try {
-      console.log("[PaymentService] Cancelling payment group:", groupId);
+      
 
       const payload = {
         reason: reason || "Cancelled by user",
@@ -217,10 +211,10 @@ export class PaymentService {
         },
       );
 
-      console.log("[PaymentService] Payment group cancelled:", response);
+      
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error cancelling payment group:", error);
+      
       throw error;
     }
   }
@@ -234,7 +228,7 @@ export class PaymentService {
       const status = await this.getGroupStatus(groupId);
       return status.status === "active";
     } catch (error) {
-      console.error("[PaymentService] Error validating group:", error);
+      
       return false;
     }
   }
@@ -253,10 +247,7 @@ export class PaymentService {
     paymentId: string;
   }> {
     try {
-      console.log(
-        "[PaymentService] Getting payment reference:",
-        referenceNumber,
-      );
+      
 
       const response = await fetchAPI(
         `${PAYMENT_BASE_URL}/reference/${referenceNumber}`,
@@ -265,10 +256,10 @@ export class PaymentService {
         },
       );
 
-      console.log("[PaymentService] Payment reference retrieved:", response);
+      
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error getting payment reference:", error);
+      
       throw error;
     }
   }
@@ -282,7 +273,7 @@ export class PaymentService {
     idempotencyKey?: string,
   ): Promise<PaymentConfirmationResponse> {
     try {
-      console.log("[PaymentService] Retrying payment:", paymentId);
+      
 
       const payload = {
         idempotencyKey: idempotencyKey || generatePaymentIdempotencyKey(),
@@ -297,10 +288,10 @@ export class PaymentService {
         },
       );
 
-      console.log("[PaymentService] Payment retry result:", response);
+      
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error retrying payment:", error);
+      
       throw error;
     }
   }
@@ -322,7 +313,7 @@ export class PaymentService {
     hasMore: boolean;
   }> {
     try {
-      console.log("[PaymentService] Getting user payment groups:", filters);
+      
 
       const queryParams = new URLSearchParams();
       if (filters.serviceType)
@@ -341,13 +332,10 @@ export class PaymentService {
         requiresAuth: true,
       });
 
-      console.log("[PaymentService] User payment groups retrieved:", response);
+      
       return response;
     } catch (error) {
-      console.error(
-        "[PaymentService] Error getting user payment groups:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -369,7 +357,7 @@ export class PaymentService {
     topFailureReasons?: string[];
   }> {
     try {
-      console.log("[PaymentService] Getting payment stats for period:", period);
+      
 
       const response = await fetchAPI(
         `${PAYMENT_BASE_URL}/stats?period=${period}`,
@@ -378,10 +366,10 @@ export class PaymentService {
         },
       );
 
-      console.log("[PaymentService] Payment stats retrieved:", response);
+      
       return response;
     } catch (error) {
-      console.error("[PaymentService] Error getting payment stats:", error);
+      
       throw error;
     }
   }

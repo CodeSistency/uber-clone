@@ -302,18 +302,13 @@ const ServiceCard: React.FC<ServiceCardProps> = ({
 };
 
 const ServiceSelection: React.FC = () => {
-  console.log("[ServiceSelection] Component rendered");
+  
   const { startService, role } = useMapFlow();
   const [activeService, setActiveService] = useState<string | null>(null);
 
   const handleServicePress = useCallback(
     (serviceId: string) => {
-      console.log(
-        "[ServiceSelection] Service selected:",
-        serviceId,
-        "role:",
-        role,
-      );
+      
       startService(serviceId as any, role);
     },
     [role, startService],

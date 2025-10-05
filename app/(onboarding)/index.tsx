@@ -13,22 +13,14 @@ const stepRoutes = [
 ];
 
 export default function OnboardingIndex() {
-  console.log("[OnboardingIndex] Rendering onboarding index");
+  
 
   const { currentStep, isCompleted, isLoading } = useOnboardingStore();
 
   useEffect(() => {
-    console.log(
-      "[OnboardingIndex] Current step:",
-      currentStep,
-      "Completed:",
-      isCompleted,
-    );
-    console.log("[OnboardingIndex] Step routes:", stepRoutes);
-    console.log(
-      "[OnboardingIndex] Target route:",
-      stepRoutes[currentStep] || stepRoutes[0],
-    );
+    
+    
+    
   }, [currentStep, isCompleted]);
 
   // Prevent navigation during loading or when state is not ready
@@ -37,7 +29,7 @@ export default function OnboardingIndex() {
     typeof currentStep !== "number" ||
     typeof isCompleted !== "boolean"
   ) {
-    console.log("[OnboardingIndex] State not ready, showing loading");
+    
     return (
       <View className="flex-1 bg-white items-center justify-center">
         <ActivityIndicator size="large" color="#0286FF" />
@@ -47,7 +39,7 @@ export default function OnboardingIndex() {
 
   // If onboarding is completed, redirect to home
   if (isCompleted) {
-    console.log("[OnboardingIndex] Onboarding completed, redirecting to home");
+    
     return <Redirect href="/(root)/(tabs)/home" />;
   }
 
@@ -58,12 +50,7 @@ export default function OnboardingIndex() {
       ? currentStep
       : 0;
   const targetRoute = stepRoutes[safeStep] || stepRoutes[0];
-  console.log(
-    "[OnboardingIndex] Redirecting to step:",
-    currentStep,
-    "route:",
-    targetRoute,
-  );
+  
 
   return <Redirect href={targetRoute as any} />;
 }

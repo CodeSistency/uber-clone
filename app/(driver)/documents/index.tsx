@@ -182,7 +182,7 @@ const DriverDocuments = () => {
                 `${docName} has been removed successfully`,
               );
             } catch (error) {
-              console.error("Document deletion failed:", error);
+              
             }
           },
         },

@@ -14,14 +14,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
   totalSteps,
   className = "",
 }) => {
-  console.log(
-    "[ProgressBar] Rendering with progress:",
-    progress,
-    "step:",
-    currentStep,
-    "of",
-    totalSteps,
-  );
+  
 
   const safeTotal =
     totalSteps > 0 && Number.isFinite(totalSteps) ? totalSteps : 1;

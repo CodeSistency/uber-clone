@@ -1,146 +1,217 @@
 import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
+import { 
+  WalletStore, 
+  Transaction, 
+  WalletLimits, 
+  WalletStats, 
+  TransactionFilters,
+  TransferData,
+  TransferResult
+} from "@/types/wallet";
+import { walletService } from "@/services/walletService";
 
-interface WalletBalance {
-  amount: number;
-  currency: string;
-  lastUpdated: Date;
-}
-
-interface WalletTransaction {
-  id: string;
-  type: "credit" | "debit";
-  amount: number;
-  description: string;
-  reference?: string;
-  createdAt: Date;
-}
-
-interface WalletState {
-  balance: WalletBalance | null;
-  transactions: WalletTransaction[];
-  isLoading: boolean;
-  error: string | null;
-
-  // Actions
-  setBalance: (balance: WalletBalance) => void;
-  updateBalance: (amount: number, currency?: string) => void;
-  addTransaction: (transaction: WalletTransaction) => void;
-  loadWalletData: () => Promise<void>;
-  setLoading: (loading: boolean) => void;
-  setError: (error: string | null) => void;
-  clearError: () => void;
-
-  // Computed
-  hasWallet: boolean;
-  hasSufficientBalance: (amount: number) => boolean;
-  formattedBalance: string;
-}
-
-export const useWalletStore = create<WalletState>()(
+export const useWalletStore = create<WalletStore>()(
   subscribeWithSelector((set, get) => ({
-    balance: null,
+    // Estado inicial
+    balance: 0,
+    currency: 'USD',
     transactions: [],
+    limits: null,
+    stats: null,
     isLoading: false,
     error: null,
 
-    setBalance: (balance) => set({ balance }),
-
-    updateBalance: (amount, currency = "VES") => {
-      const currentBalance = get().balance;
-      const newBalance = {
-        amount: (currentBalance?.amount || 0) + amount,
-        currency,
-        lastUpdated: new Date(),
-      };
-      set({ balance: newBalance });
+    // Acciones síncronas
+    setBalance: (balance: number, currency: string = 'USD') => {
+      console.log('[WalletStore] Setting balance:', balance, currency);
+      set({ balance, currency });
     },
 
-    addTransaction: (transaction) => {
-      set((state) => ({
-        transactions: [transaction, ...state.transactions].slice(0, 50), // Keep last 50
-      }));
+    setTransactions: (transactions: Transaction[]) => {
+      console.log('[WalletStore] Setting transactions:', transactions.length);
+      set({ transactions });
     },
 
-    loadWalletData: async () => {
+    setLimits: (limits: WalletLimits) => {
+      console.log('[WalletStore] Setting limits:', limits);
+      set({ limits });
+    },
+
+    setStats: (stats: WalletStats) => {
+      console.log('[WalletStore] Setting stats:', stats);
+      set({ stats });
+    },
+
+    setLoading: (isLoading: boolean) => {
+      console.log('[WalletStore] Setting loading:', isLoading);
+      set({ isLoading });
+    },
+
+    setError: (error: string | null) => {
+      console.log('[WalletStore] Setting error:', error);
+      set({ error });
+    },
+
+    // Acciones asíncronas
+    fetchWallet: async () => {
+      const state = get();
       try {
-        set({ isLoading: true, error: null });
+        console.log('[WalletStore] Fetching wallet data');
+        state.setLoading(true);
+        state.setError(null);
 
-        // TODO: Implement API call to load wallet data
-        // For now, simulate loading
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Mock data
-        const mockBalance: WalletBalance = {
-          amount: 150.00,
-          currency: "VES",
-          lastUpdated: new Date(),
-        };
-
-        set({
-          balance: mockBalance,
-          transactions: [
-            {
-              id: "1",
-              type: "credit",
-              amount: 50.00,
-              description: "Recarga de wallet",
-              createdAt: new Date(Date.now() - 86400000), // 1 day ago
-            },
-            {
-              id: "2",
-              type: "debit",
-              amount: -25.50,
-              description: "Pago de viaje",
-              reference: "RIDE-123",
-              createdAt: new Date(Date.now() - 3600000), // 1 hour ago
-            },
-          ],
-        });
+        const walletData = await walletService.getWallet();
+        
+        state.setBalance(walletData.wallet.balance, walletData.wallet.currency);
+        state.setTransactions(walletData.transactions);
+        
+        console.log('[WalletStore] Wallet data fetched successfully');
       } catch (error: any) {
-        console.error("[WalletStore] Error loading wallet data:", error);
-        set({ error: error.message || "Error al cargar datos del wallet" });
+        console.error('[WalletStore] Error fetching wallet:', error);
+        state.setError(error.message || 'Error al cargar datos del wallet');
       } finally {
-        set({ isLoading: false });
+        state.setLoading(false);
       }
     },
 
-    setLoading: (isLoading) => set({ isLoading }),
-    setError: (error) => set({ error }),
-    clearError: () => set({ error: null }),
+    fetchBalance: async () => {
+      const state = get();
+      try {
+        console.log('[WalletStore] Fetching balance');
+        state.setLoading(true);
+        state.setError(null);
 
-    // Computed properties
-    get hasWallet() {
-      return get().balance !== null;
+        const balanceData = await walletService.getBalance();
+        
+        state.setBalance(balanceData.balance, balanceData.currency);
+        
+        console.log('[WalletStore] Balance fetched successfully');
+      } catch (error: any) {
+        console.error('[WalletStore] Error fetching balance:', error);
+        state.setError(error.message || 'Error al cargar balance');
+      } finally {
+        state.setLoading(false);
+      }
     },
 
-    hasSufficientBalance: (amount: number) => {
-      const balance = get().balance;
-      return balance ? balance.amount >= amount : false;
+    fetchTransactions: async (filters: TransactionFilters = {}) => {
+      const state = get();
+      try {
+        console.log('[WalletStore] Fetching transactions with filters:', filters);
+        state.setLoading(true);
+        state.setError(null);
+
+        const transactionList = await walletService.getTransactions(filters);
+        
+        state.setTransactions(transactionList.transactions);
+        
+        console.log('[WalletStore] Transactions fetched successfully');
+      } catch (error: any) {
+        console.error('[WalletStore] Error fetching transactions:', error);
+        state.setError(error.message || 'Error al cargar transacciones');
+      } finally {
+        state.setLoading(false);
+      }
     },
 
-    get formattedBalance() {
-      const balance = get().balance;
-      if (!balance) return "₫0.00";
+    transferFunds: async (data: TransferData): Promise<TransferResult> => {
+      const state = get();
+      try {
+        console.log('[WalletStore] Transferring funds:', data);
+        state.setLoading(true);
+        state.setError(null);
 
-      return new Intl.NumberFormat('es-VE', {
-        style: 'currency',
-        currency: balance.currency === 'VES' ? 'VES' : 'USD',
-        minimumFractionDigits: 2,
-      }).format(balance.amount);
+        const result = await walletService.transferFunds(data);
+        
+        // Actualizar balance después de transferencia exitosa
+        if (result.success) {
+          state.setBalance(result.fromBalance);
+          // Recargar transacciones para mostrar la nueva
+          await state.fetchTransactions();
+        }
+        
+        console.log('[WalletStore] Transfer completed successfully');
+        return result;
+      } catch (error: any) {
+        console.error('[WalletStore] Error transferring funds:', error);
+        state.setError(error.message || 'Error al transferir fondos');
+        throw error;
+      } finally {
+        state.setLoading(false);
+      }
+    },
+
+    validateTransfer: async (email: string, amount: number): Promise<boolean> => {
+      const state = get();
+      try {
+        console.log('[WalletStore] Validating transfer:', { email, amount });
+        state.setError(null);
+
+        const result = await walletService.validateTransfer(email, amount);
+        
+        if (!result.valid) {
+          state.setError(result.message);
+        }
+        
+        console.log('[WalletStore] Transfer validation completed:', result.valid);
+        return result.valid;
+      } catch (error: any) {
+        console.error('[WalletStore] Error validating transfer:', error);
+        state.setError(error.message || 'Error al validar transferencia');
+        return false;
+      }
+    },
+
+    refreshWallet: async () => {
+      const state = get();
+      try {
+        console.log('[WalletStore] Refreshing wallet data');
+        state.setLoading(true);
+        state.setError(null);
+
+        // Cargar datos en paralelo
+        await Promise.all([
+          state.fetchBalance(),
+          state.fetchTransactions(),
+          walletService.getLimits().then(limits => state.setLimits(limits)),
+          walletService.getStats().then(stats => state.setStats(stats))
+        ]);
+        
+        console.log('[WalletStore] Wallet refreshed successfully');
+      } catch (error: any) {
+        console.error('[WalletStore] Error refreshing wallet:', error);
+        state.setError(error.message || 'Error al actualizar wallet');
+      } finally {
+        state.setLoading(false);
+      }
     },
   }))
 );
 
 // Selectors for optimized re-renders
 export const useWalletBalance = () => useWalletStore((state) => state.balance);
+export const useWalletCurrency = () => useWalletStore((state) => state.currency);
 export const useWalletTransactions = () => useWalletStore((state) => state.transactions);
-export const useHasWallet = () => useWalletStore((state) => state.hasWallet);
-export const useHasSufficientBalance = () => useWalletStore((state) => ({
-  hasSufficientBalance: state.hasSufficientBalance,
-  balance: state.balance,
-}));
-export const useWalletFormattedBalance = () => useWalletStore((state) => state.formattedBalance);
+export const useWalletLimits = () => useWalletStore((state) => state.limits);
+export const useWalletStats = () => useWalletStore((state) => state.stats);
 export const useWalletLoading = () => useWalletStore((state) => state.isLoading);
 export const useWalletError = () => useWalletStore((state) => state.error);
+
+// Computed selectors
+export const useFormattedBalance = () => useWalletStore((state) => {
+  const { balance, currency } = state;
+  if (balance === 0) return '$0.00';
+  
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+  }).format(balance);
+});
+
+export const useHasSufficientBalance = () => useWalletStore((state) => ({
+  hasSufficientBalance: (amount: number) => state.balance >= amount,
+  balance: state.balance,
+}));
 

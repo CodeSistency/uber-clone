@@ -1,6 +1,16 @@
 import { create } from "zustand";
-import { ConnectionStatus, Ride, RideStatus, LocationData } from "@/types/type";
+import { ConnectionStatus, LocationData } from "@/types/type";
 import { ExtendedConnectionStatus } from "@/lib/connectivity";
+import { 
+  type ExtendedRide, 
+  type RideStatus as ExtendedRideStatus, 
+  type RideWithPassenger,
+  type RideWithDriver,
+  type RideWithBoth,
+  isExtendedRide,
+  hasPassenger,
+  hasDriver
+} from "@/types/ride";
 
 // Ride Summary Interface
 interface RideSummary {
@@ -16,20 +26,20 @@ interface RideSummary {
 // Real-time Store Interface
 interface RealtimeStore {
   connectionStatus: ConnectionStatus;
-  activeRide: Ride | null;
+  activeRide: ExtendedRide | null; // ✅ Type-safe ride
   driverLocation: LocationData | null;
-  rideStatus: RideStatus;
+  rideStatus: ExtendedRideStatus; // ✅ Type-safe status
   isTracking: boolean;
   simulationEnabled: boolean;
   rideSummary: RideSummary | null;
 
   // Actions
   setConnectionStatus: (status: ConnectionStatus) => void;
-  updateRideStatus: (rideId: number, status: RideStatus) => void;
+  updateRideStatus: (rideId: number, status: ExtendedRideStatus) => void; // ✅ Type-safe
   updateDriverLocation: (location: LocationData) => void;
   startTracking: (rideId: number) => void;
   stopTracking: () => void;
-  setActiveRide: (ride: Ride | null) => void;
+  setActiveRide: (ride: ExtendedRide | null) => void; // ✅ Type-safe
   setSimulationEnabled: (enabled: boolean) => void;
   setRideSummary: (summary: RideSummary) => void;
 }
@@ -54,7 +64,7 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
     set(() => ({ connectionStatus: status }));
   },
 
-  updateRideStatus: (rideId: number, status: RideStatus) => {
+  updateRideStatus: (rideId: number, status: ExtendedRideStatus) => { // ✅ Type-safe
     set((state) => ({
       rideStatus: status,
       // Update active ride if it matches
@@ -80,7 +90,7 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
     }));
   },
 
-  setActiveRide: (ride: Ride | null) => {
+  setActiveRide: (ride: ExtendedRide | null) => { // ✅ Type-safe
     set(() => ({ activeRide: ride }));
   },
 

@@ -18,31 +18,23 @@ const MapFlowWrapper: React.FC<MapFlowWrapperProps> = ({
   role = "customer",
   renderStep,
 }) => {
-  console.log("[MapFlowWrapper] ===== RENDERING MapFlowWrapper =====");
-  console.log("[MapFlowWrapper] Props received:", {
-    role,
-    renderStep: typeof renderStep,
-  });
+  
+  
 
   const flow = useMapFlow();
   const map = useMapController();
 
-  console.log("[MapFlowWrapper] Flow state after hooks:", {
-    isActive: flow.isActive,
-    step: flow.step,
-    role: flow.role,
-    bottomSheetVisible: flow.bottomSheetVisible,
-  });
+  
 
   // Ensure flow started
   React.useEffect(() => {
-    console.log("[MapFlowWrapper] ===== useEffect triggered =====");
-    console.log("[MapFlowWrapper] isActive:", flow.isActive);
+    
+    
     if (!flow.isActive) {
-      console.log("[MapFlowWrapper] Starting flow with role:", role);
+      
       flow.start(role);
     } else {
-      console.log("[MapFlowWrapper] Flow already active");
+      
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role]);
@@ -58,16 +50,7 @@ const MapFlowWrapper: React.FC<MapFlowWrapperProps> = ({
   const snapPoints = flow.bottomSheetSnapPoints;
   const handleHeight = flow.bottomSheetHandleHeight;
 
-  console.log("[MapFlowWrapper] Props being passed to InlineBottomSheet:", {
-    visible: sheetVisible,
-    minHeight: minH,
-    maxHeight: maxH,
-    initialHeight: initH,
-    allowDrag: allowDrag,
-    snapPoints: snapPoints,
-    className: className,
-    step: flow.step,
-  });
+  
 
   // 🎨 Configuración del mapa con tema dark moderno
   const mapConfig: Partial<MapConfiguration> = useMemo(
@@ -96,24 +79,15 @@ const MapFlowWrapper: React.FC<MapFlowWrapperProps> = ({
   );
 
   const content = useMemo(() => {
-    console.log("[MapFlowWrapper] Rendering step content for step:", flow.step);
+    
     const renderedContent = renderStep(flow.step);
-    console.log(
-      "[MapFlowWrapper] Rendered content:",
-      renderedContent ? "CONTENT RENDERED" : "NO CONTENT",
-    );
+    
     return renderedContent;
   }, [renderStep, flow.step]);
 
-  console.log("[MapFlowWrapper] ===== FINAL RENDER =====");
-  console.log("[MapFlowWrapper] sheetVisible:", sheetVisible);
-  console.log("[MapFlowWrapper] BottomSheet props:", {
-    minH,
-    maxH,
-    initH,
-    allowDrag,
-    className,
-  });
+  
+  
+  
 
   return (
     <MapFlowProvider value={{ flow, map }}>

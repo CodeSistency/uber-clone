@@ -120,7 +120,7 @@ export const useAsyncDriverSearch = () => {
    * Handler para cuando se encuentra conductor
    */
   const handleDriverFound = useCallback((driver: any) => {
-    console.log('[useAsyncDriverSearch] Driver found:', driver);
+    
 
     // Invalidar caché cuando se encuentra conductor
     if (searchState.searchId) {
@@ -165,7 +165,7 @@ export const useAsyncDriverSearch = () => {
         }
 
       } catch (error) {
-        console.error('[useAsyncDriverSearch] Polling error:', error);
+        
       }
     };
 
@@ -178,7 +178,7 @@ export const useAsyncDriverSearch = () => {
       radiusKm: searchParams.radiusKm || 5,
     });
 
-    console.log('[useAsyncDriverSearch] Starting intelligent polling with interval:', currentInterval);
+    
 
     // Primer poll inmediato
     pollStatus();
@@ -220,7 +220,7 @@ export const useAsyncDriverSearch = () => {
    * Handler para timeout de búsqueda
    */
   const handleSearchTimeout = useCallback(() => {
-    console.log('[useAsyncDriverSearch] Search timeout');
+    
 
     // Invalidar caché cuando expira la búsqueda
     if (searchState.searchId) {
@@ -244,7 +244,7 @@ export const useAsyncDriverSearch = () => {
    * Handler para búsqueda cancelada
    */
   const handleSearchCancelled = useCallback(() => {
-    console.log('[useAsyncDriverSearch] Search cancelled');
+    
 
     clearSearchState();
     showSuccess(
@@ -284,7 +284,7 @@ export const useAsyncDriverSearch = () => {
         priority: params?.priority || 'normal',
       };
 
-      console.log('[useAsyncDriverSearch] Starting search with params:', searchParams);
+      
 
       // Verificar caché antes de iniciar búsqueda
       const cachedSearch = searchCache.getCachedSearch({
@@ -296,7 +296,7 @@ export const useAsyncDriverSearch = () => {
       });
 
       if (cachedSearch) {
-        console.log('[useAsyncDriverSearch] Using cached search:', cachedSearch.searchId);
+        
 
         // Actualizar estado con búsqueda cacheada
         updateSearchState({
@@ -319,7 +319,7 @@ export const useAsyncDriverSearch = () => {
 
       // Conectar WebSocket si no está conectado
       if (!isWebSocketConnected()) {
-        console.log('[useAsyncDriverSearch] Connecting to WebSocket...');
+        
         await connectWebSocket();
 
         // Configurar handlers de eventos
@@ -333,7 +333,7 @@ export const useAsyncDriverSearch = () => {
       // Iniciar búsqueda en el backend
       const response = await asyncDriverMatchingService.startAsyncSearch(searchParams);
 
-      console.log('[useAsyncDriverSearch] Search started:', response.searchId);
+      
 
       // Cachear la búsqueda para futuras optimizaciones
       searchCache.cacheSearch(response.searchId, {
@@ -361,7 +361,7 @@ export const useAsyncDriverSearch = () => {
       return true;
 
     } catch (error: any) {
-      console.error('[useAsyncDriverSearch] Error starting search:', error);
+      
 
       updateSearchState({
         status: 'idle',
@@ -389,11 +389,11 @@ export const useAsyncDriverSearch = () => {
   const cancelSearch = useCallback(async (): Promise<boolean> => {
     try {
       if (!searchState.searchId) {
-        console.log('[useAsyncDriverSearch] No active search to cancel');
+        
         return true;
       }
 
-      console.log('[useAsyncDriverSearch] Cancelling search:', searchState.searchId);
+      
 
       // Cancelar en backend
       await asyncDriverMatchingService.cancelSearch(searchState.searchId);
@@ -404,7 +404,7 @@ export const useAsyncDriverSearch = () => {
       return true;
 
     } catch (error: any) {
-      console.error('[useAsyncDriverSearch] Error cancelling search:', error);
+      
 
       // Aun así limpiar estado local
       clearSearchState();
@@ -423,7 +423,7 @@ export const useAsyncDriverSearch = () => {
         throw new Error("No hay búsqueda activa o conductor para confirmar");
       }
 
-      console.log('[useAsyncDriverSearch] Confirming driver:', driverId);
+      
 
       // Confirmar en backend
       await asyncDriverMatchingService.confirmDriver(searchState.searchId, {
@@ -445,7 +445,7 @@ export const useAsyncDriverSearch = () => {
       return true;
 
     } catch (error: any) {
-      console.error('[useAsyncDriverSearch] Error confirming driver:', error);
+      
 
       showError("Error al confirmar conductor", error.message);
       return false;
@@ -456,7 +456,7 @@ export const useAsyncDriverSearch = () => {
    * Reintentar búsqueda con mismos parámetros
    */
   const retrySearch = useCallback(async (): Promise<boolean> => {
-    console.log('[useAsyncDriverSearch] Retrying search...');
+    
 
     // Limpiar estado anterior
     clearSearchState();
@@ -486,7 +486,7 @@ export const useAsyncDriverSearch = () => {
       return status;
 
     } catch (error: any) {
-      console.error('[useAsyncDriverSearch] Error getting search status:', error);
+      
       return null;
     }
   }, [searchState.searchId, updateSearchState]);

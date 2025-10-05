@@ -68,9 +68,9 @@ export const LoggerDebugger: React.FC<LoggerDebuggerProps> = ({
         "Logs Exported",
         "Logs have been exported to console. Check your terminal for the full log data.",
       );
-      console.log("=== UBER APP LOGS EXPORT ===");
-      console.log(logData);
-      console.log("=== END LOGS EXPORT ===");
+      
+      
+      
     } catch (error) {
       Alert.alert("Export Failed", "Failed to export logs");
     }

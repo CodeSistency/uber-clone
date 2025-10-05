@@ -106,7 +106,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
   // Check driver role from server and local storage with offline support
   checkDriverRole: async () => {
     const state = get();
-    console.log("[DriverRoleStore] Checking driver role");
+    
 
     try {
       state.setLoading(true);
@@ -121,7 +121,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         cachedData = JSON.parse(cachedRole);
         const lastSync = cachedSync ? new Date(cachedSync) : null;
 
-        console.log("[DriverRoleStore] Found cached role:", cachedData);
+        
 
         // Set cached data immediately for better UX (offline-first approach)
         set({
@@ -145,7 +145,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
           serverStatusPromise,
           timeoutPromise,
         ])) as any;
-        console.log("[DriverRoleStore] Server status:", serverStatus);
+        
 
         // Update state with server data
         const newRoleData = {
@@ -177,27 +177,17 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
           );
           await AsyncStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 
-          console.log(
-            "[DriverRoleStore] Driver role updated from server:",
-            newRoleData,
-          );
+          
         } else {
-          console.log(
-            "[DriverRoleStore] Server data matches cache, no update needed",
-          );
+          
           set({ lastSync: new Date() });
         }
       } catch (serverError: any) {
-        console.warn(
-          "[DriverRoleStore] Server check failed, using cached data:",
-          serverError,
-        );
+        
 
         // Handle timeout specifically - assume not a driver
         if (serverError.message === "Driver role check timeout") {
-          console.log(
-            "[DriverRoleStore] Timeout occurred - assuming user is not a driver",
-          );
+          
           set({
             isDriver: false,
             driverRole: "customer",
@@ -208,9 +198,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
 
         // If we have cached data, keep using it (offline mode)
         if (cachedData) {
-          console.log(
-            "[DriverRoleStore] Operating in offline mode with cached data",
-          );
+          
           set({
             error: "Offline mode - using cached role data",
           });
@@ -222,12 +210,12 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         }
       }
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error in checkDriverRole:", error);
+      
 
       // Try emergency offline check
       const emergencyCached = await AsyncStorage.getItem(DRIVER_ROLE_KEY);
       if (emergencyCached) {
-        console.log("[DriverRoleStore] Emergency offline mode activated");
+        
         const emergencyData = JSON.parse(emergencyCached);
         set({
           isDriver: emergencyData.isDriver,
@@ -250,7 +238,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
   // Set driver role (used after onboarding completion)
   setDriverRole: async (role: "customer" | "driver" | "business") => {
     const state = get();
-    console.log("[DriverRoleStore] Setting driver role:", role);
+    
 
     try {
       const isDriver = role === "driver";
@@ -271,12 +259,12 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
       await AsyncStorage.setItem(DRIVER_ROLE_KEY, JSON.stringify(roleData));
       await AsyncStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
 
-      console.log("[DriverRoleStore] Driver role set locally:", roleData);
+      
 
       // Note: Server sync would happen during next checkDriverRole call
       // or could be triggered here if needed
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error setting driver role:", error);
+      
       set({
         error: error.message || "Failed to set driver role",
       });
@@ -286,7 +274,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
   // Sync local data with server (called when connection is restored)
   syncWithServer: async () => {
     const state = get();
-    console.log("[DriverRoleStore] Syncing with server");
+    
 
     try {
       state.setLoading(true);
@@ -300,33 +288,28 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         const localData = JSON.parse(localRole);
         const lastSync = localSync ? new Date(localSync) : null;
 
-        console.log(
-          "[DriverRoleStore] Local data to sync:",
-          localData,
-          "Last sync:",
-          lastSync,
-        );
+        
 
         // Check if sync is needed (more than 5 minutes old)
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
         const needsSync = !lastSync || lastSync < fiveMinutesAgo;
 
         if (needsSync) {
-          console.log("[DriverRoleStore] Data is stale, syncing with server");
+          
           await state.checkDriverRole();
         } else {
-          console.log("[DriverRoleStore] Data is fresh, no sync needed");
+          
           set({
             error: null, // Clear any offline errors
           });
         }
       } else {
         // No local data, fetch from server
-        console.log("[DriverRoleStore] No local data, fetching from server");
+        
         await state.checkDriverRole();
       }
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error syncing with server:", error);
+      
 
       // Don't override existing offline functionality
       const currentError = get().error;
@@ -354,7 +337,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
   // Force a fresh sync (ignore cache timestamps)
   forceSync: async () => {
     const state = get();
-    console.log("[DriverRoleStore] Forcing fresh sync");
+    
 
     try {
       state.setLoading(true);
@@ -366,9 +349,9 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
       // Perform fresh check
       await state.checkDriverRole();
 
-      console.log("[DriverRoleStore] Force sync completed");
+      
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error in force sync:", error);
+      
       set({
         error: error.message || "Failed to force sync",
       });
@@ -379,7 +362,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
 
   // Migrate user data to driver profile during onboarding
   migrateUserDataToDriver: async () => {
-    console.log("[DriverRoleStore] Migrating user data to driver profile");
+    
 
     try {
       // Import user store dynamically to avoid circular dependencies
@@ -391,7 +374,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
       }
 
       const userData = userStore.user;
-      console.log("[DriverRoleStore] User data to migrate:", userData);
+      
 
       // Map user fields to driver profile fields
       const driverProfileData = {
@@ -433,18 +416,12 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         updatedAt: new Date().toISOString(),
       };
 
-      console.log(
-        "[DriverRoleStore] Mapped driver profile data:",
-        driverProfileData,
-      );
+      
 
       // Validate migrated data
       const validation = validateMigratedData(driverProfileData);
       if (!validation.isValid) {
-        console.warn(
-          "[DriverRoleStore] Validation warnings:",
-          validation.warnings,
-        );
+        
         // Continue with migration but log warnings
       }
 
@@ -459,9 +436,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         }),
       );
 
-      console.log(
-        "[DriverRoleStore] User data migration completed successfully",
-      );
+      
 
       return {
         success: true,
@@ -470,7 +445,7 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         migrationKey,
       };
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error migrating user data:", error);
+      
       throw new Error(`Failed to migrate user data: ${error.message}`);
     }
   },
@@ -486,11 +461,11 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
       }
 
       const parsed = JSON.parse(migratedData);
-      console.log("[DriverRoleStore] Retrieved migrated data:", parsed);
+      
 
       return parsed;
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error retrieving migrated data:", error);
+      
       return null;
     }
   },
@@ -500,15 +475,15 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
     try {
       const migrationKey = "@driver_migration_data";
       await AsyncStorage.removeItem(migrationKey);
-      console.log("[DriverRoleStore] Migration data cleared");
+      
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error clearing migration data:", error);
+      
     }
   },
 
   // Clear all local data (logout/reset)
   clearLocalData: async () => {
-    console.log("[DriverRoleStore] Clearing local data");
+    
 
     try {
       await AsyncStorage.removeItem(DRIVER_ROLE_KEY);
@@ -522,9 +497,9 @@ export const useDriverRoleStore = create<DriverRoleState>((set, get) => ({
         error: null,
       });
 
-      console.log("[DriverRoleStore] Local data cleared");
+      
     } catch (error: any) {
-      console.error("[DriverRoleStore] Error clearing local data:", error);
+      
       set({
         error: error.message || "Failed to clear local data",
       });

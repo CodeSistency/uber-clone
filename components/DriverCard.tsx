@@ -11,23 +11,10 @@ const DriverCard = ({
   setSelected,
   onDetailPress,
 }: DriverCardProps) => {
-  console.log("[DriverCard] Rendering driver:", {
-    driverId: item.id,
-    driverTitle: item.title,
-    driverKeys: Object.keys(item),
-    firstName: item.first_name,
-    lastName: item.last_name,
-    name: `${item.first_name} ${item.last_name}`,
-    currentlySelected: selected,
-    isThisSelected: selected === item.id,
-  });
+  
 
   const handlePress = () => {
-    console.log("[DriverCard] Driver pressed:", {
-      driverId: item.id,
-      driverTitle: item.title,
-      callingSetSelected: typeof setSelected,
-    });
+    
     setSelected();
   };
 

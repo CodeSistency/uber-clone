@@ -1,0 +1,578 @@
+{
+  "proyecto": "profile_api_integration",
+  "descripcion": "Integración completa de endpoints de API para el sistema de perfil de usuario, incluyendo servicios, stores y vistas",
+  "fecha_creacion": "2024-01-15",
+  "version": "1.0.0",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Servicios de API y Configuración Base",
+      "descripcion": "Configuración de cliente HTTP, servicios base y manejo de autenticación",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Cliente HTTP y Configuración",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Configurar cliente HTTP base con manejo de autenticación y errores - COMPLETADO: Usando fetchAPI existente",
+          "dependencias": ["lib/fetch.ts", "lib/auth.ts", "store/user/user.ts"],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Configurar Cliente HTTP Base",
+              "descripcion": "Crear cliente HTTP reutilizable con interceptores de autenticación",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Crear ApiClient class",
+                  "descripcion": "Implementar clase base para llamadas HTTP con manejo de tokens"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Configurar interceptores de request",
+                  "descripcion": "Agregar automáticamente headers de autenticación a todas las requests"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Configurar interceptores de response",
+                  "descripcion": "Manejar respuestas de error y refresh de tokens automático"
+                },
+                {
+                  "id": "ST1.1.1.4",
+                  "nombre": "Implementar retry logic",
+                  "descripcion": "Reintentar requests fallidas con backoff exponencial"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Configurar Manejo de Errores",
+              "descripcion": "Implementar sistema centralizado de manejo de errores HTTP",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Crear ErrorHandler class",
+                  "descripcion": "Clase para transformar errores HTTP en errores de aplicación"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Implementar mapeo de códigos de error",
+                  "descripcion": "Mapear códigos HTTP a mensajes de error user-friendly"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Configurar logging de errores",
+                  "descripcion": "Loggear errores para debugging y monitoreo"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Servicios de Perfil Base",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Crear servicios para operaciones básicas de perfil",
+          "dependencias": ["M1.1", "store/profile/profileStore.ts"],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear ProfileService",
+              "descripcion": "Servicio principal para operaciones de perfil",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Implementar getProfile",
+                  "descripcion": "Obtener perfil completo del usuario autenticado"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar updateProfile",
+                  "descripcion": "Actualizar perfil usando PATCH /api/user/profile"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Implementar uploadProfileImage",
+                  "descripcion": "Subir imagen de perfil y obtener URL"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Crear tipos TypeScript",
+              "descripcion": "Definir interfaces y tipos para respuestas de API",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Crear ProfileApiTypes",
+                  "descripcion": "Interfaces para requests y responses de perfil"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Crear ApiResponse types",
+                  "descripcion": "Tipos genéricos para respuestas de API"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Servicios de Verificación de Seguridad",
+      "descripcion": "Implementar servicios para cambio de email, teléfono y verificación de identidad",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Servicios de Cambio de Email",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Servicios para cambio de email con verificación",
+          "dependencias": ["M1.1", "M1.2"],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Crear EmailChangeService",
+              "descripcion": "Servicio para cambio de email con verificación",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Implementar requestEmailChange",
+                  "descripcion": "POST /api/user/change-email/request"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Implementar verifyEmailChange",
+                  "descripcion": "POST /api/user/change-email/verify"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Implementar cancelEmailChange",
+                  "descripcion": "POST /api/user/change-email/cancel"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Servicios de Cambio de Teléfono",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Servicios para cambio de teléfono con verificación SMS",
+          "dependencias": ["M1.1", "M1.2"],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Crear PhoneChangeService",
+              "descripcion": "Servicio para cambio de teléfono con verificación SMS",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Implementar requestPhoneChange",
+                  "descripcion": "POST /api/user/change-phone/request"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Implementar verifyPhoneChange",
+                  "descripcion": "POST /api/user/change-phone/verify"
+                },
+                {
+                  "id": "ST2.2.1.3",
+                  "nombre": "Implementar cancelPhoneChange",
+                  "descripcion": "POST /api/user/change-phone/cancel"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.3",
+          "nombre": "Servicios de Cambio de Contraseña",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Servicios para cambio de contraseña con verificación",
+          "dependencias": ["M1.1", "M1.2"],
+          "tareas": [
+            {
+              "id": "T2.3.1",
+              "nombre": "Crear PasswordChangeService",
+              "descripcion": "Servicio para cambio de contraseña con verificación",
+              "subtareas": [
+                {
+                  "id": "ST2.3.1.1",
+                  "nombre": "Implementar requestPasswordChange",
+                  "descripcion": "POST /api/user/change-password/request"
+                },
+                {
+                  "id": "ST2.3.1.2",
+                  "nombre": "Implementar verifyPasswordChange",
+                  "descripcion": "POST /api/user/change-password/verify"
+                },
+                {
+                  "id": "ST2.3.1.3",
+                  "nombre": "Implementar cancelPasswordChange",
+                  "descripcion": "POST /api/user/change-password/cancel"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.4",
+          "nombre": "Servicios de Verificación de Identidad",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Servicios para verificación de identidad con DNI",
+          "dependencias": ["M1.1", "M1.2"],
+          "tareas": [
+            {
+              "id": "T2.4.1",
+              "nombre": "Crear IdentityVerificationService",
+              "descripcion": "Servicio para verificación de identidad con DNI",
+              "subtareas": [
+                {
+                  "id": "ST2.4.1.1",
+                  "nombre": "Implementar submitIdentityVerification",
+                  "descripcion": "POST /api/user/identity-verification/submit"
+                },
+                {
+                  "id": "ST2.4.1.2",
+                  "nombre": "Implementar getVerificationStatus",
+                  "descripcion": "GET /api/user/identity-verification/status"
+                },
+                {
+                  "id": "ST2.4.1.3",
+                  "nombre": "Implementar uploadDNIPhotos",
+                  "descripcion": "Subir fotos del DNI y obtener URLs"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Integración con Stores",
+      "descripcion": "Actualizar stores existentes para integrar servicios de API",
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Actualización de ProfileStore",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Integrar servicios de API en el store de perfil",
+          "dependencias": ["M1.2", "M2.1", "M2.2", "M2.4"],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Integrar ProfileService",
+              "descripcion": "Conectar ProfileService con ProfileStore",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Actualizar refreshProfile",
+                  "descripcion": "Usar ProfileService.getProfile en lugar de mock"
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Actualizar updateBasicInfo",
+                  "descripcion": "Usar ProfileService.updateProfile para actualizaciones"
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Actualizar updateLocation",
+                  "descripcion": "Integrar con API para actualizar ubicación"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Integrar Servicios de Verificación",
+              "descripcion": "Conectar servicios de verificación con el store",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Actualizar updateEmailVerification",
+                  "descripcion": "Integrar con EmailChangeService"
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "Actualizar updatePhoneVerification",
+                  "descripcion": "Integrar con PhoneChangeService"
+                },
+                {
+                  "id": "ST3.1.2.3",
+                  "nombre": "Actualizar updateAccountVerification",
+                  "descripcion": "Integrar con IdentityVerificationService"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Sincronización con UserStore",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Sincronizar datos entre ProfileStore y UserStore",
+          "dependencias": ["M3.1", "store/user/user.ts"],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Implementar sincronización bidireccional",
+              "descripcion": "Mantener sincronizados ProfileStore y UserStore",
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Crear syncWithUserStore",
+                  "descripcion": "Función para sincronizar datos del perfil con user store"
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Implementar listeners de cambios",
+                  "descripcion": "Escuchar cambios en ambos stores y sincronizar"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Integración con Vistas",
+      "descripcion": "Actualizar vistas existentes para usar servicios de API",
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Actualización de Vista Principal",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Actualizar vista principal de perfil para usar datos reales",
+          "dependencias": ["M3.1", "app/(customer)/profile/index.tsx"],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Integrar datos reales",
+              "descripcion": "Reemplazar datos mock con datos reales de API",
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Actualizar inicialización de datos",
+                  "descripcion": "Usar refreshProfile en lugar de datos mock"
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Implementar estados de carga",
+                  "descripcion": "Mostrar loading states durante carga de datos"
+                },
+                {
+                  "id": "ST4.1.1.3",
+                  "nombre": "Implementar manejo de errores",
+                  "descripcion": "Mostrar errores de API de forma user-friendly"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Actualización de Formularios",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Actualizar formularios para usar servicios de API",
+          "dependencias": ["M3.1", "app/(customer)/profile/edit-basic-info/"],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Actualizar EditBasicInfo",
+              "descripcion": "Integrar formulario de edición con API",
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Implementar validación de formulario",
+                  "descripcion": "Validar datos antes de enviar a API"
+                },
+                {
+                  "id": "ST4.2.1.2",
+                  "nombre": "Implementar envío a API",
+                  "descripcion": "Usar ProfileService para actualizar datos"
+                },
+                {
+                  "id": "ST4.2.1.3",
+                  "nombre": "Implementar feedback de éxito/error",
+                  "descripcion": "Mostrar mensajes de confirmación o error"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.3",
+          "nombre": "Actualización de Flujos de Verificación",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Integrar flujos de verificación con servicios de API",
+          "dependencias": ["M2.1", "M2.2", "M2.4", "app/(customer)/profile/change-email/"],
+          "tareas": [
+            {
+              "id": "T4.3.1",
+              "nombre": "Actualizar flujo de cambio de email",
+              "descripcion": "Integrar cambio de email con EmailChangeService",
+              "subtareas": [
+                {
+                  "id": "ST4.3.1.1",
+                  "nombre": "Implementar solicitud de cambio",
+                  "descripcion": "Usar EmailChangeService.requestEmailChange"
+                },
+                {
+                  "id": "ST4.3.1.2",
+                  "nombre": "Implementar verificación",
+                  "descripcion": "Usar EmailChangeService.verifyEmailChange"
+                },
+                {
+                  "id": "ST4.3.1.3",
+                  "nombre": "Implementar cancelación",
+                  "descripcion": "Usar EmailChangeService.cancelEmailChange"
+                }
+              ]
+            },
+            {
+              "id": "T4.3.2",
+              "nombre": "Actualizar flujo de cambio de teléfono",
+              "descripcion": "Integrar cambio de teléfono con PhoneChangeService",
+              "subtareas": [
+                {
+                  "id": "ST4.3.2.1",
+                  "nombre": "Implementar solicitud de cambio",
+                  "descripcion": "Usar PhoneChangeService.requestPhoneChange"
+                },
+                {
+                  "id": "ST4.3.2.2",
+                  "nombre": "Implementar verificación SMS",
+                  "descripcion": "Usar PhoneChangeService.verifyPhoneChange"
+                }
+              ]
+            },
+            {
+              "id": "T4.3.3",
+              "nombre": "Actualizar flujo de verificación de identidad",
+              "descripcion": "Integrar verificación de DNI con IdentityVerificationService",
+              "subtareas": [
+                {
+                  "id": "ST4.3.3.1",
+                  "nombre": "Implementar subida de documentos",
+                  "descripcion": "Usar IdentityVerificationService.submitIdentityVerification"
+                },
+                {
+                  "id": "ST4.3.3.2",
+                  "nombre": "Implementar consulta de estado",
+                  "descripcion": "Usar IdentityVerificationService.getVerificationStatus"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "nombre": "Testing y Optimización",
+      "descripcion": "Implementar testing, manejo de errores y optimizaciones",
+      "modulos": [
+        {
+          "id": "M5.1",
+          "nombre": "Testing de Integración",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Crear tests para servicios y integración",
+          "dependencias": ["M4.1", "M4.2", "M4.3"],
+          "tareas": [
+            {
+              "id": "T5.1.1",
+              "nombre": "Crear tests de servicios",
+              "descripcion": "Tests unitarios para todos los servicios de API",
+              "subtareas": [
+                {
+                  "id": "ST5.1.1.1",
+                  "nombre": "Crear tests para ProfileService",
+                  "descripcion": "Tests para operaciones de perfil"
+                },
+                {
+                  "id": "ST5.1.1.2",
+                  "nombre": "Crear tests para servicios de verificación",
+                  "descripcion": "Tests para cambio de email, teléfono e identidad"
+                }
+              ]
+            },
+            {
+              "id": "T5.1.2",
+              "nombre": "Crear tests de integración",
+              "descripcion": "Tests de integración entre stores y vistas",
+              "subtareas": [
+                {
+                  "id": "ST5.1.2.1",
+                  "nombre": "Crear tests de ProfileStore",
+                  "descripcion": "Tests para integración de store con servicios"
+                },
+                {
+                  "id": "ST5.1.2.2",
+                  "nombre": "Crear tests de componentes",
+                  "descripcion": "Tests para componentes de perfil"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M5.2",
+          "nombre": "Manejo de Errores y UX",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Mejorar manejo de errores y experiencia de usuario",
+          "dependencias": ["M4.1", "M4.2", "M4.3"],
+          "tareas": [
+            {
+              "id": "T5.2.1",
+              "nombre": "Implementar manejo de errores global",
+              "descripcion": "Sistema centralizado de manejo de errores",
+              "subtareas": [
+                {
+                  "id": "ST5.2.1.1",
+                  "nombre": "Crear ErrorBoundary para perfil",
+                  "descripcion": "Boundary para capturar errores en componentes de perfil"
+                },
+                {
+                  "id": "ST5.2.1.2",
+                  "nombre": "Implementar notificaciones de error",
+                  "descripcion": "Mostrar errores de API de forma consistente"
+                }
+              ]
+            },
+            {
+              "id": "T5.2.2",
+              "nombre": "Optimizar performance",
+              "descripcion": "Optimizar carga y rendimiento de vistas de perfil",
+              "subtareas": [
+                {
+                  "id": "ST5.2.2.1",
+                  "nombre": "Implementar lazy loading",
+                  "descripcion": "Cargar datos de perfil de forma lazy"
+                },
+                {
+                  "id": "ST5.2.2.2",
+                  "nombre": "Implementar caching",
+                  "descripcion": "Cachear datos de perfil para evitar requests innecesarias"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

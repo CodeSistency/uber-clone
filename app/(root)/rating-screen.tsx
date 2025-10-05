@@ -26,11 +26,7 @@ const RatingScreen = () => {
     const finalTip = showCustomInput
       ? parseFloat(customTip) || 0
       : selectedTip || 0;
-    console.log("[RatingScreen] Rating submitted:", {
-      rating,
-      comment,
-      tip: finalTip,
-    });
+    
 
     // Here you would typically send the rating to your backend
     // For now, we'll just navigate back to the rides list
@@ -38,7 +34,7 @@ const RatingScreen = () => {
   };
 
   const handleSkip = () => {
-    console.log("[RatingScreen] Rating skipped");
+    
     router.replace("/(root)/(tabs)/rides");
   };
 

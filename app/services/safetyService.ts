@@ -99,16 +99,13 @@ export class SafetyService {
   // Emergency Contacts
   async getEmergencyContacts(): Promise<EmergencyContact[]> {
     try {
-      console.log("[SafetyService] Fetching emergency contacts");
+      
       const response = await fetchAPI("driver/safety/emergency-contacts", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[SafetyService] Error fetching emergency contacts:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -117,7 +114,7 @@ export class SafetyService {
     contact: Omit<EmergencyContact, "id" | "isVerified">,
   ): Promise<EmergencyContact> {
     try {
-      console.log("[SafetyService] Adding emergency contact:", contact);
+      
       const response = await fetchAPI("driver/safety/emergency-contacts", {
         method: "POST",
         body: JSON.stringify(contact),
@@ -125,7 +122,7 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error adding emergency contact:", error);
+      
       throw error;
     }
   }
@@ -135,11 +132,7 @@ export class SafetyService {
     updates: Partial<EmergencyContact>,
   ): Promise<EmergencyContact> {
     try {
-      console.log(
-        "[SafetyService] Updating emergency contact:",
-        contactId,
-        updates,
-      );
+      
       const response = await fetchAPI(
         `driver/safety/emergency-contacts/${contactId}`,
         {
@@ -150,20 +143,20 @@ export class SafetyService {
       );
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error updating emergency contact:", error);
+      
       throw error;
     }
   }
 
   async deleteEmergencyContact(contactId: string): Promise<void> {
     try {
-      console.log("[SafetyService] Deleting emergency contact:", contactId);
+      
       await fetchAPI(`driver/safety/emergency-contacts/${contactId}`, {
         method: "DELETE",
         requiresAuth: true,
       });
     } catch (error) {
-      console.error("[SafetyService] Error deleting emergency contact:", error);
+      
       throw error;
     }
   }
@@ -173,7 +166,7 @@ export class SafetyService {
     verificationCode: string,
   ): Promise<EmergencyContact> {
     try {
-      console.log("[SafetyService] Verifying emergency contact:", contactId);
+      
       const response = await fetchAPI(
         `driver/safety/emergency-contacts/${contactId}/verify`,
         {
@@ -184,10 +177,7 @@ export class SafetyService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[SafetyService] Error verifying emergency contact:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -200,7 +190,7 @@ export class SafetyService {
     >,
   ): Promise<EmergencyAlert> {
     try {
-      console.log("[SafetyService] Triggering emergency alert:", alert);
+      
       const response = await fetchAPI("driver/safety/emergency-alerts", {
         method: "POST",
         body: JSON.stringify(alert),
@@ -208,27 +198,27 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error triggering emergency alert:", error);
+      
       throw error;
     }
   }
 
   async getEmergencyAlerts(): Promise<EmergencyAlert[]> {
     try {
-      console.log("[SafetyService] Fetching emergency alerts");
+      
       const response = await fetchAPI("driver/safety/emergency-alerts", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error fetching emergency alerts:", error);
+      
       throw error;
     }
   }
 
   async resolveEmergencyAlert(alertId: string): Promise<EmergencyAlert> {
     try {
-      console.log("[SafetyService] Resolving emergency alert:", alertId);
+      
       const response = await fetchAPI(
         `driver/safety/emergency-alerts/${alertId}/resolve`,
         {
@@ -238,14 +228,14 @@ export class SafetyService {
       );
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error resolving emergency alert:", error);
+      
       throw error;
     }
   }
 
   async cancelEmergencyAlert(alertId: string): Promise<EmergencyAlert> {
     try {
-      console.log("[SafetyService] Cancelling emergency alert:", alertId);
+      
       const response = await fetchAPI(
         `driver/safety/emergency-alerts/${alertId}/cancel`,
         {
@@ -255,7 +245,7 @@ export class SafetyService {
       );
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error cancelling emergency alert:", error);
+      
       throw error;
     }
   }
@@ -266,7 +256,7 @@ export class SafetyService {
     contacts: string[],
   ): Promise<ShareTripData> {
     try {
-      console.log("[SafetyService] Starting trip sharing:", rideId, contacts);
+      
       const response = await fetchAPI("driver/safety/share-trip", {
         method: "POST",
         body: JSON.stringify({ rideId, contacts }),
@@ -274,7 +264,7 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error starting trip sharing:", error);
+      
       throw error;
     }
   }
@@ -284,50 +274,40 @@ export class SafetyService {
     location: { latitude: number; longitude: number },
   ): Promise<void> {
     try {
-      console.log(
-        "[SafetyService] Updating share trip location:",
-        shareId,
-        location,
-      );
+      
       await fetchAPI(`driver/safety/share-trip/${shareId}/location`, {
         method: "PUT",
         body: JSON.stringify(location),
         requiresAuth: true,
       });
     } catch (error) {
-      console.error(
-        "[SafetyService] Error updating share trip location:",
-        error,
-      );
+      
       throw error;
     }
   }
 
   async stopShareTrip(shareId: string): Promise<void> {
     try {
-      console.log("[SafetyService] Stopping trip sharing:", shareId);
+      
       await fetchAPI(`driver/safety/share-trip/${shareId}/stop`, {
         method: "POST",
         requiresAuth: true,
       });
     } catch (error) {
-      console.error("[SafetyService] Error stopping trip sharing:", error);
+      
       throw error;
     }
   }
 
   async getShareTripHistory(): Promise<ShareTripData[]> {
     try {
-      console.log("[SafetyService] Fetching share trip history");
+      
       const response = await fetchAPI("driver/safety/share-trip/history", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[SafetyService] Error fetching share trip history:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -340,7 +320,7 @@ export class SafetyService {
     >,
   ): Promise<IncidentReport> {
     try {
-      console.log("[SafetyService] Reporting incident:", incident);
+      
       const response = await fetchAPI("driver/safety/incidents", {
         method: "POST",
         body: JSON.stringify(incident),
@@ -348,33 +328,33 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error reporting incident:", error);
+      
       throw error;
     }
   }
 
   async getIncidentReports(): Promise<IncidentReport[]> {
     try {
-      console.log("[SafetyService] Fetching incident reports");
+      
       const response = await fetchAPI("driver/safety/incidents", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error fetching incident reports:", error);
+      
       throw error;
     }
   }
 
   async getIncidentDetails(incidentId: string): Promise<IncidentReport> {
     try {
-      console.log("[SafetyService] Fetching incident details:", incidentId);
+      
       const response = await fetchAPI(`driver/safety/incidents/${incidentId}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error fetching incident details:", error);
+      
       throw error;
     }
   }
@@ -384,11 +364,7 @@ export class SafetyService {
     updates: Partial<IncidentReport>,
   ): Promise<IncidentReport> {
     try {
-      console.log(
-        "[SafetyService] Updating incident report:",
-        incidentId,
-        updates,
-      );
+      
       const response = await fetchAPI(`driver/safety/incidents/${incidentId}`, {
         method: "PUT",
         body: JSON.stringify(updates),
@@ -396,7 +372,7 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error updating incident report:", error);
+      
       throw error;
     }
   }
@@ -404,13 +380,13 @@ export class SafetyService {
   // Safety Settings
   async getSafetySettings(): Promise<SafetySettings> {
     try {
-      console.log("[SafetyService] Fetching safety settings");
+      
       const response = await fetchAPI("driver/safety/settings", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error fetching safety settings:", error);
+      
       throw error;
     }
   }
@@ -419,7 +395,7 @@ export class SafetyService {
     settings: Partial<SafetySettings>,
   ): Promise<SafetySettings> {
     try {
-      console.log("[SafetyService] Updating safety settings:", settings);
+      
       const response = await fetchAPI("driver/safety/settings", {
         method: "PUT",
         body: JSON.stringify(settings),
@@ -427,7 +403,7 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error updating safety settings:", error);
+      
       throw error;
     }
   }
@@ -435,13 +411,13 @@ export class SafetyService {
   // Safety Metrics
   async getSafetyMetrics(): Promise<SafetyMetrics> {
     try {
-      console.log("[SafetyService] Fetching safety metrics");
+      
       const response = await fetchAPI("driver/safety/metrics", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error fetching safety metrics:", error);
+      
       throw error;
     }
   }
@@ -456,11 +432,7 @@ export class SafetyService {
     estimatedResponseTime: number;
   }> {
     try {
-      console.log(
-        "[SafetyService] Calling emergency services:",
-        emergencyType,
-        location,
-      );
+      
       const response = await fetchAPI("driver/safety/emergency-services", {
         method: "POST",
         body: JSON.stringify({ emergencyType, location }),
@@ -468,7 +440,7 @@ export class SafetyService {
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error calling emergency services:", error);
+      
       throw error;
     }
   }
@@ -481,14 +453,14 @@ export class SafetyService {
     lastCheck: Date;
   }> {
     try {
-      console.log("[SafetyService] Performing safety check");
+      
       const response = await fetchAPI("driver/safety/check", {
         method: "POST",
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[SafetyService] Error performing safety check:", error);
+      
       throw error;
     }
   }

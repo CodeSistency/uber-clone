@@ -94,7 +94,7 @@ export const NotificationModal: React.FC<NotificationModalProps> = ({
         // await Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium); // Temporarily commented
       }
     } catch (error) {
-      console.warn("[NotificationModal] Haptic feedback failed:", error);
+      
     }
   };
 

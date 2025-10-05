@@ -48,13 +48,13 @@ export class PendingRequestsCache {
     const entry = this.cache.get(key);
 
     if (!entry) {
-      console.log("[PendingRequestsCache] Cache miss - no entry for key:", key);
+      
       return null;
     }
 
     const now = Date.now();
     if (now > entry.expiresAt) {
-      console.log("[PendingRequestsCache] Cache expired for key:", key);
+      
       this.cache.delete(key);
       return null;
     }
@@ -67,23 +67,12 @@ export class PendingRequestsCache {
       entry.location.lng,
     );
     if (distance > this.DISTANCE_THRESHOLD_METERS) {
-      console.log(
-        "[PendingRequestsCache] Location changed significantly, invalidating cache:",
-        {
-          key,
-          distance: Math.round(distance),
-          threshold: this.DISTANCE_THRESHOLD_METERS,
-        },
-      );
+      
       this.cache.delete(key);
       return null;
     }
 
-    console.log("[PendingRequestsCache] Cache hit for key:", key, {
-      age: now - entry.timestamp,
-      ttl: this.TTL_MS,
-      distance: Math.round(distance),
-    });
+    
 
     return entry.data;
   }
@@ -104,10 +93,7 @@ export class PendingRequestsCache {
 
     this.cache.set(key, entry);
 
-    console.log("[PendingRequestsCache] Cache set for key:", key, {
-      items: data.length,
-      expiresIn: this.TTL_MS,
-    });
+    
   }
 
   /**
@@ -117,17 +103,11 @@ export class PendingRequestsCache {
     if (lat !== undefined && lng !== undefined) {
       const key = this.generateCacheKey(lat, lng);
       const deleted = this.cache.delete(key);
-      console.log("[PendingRequestsCache] Invalidated specific cache entry:", {
-        key,
-        deleted,
-      });
+      
     } else {
       const size = this.cache.size;
       this.cache.clear();
-      console.log(
-        "[PendingRequestsCache] Invalidated all cache entries:",
-        size,
-      );
+      
     }
   }
 
@@ -146,10 +126,7 @@ export class PendingRequestsCache {
     }
 
     if (cleaned > 0) {
-      console.log(
-        "[PendingRequestsCache] Cleaned up expired entries:",
-        cleaned,
-      );
+      
     }
   }
 

@@ -153,7 +153,7 @@ const ChatModal: React.FC<ChatModalProps> = ({
         setMessageText("");
       } catch (error) {
         // Error handling is done in the parent component
-        console.error("Failed to send message:", error);
+        
       } finally {
         setIsSending(false);
       }

@@ -83,12 +83,12 @@ export const measurePerformance = <T>(
   if (result instanceof Promise) {
     return result.finally(() => {
       const end = performance.now();
-      console.log(`[Performance] ${label}: ${(end - start).toFixed(2)}ms`);
+      
     });
   }
 
   const end = performance.now();
-  console.log(`[Performance] ${label}: ${(end - start).toFixed(2)}ms`);
+  
   return result;
 };
 

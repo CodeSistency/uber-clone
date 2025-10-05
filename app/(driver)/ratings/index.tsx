@@ -140,7 +140,7 @@ const RatingsScreen = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       // In real implementation, fetch from API
     } catch (error) {
-      console.error("Error refreshing ratings:", error);
+      
     } finally {
       setRefreshing(false);
     }

@@ -144,21 +144,7 @@ export const CustomConfigExample: React.FC = () => {
           id: "custom-action",
           title: "Custom Action",
           icon: "⭐",
-          onPress: () => console.log("Custom action pressed!"),
-        },
-        {
-          id: "back-to-normal",
-          title: "Back to Normal",
-          icon: "↩️",
-          switchToModule: "customer",
-        },
-      ],
-      footer: {
-        copyright: "© 2024 Custom App",
-        version: "Custom v1.0",
-      },
-    },
-  });
+          onPress: () => 
 
   return (
     <View className="flex-1">

@@ -35,10 +35,7 @@ export const driverStateService = {
   becomeDriver: async (
     status: string = "online",
   ): Promise<BecomeDriverResponse> => {
-    console.log(
-      "[DriverStateService] Converting user to driver with status:",
-      status,
-    );
+    
 
     return fetchAPI("rides/flow/driver/transport/become-driver", {
       method: "POST",
@@ -58,7 +55,7 @@ export const driverStateService = {
   updateStatus: async (
     status: "online" | "offline" | "busy",
   ): Promise<UpdateStatusResponse> => {
-    console.log("[DriverStateService] Updating driver status to:", status);
+    
 
     return fetchAPI("rides/flow/driver/availability", {
       method: "POST",
@@ -75,7 +72,7 @@ export const driverStateService = {
    * Cambiar a estado online (disponible para viajes)
    */
   goOnline: async (): Promise<UpdateStatusResponse> => {
-    console.log("[DriverStateService] Going online");
+    
     return driverStateService.updateStatus("online");
   },
 
@@ -83,7 +80,7 @@ export const driverStateService = {
    * Cambiar a estado offline (no disponible para viajes)
    */
   goOffline: async (): Promise<UpdateStatusResponse> => {
-    console.log("[DriverStateService] Going offline");
+    
     return driverStateService.updateStatus("offline");
   },
 
@@ -91,7 +88,7 @@ export const driverStateService = {
    * Cambiar a estado busy (ocupado temporalmente)
    */
   goBusy: async (): Promise<UpdateStatusResponse> => {
-    console.log("[DriverStateService] Going busy");
+    
     return driverStateService.updateStatus("busy");
   },
 
@@ -99,7 +96,7 @@ export const driverStateService = {
    * Inicializar estado del conductor (primera vez)
    */
   initializeAsDriver: async (): Promise<BecomeDriverResponse> => {
-    console.log("[DriverStateService] Initializing user as driver");
+    
     return driverStateService.becomeDriver("offline"); // Comenzar offline para configuración
   },
 };

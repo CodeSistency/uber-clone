@@ -40,7 +40,7 @@ const DriverTransportInProgress: React.FC = () => {
       if (!rideId || started) return;
 
       try {
-        console.log("[DriverTransportInProgress] Auto-starting ride:", rideId);
+        
 
         // Start ride in backend
         await driverTransportService.start(rideId, generateIdempotencyKey());
@@ -63,10 +63,7 @@ const DriverTransportInProgress: React.FC = () => {
         setStarted(true);
         showSuccess("Viaje iniciado", "GPS activado y navegación comenzada");
       } catch (error) {
-        console.error(
-          "[DriverTransportInProgress] Error auto-starting ride:",
-          error,
-        );
+        
         showError("Error", "No se pudo iniciar el viaje automáticamente");
       }
     };
@@ -134,10 +131,7 @@ const DriverTransportInProgress: React.FC = () => {
         "El equipo de soporte ha sido notificado",
       );
     } catch (error) {
-      console.error(
-        "[DriverTransportInProgress] Error reporting issue:",
-        error,
-      );
+      
       showError("Error", "No se pudo reportar el problema");
     }
   };
@@ -180,10 +174,7 @@ const DriverTransportInProgress: React.FC = () => {
       await driverTransportService.sendMessage(rideId, message);
       // Message will be received via WebSocket and added to chat
     } catch (error) {
-      console.error(
-        "[DriverTransportInProgress] Error sending message:",
-        error,
-      );
+      
       showError("Error", "No se pudo enviar el mensaje");
     }
   };

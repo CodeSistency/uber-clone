@@ -89,7 +89,7 @@ const initialState = {
 // Initialize store with data from storage
 const initializeStore = async () => {
   try {
-    console.log("[OnboardingStore] Initializing from storage");
+    
     const isCompleted = await onboardingStorage.isCompleted();
     const userData = await onboardingStorage.getData();
     const currentStep = await onboardingStorage.getStep();
@@ -102,7 +102,7 @@ const initializeStore = async () => {
       progress: isCompleted ? 100 : initialState.progress,
     };
   } catch (error) {
-    console.error("[OnboardingStore] Error initializing from storage:", error);
+    
     return initialState;
   }
 };
@@ -118,7 +118,7 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
     ...initialState,
 
     setCurrentStep: (step: number) => {
-      console.log("[OnboardingStore] Setting current step:", step);
+      
       set((state) => ({
         currentStep: Math.max(0, Math.min(step, STEPS.length - 1)),
         progress: ((step + 1) / STEPS.length) * 100,
@@ -126,18 +126,8 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
     },
 
     completeStep: (stepId: string, data?: Partial<OnboardingData>) => {
-      console.log(
-        "[OnboardingStore] Completing step:",
-        stepId,
-        "with data:",
-        data,
-      );
-      console.log(
-        "[OnboardingStore] Before completion - currentStep:",
-        get().currentStep,
-        "completedSteps:",
-        get().completedSteps,
-      );
+      
+      
 
       set((state) => {
         const newCompletedSteps = [...state.completedSteps];
@@ -157,22 +147,10 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
           state.currentStep < STEPS.length - 1
         ) {
           nextStepIndex = state.currentStep + 1;
-          console.log(
-            "[OnboardingStore] Auto-advancing from step",
-            state.currentStep,
-            "to step",
-            nextStepIndex,
-          );
+          
         }
 
-        console.log(
-          "[OnboardingStore] After completion - currentStep:",
-          nextStepIndex,
-          "completedSteps:",
-          newCompletedSteps,
-          "progress:",
-          progress,
-        );
+        
 
         return {
           completedSteps: newCompletedSteps,
@@ -185,29 +163,29 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
     },
 
     updateUserData: (data: Partial<OnboardingData>) => {
-      console.log("[OnboardingStore] Updating user data:", data);
+      
       set((state) => ({
         userData: { ...state.userData, ...data },
       }));
     },
 
     setUserData: (data: OnboardingData) => {
-      console.log("[OnboardingStore] Setting user data:", data);
+      
       set(() => ({ userData: data }));
     },
 
     setCompleted: (completed: boolean) => {
-      console.log("[OnboardingStore] Setting completed:", completed);
+      
       set(() => ({ isCompleted: completed }));
     },
 
     setLoading: (loading: boolean) => {
-      console.log("[OnboardingStore] Setting loading:", loading);
+      
       set(() => ({ isLoading: loading }));
     },
 
     setError: (error: string | null) => {
-      console.log("[OnboardingStore] Setting error:", error);
+      
       set(() => ({ error }));
     },
 
@@ -229,7 +207,7 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
     },
 
     completeOnboarding: () => {
-      console.log("[OnboardingStore] Completing onboarding");
+      
       set((state) => ({
         isCompleted: true,
         progress: 100,
@@ -238,10 +216,7 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
 
       // Save completion status to storage
       onboardingStorage.setCompleted(true).catch((error) => {
-        console.error(
-          "[OnboardingStore] Error saving completion to storage:",
-          error,
-        );
+        
       });
     },
 
@@ -273,7 +248,7 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
 
     loadFromStorage: async () => {
       try {
-        console.log("[OnboardingStore] Loading from storage");
+        
 
         // Load completion status
         const isCompleted = await onboardingStorage.isCompleted();
@@ -291,19 +266,16 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
           progress: isCompleted ? 100 : state.progress,
         }));
 
-        console.log("[OnboardingStore] Loaded from storage:", {
-          isCompleted,
-          currentStep,
-        });
+        
       } catch (error) {
-        console.error("[OnboardingStore] Error loading from storage:", error);
+        
       }
     },
 
     saveToStorage: async () => {
       try {
         const state = get();
-        console.log("[OnboardingStore] Saving to storage");
+        
 
         // Save completion status
         await onboardingStorage.setCompleted(state.isCompleted);
@@ -314,19 +286,19 @@ export const useOnboardingStore = create<OnboardingState>((set, get) => {
         // Save current step
         await onboardingStorage.saveStep(state.currentStep);
 
-        console.log("[OnboardingStore] Saved to storage");
+        
       } catch (error) {
-        console.error("[OnboardingStore] Error saving to storage:", error);
+        
       }
     },
 
     resetOnboarding: () => {
-      console.log("[OnboardingStore] Resetting onboarding state");
+      
       set(initialState);
 
       // Clear storage as well
       onboardingStorage.clear().catch((error) => {
-        console.error("[OnboardingStore] Error clearing storage:", error);
+        
       });
     },
   };

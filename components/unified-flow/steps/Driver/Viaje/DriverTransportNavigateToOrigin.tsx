@@ -29,17 +29,14 @@ const DriverTransportNavigateToOrigin: React.FC = () => {
   // Auto-start navigation when component mounts
   useEffect(() => {
     if (!navigationStarted && destination.latitude && destination.longitude) {
-      console.log(
-        "[DriverTransportNavigateToOrigin] Auto-starting navigation to:",
-        destination,
-      );
+      
       startNavigation({ destination, rideId: active?.ride_id });
       setNavigationStarted(true);
     }
   }, [navigationStarted, destination, active?.ride_id]);
 
   const handleArrived = () => {
-    console.log("[DriverTransportNavigateToOrigin] Driver arrived at origin");
+    
     goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_ORIGEN);
   };
 

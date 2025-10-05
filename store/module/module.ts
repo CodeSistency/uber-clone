@@ -37,17 +37,17 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
 
   // Acción principal para cambiar módulo (legacy - use switchToModuleWithSplash)
   setModule: async (module: ModuleType) => {
-    console.log("[ModuleStore] setModule called with:", module);
+    
     return get().switchToModuleWithSplash(module);
   },
 
   // Nueva acción para cambiar módulo con splash
   switchToModuleWithSplash: async (module: ModuleType) => {
-    console.log("[ModuleStore] switchToModuleWithSplash called with:", module);
+    
 
     const current = get().currentModule;
     if (current === module) {
-      console.log("[ModuleStore] Module already set to:", module);
+      
       return;
     }
 
@@ -87,9 +87,7 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
 
       // Timeout de seguridad para ocultar splash después de 5 segundos
       safetyTimeout = setTimeout(() => {
-        console.log(
-          "[ModuleStore] Safety timeout: hiding splash after 5 seconds",
-        );
+        
         splashStore.hideSplash(splashId);
         set({
           isTransitioning: false,
@@ -102,14 +100,10 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
       // Cargar datos del módulo en paralelo con splash
       const dataLoader = getDataLoaderForModule(module);
       if (dataLoader) {
-        console.log(
-          `[ModuleStore] Starting data loading for module: ${module}`,
-        );
+        
         const result = await dataLoader((completed, total, currentTask) => {
           const progress = Math.round((completed / total) * 100);
-          console.log(
-            `[ModuleStore] Data loading progress: ${progress}% - ${currentTask}`,
-          );
+          
           set({ splashProgress: progress });
           splashStore.updateProgress(progress, splashId);
 
@@ -127,15 +121,10 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
             },
           });
         });
-        console.log(
-          `[ModuleStore] Data loading completed for module: ${module}, success: ${result.success}`,
-        );
+        
 
         if (!result.success) {
-          console.warn(
-            "[ModuleStore] Some data failed to load, but continuing:",
-            result.errors,
-          );
+          
         }
 
         // Limpiar timeout de seguridad si la carga se completó antes
@@ -143,7 +132,7 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
 
         // Persistir en AsyncStorage
         await AsyncStorage.setItem("user_module", module);
-        console.log("[ModuleStore] Module persisted to AsyncStorage:", module);
+        
 
         // Completar splash y transición
         splashStore.hideSplash(splashId);
@@ -155,7 +144,7 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
           currentTransition: null,
         });
 
-        console.log("[ModuleStore] Module transition with splash completed");
+        
       } else {
         // Si no hay dataLoader, completar inmediatamente
         if (safetyTimeout) clearTimeout(safetyTimeout);
@@ -168,7 +157,7 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
         });
       }
     } catch (error) {
-      console.error("[ModuleStore] Error in switchToModuleWithSplash:", error);
+      
 
       // Limpiar timeout de seguridad
       if (safetyTimeout) clearTimeout(safetyTimeout);
@@ -190,33 +179,25 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
 
   // Métodos específicos para cada módulo (con splash)
   switchToCustomer: () => {
-    console.log("[ModuleStore] Switching to customer module with splash");
+    
     get().switchToModuleWithSplash("customer");
   },
 
   switchToBusiness: async () => {
-    console.log(
-      "[ModuleStore] Switching to business module - checking permissions",
-    );
+    
 
     // Check business permissions (random for demo purposes)
     const hasBusinessPermissions = Math.random() > 0.5; // 50% chance
 
-    console.log(
-      `[ModuleStore] Business permissions check: ${hasBusinessPermissions ? "GRANTED" : "DENIED"}`,
-    );
+    
 
     if (hasBusinessPermissions) {
       // User has business permissions, proceed with splash transition
-      console.log(
-        "[ModuleStore] Business permissions granted, proceeding with splash",
-      );
+      
       await get().switchToModuleWithSplash("business");
     } else {
       // User doesn't have business permissions, redirect to registration after splash
-      console.log(
-        "[ModuleStore] Business permissions denied, redirecting to registration",
-      );
+      
 
       // Show splash for business registration
       const splashStore = useSplashStore.getState();
@@ -242,25 +223,20 @@ export const useModuleStore = create<ExtendedModuleState>((set, get) => ({
           const { router } = await import("expo-router");
           router.replace("/(auth)/business-register" as any);
         } catch (error) {
-          console.error(
-            "[ModuleStore] Error redirecting to business registration:",
-            error,
-          );
+          
         }
       }, 2000); // Show splash for 2 seconds before redirecting
     }
   },
 
   switchToDriver: () => {
-    console.log("[ModuleStore] Switching to driver module with splash");
+    
     get().switchToModuleWithSplash("driver");
   },
 
   // Reset al módulo por defecto
   resetToDefault: () => {
-    console.log(
-      "[ModuleStore] Resetting to default module (customer) with splash",
-    );
+    
     get().switchToModuleWithSplash("customer");
   },
 
@@ -315,14 +291,14 @@ export const useModuleTransition = () => {
 
   const switchModule = useCallback(
     async (module: ModuleType) => {
-      console.log("[useModuleTransition] Switching to module:", module);
+      
       await moduleStore.switchToModuleWithSplash(module);
     },
     [moduleStore],
   );
 
   const switchToDriver = useCallback(async () => {
-    console.log("[useModuleTransition] Switching to driver module");
+    
     await switchModule("driver");
   }, [switchModule]);
   const switchToBusiness = useCallback(
@@ -355,30 +331,30 @@ export const useModuleTransition = () => {
 // Función para inicializar el store desde AsyncStorage
 export const initializeModuleStore = async () => {
   try {
-    console.log("[ModuleStore] Initializing from AsyncStorage");
+    
     const savedModule = await AsyncStorage.getItem("user_module");
 
     if (
       savedModule &&
       ["customer", "business", "driver"].includes(savedModule)
     ) {
-      console.log("[ModuleStore] Loaded saved module:", savedModule);
+      
       useModuleStore.getState().setModule(savedModule as ModuleType);
     } else {
-      console.log("[ModuleStore] No saved module found, using default");
+      
     }
   } catch (error) {
-    console.error("[ModuleStore] Error initializing from AsyncStorage:", error);
+    
   }
 };
 
 // Función para limpiar el módulo guardado (útil para logout)
 export const clearModuleStore = async () => {
   try {
-    console.log("[ModuleStore] Clearing saved module");
+    
     await AsyncStorage.removeItem("user_module");
     useModuleStore.getState().resetToDefault();
   } catch (error) {
-    console.error("[ModuleStore] Error clearing module:", error);
+    
   }
 };

@@ -17,7 +17,7 @@ const testFiles = [
   "__tests__/splash/performance.test.ts",
 ];
 
-console.log("🚀 Running Splash System Tests\n");
+
 
 // Colors for console output
 const colors = {
@@ -40,7 +40,7 @@ let failedTests = 0;
 
 try {
   // Run Jest tests for splash system
-  console.log(colorize("📋 Running Unit Tests...", colors.blue));
+  
 
   const testCommand = `npx jest ${testFiles.join(" ")} --verbose --passWithNoTests`;
   const testOutput = execSync(testCommand, {
@@ -49,7 +49,7 @@ try {
     stdio: "pipe",
   });
 
-  console.log(testOutput);
+  
 
   // Parse test results (simplified parsing)
   const lines = testOutput.split("\n");
@@ -66,12 +66,12 @@ try {
     }
   }
 } catch (error) {
-  console.error(colorize("❌ Error running tests:", colors.red), error.message);
+  
   failedTests = 1; // Mark as failed if execution failed
 }
 
 // Run linting for splash-related files
-console.log(colorize("\n📏 Running ESLint for Splash Files...", colors.blue));
+
 
 try {
   const lintCommand = `npx eslint store/splash/ components/MiniSplash.tsx components/DriverMiniSplash.tsx components/BusinessMiniSplash.tsx app/services/moduleDataService.ts --ext .ts,.tsx`;
@@ -82,49 +82,39 @@ try {
   });
 
   if (lintOutput.trim()) {
-    console.log(lintOutput);
+    
   } else {
-    console.log(colorize("✅ No ESLint issues found", colors.green));
+    
   }
 } catch (error) {
-  console.error(colorize("❌ ESLint errors found:", colors.red));
-  console.log(error.stdout || error.stderr);
+  
+  
   failedTests++;
 }
 
 // Generate test summary
-console.log(colorize("\n📊 Test Summary", colors.cyan));
-console.log("─".repeat(40));
-console.log(`Total Test Files: ${testFiles.length}`);
-console.log(`Tests Run: ${totalTests}`);
-console.log(colorize(`✅ Passed: ${passedTests}`, colors.green));
-console.log(colorize(`❌ Failed: ${failedTests}`, colors.red));
+
+
+
+
+
+
 
 // Performance metrics (mock for now)
-console.log(colorize("\n⚡ Performance Metrics", colors.magenta));
-console.log("─".repeat(40));
-console.log("Splash Transition Time: < 2s ✅");
-console.log("Memory Usage: Normal ✅");
-console.log("Animation FPS: 60 ✅");
+
+
+
+
+
 
 // Overall status
-console.log(colorize("\n🏁 Overall Status", colors.yellow));
-console.log("─".repeat(40));
+
+
 
 if (failedTests === 0) {
-  console.log(
-    colorize(
-      "🎉 All tests passed! Splash system is ready for production.",
-      colors.green,
-    ),
-  );
+  
   process.exit(0);
 } else {
-  console.log(
-    colorize(
-      `⚠️  ${failedTests} test(s) failed. Please review and fix issues.`,
-      colors.red,
-    ),
-  );
+  
   process.exit(1);
 }

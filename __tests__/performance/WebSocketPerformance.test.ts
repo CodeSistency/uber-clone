@@ -78,9 +78,7 @@ describe("WebSocket Performance Tests", () => {
       const totalTime = endTime - startTime;
       const averageTime = totalTime / iterations;
 
-      console.log(
-        `Event emission performance: ${totalTime}ms total, ${averageTime}ms average`,
-      );
+      
 
       // Verificar que el promedio está dentro del presupuesto de 5ms
       expect(averageTime).toBeLessThan(5);
@@ -105,9 +103,7 @@ describe("WebSocket Performance Tests", () => {
       const endTime = performance.now();
       const totalTime = endTime - startTime;
 
-      console.log(
-        `Multiple listeners performance: ${totalTime}ms for ${listenerCount} listeners`,
-      );
+      
 
       // Verificar que todos los listeners fueron llamados
       listeners.forEach((listener) => {
@@ -156,7 +152,7 @@ describe("WebSocket Performance Tests", () => {
         const endTime = performance.now();
         const processingTime = endTime - startTime;
 
-        console.log(`${event} processing time: ${processingTime}ms`);
+        
 
         // Verificar que cada evento se procesa dentro de 50ms
         expect(processingTime).toBeLessThan(50);
@@ -180,9 +176,7 @@ describe("WebSocket Performance Tests", () => {
       const totalTime = endTime - startTime;
       const averageTime = totalTime / iterations;
 
-      console.log(
-        `Event validation performance: ${averageTime}ms average per validation`,
-      );
+      
 
       // Verificar que la validación es muy rápida (< 1ms promedio)
       expect(averageTime).toBeLessThan(1);
@@ -212,9 +206,7 @@ describe("WebSocket Performance Tests", () => {
       const renderEndTime = performance.now();
       const totalRenderTime = renderEndTime - renderStartTime;
 
-      console.log(
-        `Component re-render performance: ${totalRenderTime}ms for 10 updates`,
-      );
+      
 
       // Verificar que el componente maneja las actualizaciones eficientemente
       expect(totalRenderTime).toBeLessThan(500); // Menos de 500ms para 10 actualizaciones
@@ -327,9 +319,7 @@ describe("WebSocket Performance Tests", () => {
         processingTimes.reduce((a, b) => a + b) / processingTimes.length;
       const maxProcessingTime = Math.max(...processingTimes);
 
-      console.log(
-        `GPS processing performance: ${averageProcessingTime}ms average, ${maxProcessingTime}ms max`,
-      );
+      
 
       // Verificar que las actualizaciones GPS se procesan rápidamente
       expect(averageProcessingTime).toBeLessThan(50);
@@ -356,7 +346,7 @@ describe("WebSocket Performance Tests", () => {
       const endTime = performance.now();
       const processingTime = endTime - startTime;
 
-      console.log(`Error handling performance: ${processingTime}ms`);
+      
 
       // Verificar que el listener exitoso aún se ejecutó
       expect(successListener).toHaveBeenCalledWith({ data: "error-test" });

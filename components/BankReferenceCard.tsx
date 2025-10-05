@@ -51,7 +51,7 @@ const BankReferenceCard: React.FC<BankReferenceCardProps> = ({
   const handleCopyReference = async () => {
     try {
       // En una app real, usaríamos Clipboard
-      console.log("Copiando referencia:", reference.referenceNumber);
+      
 
       // Simular copiado exitoso
       showSuccess("¡Copiado!", "Referencia copiada al portapapeles");

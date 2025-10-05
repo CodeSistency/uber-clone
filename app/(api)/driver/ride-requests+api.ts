@@ -32,7 +32,7 @@ export async function GET(request: Request) {
 
     return Response.json({ data: response });
   } catch (error) {
-    console.error("Error fetching ride requests:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

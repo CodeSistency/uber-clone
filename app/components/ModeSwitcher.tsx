@@ -41,7 +41,7 @@ const ModeSwitcher = ({
         setIsDriverRegistered(isDriverReg);
         setIsBusinessRegistered(isBusinessReg);
       } catch (error) {
-        console.error("Error loading registration status:", error);
+        
       }
     };
     loadRegistrationStatus();
@@ -131,7 +131,7 @@ const ModeSwitcher = ({
         setShowModal(false);
       }
     } catch (error) {
-      console.error("[ModeSwitcher] Error switching mode:", error);
+      
       // On error, don't navigate - just show error
       Alert.alert("Error", "Failed to switch mode. Please try again.");
     }

@@ -24,6 +24,7 @@ export * from "./emergency";
 export * from "./driverRole";
 export * from "./driverOnboarding";
 export * from "./wallet";
+export * from "./profile";
 
 // Specific exports to avoid naming conflicts
 export {

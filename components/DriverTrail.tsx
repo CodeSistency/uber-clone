@@ -121,7 +121,7 @@ const DriverTrail: React.FC<DriverTrailProps> = ({
       setTrailPoints((prevPoints) => {
         // If no previous points, add the first one
         if (prevPoints.length === 0) {
-          console.log("[DriverTrail] Adding first trail point");
+          
           return [newPoint];
         }
 
@@ -131,16 +131,12 @@ const DriverTrail: React.FC<DriverTrailProps> = ({
         // Remove oldest points if exceeding maxPoints (more efficient)
         if (newTrail.length > config.maxPoints) {
           newTrail.splice(0, newTrail.length - config.maxPoints);
-          console.log(
-            `[DriverTrail] Optimized trail: kept ${config.maxPoints} recent points`,
-          );
+          
         }
 
         // Log only occasionally to reduce console spam
         if (newTrail.length % 10 === 0) {
-          console.log(
-            `[DriverTrail] Trail updated. Points: ${newTrail.length}`,
-          );
+          
         }
 
         return newTrail;
@@ -162,10 +158,7 @@ const DriverTrail: React.FC<DriverTrailProps> = ({
         Math.abs(driverLocation.latitude) > 90 ||
         Math.abs(driverLocation.longitude) > 180
       ) {
-        console.warn(
-          "[DriverTrail] Invalid coordinates received:",
-          driverLocation,
-        );
+        
         return;
       }
 
@@ -198,9 +191,7 @@ const DriverTrail: React.FC<DriverTrailProps> = ({
           // Sort by timestamp (oldest first) and keep only the most recent
           finalPoints.sort((a, b) => a.timestamp - b.timestamp);
           finalPoints = finalPoints.slice(-config.maxPoints);
-          console.log(
-            `[DriverTrail] Memory cleanup: kept ${config.maxPoints} most recent points`,
-          );
+          
         }
 
         // 3. Remove points with poor accuracy (if too many points)
@@ -212,9 +203,7 @@ const DriverTrail: React.FC<DriverTrailProps> = ({
 
         const removedCount = prevPoints.length - finalPoints.length;
         if (removedCount > 0) {
-          console.log(
-            `[DriverTrail] Cleaned up ${removedCount} points. Remaining: ${finalPoints.length}`,
-          );
+          
         }
 
         return finalPoints;
@@ -239,9 +228,7 @@ const DriverTrail: React.FC<DriverTrailProps> = ({
     return null;
   }
 
-  console.log(
-    `[DriverTrail] Rendering trail with ${trailCoordinates.length} points`,
-  );
+  
 
   return (
     <View pointerEvents="none">

@@ -92,7 +92,7 @@ export const useDriverStateStore = create<DriverStateStore>()(
       ...initialState,
 
       setDriver: (driver) => {
-        console.log("[DriverStateStore] Setting driver data:", driver);
+        
         set((state) => ({
           ...state,
           ...driver,
@@ -101,7 +101,7 @@ export const useDriverStateStore = create<DriverStateStore>()(
       },
 
       updateStatus: (status) => {
-        console.log("[DriverStateStore] Updating status to:", status);
+        
         set((state) => ({
           ...state,
           status,
@@ -116,7 +116,7 @@ export const useDriverStateStore = create<DriverStateStore>()(
           lastUpdate: new Date(),
           isActive: true,
         };
-        console.log("[DriverStateStore] Updating location:", locationData);
+        
         set((state) => ({
           ...state,
           currentLocation: locationData,
@@ -125,7 +125,7 @@ export const useDriverStateStore = create<DriverStateStore>()(
       },
 
       setAvailable: (available) => {
-        console.log("[DriverStateStore] Setting availability to:", available);
+        
         set((state) => ({
           ...state,
           isAvailable: available,
@@ -134,10 +134,7 @@ export const useDriverStateStore = create<DriverStateStore>()(
       },
 
       setAutoAccept: (enabled, radius) => {
-        console.log("[DriverStateStore] Setting auto-accept:", {
-          enabled,
-          radius,
-        });
+        
         set((state) => ({
           ...state,
           autoAcceptEnabled: enabled,
@@ -146,7 +143,7 @@ export const useDriverStateStore = create<DriverStateStore>()(
       },
 
       updateStats: (stats) => {
-        console.log("[DriverStateStore] Updating stats:", stats);
+        
         set((state) => ({
           ...state,
           ...(stats.period === "today"
@@ -160,12 +157,12 @@ export const useDriverStateStore = create<DriverStateStore>()(
       },
 
       setError: (error) => {
-        console.log("[DriverStateStore] Setting error:", error);
+        
         set((state) => ({ ...state, error }));
       },
 
       reset: () => {
-        console.log("[DriverStateStore] Resetting to initial state");
+        
         set(initialState);
       },
 

@@ -108,7 +108,7 @@ interface BusinessDashboardProps {
 }
 
 const BusinessDashboard: React.FC<BusinessDashboardProps> = ({ drawer }) => {
-  console.log("[BusinessDashboard] Component mounted");
+  
 
   const [isOpen, setIsOpen] = useState(DUMMY_BUSINESS.isOpen);
   const bottomSheetModalRef = useRef<BottomSheetModal>(null);
@@ -117,12 +117,12 @@ const BusinessDashboard: React.FC<BusinessDashboardProps> = ({ drawer }) => {
 
   // Present bottom sheet on mount
   useEffect(() => {
-    console.log("[BusinessDashboard] Presenting bottom sheet");
+    
     if (bottomSheetModalRef.current) {
       bottomSheetModalRef.current.present();
-      console.log("[BusinessDashboard] Bottom sheet presented successfully");
+      
     } else {
-      console.log("[BusinessDashboard] Bottom sheet ref is null");
+      
     }
   }, []);
 

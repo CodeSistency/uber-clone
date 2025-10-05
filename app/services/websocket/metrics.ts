@@ -33,7 +33,7 @@ export class MetricsMonitor implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log("[MetricsMonitor] Initializing metrics collection");
+    
 
     if (this.config.enableMetrics) {
       this.startMetricsCollection();
@@ -41,7 +41,7 @@ export class MetricsMonitor implements BaseModule {
   }
 
   async destroy(): Promise<void> {
-    console.log("[MetricsMonitor] Destroying metrics monitor");
+    
     this.stopMetricsCollection();
     this.messageLatencies.length = 0;
     this.errorCounts.clear();
@@ -110,9 +110,7 @@ export class MetricsMonitor implements BaseModule {
     this.metrics.errorRate =
       totalMessages > 0 ? (totalErrors / totalMessages) * 100 : 0;
 
-    console.log(
-      `[MetricsMonitor] Error recorded: ${errorType} (total: ${currentCount + 1})`,
-    );
+    
     this.updateMetrics();
   }
 
@@ -125,7 +123,7 @@ export class MetricsMonitor implements BaseModule {
   // Connection tracking
   recordConnectionStart(): void {
     this.connectionStartTime = new Date();
-    console.log("[MetricsMonitor] Connection started");
+    
   }
 
   recordConnectionEnd(): void {
@@ -134,9 +132,7 @@ export class MetricsMonitor implements BaseModule {
         Date.now() - this.connectionStartTime.getTime();
       this.metrics.connectionUptime += connectionDuration;
       this.connectionStartTime = null;
-      console.log(
-        `[MetricsMonitor] Connection ended, duration: ${connectionDuration}ms`,
-      );
+      
     }
     this.updateMetrics();
   }
@@ -204,7 +200,7 @@ export class MetricsMonitor implements BaseModule {
 
   // Reset metrics
   resetMetrics(): void {
-    console.log("[MetricsMonitor] Resetting all metrics");
+    
 
     this.metrics = {
       messagesSent: 0,
@@ -288,9 +284,7 @@ export class MetricsMonitor implements BaseModule {
   }
 
   private startMetricsCollection(): void {
-    console.log(
-      `[MetricsMonitor] Starting metrics collection (interval: ${this.config.metricsInterval}ms)`,
-    );
+    
 
     this.metricsTimer = setInterval(() => {
       // Periodic cleanup of old data (if retention is configured)
@@ -302,11 +296,11 @@ export class MetricsMonitor implements BaseModule {
       const { warnings, critical } = this.checkThresholds();
 
       if (critical.length > 0) {
-        console.error("[MetricsMonitor] Critical issues detected:", critical);
+        
       }
 
       if (warnings.length > 0) {
-        console.warn("[MetricsMonitor] Warnings:", warnings);
+        
       }
 
       // Update last updated timestamp
@@ -318,7 +312,7 @@ export class MetricsMonitor implements BaseModule {
     if (this.metricsTimer) {
       clearInterval(this.metricsTimer);
       this.metricsTimer = null;
-      console.log("[MetricsMonitor] Stopped metrics collection");
+      
     }
   }
 

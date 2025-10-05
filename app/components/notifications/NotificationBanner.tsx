@@ -73,7 +73,7 @@ export const NotificationBanner: React.FC<NotificationBannerProps> = ({
           break;
       }
     } catch (error) {
-      console.warn("[NotificationBanner] Haptic feedback failed:", error);
+      
     }
   };
 

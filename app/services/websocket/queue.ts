@@ -19,12 +19,12 @@ export class MessageQueue implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log("[MessageQueue] Initializing message queue");
+    
     this.startProcessing();
   }
 
   async destroy(): Promise<void> {
-    console.log("[MessageQueue] Destroying message queue");
+    
     this.stopProcessing();
     this.queue.length = 0;
     this.messageEmitter = null;
@@ -63,9 +63,7 @@ export class MessageQueue implements BaseModule {
       options;
 
     if (this.queue.length >= this.config.maxSize) {
-      console.warn(
-        `[MessageQueue] Queue full (${this.config.maxSize}), message dropped: ${event}`,
-      );
+      
       this.stats.queueFull++;
       return false;
     }
@@ -92,16 +90,14 @@ export class MessageQueue implements BaseModule {
       this.queue.splice(insertIndex, 0, queuedMessage);
     }
 
-    console.log(
-      `[MessageQueue] Message queued: ${event} (priority: ${priority}, queue size: ${this.queue.length})`,
-    );
+    
     return true;
   }
 
   // Set message emitter (called when message should be sent)
   setMessageEmitter(emitter: (message: QueuedMessage) => void): void {
     this.messageEmitter = emitter;
-    console.log("[MessageQueue] Message emitter set");
+    
   }
 
   // Get queue statistics
@@ -129,9 +125,7 @@ export class MessageQueue implements BaseModule {
   clearQueue(): void {
     const clearedCount = this.queue.length;
     this.queue.length = 0;
-    console.log(
-      `[MessageQueue] Queue cleared (${clearedCount} messages removed)`,
-    );
+    
   }
 
   // Force process next message (for testing)
@@ -146,9 +140,7 @@ export class MessageQueue implements BaseModule {
   }
 
   private startProcessing(): void {
-    console.log(
-      `[MessageQueue] Starting queue processing (interval: ${this.config.processingInterval}ms)`,
-    );
+    
 
     this.processingTimer = setInterval(() => {
       this.processQueue();
@@ -159,7 +151,7 @@ export class MessageQueue implements BaseModule {
     if (this.processingTimer) {
       clearInterval(this.processingTimer);
       this.processingTimer = null;
-      console.log("[MessageQueue] Stopped queue processing");
+      
     }
   }
 
@@ -188,22 +180,18 @@ export class MessageQueue implements BaseModule {
     // Check rate limiting
     if (timeSinceLastMessage < this.config.rateLimitMs) {
       // Too soon, will be processed in next cycle
-      console.log(
-        `[MessageQueue] Rate limited, waiting... (${timeSinceLastMessage}ms since last message)`,
-      );
+      
       this.stats.rateLimited++;
       return;
     }
 
     if (!this.messageEmitter) {
-      console.warn("[MessageQueue] No message emitter set, skipping message");
+      
       return;
     }
 
     try {
-      console.log(
-        `[MessageQueue] Processing message: ${message.event} (id: ${message.id})`,
-      );
+      
 
       // Emit message
       await this.emitMessage(message);
@@ -217,21 +205,14 @@ export class MessageQueue implements BaseModule {
       this.lastMessageTime = now;
       this.stats.processed++;
 
-      console.log(
-        `[MessageQueue] Message processed successfully: ${message.event}`,
-      );
+      
     } catch (error) {
-      console.error(
-        `[MessageQueue] Error processing message ${message.id}:`,
-        error,
-      );
+      
 
       message.retryCount++;
 
       if (message.retryCount >= message.maxRetries) {
-        console.error(
-          `[MessageQueue] Message failed permanently after ${message.maxRetries} retries: ${message.id}`,
-        );
+        
 
         // Remove from queue
         const index = this.queue.findIndex((m) => m.id === message.id);
@@ -241,9 +222,7 @@ export class MessageQueue implements BaseModule {
 
         this.stats.failed++;
       } else {
-        console.log(
-          `[MessageQueue] Message will be retried (attempt ${message.retryCount}/${message.maxRetries}): ${message.id}`,
-        );
+        
       }
     }
   }
@@ -293,9 +272,7 @@ export class MessageQueue implements BaseModule {
       }
     }
 
-    console.log(
-      `[MessageQueue] Batch added ${addedCount}/${messages.length} messages`,
-    );
+    
     return addedCount;
   }
 

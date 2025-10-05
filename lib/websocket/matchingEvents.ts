@@ -96,7 +96,7 @@ const startHeartbeat = () => {
 
       // Configurar timeout para respuesta pong
       const pongTimeout = setTimeout(() => {
-        console.warn('[WebSocketMatching] Heartbeat timeout - connection may be unstable');
+        
         // Podríamos intentar reconectar si hay múltiples timeouts
       }, matchingState.config.heartbeatTimeout);
 
@@ -129,7 +129,7 @@ export const connectWebSocket = async (
   try {
     // Si ya está conectado, retornar true
     if (matchingState.socket?.connected) {
-      console.log('[WebSocketMatching] Already connected');
+      
       return true;
     }
 
@@ -146,7 +146,7 @@ export const connectWebSocket = async (
     }
 
     matchingState.connectionState = 'connecting';
-    console.log('[WebSocketMatching] Connecting to WebSocket server with optimizations...');
+    
 
     // Crear nueva conexión con configuración optimizada
     const socket = io(matchingState.config.url, {
@@ -162,14 +162,14 @@ export const connectWebSocket = async (
     return new Promise((resolve, reject) => {
       // Evento de conexión exitosa
       socket.on('connect', () => {
-        console.log('[WebSocketMatching] Connected to WebSocket server');
+        
         matchingState.connectionState = 'connected';
         matchingState.reconnectionCount = 0; // Reset counter
 
         // Unirse a sala de usuario para notificaciones
         if (matchingState.userId) {
           socket.emit('join-user-room', { userId: matchingState.userId });
-          console.log(`[WebSocketMatching] Joined user room: ${matchingState.userId}`);
+          
         }
 
         // Iniciar heartbeat para mantener conexión viva
@@ -180,7 +180,7 @@ export const connectWebSocket = async (
 
       // Evento de reconexión automática (por si acaso)
       socket.on('reconnect', (attemptNumber) => {
-        console.log(`[WebSocketMatching] Auto-reconnected on attempt ${attemptNumber}`);
+        
         matchingState.connectionState = 'connected';
         matchingState.reconnectionCount = 0;
         startHeartbeat();
@@ -188,13 +188,13 @@ export const connectWebSocket = async (
 
       // Evento de desconexión
       socket.on('disconnect', (reason) => {
-        console.log(`[WebSocketMatching] Disconnected: ${reason}`);
+        
         matchingState.connectionState = 'disconnected';
         stopHeartbeat(); // Detener heartbeat
 
         if (reason === 'io server disconnect') {
           // El servidor desconectó intencionalmente
-          console.log('[WebSocketMatching] Server disconnected, will not reconnect');
+          
         } else if (reason !== 'io client disconnect') {
           // Intentar reconectar automáticamente si no fue desconexión intencional
           attemptReconnection();
@@ -203,7 +203,7 @@ export const connectWebSocket = async (
 
       // Evento de error de conexión
       socket.on('connect_error', (error) => {
-        console.error('[WebSocketMatching] Connection error:', error);
+        
         matchingState.connectionState = 'error';
         stopHeartbeat();
 
@@ -215,7 +215,7 @@ export const connectWebSocket = async (
       // Configurar timeout de conexión
       setTimeout(() => {
         if (matchingState.connectionState === 'connecting') {
-          console.error('[WebSocketMatching] Connection timeout');
+          
           matchingState.connectionState = 'error';
           stopHeartbeat();
           socket.disconnect();
@@ -226,7 +226,7 @@ export const connectWebSocket = async (
     });
 
   } catch (error) {
-    console.error('[WebSocketMatching] Failed to connect:', error);
+    
     matchingState.connectionState = 'error';
     stopHeartbeat();
     return false;
@@ -236,7 +236,7 @@ export const connectWebSocket = async (
 // Función para intentar reconexión con backoff exponencial
 const attemptReconnection = () => {
   if (matchingState.reconnectionCount >= matchingState.config.reconnectionAttempts) {
-    console.error('[WebSocketMatching] Max reconnection attempts reached');
+    
     return;
   }
 
@@ -249,12 +249,12 @@ const attemptReconnection = () => {
     matchingState.config.maxReconnectionDelay
   );
 
-  console.log(`[WebSocketMatching] Attempting reconnection ${matchingState.reconnectionCount}/${matchingState.config.reconnectionAttempts} in ${delay}ms`);
+  
 
   setTimeout(() => {
     if (matchingState.connectionState === 'reconnecting') {
       connectWebSocket().catch((error) => {
-        console.error('[WebSocketMatching] Reconnection failed:', error);
+        
       });
     }
   }, delay);
@@ -265,7 +265,7 @@ const attemptReconnection = () => {
  */
 export const disconnectWebSocket = (): void => {
   if (matchingState.socket) {
-    console.log('[WebSocketMatching] Disconnecting from WebSocket server');
+    
     stopHeartbeat(); // Detener heartbeat primero
     matchingState.socket.disconnect();
     matchingState.socket = null;
@@ -285,33 +285,33 @@ export const setupMatchingEventListeners = (
   onSearchCancelled?: (data: any) => void
 ): void => {
   if (!matchingState.socket) {
-    console.warn('[WebSocketMatching] No socket connection, cannot setup listeners');
+    
     return;
   }
 
-  console.log('[WebSocketMatching] Setting up matching event listeners');
+  
 
   // Listener principal para eventos de matching
   const handleMatchingEvent = (event: MatchingWebSocketEvent) => {
-    console.log('[WebSocketMatching] Received matching event:', event);
+    
 
     const { type, searchId, userId, data } = event;
 
     // Verificar que el evento sea para este usuario/búsqueda
     if (userId && matchingState.userId && userId !== matchingState.userId) {
-      console.log('[WebSocketMatching] Event for different user, ignoring');
+      
       return;
     }
 
     if (searchId && matchingState.searchId && searchId !== matchingState.searchId) {
-      console.log('[WebSocketMatching] Event for different search, ignoring');
+      
       return;
     }
 
     // Procesar evento según tipo
     switch (type) {
       case MATCHING_EVENTS.DRIVER_FOUND:
-        console.log('[WebSocketMatching] Driver found event:', data);
+        
         if (onDriverFound) {
           onDriverFound(data);
         }
@@ -320,7 +320,7 @@ export const setupMatchingEventListeners = (
         break;
 
       case MATCHING_EVENTS.SEARCH_TIMEOUT:
-        console.log('[WebSocketMatching] Search timeout event');
+        
         if (onSearchTimeout) {
           onSearchTimeout(data);
         }
@@ -328,7 +328,7 @@ export const setupMatchingEventListeners = (
         break;
 
       case MATCHING_EVENTS.SEARCH_CANCELLED:
-        console.log('[WebSocketMatching] Search cancelled event');
+        
         if (onSearchCancelled) {
           onSearchCancelled(data);
         }
@@ -336,7 +336,7 @@ export const setupMatchingEventListeners = (
         break;
 
       default:
-        console.warn('[WebSocketMatching] Unknown matching event type:', type);
+        
     }
   };
 
@@ -345,18 +345,18 @@ export const setupMatchingEventListeners = (
 
   // También registrar en el event manager para consistencia
   websocketEventManager.on('matching-driver-found', (data: any) => {
-    console.log('[WebSocketMatching] Driver found via event manager:', data);
+    
   });
 
   websocketEventManager.on('matching-search-timeout', (data: any) => {
-    console.log('[WebSocketMatching] Search timeout via event manager');
+    
   });
 
   websocketEventManager.on('matching-search-cancelled', (data: any) => {
-    console.log('[WebSocketMatching] Search cancelled via event manager');
+    
   });
 
-  console.log('[WebSocketMatching] Matching event listeners configured');
+  
 };
 
 /**
@@ -364,7 +364,7 @@ export const setupMatchingEventListeners = (
  */
 export const setCurrentSearchId = (searchId: string | null): void => {
   matchingState.searchId = searchId;
-  console.log(`[WebSocketMatching] Current search ID set to: ${searchId}`);
+  
 };
 
 /**
@@ -413,7 +413,7 @@ export const isWebSocketConnected = (): boolean => {
 export const retryWebSocketConnection = async (
   userId?: number
 ): Promise<boolean> => {
-  console.log('[WebSocketMatching] Retrying WebSocket connection');
+  
 
   // Desconectar primero si hay conexión existente
   disconnectWebSocket();
@@ -428,7 +428,7 @@ export const retryWebSocketConnection = async (
 export const clearMatchingEventListeners = (): void => {
   if (matchingState.socket) {
     matchingState.socket.off('matching-event');
-    console.log('[WebSocketMatching] Cleared matching event listeners');
+    
   }
 
   // También limpiar del event manager
@@ -445,11 +445,11 @@ export const clearMatchingEventListeners = (): void => {
  */
 export const handleDriverFoundEvent = (data: any, callback?: (driver: any) => void): void => {
   try {
-    console.log('[WebSocketMatching] Processing driver found event:', data);
+    
 
     // Validar datos del conductor
     if (!data || !data.driverId) {
-      console.error('[WebSocketMatching] Invalid driver data in driver-found event');
+      
       return;
     }
 
@@ -472,7 +472,7 @@ export const handleDriverFoundEvent = (data: any, callback?: (driver: any) => vo
       totalRides: data.totalRides || 0,
     };
 
-    console.log('[WebSocketMatching] Transformed driver data:', driverData);
+    
 
     // Ejecutar callback personalizado si existe
     if (callback) {
@@ -483,7 +483,7 @@ export const handleDriverFoundEvent = (data: any, callback?: (driver: any) => vo
     showDriverFoundNotification(driverData);
 
   } catch (error) {
-    console.error('[WebSocketMatching] Error processing driver found event:', error);
+    
   }
 };
 
@@ -493,7 +493,7 @@ export const handleDriverFoundEvent = (data: any, callback?: (driver: any) => vo
  */
 export const handleSearchTimeoutEvent = (data: any, callback?: () => void): void => {
   try {
-    console.log('[WebSocketMatching] Processing search timeout event:', data);
+    
 
     // Mostrar mensaje de timeout al usuario
     showSearchTimeoutNotification();
@@ -507,7 +507,7 @@ export const handleSearchTimeoutEvent = (data: any, callback?: () => void): void
     setCurrentSearchId(null);
 
   } catch (error) {
-    console.error('[WebSocketMatching] Error processing search timeout event:', error);
+    
   }
 };
 
@@ -517,7 +517,7 @@ export const handleSearchTimeoutEvent = (data: any, callback?: () => void): void
  */
 export const handleSearchCancelledEvent = (data: any, callback?: () => void): void => {
   try {
-    console.log('[WebSocketMatching] Processing search cancelled event:', data);
+    
 
     // Mostrar mensaje de cancelación
     showSearchCancelledNotification();
@@ -531,7 +531,7 @@ export const handleSearchCancelledEvent = (data: any, callback?: () => void): vo
     setCurrentSearchId(null);
 
   } catch (error) {
-    console.error('[WebSocketMatching] Error processing search cancelled event:', error);
+    
   }
 };
 
@@ -545,7 +545,7 @@ export const handleSearchCancelledEvent = (data: any, callback?: () => void): vo
 const showDriverFoundNotification = (driver: any): void => {
   // Aquí podrías integrar con tu sistema de notificaciones
   // Por ejemplo: showSuccess, mostrar modal, etc.
-  console.log(`[WebSocketMatching] NOTIFICATION: ¡Conductor encontrado! ${driver.firstName} está disponible`);
+  
 
   // Emitir evento para que otros componentes puedan reaccionar
   websocketEventManager.emit('driver-notification', {
@@ -559,7 +559,7 @@ const showDriverFoundNotification = (driver: any): void => {
  * Mostrar notificación cuando la búsqueda expira
  */
 const showSearchTimeoutNotification = (): void => {
-  console.log('[WebSocketMatching] NOTIFICATION: Búsqueda expirada - No se encontraron conductores');
+  
 
   websocketEventManager.emit('driver-notification', {
     type: 'search-timeout',
@@ -571,7 +571,7 @@ const showSearchTimeoutNotification = (): void => {
  * Mostrar notificación cuando la búsqueda es cancelada
  */
 const showSearchCancelledNotification = (): void => {
-  console.log('[WebSocketMatching] NOTIFICATION: Búsqueda cancelada');
+  
 
   websocketEventManager.emit('driver-notification', {
     type: 'search-cancelled',
@@ -594,7 +594,7 @@ export const setupDefaultMatchingHandlers = (
     onSearchCancelled?: () => void;
   }
 ): void => {
-  console.log('[WebSocketMatching] Setting up default matching handlers');
+  
 
   setupMatchingEventListeners(
     (data) => handleDriverFoundEvent(data, customHandlers?.onDriverFound),
@@ -615,7 +615,7 @@ export const hasConnectionErrors = (): boolean => {
  * Resetear estado de conexión (útil para testing)
  */
 export const resetWebSocketState = (): void => {
-  console.log('[WebSocketMatching] Resetting WebSocket state');
+  
   stopHeartbeat(); // Limpiar heartbeat
   matchingState = {
     socket: null,

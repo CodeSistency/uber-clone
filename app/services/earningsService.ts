@@ -102,16 +102,13 @@ export class EarningsService {
   // Earnings Summary
   async getEarningsSummary(): Promise<EarningsSummary> {
     try {
-      console.log("[EarningsService] Fetching earnings summary");
+      
       const response = await fetchAPI("driver/earnings/summary", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching earnings summary:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -121,10 +118,7 @@ export class EarningsService {
     period: "today" | "week" | "month" | "all" = "week",
   ): Promise<TripEarning[]> {
     try {
-      console.log(
-        "[EarningsService] Fetching trip history for period:",
-        period,
-      );
+      
       const response = await fetchAPI(
         `driver/earnings/trips?period=${period}`,
         {
@@ -133,20 +127,20 @@ export class EarningsService {
       );
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error fetching trip history:", error);
+      
       throw error;
     }
   }
 
   async getTripDetails(tripId: string): Promise<TripEarning> {
     try {
-      console.log("[EarningsService] Fetching trip details:", tripId);
+      
       const response = await fetchAPI(`driver/earnings/trips/${tripId}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error fetching trip details:", error);
+      
       throw error;
     }
   }
@@ -154,36 +148,33 @@ export class EarningsService {
   // Promotions
   async getActivePromotions(): Promise<Promotion[]> {
     try {
-      console.log("[EarningsService] Fetching active promotions");
+      
       const response = await fetchAPI("driver/earnings/promotions/active", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching active promotions:",
-        error,
-      );
+      
       throw error;
     }
   }
 
   async getAllPromotions(): Promise<Promotion[]> {
     try {
-      console.log("[EarningsService] Fetching all promotions");
+      
       const response = await fetchAPI("driver/earnings/promotions", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error fetching all promotions:", error);
+      
       throw error;
     }
   }
 
   async getPromotionDetails(promotionId: string): Promise<Promotion> {
     try {
-      console.log("[EarningsService] Fetching promotion details:", promotionId);
+      
       const response = await fetchAPI(
         `driver/earnings/promotions/${promotionId}`,
         {
@@ -192,10 +183,7 @@ export class EarningsService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching promotion details:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -203,36 +191,33 @@ export class EarningsService {
   // Challenges
   async getActiveChallenges(): Promise<Challenge[]> {
     try {
-      console.log("[EarningsService] Fetching active challenges");
+      
       const response = await fetchAPI("driver/earnings/challenges/active", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching active challenges:",
-        error,
-      );
+      
       throw error;
     }
   }
 
   async getAllChallenges(): Promise<Challenge[]> {
     try {
-      console.log("[EarningsService] Fetching all challenges");
+      
       const response = await fetchAPI("driver/earnings/challenges", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error fetching all challenges:", error);
+      
       throw error;
     }
   }
 
   async getChallengeDetails(challengeId: string): Promise<Challenge> {
     try {
-      console.log("[EarningsService] Fetching challenge details:", challengeId);
+      
       const response = await fetchAPI(
         `driver/earnings/challenges/${challengeId}`,
         {
@@ -241,10 +226,7 @@ export class EarningsService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching challenge details:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -252,13 +234,13 @@ export class EarningsService {
   // Payment Methods
   async getPaymentMethods(): Promise<PaymentMethod[]> {
     try {
-      console.log("[EarningsService] Fetching payment methods");
+      
       const response = await fetchAPI("driver/earnings/payment-methods", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error fetching payment methods:", error);
+      
       throw error;
     }
   }
@@ -267,7 +249,7 @@ export class EarningsService {
     paymentMethod: Omit<PaymentMethod, "id" | "isVerified">,
   ): Promise<PaymentMethod> {
     try {
-      console.log("[EarningsService] Adding payment method:", paymentMethod);
+      
       const response = await fetchAPI("driver/earnings/payment-methods", {
         method: "POST",
         body: JSON.stringify(paymentMethod),
@@ -275,7 +257,7 @@ export class EarningsService {
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error adding payment method:", error);
+      
       throw error;
     }
   }
@@ -285,11 +267,7 @@ export class EarningsService {
     updates: Partial<PaymentMethod>,
   ): Promise<PaymentMethod> {
     try {
-      console.log(
-        "[EarningsService] Updating payment method:",
-        paymentMethodId,
-        updates,
-      );
+      
       const response = await fetchAPI(
         `driver/earnings/payment-methods/${paymentMethodId}`,
         {
@@ -300,23 +278,20 @@ export class EarningsService {
       );
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error updating payment method:", error);
+      
       throw error;
     }
   }
 
   async deletePaymentMethod(paymentMethodId: string): Promise<void> {
     try {
-      console.log(
-        "[EarningsService] Deleting payment method:",
-        paymentMethodId,
-      );
+      
       await fetchAPI(`driver/earnings/payment-methods/${paymentMethodId}`, {
         method: "DELETE",
         requiresAuth: true,
       });
     } catch (error) {
-      console.error("[EarningsService] Error deleting payment method:", error);
+      
       throw error;
     }
   }
@@ -326,7 +301,7 @@ export class EarningsService {
     request: InstantPayRequest,
   ): Promise<InstantPayResult> {
     try {
-      console.log("[EarningsService] Requesting instant pay:", request);
+      
       const response = await fetchAPI("driver/earnings/instant-pay", {
         method: "POST",
         body: JSON.stringify(request),
@@ -334,23 +309,20 @@ export class EarningsService {
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error requesting instant pay:", error);
+      
       throw error;
     }
   }
 
   async getInstantPayHistory(): Promise<InstantPayResult[]> {
     try {
-      console.log("[EarningsService] Fetching instant pay history");
+      
       const response = await fetchAPI("driver/earnings/instant-pay/history", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching instant pay history:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -367,10 +339,7 @@ export class EarningsService {
     topEarningDays: { day: string; earnings: number; rides: number }[];
   }> {
     try {
-      console.log(
-        "[EarningsService] Fetching earnings analytics for period:",
-        period,
-      );
+      
       const response = await fetchAPI(
         `driver/earnings/analytics?period=${period}`,
         {
@@ -379,10 +348,7 @@ export class EarningsService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[EarningsService] Error fetching earnings analytics:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -401,13 +367,13 @@ export class EarningsService {
     challenges: number;
   }> {
     try {
-      console.log("[EarningsService] Fetching weekly summary");
+      
       const response = await fetchAPI("driver/earnings/weekly-summary", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[EarningsService] Error fetching weekly summary:", error);
+      
       throw error;
     }
   }

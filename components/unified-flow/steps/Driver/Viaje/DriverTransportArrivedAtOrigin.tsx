@@ -41,7 +41,7 @@ const DriverTransportArrivedAtOrigin: React.FC = () => {
     }
 
     // ✅ Integrar llamada al cliente usando el teléfono real del pasajero
-    console.log("[DriverTransportArrivedAtOrigin] Calling passenger:", passengerPhone);
+    
     
     // En React Native se puede usar Linking para abrir el dialer
     try {
@@ -49,7 +49,7 @@ const DriverTransportArrivedAtOrigin: React.FC = () => {
       showSuccess("Llamando...", `Marcando a ${passengerPhone}`);
       // Linking.openURL(`tel:${passengerPhone}`);
     } catch (error) {
-      console.error("[DriverTransportArrivedAtOrigin] Error calling passenger:", error);
+      
       showError("Error", "No se pudo iniciar la llamada");
     }
   };

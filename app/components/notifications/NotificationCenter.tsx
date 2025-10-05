@@ -72,7 +72,7 @@ export const NotificationCenter: React.FC<NotificationCenterProps> = ({
       onSettingsPress();
     } else {
       // Default behavior - could navigate to settings screen
-      console.log("Navigate to notification settings");
+      
     }
   };
 

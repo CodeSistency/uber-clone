@@ -124,6 +124,32 @@ export const driverTransportService = {
     } as any);
   },
 
+  // ✅ NUEVO: Ir online como conductor (según documentación)
+  goOnline: async () => {
+    
+    return fetchAPI("rides/flow/driver/transport/go-online", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      requiresAuth: true,
+      skipApiPrefix: true,
+    } as any);
+  },
+
+  // ✅ NUEVO: Ir offline como conductor (según documentación)
+  goOffline: async () => {
+    
+    return fetchAPI("rides/flow/driver/transport/go-offline", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      requiresAuth: true,
+      skipApiPrefix: true,
+    } as any);
+  },
+
   // ===== GESTIÓN DE SOLICITUDES =====
 
   getPendingRequests: async (
@@ -319,14 +345,14 @@ export const driverTransportService = {
       // } as any);
       
       // Por ahora retornamos un valor por defecto
-      console.log("[DriverTransportService] Exchange rate endpoint not implemented, using default");
+      
       return {
         rate: 35.5,
         currency: "VES/USD",
         lastUpdate: new Date().toISOString(),
       };
     } catch (error) {
-      console.error("[DriverTransportService] Error getting exchange rate:", error);
+      
       return {
         rate: 35.5,
         currency: "VES/USD",
@@ -356,10 +382,7 @@ export const driverTransportService = {
     accuracy?: number;
     speed?: number;
   }) => {
-    console.log("[DriverTransportService] 📍 updateDriverLocation called:", {
-      location,
-      timestamp: new Date().toISOString(),
-    });
+    
 
     try {
       const result = await fetchAPI("rides/flow/driver/transport/location", {
@@ -372,19 +395,11 @@ export const driverTransportService = {
         skipApiPrefix: true,
       } as any);
 
-      console.log("[DriverTransportService] ✅ updateDriverLocation success:", {
-        status: result?.status,
-        hasData: !!result?.data,
-        timestamp: new Date().toISOString(),
-      });
+      
 
       return result;
     } catch (error) {
-      console.error("[DriverTransportService] ❌ updateDriverLocation error:", {
-        error: error instanceof Error ? error.message : String(error),
-        location,
-        timestamp: new Date().toISOString(),
-      });
+      
       throw error;
     }
   },

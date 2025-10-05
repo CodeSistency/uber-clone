@@ -52,12 +52,10 @@ const WaitingForAcceptance: React.FC = () => {
   // Efecto para iniciar timer de aceptación y confirmar conductor
   useEffect(() => {
     const initializeAcceptance = async () => {
-      console.log(
-        "[WaitingForAcceptance] Starting acceptance timer and confirming driver...",
-      );
+      
 
       if (!rideId || !matchedDriver) {
-        console.error("[WaitingForAcceptance] Missing rideId or matchedDriver");
+        
         showError(
           "Error",
           "Faltan datos necesarios para confirmar el conductor",
@@ -73,19 +71,13 @@ const WaitingForAcceptance: React.FC = () => {
           notes: "Confirmación automática desde app móvil",
         };
 
-        console.log(
-          "[WaitingForAcceptance] Confirming driver with backend:",
-          confirmRequest,
-        );
+        
 
         const response = await driverMatchingService.confirmDriver(
           rideId,
           confirmRequest,
         );
-        console.log(
-          "[WaitingForAcceptance] Driver confirmed with backend:",
-          response,
-        );
+        
 
         setConfirmationResponse(response);
         startAcceptanceTimer();
@@ -117,7 +109,7 @@ const WaitingForAcceptance: React.FC = () => {
           stopAcceptanceTimer();
         };
       } catch (error: any) {
-        console.error("[WaitingForAcceptance] Error confirming driver:", error);
+        
         showError("Error", error.message || "Error al confirmar el conductor");
         back();
       }
@@ -151,17 +143,11 @@ const WaitingForAcceptance: React.FC = () => {
   useEffect(() => {
     if (!rideId) return;
 
-    console.log(
-      "[WaitingForAcceptance] Setting up WebSocket EventManager listeners for ride:",
-      rideId,
-    );
+    
 
     // 🚀 NUEVO: Listeners simplificados - navegación automática manejada por useAutoNavigation
     const handleRideAccepted = (data: any) => {
-      console.log(
-        "[WaitingForAcceptance] 🚨 WebSocket ride:accepted received:",
-        data,
-      );
+      
 
       if (data.rideId === rideId) {
         setConnectionStatus("connected");
@@ -172,10 +158,7 @@ const WaitingForAcceptance: React.FC = () => {
     };
 
     const handleRideRejected = (data: any) => {
-      console.log(
-        "[WaitingForAcceptance] 🚨 WebSocket ride:rejected received:",
-        data,
-      );
+      
 
       if (data.rideId === rideId) {
         setConnectionStatus("connected");
@@ -202,21 +185,19 @@ const WaitingForAcceptance: React.FC = () => {
       connectionState.websocketConnected ? "connected" : "disconnected",
     );
 
-    console.log(
-      "[WaitingForAcceptance] ✅ WebSocket listeners active, no polling needed",
-    );
+    
 
     return () => {
       // Limpiar listeners
       websocketEventManager.off("ride:accepted", handleRideAccepted);
       websocketEventManager.off("ride:rejected", handleRideRejected);
-      console.log("[WaitingForAcceptance] 🧹 WebSocket listeners cleaned up");
+      
     };
   }, [rideId]);
 
   // 🚀 NUEVO: Handlers simplificados - navegación automática manejada por useAutoNavigation
   const handleDriverAccepted = (data?: any) => {
-    console.log("[WaitingForAcceptance] Driver accepted the ride!", data);
+    
 
     stopAcceptanceTimer();
 
@@ -229,7 +210,7 @@ const WaitingForAcceptance: React.FC = () => {
   };
 
   const handleDriverRejected = (data: any) => {
-    console.log("[WaitingForAcceptance] Driver rejected the ride:", data);
+    
 
     stopAcceptanceTimer();
 
@@ -241,9 +222,7 @@ const WaitingForAcceptance: React.FC = () => {
   };
 
   const handleTimeout = () => {
-    console.log(
-      "[WaitingForAcceptance] Acceptance timeout - driver didn't accept",
-    );
+    
 
     stopAcceptanceTimer();
 
@@ -264,7 +243,7 @@ const WaitingForAcceptance: React.FC = () => {
     setIsCancelling(true);
 
     try {
-      console.log("[WaitingForAcceptance] Cancelling ride request...");
+      
       stopAcceptanceTimer();
 
       showSuccess(

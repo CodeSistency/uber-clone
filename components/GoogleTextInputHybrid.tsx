@@ -46,14 +46,7 @@ const apiKeyToUse = googlePlacesApiKey;
 // Debug environment variables (only once)
 const globalAny = global as any;
 if (!globalAny.googlePlacesLogged) {
-  console.log("[GoogleTextInputHybrid] 🔑 API Keys Check:", {
-    PLACES_API_KEY: googlePlacesApiKey
-      ? `EXISTS (length: ${googlePlacesApiKey.length})`
-      : "MISSING",
-    DIRECTIONS_API_KEY: googleDirectionsApiKey
-      ? `EXISTS (length: ${googleDirectionsApiKey.length})`
-      : "MISSING",
-  });
+  
   globalAny.googlePlacesLogged = true;
 }
 
@@ -105,10 +98,7 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
         await criticalDataCache.getCachedLocations(maxOfflineResults);
       setOfflineResults(cachedLocations);
     } catch (error) {
-      console.error(
-        "[GoogleTextInputHybrid] Failed to load offline cache:",
-        error,
-      );
+      
     }
   };
 
@@ -145,7 +135,7 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
 
       setShowResults(true);
     } catch (error) {
-      console.error("[GoogleTextInputHybrid] Search failed:", error);
+      
 
       // Fallback to offline if online fails
       if (offlineResults.length > 0) {
@@ -188,7 +178,7 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
       const results = await criticalDataCache.searchLocations(text);
       return results.slice(0, maxOfflineResults);
     } catch (error) {
-      console.error("[GoogleTextInputHybrid] Offline search failed:", error);
+      
       return [];
     }
   };
@@ -261,10 +251,7 @@ const GoogleTextInputHybrid: React.FC<GoogleTextInputHybridProps> = ({
         address: formattedAddress,
       });
     } catch (error) {
-      console.error(
-        "[GoogleTextInputHybrid] Failed to get place details:",
-        error,
-      );
+      
       // Still call handler with basic info
       handlePress({
         latitude: 0,

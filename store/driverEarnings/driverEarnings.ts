@@ -68,10 +68,7 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
     // Acciones
     fetchEarningsSummary: async (period = "today") => {
       const state = get();
-      console.log(
-        "[DriverEarningsStore] fetchEarningsSummary called for period:",
-        period,
-      );
+      
 
       try {
         state.setLoading(true);
@@ -104,14 +101,9 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
           averagePerTrip,
         });
 
-        console.log(
-          "[DriverEarningsStore] Earnings summary fetched successfully",
-        );
+        
       } catch (error: any) {
-        console.error(
-          "[DriverEarningsStore] Error fetching earnings summary:",
-          error,
-        );
+        
         state.setError(error.message || "Failed to fetch earnings summary");
         throw error;
       } finally {
@@ -121,10 +113,7 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
     fetchTripHistory: async (limit = 50, offset = 0) => {
       const state = get();
-      console.log("[DriverEarningsStore] fetchTripHistory called:", {
-        limit,
-        offset,
-      });
+      
 
       try {
         state.setLoading(true);
@@ -140,15 +129,9 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
         // Update state with API response
         set({ tripHistory: trips as any });
-        console.log(
-          "[DriverEarningsStore] Trip history fetched successfully:",
-          trips.length,
-        );
+        
       } catch (error: any) {
-        console.error(
-          "[DriverEarningsStore] Error fetching trip history:",
-          error,
-        );
+        
 
         // Enhanced error handling with specific messages
         let errorMessage = "Failed to fetch trip history";
@@ -171,7 +154,7 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
     fetchPromotions: async () => {
       const state = get();
-      console.log("[DriverEarningsStore] fetchPromotions called");
+      
 
       try {
         state.setLoading(true);
@@ -187,15 +170,9 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
         // Update state with API response
         set({ promotions: promotions as any });
-        console.log(
-          "[DriverEarningsStore] Promotions fetched successfully:",
-          promotions.length,
-        );
+        
       } catch (error: any) {
-        console.error(
-          "[DriverEarningsStore] Error fetching promotions:",
-          error,
-        );
+        
 
         // Enhanced error handling with specific messages
         let errorMessage = "Failed to fetch promotions";
@@ -218,7 +195,7 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
     fetchChallenges: async () => {
       const state = get();
-      console.log("[DriverEarningsStore] fetchChallenges called");
+      
 
       try {
         state.setLoading(true);
@@ -234,15 +211,9 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
         // Update state with API response
         set({ challenges: challenges as any });
-        console.log(
-          "[DriverEarningsStore] Challenges fetched successfully:",
-          challenges.length,
-        );
+        
       } catch (error: any) {
-        console.error(
-          "[DriverEarningsStore] Error fetching challenges:",
-          error,
-        );
+        
 
         // Enhanced error handling with specific messages
         let errorMessage = "Failed to fetch challenges";
@@ -264,15 +235,12 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
     },
 
     setSelectedPeriod: (period) => {
-      console.log("[DriverEarningsStore] setSelectedPeriod called:", period);
+      
       set({ selectedPeriod: period });
     },
 
     setDateRange: (startDate, endDate) => {
-      console.log("[DriverEarningsStore] setDateRange called:", {
-        startDate,
-        endDate,
-      });
+      
       set({
         dateRange: {
           startDate,
@@ -283,7 +251,7 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
 
     refreshEarnings: async () => {
       const state = get();
-      console.log("[DriverEarningsStore] refreshEarnings called");
+      
 
       try {
         state.setLoading(true);
@@ -297,12 +265,9 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
           state.fetchChallenges(),
         ]);
 
-        console.log("[DriverEarningsStore] Earnings refreshed successfully");
+        
       } catch (error: any) {
-        console.error(
-          "[DriverEarningsStore] Error refreshing earnings:",
-          error,
-        );
+        
         state.setError(error.message || "Failed to refresh earnings");
         throw error;
       } finally {

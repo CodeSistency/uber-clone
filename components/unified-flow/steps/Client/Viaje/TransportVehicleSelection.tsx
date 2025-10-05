@@ -47,9 +47,7 @@ const TransportVehicleSelection: React.FC = () => {
           (tiers.motorcycle && tiers.motorcycle.length > 0));
 
       if (!hasValidTiers && !tiersLoading) {
-        console.log(
-          "[TransportVehicleSelection] No valid tiers found, forcing refresh from API",
-        );
+        
         await fetchTiers();
       }
     };
@@ -59,16 +57,10 @@ const TransportVehicleSelection: React.FC = () => {
 
   // Get current tiers for the selected tab
   const currentTiers = tiers ? tiers[selectedTab] || [] : [];
-  console.log("[TransportVehicleSelection] Selected tab:", selectedTab);
-  console.log("[TransportVehicleSelection] Available tiers:", tiers);
-  console.log(
-    "[TransportVehicleSelection] Current tiers for selected tab:",
-    currentTiers,
-  );
-  console.log(
-    "[TransportVehicleSelection] Current tiers length:",
-    currentTiers.length,
-  );
+  
+  
+  
+  
 
   const handleContinue = async () => {
     if (!selectedVehicle) return;
@@ -91,15 +83,11 @@ const TransportVehicleSelection: React.FC = () => {
         return;
       }
 
-      console.log("[TransportVehicleSelection] Selected tier:", selectedTier);
-      console.log("[TransportVehicleSelection] Store functions available:", {
-        setEstimatedPrice: !!setEstimatedPrice,
-        setRouteInfo: !!setRouteInfo,
-        setPriceBreakdown: !!setPriceBreakdown,
-      });
+      
+      
 
       // 🆕 PASO 1: Calcular distancia y tiempo real con Google Maps
-      console.log("[TransportVehicleSelection] Calculating route with Google Maps...");
+      
       const routeCalculation = await calculateRouteDistance(
         {
           lat: confirmedOrigin.latitude,
@@ -111,11 +99,11 @@ const TransportVehicleSelection: React.FC = () => {
         },
       );
 
-      console.log("[TransportVehicleSelection] Route calculated:", routeCalculation);
+      
 
       // 🆕 PASO 2: Preparar datos para crear el ride
       // El backend calculará el precio automáticamente
-      console.log("[TransportVehicleSelection] Preparing ride data for backend calculation...");
+      
 
       // Prepare data for API call
       const rideData = {
@@ -130,22 +118,16 @@ const TransportVehicleSelection: React.FC = () => {
         vehicleTypeId: selectedTier.vehicleTypeId,
       };
 
-      console.log(
-        "[TransportVehicleSelection] Creating ride with real data:",
-        rideData,
-      );
+      
 
       // Call API to create ride (backend will calculate price)
       const result = await transportClient.defineRideFlow(rideData);
-      console.log("[TransportVehicleSelection] API response:", result);
+      
 
       // Handle backend response structure: { data: { data: {...} }, message, statusCode, ... }
       if (result && result.data && result.data.data) {
         const rideInfo = result.data.data;
-        console.log(
-          "[TransportVehicleSelection] Ride created successfully:",
-          rideInfo,
-        );
+        
 
         // Extract rideId and farePrice from response
         const rideId = rideInfo.id || rideInfo.rideId || rideInfo._id;
@@ -153,8 +135,8 @@ const TransportVehicleSelection: React.FC = () => {
 
         if (rideId) {
           setRideId(rideId);
-          console.log("[TransportVehicleSelection] Ride ID set:", rideId);
-          console.log("[TransportVehicleSelection] Backend calculated farePrice:", farePrice);
+          
+          
 
           // 🆕 PASO 3: Guardar el precio calculado por el backend
           setSelectedTierId(selectedTierId);
@@ -169,40 +151,23 @@ const TransportVehicleSelection: React.FC = () => {
             destinationAddress: confirmedDestination.address,
           });
 
-          console.log("[TransportVehicleSelection] Store updated with backend data:", {
-            estimatedPrice: farePrice,
-            rideId: rideId,
-            selectedTierId: selectedTierId,
-          });
+          
 
-          console.log(
-            "[TransportVehicleSelection] Saved tier and vehicle type for matching:",
-            {
-              tierId: selectedTierId,
-              vehicleTypeId: selectedTab === "car" ? 1 : 2,
-            },
-          );
+          
 
-          console.log(
-            "[TransportVehicleSelection] Navigating to payment methodology",
-          );
+          
 
           next(); // Navegar a METODOLOGIA_PAGO
         } else {
-          console.warn(
-            "[TransportVehicleSelection] No rideId found in response",
-          );
+          
           showError("Error", "Viaje creado pero no se pudo obtener el ID");
         }
       } else {
-        console.error(
-          "[TransportVehicleSelection] Unexpected response structure:",
-          result,
-        );
+        
         showError("Error", "Respuesta del servidor inesperada");
       }
     } catch (error: any) {
-      console.error("[TransportVehicleSelection] Error creating ride:", error);
+      
       showError("Error", error.message || "Error al crear el viaje");
     } finally {
       setIsProcessing(false);
@@ -241,14 +206,7 @@ const TransportVehicleSelection: React.FC = () => {
     );
   }
 
-  console.log("[TransportVehicleSelection] RENDER - Component state:", {
-    tiers,
-    tiersLoading,
-    tiersError,
-    selectedTab,
-    currentTiers,
-    currentTiersLength: currentTiers.length,
-  });
+  
 
   return (
     <View className="flex-1">
@@ -264,21 +222,13 @@ const TransportVehicleSelection: React.FC = () => {
             const vehicleTypeName =
               vehicleType === "car" ? "🚗 Carro" : "🏍️ Moto";
 
-            console.log(`[TransportVehicleSelection] Tab ${vehicleType}:`, {
-              vehicleType,
-              isActive,
-              tierCount,
-              tiersForType: tiers[vehicleType as keyof typeof tiers],
-              vehicleTypeName,
-            });
+            
 
             return (
               <TouchableOpacity
                 key={vehicleType}
                 onPress={() => {
-                  console.log(
-                    `[TransportVehicleSelection] Switching to tab: ${vehicleType}`,
-                  );
+                  
                   setSelectedTab(vehicleType as "car" | "motorcycle");
                 }}
                 className={`flex-1 py-2 px-4 rounded-md ${

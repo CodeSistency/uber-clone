@@ -63,7 +63,7 @@ export interface TransportRideData {
 export const transportClient = {
   // Define ride (create) - OLD METHOD
   async defineRide(data: TransportRideData) {
-    console.log("[TransportClient] Creating ride:", data);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/transport/define-ride`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -84,7 +84,7 @@ export const transportClient = {
     phoneNumber?: string; // For FOR_OTHER rides
     rideType?: string; // 'normal' | 'for_other'
   }) {
-    console.log("[TransportClient] Creating ride flow:", data);
+    
     // Use full URL to avoid the /api prefix that fetchAPI adds
     const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
     const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/define-ride`;
@@ -101,7 +101,7 @@ export const transportClient = {
     rideId: number,
     data: { tierId: number; vehicleTypeId: number },
   ) {
-    console.log("[TransportClient] Selecting vehicle for ride:", rideId, data);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/transport/${rideId}/select-vehicle`,
       {
@@ -112,9 +112,9 @@ export const transportClient = {
     );
   },
 
-  // Request driver (matching)
+  // Request driver (matching) - MANTENIDO para compatibilidad
   async requestDriver(rideId: number) {
-    console.log("[TransportClient] Requesting driver for ride:", rideId);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/transport/${rideId}/request-driver`,
       {
@@ -124,9 +124,39 @@ export const transportClient = {
     );
   },
 
+  // ✅ NUEVO: Búsqueda síncrona de conductor (según documentación)
+  async matchBestDriver(data: {
+    lat: number;
+    lng: number;
+    tierId: number;
+    radiusKm: number;
+  }) {
+    
+    
+    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/match-best-driver`, {
+      method: "POST",
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
+  // ✅ NUEVO: Confirmar conductor específico (según documentación)
+  async confirmDriver(rideId: number, data: {
+    driverId: number;
+    notes?: string;
+  }) {
+    
+    
+    return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/confirm-driver`, {
+      method: "POST",
+      body: JSON.stringify(data),
+      requiresAuth: true,
+    });
+  },
+
   // Confirm payment
   async confirmPayment(rideId: number, data: PaymentData) {
-    console.log("[TransportClient] Confirming payment for ride:", rideId, data);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/transport/${rideId}/confirm-payment`,
       {
@@ -151,10 +181,7 @@ export const transportClient = {
     estimatedMiles: number;
     totalFare: number;
   }> {
-    console.log(
-      "[TransportClient] Getting price estimate:",
-      { tierId, minutes, miles },
-    );
+    
 
     const queryParams = new URLSearchParams({
       tierId: tierId.toString(),
@@ -162,9 +189,9 @@ export const transportClient = {
       miles: miles.toFixed(1),
     });
 
-    console.log("[TransportClient] Calling fetchAPI with URL:", `ride/estimate?${queryParams.toString()}`);
+    
     const response = await fetchAPI(`ride/estimate?${queryParams.toString()}`);
-    console.log("[TransportClient] Price estimate response:", response);
+    
     // Backend returns { data: { data: {...} } } - need to access nested data
     return response.data.data;
   },
@@ -181,11 +208,7 @@ export const transportClient = {
       }[];
     },
   ) {
-    console.log(
-      "[TransportClient] Paying with multiple methods for ride:",
-      rideId,
-      data,
-    );
+    
     // Use full URL to avoid the /api prefix that fetchAPI adds
     const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
     const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/pay-with-multiple-methods`;
@@ -205,11 +228,7 @@ export const transportClient = {
       bankCode?: string;
     },
   ) {
-    console.log(
-      "[TransportClient] Generating payment reference for ride:",
-      rideId,
-      data,
-    );
+    
     const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
     const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/generate-payment-reference`;
 
@@ -228,11 +247,7 @@ export const transportClient = {
       bankCode?: string;
     },
   ) {
-    console.log(
-      "[TransportClient] Confirming payment with reference for ride:",
-      rideId,
-      data,
-    );
+    
     const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
     const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/confirm-payment-with-reference`;
 
@@ -251,11 +266,7 @@ export const transportClient = {
       bankCode?: string;
     },
   ) {
-    console.log(
-      "[TransportClient] Confirming partial payment for ride:",
-      rideId,
-      data,
-    );
+    
     const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
     const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/confirm-partial-payment`;
 
@@ -268,7 +279,7 @@ export const transportClient = {
 
   // 🆕 NEW: Get payment status
   async getPaymentStatus(rideId: number) {
-    console.log("[TransportClient] Getting payment status for ride:", rideId);
+    
     const serverUrl = process.env.EXPO_PUBLIC_SERVER_URL || "";
     const fullUrl = `${serverUrl.replace("/api", "")}/rides/flow/client/transport/${rideId}/payment-status`;
 
@@ -279,7 +290,7 @@ export const transportClient = {
 
   // Join tracking
   async join(rideId: number) {
-    console.log("[TransportClient] Joining ride tracking:", rideId);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/join`, {
       method: "POST",
       requiresAuth: true,
@@ -288,7 +299,7 @@ export const transportClient = {
 
   // Get status
   async getStatus(rideId: number) {
-    console.log("[TransportClient] Getting ride status:", rideId);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/transport/${rideId}/status`,
       {
@@ -299,7 +310,7 @@ export const transportClient = {
 
   // Cancel ride
   async cancel(rideId: number, reason?: string) {
-    console.log("[TransportClient] Cancelling ride:", rideId, reason);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/transport/${rideId}/cancel`,
       {
@@ -312,7 +323,7 @@ export const transportClient = {
 
   // Rate ride
   async rate(rideId: number, data: { rating: number; comment?: string }) {
-    console.log("[TransportClient] Rating ride:", rideId, data);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/transport/${rideId}/rate`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -325,7 +336,7 @@ export const transportClient = {
 export const deliveryClient = {
   // Create order
   async createOrder(data: DeliveryOrderData) {
-    console.log("[DeliveryClient] Creating order:", data);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/delivery/create-order`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -335,11 +346,7 @@ export const deliveryClient = {
 
   // Confirm payment
   async confirmPayment(orderId: number, data: PaymentData) {
-    console.log(
-      "[DeliveryClient] Confirming payment for order:",
-      orderId,
-      data,
-    );
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/delivery/${orderId}/confirm-payment`,
       {
@@ -352,7 +359,7 @@ export const deliveryClient = {
 
   // Join tracking
   async join(orderId: number) {
-    console.log("[DeliveryClient] Joining order tracking:", orderId);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/delivery/${orderId}/join`, {
       method: "POST",
       requiresAuth: true,
@@ -361,7 +368,7 @@ export const deliveryClient = {
 
   // Get status
   async getStatus(orderId: number) {
-    console.log("[DeliveryClient] Getting order status:", orderId);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/delivery/${orderId}/status`,
       {
@@ -372,7 +379,7 @@ export const deliveryClient = {
 
   // Cancel order
   async cancel(orderId: number, reason?: string) {
-    console.log("[DeliveryClient] Cancelling order:", orderId, reason);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/delivery/${orderId}/cancel`,
       {
@@ -388,7 +395,7 @@ export const deliveryClient = {
 export const errandClient = {
   // Create errand
   async create(data: ErrandData) {
-    console.log("[ErrandClient] Creating errand:", data);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/errand/create`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -398,7 +405,7 @@ export const errandClient = {
 
   // Join tracking
   async join(errandId: number) {
-    console.log("[ErrandClient] Joining errand tracking:", errandId);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/errand/${errandId}/join`, {
       method: "POST",
       requiresAuth: true,
@@ -407,7 +414,7 @@ export const errandClient = {
 
   // Get status
   async getStatus(errandId: number) {
-    console.log("[ErrandClient] Getting errand status:", errandId);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/errand/${errandId}/status`, {
       requiresAuth: true,
     });
@@ -415,7 +422,7 @@ export const errandClient = {
 
   // Confirm payment
   async confirmPayment(errandId: number, data: PaymentData) {
-    console.log("[ErrandClient] Confirming payment:", errandId, data);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/errand/${errandId}/confirm-payment`,
       {
@@ -428,7 +435,7 @@ export const errandClient = {
 
   // Cancel errand
   async cancel(errandId: number, reason?: string) {
-    console.log("[ErrandClient] Cancelling errand:", errandId, reason);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/errand/${errandId}/cancel`, {
       method: "POST",
       body: JSON.stringify({ reason }),
@@ -441,7 +448,7 @@ export const errandClient = {
 export const parcelClient = {
   // Create parcel
   async create(data: ParcelData) {
-    console.log("[ParcelClient] Creating parcel:", data);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/parcel/create`, {
       method: "POST",
       body: JSON.stringify(data),
@@ -451,7 +458,7 @@ export const parcelClient = {
 
   // Join tracking
   async join(parcelId: number) {
-    console.log("[ParcelClient] Joining parcel tracking:", parcelId);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/parcel/${parcelId}/join`, {
       method: "POST",
       requiresAuth: true,
@@ -460,7 +467,7 @@ export const parcelClient = {
 
   // Get status
   async getStatus(parcelId: number) {
-    console.log("[ParcelClient] Getting parcel status:", parcelId);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/parcel/${parcelId}/status`, {
       requiresAuth: true,
     });
@@ -468,7 +475,7 @@ export const parcelClient = {
 
   // Confirm payment
   async confirmPayment(parcelId: number, data: PaymentData) {
-    console.log("[ParcelClient] Confirming payment:", parcelId, data);
+    
     return await fetchAPI(
       `${FLOW_BASE_URL}/client/parcel/${parcelId}/confirm-payment`,
       {
@@ -481,7 +488,7 @@ export const parcelClient = {
 
   // Cancel parcel
   async cancel(parcelId: number, reason?: string) {
-    console.log("[ParcelClient] Cancelling parcel:", parcelId, reason);
+    
     return await fetchAPI(`${FLOW_BASE_URL}/client/parcel/${parcelId}/cancel`, {
       method: "POST",
       body: JSON.stringify({ reason }),
@@ -496,7 +503,7 @@ export const parcelClient = {
     tierId?: number;
     vehicleTypeId?: number;
   }) {
-    console.log("[TransportClient] Getting nearby drivers:", params);
+    
     const queryParams = new URLSearchParams({
       lat: params.lat.toString(),
       lng: params.lng.toString(),
@@ -523,7 +530,7 @@ export const parcelClient = {
     driverCount?: number;
     vehicleTypeIds?: number[];
   }) {
-    console.log("[TransportClient] Simulating driver locations:", params);
+    
     return await fetchAPI(
       `rides/flow/client/transport/test/simulate-driver-locations`,
       {
@@ -539,7 +546,7 @@ export const parcelClient = {
 export const transportDriverClient = {
   // Get available rides
   async getAvailable() {
-    console.log("[TransportDriverClient] Getting available rides");
+    
     return await fetchAPI(`${FLOW_BASE_URL}/driver/transport/available`, {
       requiresAuth: true,
     });
@@ -547,7 +554,7 @@ export const transportDriverClient = {
 
   // Accept ride
   async accept(rideId: number, idempotencyKey?: string) {
-    console.log("[TransportDriverClient] Accepting ride:", rideId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -565,7 +572,7 @@ export const transportDriverClient = {
 
   // Arrived at pickup
   async arrived(rideId: number, idempotencyKey?: string) {
-    console.log("[TransportDriverClient] Arrived at pickup for ride:", rideId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -583,7 +590,7 @@ export const transportDriverClient = {
 
   // Start ride
   async start(rideId: number, idempotencyKey?: string) {
-    console.log("[TransportDriverClient] Starting ride:", rideId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -602,7 +609,7 @@ export const transportDriverClient = {
     data?: { fare?: number },
     idempotencyKey?: string,
   ) {
-    console.log("[TransportDriverClient] Completing ride:", rideId, data);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -624,7 +631,7 @@ export const transportDriverClient = {
 export const deliveryDriverClient = {
   // Get available orders
   async getAvailable() {
-    console.log("[DeliveryDriverClient] Getting available orders");
+    
     return await fetchAPI(`${FLOW_BASE_URL}/driver/delivery/available`, {
       requiresAuth: true,
     });
@@ -632,7 +639,7 @@ export const deliveryDriverClient = {
 
   // Accept order
   async accept(orderId: number, idempotencyKey?: string) {
-    console.log("[DeliveryDriverClient] Accepting order:", orderId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -650,7 +657,7 @@ export const deliveryDriverClient = {
 
   // Pickup from store
   async pickup(orderId: number, idempotencyKey?: string) {
-    console.log("[DeliveryDriverClient] Picking up order:", orderId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -668,7 +675,7 @@ export const deliveryDriverClient = {
 
   // Deliver order
   async deliver(orderId: number, idempotencyKey?: string) {
-    console.log("[DeliveryDriverClient] Delivering order:", orderId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -689,7 +696,7 @@ export const deliveryDriverClient = {
 export const errandDriverClient = {
   // Accept errand
   async accept(errandId: number, idempotencyKey?: string) {
-    console.log("[ErrandDriverClient] Accepting errand:", errandId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -708,11 +715,7 @@ export const errandDriverClient = {
     data: { itemsCost: number; notes?: string },
     idempotencyKey?: string,
   ) {
-    console.log(
-      "[ErrandDriverClient] Updating shopping for errand:",
-      errandId,
-      data,
-    );
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -731,7 +734,7 @@ export const errandDriverClient = {
 
   // Start delivery
   async start(errandId: number, idempotencyKey?: string) {
-    console.log("[ErrandDriverClient] Starting errand delivery:", errandId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -746,7 +749,7 @@ export const errandDriverClient = {
 
   // Complete errand
   async complete(errandId: number, idempotencyKey?: string) {
-    console.log("[ErrandDriverClient] Completing errand:", errandId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -767,7 +770,7 @@ export const errandDriverClient = {
 export const parcelDriverClient = {
   // Accept parcel
   async accept(parcelId: number, idempotencyKey?: string) {
-    console.log("[ParcelDriverClient] Accepting parcel:", parcelId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -782,7 +785,7 @@ export const parcelDriverClient = {
 
   // Pickup parcel
   async pickup(parcelId: number, idempotencyKey?: string) {
-    console.log("[ParcelDriverClient] Picking up parcel:", parcelId);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -801,7 +804,7 @@ export const parcelDriverClient = {
     data?: { signatureImageUrl?: string; photoUrl?: string },
     idempotencyKey?: string,
   ) {
-    console.log("[ParcelDriverClient] Delivering parcel:", parcelId, data);
+    
     const headers: Record<string, string> = {};
     if (idempotencyKey) {
       headers["Idempotency-Key"] = idempotencyKey;
@@ -830,7 +833,7 @@ export const flowUtils = {
 
   // Common error handling
   handleFlowError: (error: any, operation: string) => {
-    console.error(`[FlowClient] Error in ${operation}:`, error);
+    
     throw error;
   },
 

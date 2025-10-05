@@ -51,7 +51,7 @@ const SimpleDatePicker = ({
 const DateTimePickerComponent = null;
 
 export default function PersonalInfo() {
-  console.log("[PersonalInfo] Rendering personal info");
+  
 
   const {
     currentStep,
@@ -77,7 +77,7 @@ export default function PersonalInfo() {
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
-    console.log(`[PersonalInfo] Input change - ${field}:`, value);
+    
     setForm((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -115,7 +115,7 @@ export default function PersonalInfo() {
   };
 
   const handleGenderSelect = (gender: "male" | "female" | "other") => {
-    console.log("[PersonalInfo] Selected gender:", gender);
+    
     setForm((prev) => ({ ...prev, gender }));
     Haptics.selectionAsync();
   };
@@ -142,7 +142,7 @@ export default function PersonalInfo() {
       setLoading(true);
       setError(null);
 
-      console.log("[PersonalInfo] Saving personal info:", form);
+      
 
       // Update local state
       updateUserData({
@@ -162,7 +162,7 @@ export default function PersonalInfo() {
         }),
       });
 
-      console.log("[PersonalInfo] API response:", response);
+      
 
       const isSuccess =
         (response &&
@@ -173,7 +173,7 @@ export default function PersonalInfo() {
           !("statusCode" in (response || {})));
 
       if (isSuccess) {
-        console.log("[PersonalInfo] Personal info saved successfully");
+        
         nextStep();
         // Navigate to onboarding index to redirect based on updated step
         router.replace("/");
@@ -184,7 +184,7 @@ export default function PersonalInfo() {
         );
       }
     } catch (error: any) {
-      console.error("[PersonalInfo] Error saving personal info:", error);
+      
 
       // Handle authentication errors specially
       if (

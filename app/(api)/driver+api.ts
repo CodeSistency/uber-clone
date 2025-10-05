@@ -5,16 +5,12 @@ export async function GET(request: Request) {
     const sql = neon(`${process.env.DATABASE_URL}`);
     const response = await sql`SELECT * FROM drivers`;
 
-    console.log("[API] Fetching drivers. Found:", response.length);
-    console.log("[API] First driver sample:", {
-      id: response[0]?.id,
-      first_name: response[0]?.first_name,
-      last_name: response[0]?.last_name,
-    });
+    
+    
 
     // If no drivers in database, return dummy data for development
     if (!response || response.length === 0) {
-      console.log("[API] No drivers found in database, returning dummy data");
+      
       const dummyDrivers = [
         {
           id: 1,
@@ -55,10 +51,10 @@ export async function GET(request: Request) {
 
     return Response.json({ data: response });
   } catch (error) {
-    console.error("Error fetching drivers:", error);
+    
 
     // Fallback to dummy data even on error for development
-    console.log("[API] Database error, returning dummy data as fallback");
+    
     const dummyDrivers = [
       {
         id: 1,

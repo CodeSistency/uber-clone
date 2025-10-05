@@ -45,9 +45,7 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
     setIsConfirming(true);
 
     try {
-      console.log("[DriverArrived] Confirming driver arrival", {
-        actualRideId,
-      });
+      
 
       if (actualRideId && connectionStatus.websocketConnected) {
         // Enviar notificación de confirmación vía WebSocket
@@ -55,9 +53,7 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
         setConfirmationSent(true);
         showSuccess("Confirmación enviada", "El conductor ha sido notificado");
       } else {
-        console.warn(
-          "[DriverArrived] No rideId or not connected, using fallback",
-        );
+        
       }
 
       // Esperar un momento para feedback visual
@@ -65,7 +61,7 @@ const DriverArrived: React.FC<DriverArrivedProps> = ({
         onReady();
       }, 1000);
     } catch (error) {
-      console.error("[DriverArrived] Error confirming arrival:", error);
+      
       showError("Error", "No se pudo confirmar la llegada");
 
       // Fallback: continuar de todas formas

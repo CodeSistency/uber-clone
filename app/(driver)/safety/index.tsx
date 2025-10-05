@@ -92,7 +92,7 @@ const SafetyScreen = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       // In real implementation, fetch from API
     } catch (error) {
-      console.error("Error refreshing safety data:", error);
+      
     } finally {
       setRefreshing(false);
     }
@@ -111,7 +111,7 @@ const SafetyScreen = () => {
           style: "destructive",
           onPress: () => {
             // In real implementation, trigger emergency alert
-            console.log(`Emergency alert triggered: ${type}`);
+            
             Alert.alert(
               "Alert Sent",
               "Emergency services have been notified and your contacts will be alerted.",

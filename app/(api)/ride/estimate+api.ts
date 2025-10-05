@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error calculating ride estimate:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

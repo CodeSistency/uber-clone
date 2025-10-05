@@ -102,7 +102,7 @@ export const RidesOfflineView: React.FC<RidesOfflineViewProps> = ({
       }
       onRefresh?.();
     } catch (error) {
-      console.error("[RidesOfflineView] Refresh failed:", error);
+      
     } finally {
       setRefreshing(false);
     }
@@ -113,7 +113,7 @@ export const RidesOfflineView: React.FC<RidesOfflineViewProps> = ({
       await syncNow();
       await loadFromCache(); // Reload cache after sync
     } catch (error) {
-      console.error("[RidesOfflineView] Sync failed:", error);
+      
     }
   };
 

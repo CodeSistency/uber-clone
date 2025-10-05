@@ -208,7 +208,7 @@ const submitOnboardingToBackend = async (
   data: Partial<DriverOnboardingData>,
 ) => {
   try {
-    console.log("[OnboardingSubmit] Submitting onboarding data to backend");
+    
 
     // Create driver profile
     const driverProfileData = {
@@ -232,7 +232,7 @@ const submitOnboardingToBackend = async (
 
     // Submit driver profile
     const driverResult = await driverService.updateProfile(driverProfileData);
-    console.log("[OnboardingSubmit] Driver profile created:", driverResult);
+    
 
     // Create vehicle
     const vehicleData = {
@@ -254,7 +254,7 @@ const submitOnboardingToBackend = async (
     };
 
     const vehicleResult = await vehicleService.createVehicle(vehicleData);
-    console.log("[OnboardingSubmit] Vehicle created:", vehicleResult);
+    
 
     // Upload documents
     const documentsToUpload = [
@@ -287,7 +287,7 @@ const submitOnboardingToBackend = async (
       });
     }
 
-    console.log("[OnboardingSubmit] Documents uploaded");
+    
 
     // Mark onboarding as complete
     const onboardingResult = await driverService.updateProfile({
@@ -295,7 +295,7 @@ const submitOnboardingToBackend = async (
       onboardingCompletedAt: new Date().toISOString(),
     });
 
-    console.log("[OnboardingSubmit] Onboarding completed successfully");
+    
 
     return {
       driver: driverResult,
@@ -303,7 +303,7 @@ const submitOnboardingToBackend = async (
       onboarding: onboardingResult,
     };
   } catch (error: any) {
-    console.error("[OnboardingSubmit] Error submitting to backend:", error);
+    
     throw new Error(`Failed to complete onboarding: ${error.message}`);
   }
 };
@@ -320,7 +320,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
     // Initialize onboarding with migrated user data
     initializeOnboarding: async () => {
       const state = get();
-      console.log("[DriverOnboardingStore] Initializing onboarding");
+      
 
       try {
         state.setLoading(true);
@@ -336,7 +336,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
           const migratedData = await driverRoleStore.getMigratedData();
 
           if (migratedData?.userData) {
-            console.log("[DriverOnboardingStore] Using migrated user data");
+            
             set({
               onboardingData: {
                 ...migratedData.userData,
@@ -358,12 +358,9 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
         }
 
         await state.saveProgress();
-        console.log("[DriverOnboardingStore] Onboarding initialized");
+        
       } catch (error: any) {
-        console.error(
-          "[DriverOnboardingStore] Error initializing onboarding:",
-          error,
-        );
+        
         set({
           error: error.message || "Failed to initialize onboarding",
         });
@@ -374,10 +371,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
 
     // Update data for a specific step
     updateStepData: async (stepId: number, data: any) => {
-      console.log(
-        `[DriverOnboardingStore] Updating step ${stepId} data:`,
-        data,
-      );
+      
 
       set((prevState) => ({
         onboardingData: {
@@ -391,7 +385,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
 
     // Mark a step as completed
     completeStep: async (stepId: number) => {
-      console.log(`[DriverOnboardingStore] Completing step ${stepId}`);
+      
 
       set((prevState) => {
         const completedSteps = [
@@ -415,7 +409,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
 
     // Navigate to a specific step
     goToStep: (stepId: number) => {
-      console.log(`[DriverOnboardingStore] Going to step ${stepId}`);
+      
       set((prevState) => ({
         currentStep: stepId,
         onboardingData: {
@@ -428,7 +422,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
     // Submit final onboarding
     submitOnboarding: async () => {
       const state = get();
-      console.log("[DriverOnboardingStore] Submitting onboarding");
+      
 
       try {
         state.setLoading(true);
@@ -463,14 +457,9 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
         // Clear saved progress
         await AsyncStorage.removeItem(ONBOARDING_DATA_KEY);
 
-        console.log(
-          "[DriverOnboardingStore] Onboarding submitted successfully",
-        );
+        
       } catch (error: any) {
-        console.error(
-          "[DriverOnboardingStore] Error submitting onboarding:",
-          error,
-        );
+        
         set({
           error: error.message || "Failed to submit onboarding",
         });
@@ -482,7 +471,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
 
     // Reset onboarding (for testing or restart)
     resetOnboarding: async () => {
-      console.log("[DriverOnboardingStore] Resetting onboarding");
+      
 
       try {
         set({
@@ -493,12 +482,9 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
         });
 
         await AsyncStorage.removeItem(ONBOARDING_DATA_KEY);
-        console.log("[DriverOnboardingStore] Onboarding reset");
+        
       } catch (error: any) {
-        console.error(
-          "[DriverOnboardingStore] Error resetting onboarding:",
-          error,
-        );
+        
       }
     },
 
@@ -508,10 +494,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
         const savedData = await AsyncStorage.getItem(ONBOARDING_DATA_KEY);
         if (savedData) {
           const parsedData = JSON.parse(savedData);
-          console.log(
-            "[DriverOnboardingStore] Loaded saved progress:",
-            parsedData,
-          );
+          
 
           set({
             onboardingData: parsedData,
@@ -520,10 +503,7 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
           });
         }
       } catch (error: any) {
-        console.error(
-          "[DriverOnboardingStore] Error loading saved progress:",
-          error,
-        );
+        
       }
     },
 
@@ -540,9 +520,9 @@ export const useDriverOnboardingStore = create<DriverOnboardingState>(
           ONBOARDING_DATA_KEY,
           JSON.stringify(dataToSave),
         );
-        console.log("[DriverOnboardingStore] Progress saved");
+        
       } catch (error: any) {
-        console.error("[DriverOnboardingStore] Error saving progress:", error);
+        
       }
     },
 

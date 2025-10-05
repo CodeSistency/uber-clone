@@ -16,14 +16,14 @@ export interface OnboardingStatus {
  */
 export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
   try {
-    console.log("[OnboardingCheck] Checking onboarding status");
+    
     // API-first to avoid stale local completion states
-    console.log("[OnboardingCheck] Checking API for onboarding status");
+    
     try {
       const response = await fetchAPI("onboarding/status", {
         requiresAuth: true,
       });
-      console.log("[OnboardingCheck] API response:", response);
+      
 
       const isCompletedAPI = response?.data?.isCompleted === true;
       const nextStepRaw = response?.data?.nextStep;
@@ -47,7 +47,7 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
       }
       const userData = response?.data;
 
-      console.log("[OnboardingCheck] API completion status:", isCompletedAPI);
+      
 
       // If API says it's completed, update local storage
       // Always sync local storage with API
@@ -56,10 +56,7 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
       if (userData) {
         await onboardingStorage.saveData(userData);
       }
-      console.log("[OnboardingCheck] Local storage synchronized with API", {
-        isCompletedAPI,
-        nextStep,
-      });
+      
 
       // Fallback inference: some legacy users may be effectively completed
       // even if API hasn't updated their onboarding status. Consider completed
@@ -72,9 +69,7 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
           const profile = profileResp?.data ?? profileResp;
           const hasLocation = !!(profile?.country && profile?.city);
           if (hasLocation) {
-            console.log(
-              "[OnboardingCheck] Inferred completed from profile (country/city present). Overriding to completed.",
-            );
+            
             await onboardingStorage.setCompleted(true);
             await onboardingStorage.saveStep(3);
             return {
@@ -85,7 +80,7 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
             };
           }
         } catch (inferErr) {
-          console.warn("[OnboardingCheck] Profile inference failed:", inferErr);
+          
         }
       }
 
@@ -96,15 +91,12 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
         source: "api",
       };
     } catch (apiError) {
-      console.error("[OnboardingCheck] API check failed:", apiError);
+      
       // Fallback to local only if API not reachable
       const isCompletedLocal = await onboardingStorage.isCompleted();
       const stepLocal = await onboardingStorage.getStep();
       const userDataLocal = await onboardingStorage.getData();
-      console.log("[OnboardingCheck] Fallback to local:", {
-        isCompletedLocal,
-        stepLocal,
-      });
+      
       return {
         isCompleted: !!isCompletedLocal,
         nextStep: stepLocal || 0,
@@ -113,7 +105,7 @@ export const checkOnboardingStatus = async (): Promise<OnboardingStatus> => {
       };
     }
   } catch (error) {
-    console.error("[OnboardingCheck] Error checking onboarding status:", error);
+    
     return {
       isCompleted: false,
       source: "fallback",
@@ -128,7 +120,7 @@ export const markOnboardingCompleted = async (
   userData?: any,
 ): Promise<void> => {
   try {
-    console.log("[OnboardingCheck] Marking onboarding as completed");
+    
 
     // Save to local storage
     await onboardingStorage.setCompleted(true);
@@ -143,18 +135,12 @@ export const markOnboardingCompleted = async (
         requiresAuth: true,
         body: JSON.stringify({ userData }),
       });
-      console.log("[OnboardingCheck] API updated successfully");
+      
     } catch (apiError) {
-      console.warn(
-        "[OnboardingCheck] API update failed, but local storage was updated:",
-        apiError,
-      );
+      
     }
   } catch (error) {
-    console.error(
-      "[OnboardingCheck] Error marking onboarding completed:",
-      error,
-    );
+    
     throw error;
   }
 };
@@ -164,7 +150,7 @@ export const markOnboardingCompleted = async (
  */
 export const resetOnboardingStatus = async (): Promise<void> => {
   try {
-    console.log("[OnboardingCheck] Resetting onboarding status");
+    
 
     // Clear local storage
     await onboardingStorage.clear();
@@ -175,12 +161,12 @@ export const resetOnboardingStatus = async (): Promise<void> => {
         method: "POST",
         requiresAuth: true,
       });
-      console.log("[OnboardingCheck] API reset successfully");
+      
     } catch (apiError) {
-      console.warn("[OnboardingCheck] API reset failed:", apiError);
+      
     }
   } catch (error) {
-    console.error("[OnboardingCheck] Error resetting onboarding:", error);
+    
     throw error;
   }
 };

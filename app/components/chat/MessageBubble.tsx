@@ -245,7 +245,7 @@ export const MessageBubble: React.FC<MessageBubbleProps> = ({
                     style: "destructive",
                     onPress: () => {
                       // Handle delete action
-                      console.log("Delete message:", message.id);
+                      
                     },
                   },
                 ],

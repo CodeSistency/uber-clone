@@ -120,9 +120,7 @@ async function processRequestQueue(): Promise<void> {
     if (!queuedRequest) continue;
 
     try {
-      console.log(
-        `[RequestQueue] Processing queued request: ${queuedRequest.id}`,
-      );
+      
 
       // Calculate delay based on retry count
       if (queuedRequest.retryCount > 0) {
@@ -137,10 +135,7 @@ async function processRequestQueue(): Promise<void> {
       );
       queuedRequest.resolve(response);
     } catch (error) {
-      console.error(
-        `[RequestQueue] Request ${queuedRequest.id} failed:`,
-        error,
-      );
+      
 
       // Check if we should retry (but never retry auth endpoints)
       const isAuthEndpoint = ALWAYS_ONLINE_ENDPOINTS.some((pattern) =>
@@ -148,9 +143,7 @@ async function processRequestQueue(): Promise<void> {
       );
 
       if (shouldRetry(error, queuedRequest.retryCount) && !isAuthEndpoint) {
-        console.log(
-          `[RequestQueue] Retrying request ${queuedRequest.id} (attempt ${queuedRequest.retryCount + 1})`,
-        );
+        
 
         // Re-queue with incremented retry count
         const retryRequest: QueuedRequest = {
@@ -190,7 +183,7 @@ function queueRequest(url: string, options: RequestInit): Promise<any> {
     };
 
     requestQueue.push(queuedRequest);
-    console.log(`[RequestQueue] Request queued: ${queuedRequest.id}`);
+    
 
     // Start processing queue
     processRequestQueue();
@@ -227,14 +220,7 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
     headers,
   };
 
-  console.log("[fetchAPI] ▶ Request", {
-    url,
-    options: requestOptions,
-    bodyContent:
-      options?.body && typeof options.body === "string"
-        ? (() => {
-            try {
-              return JSON.parse(options.body as string);
+  
             } catch {
               return options.body;
             }
@@ -246,12 +232,7 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
     await simulateLatency();
     maybeFail();
     const response = await fetch(url, requestOptions);
-    console.log("[fetchAPI] ◀ ResponseMeta", {
-      url,
-      ok: response.ok,
-      status: response.status,
-      statusText: response.statusText,
-    });
+    
 
     let body: any = null;
     try {
@@ -260,24 +241,22 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
         body = JSON.parse(textResponse);
       }
     } catch (parseError) {
-      console.log("[fetchAPI] ⚠ Non-JSON response", { url });
+      
       body = { message: "Non-JSON response received" };
     }
 
-    console.log("[fetchAPI] ◀ Body", { url, body });
+    
 
     // Handle new backend response structure
     if (!response.ok) {
       // Handle token expiration (401) - try to refresh token automatically
       if (response.status === 401 && (options as any)?.requiresAuth) {
-        console.log(
-          "[fetchAPI] 🔄 Token expired (401), attempting automatic refresh",
-        );
+        
 
         try {
           // Prevent multiple simultaneous refresh attempts
           if (isRefreshingToken) {
-            console.log("[fetchAPI] Refresh already in progress, waiting...");
+            
             if (refreshPromise) {
               await refreshPromise;
             }
@@ -290,9 +269,7 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
             // Attempt to refresh token
             const refreshToken = await tokenManager.getRefreshToken();
             if (!refreshToken) {
-              console.log(
-                "[fetchAPI] No refresh token available, redirecting to login",
-              );
+              
               throw new Error("No refresh token available");
             }
 
@@ -313,16 +290,14 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
               refreshData?.accessToken &&
               refreshData?.refreshToken
             ) {
-              console.log("[fetchAPI] ✅ Token refreshed successfully");
+              
 
               // Store new tokens
               await tokenManager.setAccessToken(refreshData.accessToken);
               await tokenManager.setRefreshToken(refreshData.refreshToken);
 
               // Retry the original request with new token
-              console.log(
-                "[fetchAPI] 🔄 Retrying original request with new token",
-              );
+              
               const newHeaders = { ...headers };
               if ((options as any)?.requiresAuth) {
                 const authHeaders = await tokenManager.getAuthHeaders();
@@ -342,13 +317,10 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
                 retryData = { message: "Non-JSON response received" };
               }
 
-              console.log("[fetchAPI] 🔄 Retry response:", {
-                ok: retryResponse.ok,
-                status: retryResponse.status,
-              });
+              
 
               if (retryResponse.ok) {
-                console.log("[fetchAPI] ✅ Retry successful");
+                
                 return retryData;
               } else {
                 throw new Error(
@@ -357,14 +329,12 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
                 );
               }
             } else {
-              console.log(
-                "[fetchAPI] ❌ Token refresh failed, redirecting to login",
-              );
+              
               throw new Error("Token refresh failed");
             }
           }
         } catch (refreshError) {
-          console.error("[fetchAPI] ❌ Token refresh error:", refreshError);
+          
 
           // Clear tokens and redirect to login
           try {
@@ -376,12 +346,10 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
             userStore.clearUser();
 
             // Redirect to login
-            console.log(
-              "[fetchAPI] 🔄 Redirecting to login due to authentication failure",
-            );
+            
             router.replace("/(auth)/sign-in");
           } catch (cleanupError) {
-            console.error("[fetchAPI] Error during cleanup:", cleanupError);
+            
           }
 
           throw new Error("Authentication expired. Please log in again.");
@@ -404,7 +372,7 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
 
     return body;
   } catch (error) {
-    console.error("[fetchAPI] ✖ Error", { url, error });
+    
 
     // Enhance error with backend-specific information
     if (error instanceof Error) {
@@ -415,7 +383,7 @@ async function makeRequest(url: string, options: RequestInit): Promise<any> {
 
     throw error;
   } finally {
-    console.log("[fetchAPI] ⏱ DurationMs", { url, ms: Date.now() - startMs });
+    
   }
 }
 
@@ -465,13 +433,7 @@ export const fetchAPI = async (
 
     // Check if this endpoint is allowed to work offline
     if (canWorkOffline(endpoint, method)) {
-      console.log(
-        "[fetchAPI] 📦 No network connectivity, but endpoint can work offline - queuing request:",
-        {
-          endpoint,
-          method,
-        },
-      );
+      
 
       // Queue request with appropriate priority
       const priority = determineRequestPriority(endpoint, options);
@@ -485,10 +447,7 @@ export const fetchAPI = async (
       });
     } else {
       // This operation requires network connectivity
-      console.log("[fetchAPI] ❌ Operation requires network connectivity:", {
-        endpoint,
-        method,
-      });
+      
 
       throw new Error(
         "Esta operación requiere conexión a internet. Por favor, verifica tu conexión e intenta nuevamente.",
@@ -569,9 +528,7 @@ export const OfflineConfig = {
   addOfflineCapableEndpoint: (endpoint: string): void => {
     if (!OFFLINE_CAPABLE_ENDPOINTS.includes(endpoint)) {
       OFFLINE_CAPABLE_ENDPOINTS.push(endpoint);
-      console.log(
-        `[OfflineConfig] Added offline-capable endpoint: ${endpoint}`,
-      );
+      
     }
   },
 
@@ -579,7 +536,7 @@ export const OfflineConfig = {
   addAlwaysOnlineEndpoint: (endpoint: string): void => {
     if (!ALWAYS_ONLINE_ENDPOINTS.includes(endpoint)) {
       ALWAYS_ONLINE_ENDPOINTS.push(endpoint);
-      console.log(`[OfflineConfig] Added always-online endpoint: ${endpoint}`);
+      
     }
   },
 };
@@ -653,9 +610,9 @@ export const useFetch = <T>(
     setError(null);
 
     try {
-      console.log("[useFetch] ▶ Fetch", { endpoint, options });
+      
       const result = await fetchAPI(endpoint, options);
-      console.log("[useFetch] ◀ Result", { endpoint, result });
+      
 
       // Handle error responses from new backend API
       if (result?.statusCode && result.statusCode >= 400) {
@@ -671,7 +628,7 @@ export const useFetch = <T>(
       const extractedData = result?.data ?? result;
       setData(extractedData);
     } catch (err: any) {
-      console.error("[useFetch] ✖ Error", { endpoint, err });
+      
 
       // Handle enhanced error information
       const errorMessage =

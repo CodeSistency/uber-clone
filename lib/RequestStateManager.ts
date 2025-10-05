@@ -60,10 +60,7 @@ export class SmartRequestManager {
 
     // Validar transición permitida
     if (!this.isValidTransition(oldState, newState)) {
-      console.warn(
-        "[SmartRequestManager] Invalid state transition:",
-        transition,
-      );
+      
       return;
     }
 
@@ -83,11 +80,7 @@ export class SmartRequestManager {
     // Notificar listeners
     this.notifyListeners(newState, oldState, metadata);
 
-    console.log(
-      "[SmartRequestManager] State transition:",
-      transition,
-      metadata || "",
-    );
+    
   }
 
   /**
@@ -168,7 +161,7 @@ export class SmartRequestManager {
     // Haptic feedback si está habilitado
     if (this.config.hapticFeedback) {
       // TODO: Implementar feedback háptico
-      console.log("[SmartRequestManager] 📳 Haptic feedback for notification");
+      
     }
   }
 
@@ -185,9 +178,7 @@ export class SmartRequestManager {
     // Implementar lógica de reintento
     if (this.retryCount < this.config.retryAttempts) {
       this.retryCount++;
-      console.log(
-        `[SmartRequestManager] 🔄 Retry attempt ${this.retryCount}/${this.config.retryAttempts}`,
-      );
+      
 
       // Programar reintento con backoff exponencial
       const delay = Math.min(1000 * Math.pow(2, this.retryCount - 1), 10000);
@@ -195,16 +186,16 @@ export class SmartRequestManager {
         this.transitionTo(RequestState.LOADING, { retry: true });
       }, delay);
     } else {
-      console.log("[SmartRequestManager] ❌ Max retries reached, giving up");
+      
     }
   }
 
   private handleExpiredState(): void {
-    console.log("[SmartRequestManager] ⏰ Request expired");
+    
   }
 
   private handleOfflineState(): void {
-    console.log("[SmartRequestManager] 📶 Gone offline");
+    
   }
 
   /**
@@ -244,10 +235,7 @@ export class SmartRequestManager {
         try {
           callback(newState, oldState, metadata);
         } catch (error) {
-          console.error(
-            "[SmartRequestManager] Error in state change listener:",
-            error,
-          );
+          
         }
       });
     }
@@ -313,7 +301,7 @@ export class SmartRequestManager {
     this.stateHistory = [];
     this.retryCount = 0;
 
-    console.log("[SmartRequestManager] 🔄 Manager reset");
+    
   }
 
   /**
@@ -326,7 +314,7 @@ export class SmartRequestManager {
     }
 
     this.listeners.clear();
-    console.log("[SmartRequestManager] 🧹 Manager cleanup completed");
+    
   }
 }
 

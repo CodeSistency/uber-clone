@@ -85,12 +85,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
     const active = findActiveRoute(config.routes);
     if (active !== activeRoute) {
-      console.log(
-        "[useDrawer] Active route updated:",
-        active,
-        "from path:",
-        currentPath,
-      );
+      
       setActiveRoute(active);
     }
   }, [currentPath, config.routes, activeRoute]);
@@ -115,7 +110,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
           setActiveRoute(savedActive);
         }
       } catch (error) {
-        console.error("[useDrawer] Error loading persisted state:", error);
+        
       }
     };
 
@@ -132,7 +127,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
           JSON.stringify(value),
         );
       } catch (error) {
-        console.error("[useDrawer] Error persisting state:", error);
+        
       }
     },
     [persistState, currentModule],
@@ -140,23 +135,23 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
   // Acciones del drawer
   const toggle = useCallback(() => {
-    console.log("[useDrawer] Toggle drawer");
+    
     setIsOpen((prev) => !prev);
   }, []);
 
   const open = useCallback(() => {
-    console.log("[useDrawer] Open drawer");
+    
     setIsOpen(true);
   }, []);
 
   const close = useCallback(() => {
-    console.log("[useDrawer] Close drawer");
+    
     setIsOpen(false);
   }, []);
 
   const setActiveRouteHandler = useCallback(
     (routeId: string) => {
-      console.log("[useDrawer] Set active route:", routeId);
+      
       setActiveRoute(routeId);
       persistStateAsync("active", routeId);
     },
@@ -165,7 +160,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
   const toggleExpandedHandler = useCallback(
     (routeId: string) => {
-      console.log("[useDrawer] Toggle expanded route:", routeId);
+      
       setExpandedRoutes((prev) => {
         const newSet = new Set(prev);
         if (newSet.has(routeId)) {
@@ -183,7 +178,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
   // Función para manejar cambios de módulo
   const switchModule = useCallback(
     async (targetModule: ModuleType) => {
-      console.log("[useDrawer] Switch module requested:", targetModule);
+      
 
       // Buscar la ruta que cambia al módulo objetivo
       const switchRoute = config.routes.find(
@@ -213,7 +208,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
         });
 
         if (!confirmed) {
-          console.log("[useDrawer] Module switch cancelled by user");
+          
           return;
         }
       }
@@ -232,16 +227,13 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
           driver: "/(auth)/driver-register",
         };
 
-        console.log(
-          "[useDrawer] Navigating to initial route for module:",
-          targetModule,
-        );
+        
         router.replace(initialRoutes[targetModule] as any);
 
         // Mostrar notificación de éxito
         showSuccess("Success", `Switched to ${targetModule} mode`);
       } catch (error) {
-        console.error("[useDrawer] Error switching module:", error);
+        
         showError("Switch Failed", "Unable to switch modes. Please try again.");
       }
     },
@@ -251,7 +243,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
   // Handler principal para presionar rutas
   const handleRoutePress = useCallback(
     (route: DrawerRoute) => {
-      console.log("[useDrawer] Route pressed:", route.id, route);
+      
 
       // Si es un cambio de módulo
       if (route.switchToModule) {
@@ -267,7 +259,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
       // Si tiene href, navegar
       if (route.href) {
-        console.log("[useDrawer] Navigating to:", route.href);
+        
         router.push(route.href as any);
         setActiveRouteHandler(route.id);
         close(); // Cerrar drawer después de navegar
@@ -280,10 +272,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
         return;
       }
 
-      console.warn(
-        "[useDrawer] Route pressed but no action defined:",
-        route.id,
-      );
+      
     },
     [switchModule, setActiveRouteHandler, close, toggleExpandedHandler],
   );

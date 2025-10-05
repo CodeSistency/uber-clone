@@ -45,14 +45,12 @@ export const useRoutePrediction = (config: UseRoutePredictionConfig = {}) => {
 
     // Validate data quality
     if (accuracy && accuracy > finalConfig.minAccuracy) {
-      console.log("[useRoutePrediction] GPS accuracy too low, skipping update");
+      
       return;
     }
 
     if (finalSpeed < finalConfig.minSpeedThreshold) {
-      console.log(
-        "[useRoutePrediction] Speed too low for prediction, skipping",
-      );
+      
       return;
     }
 
@@ -63,12 +61,7 @@ export const useRoutePrediction = (config: UseRoutePredictionConfig = {}) => {
       finalBearing,
     );
 
-    console.log("[useRoutePrediction] Predictor state updated:", {
-      position: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
-      speed: `${finalSpeed.toFixed(1)} km/h`,
-      bearing: `${finalBearing.toFixed(1)}°`,
-      accuracy: accuracy ? `${accuracy.toFixed(0)}m` : "unknown",
-    });
+    
   }, [
     driverLocation,
     finalConfig.enabled,
@@ -94,21 +87,14 @@ export const useRoutePrediction = (config: UseRoutePredictionConfig = {}) => {
           setCurrentPrediction(prediction);
           setLastUpdateTime(Date.now());
 
-          console.log("[useRoutePrediction] Prediction generated:", {
-            points: prediction.points.length,
-            confidence: prediction.confidence.toFixed(2),
-            distance: `${prediction.distance.toFixed(0)}m`,
-          });
+          
         } else {
-          console.log("[useRoutePrediction] No prediction generated");
+          
         }
 
         return prediction;
       } catch (error) {
-        console.error(
-          "[useRoutePrediction] Error generating prediction:",
-          error,
-        );
+        
         return null;
       } finally {
         setIsPredicting(false);
@@ -133,7 +119,7 @@ export const useRoutePrediction = (config: UseRoutePredictionConfig = {}) => {
 
   // Force refresh prediction
   const refreshPrediction = useCallback(async () => {
-    console.log("[useRoutePrediction] Forcing prediction refresh");
+    
     return await generatePrediction();
   }, [generatePrediction]);
 
@@ -141,14 +127,14 @@ export const useRoutePrediction = (config: UseRoutePredictionConfig = {}) => {
   const clearPrediction = useCallback(() => {
     setCurrentPrediction(null);
     setLastUpdateTime(0);
-    console.log("[useRoutePrediction] Prediction cleared");
+    
   }, []);
 
   // Initialize and start prediction loop
   useEffect(() => {
     if (!finalConfig.enabled) return;
 
-    console.log("[useRoutePrediction] Starting route prediction");
+    
 
     // Initial prediction
     generatePrediction();
@@ -162,7 +148,7 @@ export const useRoutePrediction = (config: UseRoutePredictionConfig = {}) => {
         clearTimeout(updateTimeoutRef.current);
       }
       isMountedRef.current = false;
-      console.log("[useRoutePrediction] Route prediction stopped");
+      
     };
   }, [finalConfig.enabled, generatePrediction, scheduleNextUpdate]);
 

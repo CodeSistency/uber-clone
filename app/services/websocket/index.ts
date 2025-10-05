@@ -44,7 +44,7 @@ export class WebSocketService {
     // Setup inter-module communication
     this.setupModuleCommunication();
 
-    console.log("[WebSocketService] Initialized with modular architecture");
+    
   }
 
   // Singleton pattern (maintains original interface)
@@ -63,7 +63,7 @@ export class WebSocketService {
       throw new Error("WebSocket service has been destroyed");
     }
 
-    console.log("[WebSocketService] Starting initialization...");
+    
 
     try {
       await Promise.all([
@@ -74,16 +74,16 @@ export class WebSocketService {
         this.roomManager.initialize(),
       ]);
 
-      console.log("[WebSocketService] All modules initialized successfully");
+      
     } catch (error) {
-      console.error("[WebSocketService] Failed to initialize modules:", error);
+      
       throw error;
     }
   }
 
   // Destroy service and clean up
   async destroy(): Promise<void> {
-    console.log("[WebSocketService] Destroying service...");
+    
 
     try {
       await Promise.all([
@@ -97,9 +97,9 @@ export class WebSocketService {
       this.isDestroyed = true;
       WebSocketService.instance = null;
 
-      console.log("[WebSocketService] Service destroyed successfully");
+      
     } catch (error) {
-      console.error("[WebSocketService] Error during destruction:", error);
+      
       throw error;
     }
   }

@@ -110,7 +110,7 @@ export const OfflineIndicator: React.FC<OfflineIndicatorProps> = ({
         onSync?.();
       }, 1000);
     } catch (error) {
-      console.error("[OfflineIndicator] Sync failed:", error);
+      
       setShowSyncProgress(false);
     } finally {
       setSyncing(false);

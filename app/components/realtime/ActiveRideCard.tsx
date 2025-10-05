@@ -358,7 +358,7 @@ export const ActiveRideCard: React.FC<ActiveRideCardProps> = ({
           <TouchableOpacity
             onPress={() => {
               // Call driver - would integrate with phone dialer
-              console.log("Call driver:", ride.driver);
+              
             }}
             style={{
               width: 36,

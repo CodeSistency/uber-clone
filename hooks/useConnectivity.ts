@@ -77,12 +77,9 @@ export const useConnectivity = () => {
     const initializeConnectivity = async () => {
       try {
         await connectivityManager.initialize();
-        console.log("[useConnectivity] ConnectivityManager initialized");
+        
       } catch (error) {
-        console.error(
-          "[useConnectivity] Failed to initialize connectivity:",
-          error,
-        );
+        
       }
     };
 
@@ -97,7 +94,7 @@ export const useConnectivity = () => {
   // Process offline queue when coming back online
   useEffect(() => {
     if (connectivityState.isOnline && connectivityState.pendingSyncCount > 0) {
-      console.log("[useConnectivity] Back online, processing offline queue");
+      
       offlineQueue.processQueue().then(() => {
         setConnectivityState((prev) => ({
           ...prev,
@@ -109,14 +106,14 @@ export const useConnectivity = () => {
 
   const syncNow = useCallback(async () => {
     if (connectivityState.isOnline) {
-      console.log("[useConnectivity] Manual sync requested");
+      
       await offlineQueue.processQueue();
       setConnectivityState((prev) => ({
         ...prev,
         lastSyncTime: new Date(),
       }));
     } else {
-      console.warn("[useConnectivity] Cannot sync - no internet connection");
+      
     }
   }, [connectivityState.isOnline]);
 
@@ -138,14 +135,12 @@ export const useConnectivity = () => {
         featureRequirements[feature as keyof typeof featureRequirements];
 
       if (requirement === undefined) {
-        console.warn(`[useConnectivity] Unknown feature: ${feature}`);
+        
         return true; // Default to available for unknown features
       }
 
       if (!requirement) {
-        console.log(
-          `[useConnectivity] Feature '${feature}' not available - connectivity requirement not met`,
-        );
+        
       }
 
       return requirement;
@@ -178,9 +173,7 @@ export const useConnectivity = () => {
           pendingSyncCount: prev.pendingSyncCount + 1,
         }));
 
-        console.log(
-          `[useConnectivity] Request queued with priority: ${priority}`,
-        );
+        
       },
 
       getPendingCount: () => connectivityState.pendingSyncCount,

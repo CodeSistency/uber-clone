@@ -89,9 +89,7 @@ export const useBottomSheet = (config: BottomSheetConfig = {}) => {
     (toValue: number, customConfig?: any) => {
       const clampedValue = Math.max(minHeight, Math.min(maxHeight, toValue));
 
-      console.log(
-        `[useBottomSheet] Animating from ${currentHeight.current} to ${clampedValue}`,
-      );
+      
 
       Animated.spring(heightAnim, {
         toValue: clampedValue,
@@ -105,31 +103,29 @@ export const useBottomSheet = (config: BottomSheetConfig = {}) => {
 
   // Métodos de control
   const scrollUpComplete = useCallback(() => {
-    console.log("[useBottomSheet] scrollUpComplete called");
+    
     animateTo(maxHeight);
   }, [animateTo, maxHeight]);
 
   const scrollDownComplete = useCallback(() => {
-    console.log("[useBottomSheet] scrollDownComplete called");
+    
     animateTo(minHeight);
   }, [animateTo, minHeight]);
 
   const goToSnapPoint = useCallback(
     (index: number) => {
       if (!snapPoints || snapPoints.length === 0) {
-        console.warn("[useBottomSheet] No snap points defined");
+        
         return;
       }
 
       if (index < 0 || index >= snapPoints.length) {
-        console.warn(`[useBottomSheet] Invalid snap point index: ${index}`);
+        
         return;
       }
 
       const targetHeight = snapPoints[index];
-      console.log(
-        `[useBottomSheet] Going to snap point ${index}: ${targetHeight}`,
-      );
+      
       animateTo(targetHeight);
     },
     [snapPoints, animateTo],
@@ -137,19 +133,19 @@ export const useBottomSheet = (config: BottomSheetConfig = {}) => {
 
   const goToHeight = useCallback(
     (height: number) => {
-      console.log(`[useBottomSheet] Going to height: ${height}`);
+      
       animateTo(height);
     },
     [animateTo],
   );
 
   const enableScroll = useCallback(() => {
-    console.log("[useBottomSheet] Scroll enabled");
+    
     scrollEnabled.current = true;
   }, []);
 
   const disableScroll = useCallback(() => {
-    console.log("[useBottomSheet] Scroll disabled");
+    
     scrollEnabled.current = false;
   }, []);
 
@@ -283,13 +279,13 @@ const InlineBottomSheet = forwardRef<
     }, [initialHeight, minHeight, maxHeight, snapPoints]);
 
     useEffect(() => {
-      console.log("[InlineBottomSheet] Setting up height listener");
+      
       const id = heightAnim.addListener(({ value }) => {
         currentHeightRef.current = value;
-        console.log("[InlineBottomSheet] Height changed to:", value);
+        
       });
       return () => {
-        console.log("[InlineBottomSheet] Removing height listener");
+        
         heightAnim.removeListener(id);
       };
     }, [heightAnim]);
@@ -572,9 +568,9 @@ export const ExampleBottomSheetWithHook: React.FC = () => {
   const handleToggleScroll = () => {
     if (sheetRef.current) {
       const currentHeight = sheetRef.current.getCurrentHeight();
-      console.log("Current height:", currentHeight);
-      console.log("Is at max height:", sheetRef.current.isAtMaxHeight());
-      console.log("Is at min height:", sheetRef.current.isAtMinHeight());
+      
+      
+      
     }
   };
 

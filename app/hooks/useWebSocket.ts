@@ -29,7 +29,7 @@ export const useWebSocket = (userId: string, token: string) => {
         await websocketService.connect(userId, token);
         isConnectedRef.current = true;
       } catch (error) {
-        console.error("[useWebSocket] Failed to connect:", error);
+        
         isConnectedRef.current = false;
         scheduleReconnect();
       }
@@ -81,7 +81,7 @@ export const useWebSocket = (userId: string, token: string) => {
           isConnectedRef.current = true;
         }
       } catch (error) {
-        console.error("[useWebSocket] Reconnection failed:", error);
+        
         scheduleReconnect(); // Retry again
       }
     }, 5000); // Retry after 5 seconds
@@ -133,7 +133,7 @@ export const useWebSocket = (userId: string, token: string) => {
       await websocketService.connect(userId, token);
       isConnectedRef.current = true;
     } catch (error) {
-      console.error("[useWebSocket] Force reconnect failed:", error);
+      
       throw error;
     }
   }, [userId, token]);

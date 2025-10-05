@@ -58,7 +58,7 @@ export const storage = {
     try {
       await AsyncStorage.setItem(key, value);
     } catch (error) {
-      console.error(`Error saving ${key}:`, error);
+      
       throw error;
     }
   },
@@ -68,7 +68,7 @@ export const storage = {
     try {
       return await AsyncStorage.getItem(key);
     } catch (error) {
-      console.error(`Error retrieving ${key}:`, error);
+      
       return null;
     }
   },
@@ -78,7 +78,7 @@ export const storage = {
     try {
       await AsyncStorage.removeItem(key);
     } catch (error) {
-      console.error(`Error removing ${key}:`, error);
+      
       throw error;
     }
   },
@@ -88,7 +88,7 @@ export const storage = {
     try {
       await AsyncStorage.clear();
     } catch (error) {
-      console.error("Error clearing storage:", error);
+      
       throw error;
     }
   },
@@ -166,9 +166,9 @@ export const notificationStorage = {
         STORAGE_KEYS.NOTIFICATION_PREFERENCES,
         JSON.stringify(preferences),
       );
-      console.log("[NotificationStorage] Preferences saved");
+      
     } catch (error) {
-      console.error("[NotificationStorage] Failed to save preferences:", error);
+      
       throw error;
     }
   },
@@ -178,7 +178,7 @@ export const notificationStorage = {
       const data = await storage.getItem(STORAGE_KEYS.NOTIFICATION_PREFERENCES);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error("[NotificationStorage] Failed to get preferences:", error);
+      
       return null;
     }
   },
@@ -187,12 +187,9 @@ export const notificationStorage = {
   saveDeviceToken: async (token: DeviceToken): Promise<void> => {
     try {
       await storage.setItem(STORAGE_KEYS.DEVICE_TOKEN, JSON.stringify(token));
-      console.log("[NotificationStorage] Device token saved");
+      
     } catch (error) {
-      console.error(
-        "[NotificationStorage] Failed to save device token:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -202,7 +199,7 @@ export const notificationStorage = {
       const data = await storage.getItem(STORAGE_KEYS.DEVICE_TOKEN);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error("[NotificationStorage] Failed to get device token:", error);
+      
       return null;
     }
   },
@@ -218,10 +215,7 @@ export const notificationStorage = {
         JSON.stringify(limitedNotifications),
       );
     } catch (error) {
-      console.error(
-        "[NotificationStorage] Failed to save notification history:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -231,10 +225,7 @@ export const notificationStorage = {
       const data = await storage.getItem(STORAGE_KEYS.NOTIFICATION_HISTORY);
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error(
-        "[NotificationStorage] Failed to get notification history:",
-        error,
-      );
+      
       return [];
     }
   },
@@ -245,7 +236,7 @@ export const notificationStorage = {
       const updated = [notification, ...existing].slice(0, 100);
       await notificationStorage.saveNotificationHistory(updated);
     } catch (error) {
-      console.error("[NotificationStorage] Failed to add notification:", error);
+      
       throw error;
     }
   },
@@ -409,10 +400,7 @@ export const emergencyStorage = {
         JSON.stringify(contacts),
       );
     } catch (error) {
-      console.error(
-        "[EmergencyStorage] Failed to save emergency contacts:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -422,10 +410,7 @@ export const emergencyStorage = {
       const data = await storage.getItem(STORAGE_KEYS.EMERGENCY_CONTACTS);
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error(
-        "[EmergencyStorage] Failed to get emergency contacts:",
-        error,
-      );
+      
       return [];
     }
   },
@@ -440,10 +425,7 @@ export const emergencyStorage = {
         JSON.stringify(limitedHistory),
       );
     } catch (error) {
-      console.error(
-        "[EmergencyStorage] Failed to save emergency history:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -453,10 +435,7 @@ export const emergencyStorage = {
       const data = await storage.getItem(STORAGE_KEYS.EMERGENCY_HISTORY);
       return data ? JSON.parse(data) : [];
     } catch (error) {
-      console.error(
-        "[EmergencyStorage] Failed to get emergency history:",
-        error,
-      );
+      
       return [];
     }
   },
@@ -467,7 +446,7 @@ export const emergencyStorage = {
       const updated = [alert, ...existing].slice(0, 50);
       await emergencyStorage.saveEmergencyHistory(updated);
     } catch (error) {
-      console.error("[EmergencyStorage] Failed to add emergency alert:", error);
+      
       throw error;
     }
   },
@@ -483,10 +462,7 @@ export const realtimeStorage = {
         JSON.stringify(status),
       );
     } catch (error) {
-      console.error(
-        "[RealtimeStorage] Failed to save connection status:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -496,10 +472,7 @@ export const realtimeStorage = {
       const data = await storage.getItem(STORAGE_KEYS.CONNECTION_STATUS);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error(
-        "[RealtimeStorage] Failed to get connection status:",
-        error,
-      );
+      
       return null;
     }
   },
@@ -512,10 +485,7 @@ export const realtimeStorage = {
         JSON.stringify(settings),
       );
     } catch (error) {
-      console.error(
-        "[RealtimeStorage] Failed to save WebSocket settings:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -525,10 +495,7 @@ export const realtimeStorage = {
       const data = await storage.getItem(STORAGE_KEYS.WEBSOCKET_SETTINGS);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error(
-        "[RealtimeStorage] Failed to get WebSocket settings:",
-        error,
-      );
+      
       return null;
     }
   },
@@ -544,10 +511,7 @@ export const onboardingStorage = {
       );
       return completed === "true";
     } catch (error) {
-      console.error(
-        "[OnboardingStorage] Error checking completion status:",
-        error,
-      );
+      
       return false;
     }
   },
@@ -559,15 +523,9 @@ export const onboardingStorage = {
         STORAGE_KEYS.ONBOARDING_COMPLETED,
         completed.toString(),
       );
-      console.log(
-        "[OnboardingStorage] Onboarding completion status saved:",
-        completed,
-      );
+      
     } catch (error) {
-      console.error(
-        "[OnboardingStorage] Error saving completion status:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -576,9 +534,9 @@ export const onboardingStorage = {
   saveData: async (data: any): Promise<void> => {
     try {
       await storage.setItem(STORAGE_KEYS.ONBOARDING_DATA, JSON.stringify(data));
-      console.log("[OnboardingStorage] Onboarding data saved");
+      
     } catch (error) {
-      console.error("[OnboardingStorage] Error saving onboarding data:", error);
+      
       throw error;
     }
   },
@@ -589,10 +547,7 @@ export const onboardingStorage = {
       const data = await storage.getItem(STORAGE_KEYS.ONBOARDING_DATA);
       return data ? JSON.parse(data) : null;
     } catch (error) {
-      console.error(
-        "[OnboardingStorage] Error getting onboarding data:",
-        error,
-      );
+      
       return null;
     }
   },
@@ -602,7 +557,7 @@ export const onboardingStorage = {
     try {
       await storage.setItem(STORAGE_KEYS.ONBOARDING_STEP, step.toString());
     } catch (error) {
-      console.error("[OnboardingStorage] Error saving step:", error);
+      
       throw error;
     }
   },
@@ -625,7 +580,7 @@ export const onboardingStorage = {
       }
       return map[step] ?? 0;
     } catch (error) {
-      console.error("[OnboardingStorage] Error getting step:", error);
+      
       return 0;
     }
   },
@@ -636,12 +591,9 @@ export const onboardingStorage = {
       await storage.removeItem(STORAGE_KEYS.ONBOARDING_COMPLETED);
       await storage.removeItem(STORAGE_KEYS.ONBOARDING_DATA);
       await storage.removeItem(STORAGE_KEYS.ONBOARDING_STEP);
-      console.log("[OnboardingStorage] All onboarding data cleared");
+      
     } catch (error) {
-      console.error(
-        "[OnboardingStorage] Error clearing onboarding data:",
-        error,
-      );
+      
       throw error;
     }
   },
@@ -654,7 +606,7 @@ export const themeStorage = {
     try {
       await storage.setItem(STORAGE_KEYS.APP_THEME, theme);
     } catch (error) {
-      console.error("[ThemeStorage] Error saving theme:", error);
+      
       throw error;
     }
   },
@@ -665,7 +617,7 @@ export const themeStorage = {
       const t = await storage.getItem(STORAGE_KEYS.APP_THEME);
       return (t as any) || null;
     } catch (error) {
-      console.error("[ThemeStorage] Error getting theme:", error);
+      
       return null;
     }
   },

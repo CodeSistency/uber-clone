@@ -60,7 +60,7 @@ const SettingsScreen = () => {
       await new Promise((resolve) => setTimeout(resolve, 1000));
       // In real implementation, fetch from API
     } catch (error) {
-      console.error("Error refreshing settings:", error);
+      
     } finally {
       setRefreshing(false);
     }

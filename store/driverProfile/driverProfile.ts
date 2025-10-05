@@ -61,13 +61,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   // Acciones del perfil
   setProfile: (profile) => {
-    console.log("[DriverProfileStore] setProfile called with:", profile?.id);
+    
     set({ profile });
   },
 
   updateProfile: async (updates) => {
     const state = get();
-    console.log("[DriverProfileStore] updateProfile called with:", updates);
+    
 
     try {
       state.setLoading(true);
@@ -85,9 +85,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const updatedProfile = { ...state.profile, ...response } as DriverProfile;
       state.setProfile(updatedProfile);
 
-      console.log("[DriverProfileStore] Profile updated successfully via API");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error updating profile:", error);
+      
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to update profile";
@@ -112,7 +112,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   fetchProfile: async () => {
     const state = get();
-    console.log("[DriverProfileStore] fetchProfile called");
+    
 
     try {
       state.setLoading(true);
@@ -155,13 +155,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       };
 
       state.setProfile(profile);
-      console.log("[DriverProfileStore] Profile fetched successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error fetching profile:", error);
+      
       state.setError(error.message || "Failed to fetch profile");
 
       // Fallback to mock data for development
-      console.log("[DriverProfileStore] Using fallback mock data");
+      
       const mockProfile: DriverProfile = {
         id: "driver_123",
         userId: "user_123",
@@ -202,17 +202,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   // Acciones de vehículos
   setVehicles: (vehicles) => {
-    console.log(
-      "[DriverProfileStore] setVehicles called with:",
-      vehicles.length,
-      "vehicles",
-    );
+    
     set({ vehicles });
   },
 
   fetchVehicles: async () => {
     const state = get();
-    console.log("[DriverProfileStore] fetchVehicles called");
+    
 
     try {
       state.setLoading(true);
@@ -243,9 +239,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       }));
 
       state.setVehicles(vehicles);
-      console.log("[DriverProfileStore] Vehicles fetched successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error fetching vehicles:", error);
+      
       state.setError(error.message || "Failed to fetch vehicles");
 
       // Fallback to empty array for development
@@ -258,7 +254,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   addVehicle: async (vehicleData: CreateVehicleRequest) => {
     const state = get();
-    console.log("[DriverProfileStore] addVehicle called with:", vehicleData);
+    
 
     try {
       state.setLoading(true);
@@ -291,13 +287,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const updatedVehicles = [...state.vehicles, vehicle];
       state.setVehicles(updatedVehicles);
 
-      console.log("[DriverProfileStore] Vehicle added successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error adding vehicle:", error);
+      
       state.setError(error.message || "Failed to add vehicle");
 
       // Fallback to local creation for development
-      console.log("[DriverProfileStore] Using fallback local creation");
+      
       const newVehicle: Vehicle = {
         ...vehicleData,
         id: `vehicle_${Date.now()}`,
@@ -316,12 +312,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   updateVehicle: async (id: string, updates: UpdateVehicleRequest) => {
     const state = get();
-    console.log(
-      "[DriverProfileStore] updateVehicle called for:",
-      id,
-      "with:",
-      updates,
-    );
+    
 
     try {
       state.setLoading(true);
@@ -341,9 +332,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       );
 
       state.setVehicles(updatedVehicles);
-      console.log("[DriverProfileStore] Vehicle updated successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error updating vehicle:", error);
+      
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to update vehicle";
@@ -370,7 +361,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   deleteVehicle: async (id) => {
     const state = get();
-    console.log("[DriverProfileStore] deleteVehicle called for:", id);
+    
 
     try {
       state.setLoading(true);
@@ -385,9 +376,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       );
       state.setVehicles(updatedVehicles);
 
-      console.log("[DriverProfileStore] Vehicle deleted successfully via API");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error deleting vehicle:", error);
+      
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to delete vehicle";
@@ -418,17 +409,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   // Acciones de documentos
   setDocuments: (documents) => {
-    console.log(
-      "[DriverProfileStore] setDocuments called with:",
-      documents.length,
-      "documents",
-    );
+    
     set({ documents });
   },
 
   fetchDocuments: async () => {
     const state = get();
-    console.log("[DriverProfileStore] fetchDocuments called");
+    
 
     try {
       state.setLoading(true);
@@ -458,9 +445,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       }));
 
       state.setDocuments(documents);
-      console.log("[DriverProfileStore] Documents fetched successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error fetching documents:", error);
+      
       state.setError(error.message || "Failed to fetch documents");
 
       // Fallback to empty array for development
@@ -477,7 +464,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
     description?: string,
   ) => {
     const state = get();
-    console.log("[DriverProfileStore] uploadDocument called for type:", type);
+    
 
     try {
       state.setLoading(true);
@@ -515,15 +502,13 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const updatedDocuments = [...state.documents, document];
       state.setDocuments(updatedDocuments);
 
-      console.log("[DriverProfileStore] Document uploaded successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error uploading document:", error);
+      
       state.setError(error.message || "Failed to upload document");
 
       // Fallback to local document creation for development
-      console.log(
-        "[DriverProfileStore] Using fallback local document creation",
-      );
+      
       const newDocument: Document = {
         id: `doc_${Date.now()}`,
         driverId: "current_driver",
@@ -543,12 +528,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
   },
 
   updateDocumentStatus: (id: string, status: DocumentStatus) => {
-    console.log(
-      "[DriverProfileStore] updateDocumentStatus called for:",
-      id,
-      "status:",
-      status,
-    );
+    
     const updatedDocuments = get().documents.map((doc) =>
       doc.id === id
         ? { ...doc, status, updatedAt: new Date().toISOString() }
@@ -559,7 +539,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
   deleteDocument: async (id: string) => {
     const state = get();
-    console.log("[DriverProfileStore] deleteDocument called for:", id);
+    
 
     try {
       state.setLoading(true);
@@ -572,9 +552,9 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
       const updatedDocuments = state.documents.filter((doc) => doc.id !== id);
       state.setDocuments(updatedDocuments);
 
-      console.log("[DriverProfileStore] Document deleted successfully");
+      
     } catch (error: any) {
-      console.error("[DriverProfileStore] Error deleting document:", error);
+      
       state.setError(error.message || "Failed to delete document");
       throw error;
     } finally {

@@ -14,14 +14,7 @@ const RideCard = ({
   onPress?: () => void;
   showStatus?: boolean;
 }) => {
-  console.log("[RideCard] Rendering ride:", {
-    rideId: ride.ride_id,
-    origin: ride.origin_address,
-    destination: ride.destination_address,
-    originCoords: [ride.origin_latitude, ride.origin_longitude],
-    destinationCoords: [ride.destination_latitude, ride.destination_longitude],
-    paymentStatus: ride.payment_status,
-  });
+  
 
   const CardContent = () => (
     <View className="flex flex-row items-center justify-center bg-white dark:bg-brand-primaryDark rounded-lg shadow-sm shadow-neutral-300 mb-3">

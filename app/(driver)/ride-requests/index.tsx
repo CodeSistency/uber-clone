@@ -44,7 +44,7 @@ const RideRequests = () => {
     setAcceptingRide(rideId);
 
     try {
-      console.log("[RideRequests] Accepting ride:", rideId);
+      
 
       const response = await fetchAPI(`ride/${rideId}/accept`, {
         method: "POST",
@@ -56,7 +56,7 @@ const RideRequests = () => {
         }),
       });
 
-      console.log("[RideRequests] Accept ride response:", response);
+      
 
       if (response?.success) {
         Alert.alert(
@@ -77,7 +77,7 @@ const RideRequests = () => {
         throw new Error(response?.message || "Failed to accept ride");
       }
     } catch (error: any) {
-      console.error("[RideRequests] Error accepting ride:", error);
+      
       Alert.alert("Error", error.message || "Failed to accept ride");
       setAcceptingRide(null);
     }
@@ -95,7 +95,7 @@ const RideRequests = () => {
         onPress: () => {
           // For now, just remove from local state
           // In the future, this could call an API to mark as declined
-          console.log("[RideRequests] Ride declined:", rideId);
+          
           refetch(); // Refresh the list
         },
       },

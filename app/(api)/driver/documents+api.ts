@@ -30,7 +30,7 @@ export async function POST(request: Request) {
       status: 201,
     });
   } catch (error) {
-    console.error("Error uploading driver documents:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

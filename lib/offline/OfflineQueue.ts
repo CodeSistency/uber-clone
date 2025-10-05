@@ -54,11 +54,9 @@ export class OfflineQueue {
   }
 
   async initialize(): Promise<void> {
-    console.log("[OfflineQueue] Initializing queue system...");
+    
     await this.loadQueueFromStorage();
-    console.log(
-      `[OfflineQueue] ✅ Initialized with ${this.queue.length} queued requests`,
-    );
+    
   }
 
   private async loadQueueFromStorage(): Promise<void> {
@@ -66,12 +64,10 @@ export class OfflineQueue {
       const stored = await AsyncStorage.getItem(this.STORAGE_KEY);
       if (stored) {
         this.queue = JSON.parse(stored);
-        console.log(
-          `[OfflineQueue] Loaded ${this.queue.length} requests from storage`,
-        );
+        
       }
     } catch (error) {
-      console.error("[OfflineQueue] Failed to load queue from storage:", error);
+      
       this.queue = [];
     }
   }
@@ -80,7 +76,7 @@ export class OfflineQueue {
     try {
       await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.queue));
     } catch (error) {
-      console.error("[OfflineQueue] Failed to persist queue:", error);
+      
     }
   }
 
@@ -89,7 +85,7 @@ export class OfflineQueue {
       try {
         listener([...this.queue]);
       } catch (error) {
-        console.error("[OfflineQueue] Error notifying listener:", error);
+        
       }
     });
   }
@@ -107,9 +103,7 @@ export class OfflineQueue {
 
     // Remove old requests if queue is too large
     if (this.queue.length >= this.MAX_QUEUE_SIZE) {
-      console.log(
-        `[OfflineQueue] Queue full (${this.MAX_QUEUE_SIZE}), removing oldest requests`,
-      );
+      
       this.queue = this.queue.slice(-this.MAX_QUEUE_SIZE + 1);
     }
 
@@ -117,9 +111,7 @@ export class OfflineQueue {
     await this.persistQueue();
     this.notifyListeners();
 
-    console.log(
-      `[OfflineQueue] ✅ Added request to queue: ${queuedRequest.id} (priority: ${queuedRequest.priority})`,
-    );
+    
     return queuedRequest.id;
   }
 
@@ -130,7 +122,7 @@ export class OfflineQueue {
     if (this.queue.length < initialLength) {
       await this.persistQueue();
       this.notifyListeners();
-      console.log(`[OfflineQueue] ✅ Removed request: ${id}`);
+      
       return true;
     }
 
@@ -141,7 +133,7 @@ export class OfflineQueue {
     this.queue = [];
     await this.persistQueue();
     this.notifyListeners();
-    console.log("[OfflineQueue] ✅ Queue cleared");
+    
   }
 
   getQueue(): QueuedRequest[] {
@@ -217,24 +209,18 @@ export class OfflineQueue {
 
   async processQueue(): Promise<void> {
     if (this.isProcessing || this.queue.length === 0) {
-      console.log(
-        `[OfflineQueue] Skipping processing - isProcessing: ${this.isProcessing}, queueSize: ${this.queue.length}`,
-      );
+      
       return;
     }
 
     // Check if we should attempt network operations
     if (!connectivityManager.shouldAttemptNetworkOperation()) {
-      console.log(
-        "[OfflineQueue] Cannot process queue - no network connectivity",
-      );
+      
       return;
     }
 
     this.isProcessing = true;
-    console.log(
-      `[OfflineQueue] 🔄 Processing ${this.queue.length} queued requests...`,
-    );
+    
 
     // Sort queue by priority before processing
     this.sortByPriority();
@@ -249,16 +235,12 @@ export class OfflineQueue {
 
       const batchPromises = batch.map(async (request) => {
         try {
-          console.log(
-            `[OfflineQueue] Processing request: ${request.id} (${request.method} ${request.endpoint})`,
-          );
+          
 
           // Calculate delay based on retry count
           if (request.retryCount > 0) {
             const delay = this.calculateRetryDelay(request.retryCount - 1);
-            console.log(
-              `[OfflineQueue] Waiting ${delay}ms before retry ${request.retryCount} for ${request.id}`,
-            );
+            
             await new Promise((resolve) => setTimeout(resolve, delay));
           }
 
@@ -269,15 +251,10 @@ export class OfflineQueue {
           await this.remove(request.id);
           successCount++;
 
-          console.log(
-            `[OfflineQueue] ✅ Successfully processed request: ${request.id}`,
-          );
+          
           return { success: true, request };
         } catch (error) {
-          console.error(
-            `[OfflineQueue] ❌ Failed to process request: ${request.id}`,
-            error,
-          );
+          
 
           // Check if we should retry
           if (this.shouldRetry(error, request)) {
@@ -285,18 +262,14 @@ export class OfflineQueue {
             request.retryCount++;
             request.timestamp = Date.now(); // Update timestamp for sorting
 
-            console.log(
-              `[OfflineQueue] 🔄 Retrying request ${request.id} (attempt ${request.retryCount})`,
-            );
+            
             errorCount++;
             return { success: false, request, willRetry: true };
           } else {
             // Max retries reached or non-retryable error
             await this.remove(request.id);
             errorCount++;
-            console.log(
-              `[OfflineQueue] 🗑️ Removed failed request: ${request.id} (max retries reached)`,
-            );
+            
             return { success: false, request, willRetry: false };
           }
         }
@@ -310,9 +283,7 @@ export class OfflineQueue {
     await this.persistQueue();
     this.notifyListeners();
 
-    console.log(
-      `[OfflineQueue] 📊 Processing complete: ${processedCount} processed, ${successCount} success, ${errorCount} errors`,
-    );
+    
     this.isProcessing = false;
   }
 
@@ -410,7 +381,7 @@ export class OfflineQueue {
     if (removedCount > 0) {
       await this.persistQueue();
       this.notifyListeners();
-      console.log(`[OfflineQueue] 🧹 Cleaned up ${removedCount} old requests`);
+      
     }
 
     return removedCount;
@@ -425,9 +396,7 @@ export class OfflineQueue {
     if (removedCount > 0) {
       await this.persistQueue();
       this.notifyListeners();
-      console.log(
-        `[OfflineQueue] 🗑️ Cleared ${removedCount} requests with priority: ${priority}`,
-      );
+      
     }
 
     return removedCount;

@@ -24,7 +24,7 @@ const TripSummaryHeader: React.FC<TripSummaryHeaderProps> = ({
   showBackButton = true,
 }) => {
   // Debug logs
-  console.log("[TripSummaryHeader] Received props:", { origin, destination });
+  
 
   // Función para truncar direcciones largas
   const truncateAddress = (address: string, maxLength: number = 25) => {

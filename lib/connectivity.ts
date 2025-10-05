@@ -17,12 +17,12 @@ export class ConnectivityManager {
 
   async initialize(): Promise<void> {
     if (this.isInitialized) {
-      console.log("[ConnectivityManager] Already initialized, skipping");
+      
       return;
     }
 
     try {
-      console.log("[ConnectivityManager] Initializing NetInfo...");
+      
 
       // Get initial state
       const initialState = await NetInfo.fetch();
@@ -31,21 +31,16 @@ export class ConnectivityManager {
 
       // Set up listener for network changes
       this.unsubscribe = NetInfo.addEventListener((state) => {
-        console.log("[ConnectivityManager] Network state changed:", {
-          isConnected: state.isConnected,
-          type: state.type,
-          isInternetReachable: state.isInternetReachable,
-          details: state.details,
-        });
+        
 
         this.lastKnownState = state;
         this.updateConnectionStatus(state);
       });
 
       this.isInitialized = true;
-      console.log("[ConnectivityManager] ✅ Initialized successfully");
+      
     } catch (error) {
-      console.error("[ConnectivityManager] ❌ Failed to initialize:", error);
+      
       throw error;
     }
   }
@@ -74,17 +69,9 @@ export class ConnectivityManager {
         lastPing: extendedStatus.lastPing,
       });
 
-      console.log("[ConnectivityManager] Status updated:", {
-        isConnected: extendedStatus.isConnected,
-        connectionType: extendedStatus.connectionType,
-        connectionSpeed: `${connectionSpeed} Mbps`,
-        isInternetReachable,
-      });
+      
     } catch (error) {
-      console.error(
-        "[ConnectivityManager] Failed to update connection status:",
-        error,
-      );
+      
     }
   }
 
@@ -143,7 +130,7 @@ export class ConnectivityManager {
   }
 
   destroy(): void {
-    console.log("[ConnectivityManager] Destroying...");
+    
 
     if (this.unsubscribe) {
       this.unsubscribe();
@@ -153,7 +140,7 @@ export class ConnectivityManager {
     this.isInitialized = false;
     this.lastKnownState = null;
 
-    console.log("[ConnectivityManager] ✅ Destroyed successfully");
+    
   }
 
   // Utility method to check if we should attempt network operations

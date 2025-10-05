@@ -52,16 +52,11 @@ const DriverTransportAcceptReject: React.FC = () => {
           setRequest(pendingRequests[0]);
         } else {
           // No hay solicitudes pendientes, volver a disponibilidad
-          console.log(
-            "[DriverTransportAcceptReject] No pending requests, returning to availability",
-          );
+          
           startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
         }
       } catch (error) {
-        console.error(
-          "[DriverTransportAcceptReject] Error fetching pending requests:",
-          error,
-        );
+        
         showError("Error", "No se pudieron cargar las solicitudes pendientes");
         startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
       } finally {
@@ -95,10 +90,7 @@ const DriverTransportAcceptReject: React.FC = () => {
 
     setLoading(true);
     try {
-      console.log(
-        "[DriverTransportAcceptReject] Accepting ride:",
-        request.rideId,
-      );
+      
 
       // ✅ Calcular tiempo estimado de llegada basado en ubicación real
       const driverLat = driverState.currentLocation?.lat || 0;
@@ -129,12 +121,12 @@ const DriverTransportAcceptReject: React.FC = () => {
         estimatedArrivalMinutes,
       );
 
-      console.log("[DriverTransportAcceptReject] Fetching full ride details...");
+      
 
       // ✅ Obtener detalles completos del ride desde el endpoint
       const rideDetails = await driverTransportService.getRideDetails(request.rideId);
 
-      console.log("[DriverTransportAcceptReject] Full ride details received:", rideDetails);
+      
 
       showSuccess("¡Viaje aceptado!", "Dirígete al punto de recogida");
 
@@ -173,10 +165,7 @@ const DriverTransportAcceptReject: React.FC = () => {
       // Ir a navegación hacia el origen
       goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
     } catch (error) {
-      console.error(
-        "[DriverTransportAcceptReject] Error accepting ride:",
-        error,
-      );
+      
       showError("Error", "No se pudo aceptar el viaje. Intenta de nuevo.");
     } finally {
       setLoading(false);
@@ -188,10 +177,7 @@ const DriverTransportAcceptReject: React.FC = () => {
 
     setLoading(true);
     try {
-      console.log(
-        "[DriverTransportAcceptReject] Rejecting ride:",
-        request.rideId,
-      );
+      
 
       if (reason) {
         await driverTransportService.rejectRequest(request.rideId, reason);
@@ -205,10 +191,7 @@ const DriverTransportAcceptReject: React.FC = () => {
       useRealtimeStore.getState().setActiveRide(null);
       startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
     } catch (error) {
-      console.error(
-        "[DriverTransportAcceptReject] Error rejecting ride:",
-        error,
-      );
+      
       showError("Error", "No se pudo rechazar el viaje.");
       // Aun así volver a disponibilidad
       startWithDriverStep(FLOW_STEPS.DRIVER_DISPONIBILIDAD);
@@ -218,7 +201,7 @@ const DriverTransportAcceptReject: React.FC = () => {
   };
 
   const handleAutoReject = async () => {
-    console.log("[DriverTransportAcceptReject] Auto-rejecting due to timeout");
+    
     await handleReject("Tiempo de respuesta agotado");
   };
 

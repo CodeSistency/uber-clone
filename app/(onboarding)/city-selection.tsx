@@ -32,7 +32,7 @@ const CITIES_BY_STATE: Record<string, { code: string; name: string }[]> = {
 };
 
 export default function CitySelection() {
-  console.log("[CitySelection] Rendering city selection");
+  
 
   const {
     currentStep,
@@ -53,7 +53,7 @@ export default function CitySelection() {
   const stateCities = CITIES_BY_STATE[userData.state || "MI"] || [];
 
   useEffect(() => {
-    console.log("[CitySelection] Component mounted, state:", userData.state);
+    
     const filtered = stateCities.filter((city) =>
       city.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
@@ -61,7 +61,7 @@ export default function CitySelection() {
   }, [searchQuery, userData.state]);
 
   const handleCitySelect = (cityCode: string) => {
-    console.log("[CitySelection] Selected city:", cityCode);
+    
     setSelectedCity(cityCode);
   };
 
@@ -75,7 +75,7 @@ export default function CitySelection() {
       setLoading(true);
       setError(null);
 
-      console.log("[CitySelection] Saving city selection:", selectedCity);
+      
 
       // Update local state
       updateUserData({ city: selectedCity });
@@ -91,16 +91,16 @@ export default function CitySelection() {
         }),
       });
 
-      console.log("[CitySelection] API response:", response);
+      
 
       if (response.success) {
-        console.log("[CitySelection] City saved successfully");
+        
         nextStep();
       } else {
         throw new Error(response.message || "Failed to save city");
       }
     } catch (error: any) {
-      console.error("[CitySelection] Error saving city:", error);
+      
       setError(error.message || "Failed to save city selection");
       Alert.alert("Error", error.message || "Failed to save city selection");
     } finally {

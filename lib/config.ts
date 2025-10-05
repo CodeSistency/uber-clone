@@ -50,7 +50,7 @@ const criticalEnvVars = [
  * Note: Zod validation temporarily commented out due to missing dependency
  */
 export function validateEnvironment(): EnvironmentConfig {
-  console.log("[Config] Validating environment configuration...");
+  
 
   try {
     // Load environment variables
@@ -80,7 +80,7 @@ export function validateEnvironment(): EnvironmentConfig {
       NODE_ENV: process.env.NODE_ENV,
     };
 
-    console.log("[Config] ✅ Environment configuration validated successfully");
+    
 
     // Check critical variables are present (not just default values)
     const missingCriticalVars = criticalEnvVars.filter((key) => {
@@ -92,13 +92,13 @@ export function validateEnvironment(): EnvironmentConfig {
       const errorMsg =
         `[Config] ❌ Critical environment variables missing: ${missingCriticalVars.join(", ")}\n` +
         `Please check your .env file and ensure all required variables are set.`;
-      console.error(errorMsg);
+      
       throw new Error(errorMsg);
     }
 
     return envVars as EnvironmentConfig;
   } catch (error) {
-    console.error("[Config] ❌ Environment configuration error:", error);
+    
     throw error;
   }
 }

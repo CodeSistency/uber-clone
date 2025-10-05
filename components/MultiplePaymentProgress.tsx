@@ -86,7 +86,7 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
 
   const handleCopyReference = async (reference: string) => {
     // En una app real, usaríamos Clipboard
-    console.log("Copiando referencia:", reference);
+    
     showSuccess("Copiado", "Referencia copiada al portapapeles");
     onCopyReference?.(reference);
   };
@@ -250,7 +250,7 @@ const MultiplePaymentProgress: React.FC<MultiplePaymentProgressProps> = ({
               <TouchableOpacity
                 onPress={() => {
                   // En una app real, esto se haría automáticamente cuando se confirme el pago
-                  console.log(`Marcando pago ${payment.id} como confirmado`);
+                  
                 }}
                 className="bg-green-500 rounded-lg p-3 mt-3"
               >

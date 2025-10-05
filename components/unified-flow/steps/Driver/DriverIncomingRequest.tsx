@@ -35,14 +35,7 @@ const DriverIncomingRequest: React.FC = () => {
   useEffect(() => {
 
     const handleRideRequested = async (data: any) => {
-      console.log(
-        "[DriverIncomingRequest] 🚨 WebSocket: ride:requested received (optimized)",
-        {
-          rideId: data.rideId,
-          area: data.area,
-          timestamp: data.timestamp,
-        },
-      );
+      
 
       // ✅ INTEGRATED: Usar SmartRequestManager para manejar estados
       try {
@@ -64,9 +57,7 @@ const DriverIncomingRequest: React.FC = () => {
           3000,
         );
 
-        console.log(
-          "[DriverIncomingRequest] ✅ Preview notification shown, waiting for user interaction",
-        );
+        
 
         // ❌ REMOVED: No llamar API automáticamente
         // La API se llamará solo cuando el conductor toque la notificación
@@ -74,10 +65,7 @@ const DriverIncomingRequest: React.FC = () => {
         // Limpiar timeout ya que tenemos una notificación activa
         // Note: timeoutId is not currently used, this is for future timeout implementation
       } catch (error) {
-        console.error(
-          "[DriverIncomingRequest] ❌ Error handling ride requested notification:",
-          error,
-        );
+        
 
         // Transición a estado ERROR
         smartRequestManager.transitionTo(RequestState.ERROR, {
@@ -99,9 +87,7 @@ const DriverIncomingRequest: React.FC = () => {
     // Estado inicial: escuchando
     setLoading(true);
     setListening(true);
-    console.log(
-      "[DriverIncomingRequest] 🎧 Listening for ride:requested events...",
-    );
+    
 
     return () => {
       // Cleanup
@@ -120,12 +106,7 @@ const DriverIncomingRequest: React.FC = () => {
     const lat = driverState.currentLocation?.lat || 0;
     const lng = driverState.currentLocation?.lng || 0;
 
-    console.log(
-      "[DriverIncomingRequest] 🔄 Loading full request data on user interaction...",
-      {
-        location: { lat, lng },
-      },
-    );
+    
 
     // ✅ INTEGRATED: Transición a estado LOADING
     smartRequestManager.transitionTo(RequestState.LOADING, {
@@ -142,10 +123,7 @@ const DriverIncomingRequest: React.FC = () => {
 
       if (requests) {
         // ✅ Cache hit - usar datos del cache (instantáneo)
-        console.log(
-          "[DriverIncomingRequest] ✅ Cache hit - using cached data:",
-          requests.length,
-        );
+        
         setPendingRequests(requests);
 
         // ✅ INTEGRATED: Transición a estado LOADED
@@ -160,9 +138,7 @@ const DriverIncomingRequest: React.FC = () => {
       }
 
       // ❌ Cache miss - hacer llamada a API
-      console.log(
-        "[DriverIncomingRequest] ❌ Cache miss - fetching from API...",
-      );
+      
       showSuccess(
         "Cargando detalles...",
         "Obteniendo información actualizada",
@@ -180,13 +156,7 @@ const DriverIncomingRequest: React.FC = () => {
         pendingRequestsCache.set(lat, lng, requests);
         setPendingRequests(requests);
 
-        console.log(
-          "[DriverIncomingRequest] ✅ Full request data loaded and cached:",
-          {
-            requests: requests.length,
-            cacheStats: pendingRequestsCache.getStats(),
-          },
-        );
+        
 
         // ✅ INTEGRATED: Transición a estado LOADED
         smartRequestManager.transitionTo(RequestState.LOADED, {
@@ -208,10 +178,7 @@ const DriverIncomingRequest: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error(
-        "[DriverIncomingRequest] ❌ Error loading full request data:",
-        error,
-      );
+      
 
       // ✅ INTEGRATED: Transición a estado ERROR
       smartRequestManager.transitionTo(RequestState.ERROR, {
@@ -222,9 +189,7 @@ const DriverIncomingRequest: React.FC = () => {
       // En caso de error, intentar usar datos del cache como fallback (aunque expirados)
       const cachedFallback = pendingRequestsCache.get(lat, lng);
       if (cachedFallback && cachedFallback.length > 0) {
-        console.log(
-          "[DriverIncomingRequest] ⚠️ Using expired cache as fallback",
-        );
+        
         setPendingRequests(cachedFallback);
         showError(
           "Error de conexión",
@@ -260,7 +225,7 @@ const DriverIncomingRequest: React.FC = () => {
     setProcessing(`accept-${request.rideId}`);
 
     try {
-      console.log("[DriverIncomingRequest] Accepting request:", request.rideId);
+      
 
       // Calculate estimated arrival time (simplified)
       const estimatedArrivalMinutes = 5;
@@ -290,7 +255,7 @@ const DriverIncomingRequest: React.FC = () => {
       showSuccess("¡Solicitud aceptada!", "Dirígete al punto de recogida");
       goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
     } catch (error) {
-      console.error("[DriverIncomingRequest] Error accepting request:", error);
+      
       showError("Error", "No se pudo aceptar la solicitud. Intenta de nuevo.");
     } finally {
       setProcessing(null);
@@ -302,7 +267,7 @@ const DriverIncomingRequest: React.FC = () => {
     setProcessing(`reject-${request.rideId}`);
 
     try {
-      console.log("[DriverIncomingRequest] Rejecting request:", request.rideId);
+      
 
       if (reason) {
         await driverTransportService.rejectRequest(request.rideId, reason);
@@ -316,7 +281,7 @@ const DriverIncomingRequest: React.FC = () => {
         prev.filter((r) => r.rideId !== request.rideId),
       );
     } catch (error) {
-      console.error("[DriverIncomingRequest] Error rejecting request:", error);
+      
       showError("Error", "No se pudo rechazar la solicitud");
     } finally {
       setProcessing(null);

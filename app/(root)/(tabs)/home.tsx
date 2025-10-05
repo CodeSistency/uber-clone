@@ -49,7 +49,7 @@ const Home = () => {
       await logoutUser();
       router.replace("/(auth)/sign-in");
     } catch (error) {
-      console.error("Error during logout:", error);
+      
       // Still navigate even if logout fails
       router.replace("/(auth)/sign-in");
     }
@@ -75,12 +75,12 @@ const Home = () => {
   const loadDeliveryData = async () => {
     setIsLoadingRestaurants(true);
     try {
-      console.log("[Home] 📦 Loading nearby restaurants...");
+      
       const restaurants = await loadNearbyRestaurants();
       setNearbyRestaurants(restaurants);
-      console.log(`[Home] ✅ Loaded ${restaurants.length} restaurants`);
+      
     } catch (error) {
-      console.error("[Home] ❌ Error loading restaurants:", error);
+      
     } finally {
       setIsLoadingRestaurants(false);
     }
@@ -122,17 +122,17 @@ const Home = () => {
     longitude: number;
     address: string;
   }) => {
-    console.log("[Home] 🎯 handleDestinationPress called with:", location);
-    console.log("[Home] 📋 Current serviceType:", serviceType);
+    
+    
 
     setDestinationLocation(location);
 
     // Navegación condicional basada en serviceType
     if (serviceType === "delivery") {
-      console.log("[Home] 🛵 Navigating to marketplace (delivery flow)");
+      
       router.push("/(marketplace)" as any);
     } else {
-      console.log("[Home] 🚗 Navigating to find-ride (transport flow)");
+      
       router.push("/(root)/find-ride" as any);
     }
   };
@@ -239,7 +239,7 @@ const Home = () => {
             </TouchableOpacity>
             <HamburgerMenu
               onPress={() => {
-                console.log("Global hamburger menu pressed!");
+                
                 setDrawerVisible(true);
               }}
             />
@@ -365,7 +365,7 @@ const Home = () => {
         visible={drawerVisible}
         currentMode={currentModule}
         onClose={() => {
-          console.log("Global drawer closed");
+          
           setDrawerVisible(false);
         }}
       />

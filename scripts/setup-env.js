@@ -10,10 +10,10 @@ const path = require("path");
 
 const environments = ["development", "staging", "production"];
 
-console.log("🌍 Setting up environment configurations...");
+
 
 environments.forEach((env) => {
-  console.log(`\n📝 Configuring ${env} environment...`);
+  
 
   // Create environment-specific directories
   const envDir = path.join(process.cwd(), "environments", env);
@@ -26,7 +26,7 @@ environments.forEach((env) => {
   if (!fs.existsSync(envFile)) {
     const envContent = getEnvTemplate(env);
     fs.writeFileSync(envFile, envContent);
-    console.log(`✅ Created ${env}/.env`);
+    
   }
 
   // Create Firebase config for environment
@@ -34,17 +34,15 @@ environments.forEach((env) => {
   if (!fs.existsSync(firebaseConfig)) {
     const firebaseTemplate = getFirebaseTemplate(env);
     fs.writeFileSync(firebaseConfig, JSON.stringify(firebaseTemplate, null, 2));
-    console.log(`✅ Created ${env}/google-services.json`);
+    
   }
 });
 
-console.log("\n🎉 Environment setup completed!");
-console.log("\nNext steps:");
-console.log("1. Update the .env files with your actual API keys");
-console.log(
-  "2. Update google-services.json files with your Firebase configurations",
-);
-console.log('3. Run "npm run prebuild" to test the prebuild process');
+
+
+
+
+
 
 function getEnvTemplate(env) {
   const isProd = env === "production";

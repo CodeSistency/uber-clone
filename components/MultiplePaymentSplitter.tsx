@@ -183,7 +183,7 @@ const MultiplePaymentSplitter: React.FC<MultiplePaymentSplitterProps> = ({
       // 🆕 Para el contexto de UnifiedFlow, este componente ahora solo configura los pagos
       // Los pagos reales se procesan en PaymentMethodology usando los nuevos endpoints
 
-      console.log("Configurando pagos múltiples:", payments);
+      
 
       // Convertir pagos al formato esperado por los nuevos endpoints
       const formattedPayments = payments.map((payment, index) => {
@@ -217,7 +217,7 @@ const MultiplePaymentSplitter: React.FC<MultiplePaymentSplitterProps> = ({
       let generatedReferences: BankReference[] = [];
 
       if (paymentsNeedingReferences.length > 0) {
-        console.log("Generando preview de referencias bancarias...");
+        
 
         // Crear array de pagos para generar referencias de preview
         const paymentsForReferences = paymentsNeedingReferences.map((p) => ({
@@ -230,9 +230,7 @@ const MultiplePaymentSplitter: React.FC<MultiplePaymentSplitterProps> = ({
           serviceId,
         );
 
-        console.log(
-          `Generadas ${generatedReferences.length} referencias de preview`,
-        );
+        
       }
 
       // Almacenar referencias generadas (para mostrar preview)
@@ -252,7 +250,7 @@ const MultiplePaymentSplitter: React.FC<MultiplePaymentSplitterProps> = ({
         showSuccess("¡Listo!", `Pago dividido en ${payments.length} métodos`);
       }
     } catch (error: any) {
-      console.error("Error configurando pagos:", error);
+      
       showError(
         "Error",
         error?.message || "No se pudieron configurar los pagos",

@@ -100,7 +100,7 @@
     });
 
   } catch (error) {
-    console.error("Error fetching driver status:", error);
+    
     return Response.json(
       {
         error: "Internal Server Error",

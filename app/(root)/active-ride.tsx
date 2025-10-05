@@ -95,7 +95,7 @@ const ActiveRide = () => {
     switch (rideStatus) {
       case "driver_en_route":
         // Cancel ride logic
-        console.log("Cancel ride");
+        
         break;
       case "driver_arrived":
         setRideStatus("in_progress");
@@ -103,7 +103,7 @@ const ActiveRide = () => {
         break;
       case "in_progress":
         // Emergency logic
-        console.log("Emergency");
+        
         break;
       case "completed":
         router.push("/(root)/payment-method" as any);
@@ -112,7 +112,7 @@ const ActiveRide = () => {
   };
 
   const handleSendMessage = (message: string) => {
-    console.log("Sending message:", message);
+    
     // Here you would send the message to the driver
   };
 

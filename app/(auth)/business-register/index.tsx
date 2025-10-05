@@ -97,7 +97,7 @@ const BusinessRegister = () => {
 
     try {
       // TODO: Save business registration to database
-      console.log("Business registration data:", { businessType, ...formData });
+      
 
       // Save to storage using utility
       await userModeStorage.setBusinessRegistered({
@@ -122,7 +122,7 @@ const BusinessRegister = () => {
         ],
       );
     } catch (error) {
-      console.error("Registration error:", error);
+      
       Alert.alert("Error", "Failed to submit registration. Please try again.");
     } finally {
       setLoading(false);

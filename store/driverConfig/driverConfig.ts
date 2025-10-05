@@ -304,7 +304,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
   // Actions
   fetchProfile: async () => {
-    console.log("[DriverConfigStore] Fetching driver profile");
+    
     const state = get();
 
     try {
@@ -336,7 +336,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
       set(() => ({ profile: mockProfile }));
     } catch (error) {
-      console.error("[DriverConfigStore] Error fetching profile:", error);
+      
       state.setError((error as Error).message || "Failed to fetch profile");
     } finally {
       state.setLoading(false);
@@ -344,7 +344,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateProfile: async (updates: Partial<DriverProfile>) => {
-    console.log("[DriverConfigStore] Updating profile:", updates);
+    
     const state = get();
 
     try {
@@ -359,9 +359,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       set(() => ({ profile: updatedProfile }));
 
       // TODO: Send to backend
-      console.log("[DriverConfigStore] Profile updated successfully");
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error updating profile:", error);
+      
       state.setError((error as Error).message || "Failed to update profile");
     } finally {
       state.setLoading(false);
@@ -369,7 +369,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   fetchDocuments: async () => {
-    console.log("[DriverConfigStore] Fetching documents");
+    
     const state = get();
 
     try {
@@ -412,7 +412,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
       set(() => ({ documents: mockDocuments }));
     } catch (error) {
-      console.error("[DriverConfigStore] Error fetching documents:", error);
+      
       state.setError((error as Error).message || "Failed to fetch documents");
     } finally {
       state.setLoading(false);
@@ -422,7 +422,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   uploadDocument: async (
     document: Omit<DriverDocument, "id" | "uploadDate" | "status">,
   ) => {
-    console.log("[DriverConfigStore] Uploading document:", document);
+    
     const state = get();
 
     try {
@@ -442,9 +442,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Upload to backend
-      console.log("[DriverConfigStore] Document uploaded:", documentId);
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error uploading document:", error);
+      
       state.setError((error as Error).message || "Failed to upload document");
     } finally {
       state.setLoading(false);
@@ -455,7 +455,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
     documentId: string,
     updates: Partial<DriverDocument>,
   ) => {
-    console.log("[DriverConfigStore] Updating document:", documentId, updates);
+    
     const state = get();
 
     try {
@@ -469,9 +469,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Update in backend
-      console.log("[DriverConfigStore] Document updated:", documentId);
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error updating document:", error);
+      
       state.setError((error as Error).message || "Failed to update document");
     } finally {
       state.setLoading(false);
@@ -479,7 +479,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   deleteDocument: async (documentId: string) => {
-    console.log("[DriverConfigStore] Deleting document:", documentId);
+    
     const state = get();
 
     try {
@@ -491,9 +491,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Delete from backend
-      console.log("[DriverConfigStore] Document deleted:", documentId);
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error deleting document:", error);
+      
       state.setError((error as Error).message || "Failed to delete document");
     } finally {
       state.setLoading(false);
@@ -501,7 +501,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   fetchVehicles: async () => {
-    console.log("[DriverConfigStore] Fetching vehicles");
+    
     const state = get();
 
     try {
@@ -543,7 +543,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
       set(() => ({ vehicles: mockVehicles }));
     } catch (error) {
-      console.error("[DriverConfigStore] Error fetching vehicles:", error);
+      
       state.setError((error as Error).message || "Failed to fetch vehicles");
     } finally {
       state.setLoading(false);
@@ -551,7 +551,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   addVehicle: async (vehicle: Omit<Vehicle, "id">) => {
-    console.log("[DriverConfigStore] Adding vehicle:", vehicle);
+    
     const state = get();
 
     try {
@@ -569,9 +569,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Add to backend
-      console.log("[DriverConfigStore] Vehicle added:", vehicleId);
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error adding vehicle:", error);
+      
       state.setError((error as Error).message || "Failed to add vehicle");
     } finally {
       state.setLoading(false);
@@ -579,7 +579,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateVehicle: async (vehicleId: string, updates: Partial<Vehicle>) => {
-    console.log("[DriverConfigStore] Updating vehicle:", vehicleId, updates);
+    
     const state = get();
 
     try {
@@ -593,9 +593,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Update in backend
-      console.log("[DriverConfigStore] Vehicle updated:", vehicleId);
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error updating vehicle:", error);
+      
       state.setError((error as Error).message || "Failed to update vehicle");
     } finally {
       state.setLoading(false);
@@ -603,7 +603,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   deleteVehicle: async (vehicleId: string) => {
-    console.log("[DriverConfigStore] Deleting vehicle:", vehicleId);
+    
     const state = get();
 
     try {
@@ -615,9 +615,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Delete from backend
-      console.log("[DriverConfigStore] Vehicle deleted:", vehicleId);
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error deleting vehicle:", error);
+      
       state.setError((error as Error).message || "Failed to delete vehicle");
     } finally {
       state.setLoading(false);
@@ -625,7 +625,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   setDefaultVehicle: async (vehicleId: string) => {
-    console.log("[DriverConfigStore] Setting default vehicle:", vehicleId);
+    
     const state = get();
 
     try {
@@ -640,12 +640,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Update in backend
-      console.log("[DriverConfigStore] Default vehicle set:", vehicleId);
+      
     } catch (error) {
-      console.error(
-        "[DriverConfigStore] Error setting default vehicle:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to set default vehicle",
       );
@@ -655,7 +652,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   fetchServiceTypes: async () => {
-    console.log("[DriverConfigStore] Fetching service types");
+    
     const state = get();
 
     try {
@@ -701,7 +698,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
       set(() => ({ serviceTypes: mockServiceTypes }));
     } catch (error) {
-      console.error("[DriverConfigStore] Error fetching service types:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch service types",
       );
@@ -711,11 +708,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateServiceTypeStatus: async (serviceTypeId: string, isActive: boolean) => {
-    console.log(
-      "[DriverConfigStore] Updating service type status:",
-      serviceTypeId,
-      isActive,
-    );
+    
     const state = get();
 
     try {
@@ -731,16 +724,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Update in backend
-      console.log(
-        "[DriverConfigStore] Service type status updated:",
-        serviceTypeId,
-        isActive,
-      );
+      
     } catch (error) {
-      console.error(
-        "[DriverConfigStore] Error updating service type status:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to update service type status",
       );
@@ -750,7 +736,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateAppSettings: async (settings: Partial<AppSettings>) => {
-    console.log("[DriverConfigStore] Updating app settings:", settings);
+    
     const state = get();
 
     try {
@@ -762,9 +748,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[DriverConfigStore] App settings updated");
+      
     } catch (error) {
-      console.error("[DriverConfigStore] Error updating app settings:", error);
+      
       state.setError(
         (error as Error).message || "Failed to update app settings",
       );
@@ -774,7 +760,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateNavigationSettings: async (settings: Partial<NavigationSettings>) => {
-    console.log("[DriverConfigStore] Updating navigation settings:", settings);
+    
     const state = get();
 
     try {
@@ -786,12 +772,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[DriverConfigStore] Navigation settings updated");
+      
     } catch (error) {
-      console.error(
-        "[DriverConfigStore] Error updating navigation settings:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to update navigation settings",
       );
@@ -801,7 +784,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateSoundSettings: async (settings: Partial<SoundSettings>) => {
-    console.log("[DriverConfigStore] Updating sound settings:", settings);
+    
     const state = get();
 
     try {
@@ -813,12 +796,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[DriverConfigStore] Sound settings updated");
+      
     } catch (error) {
-      console.error(
-        "[DriverConfigStore] Error updating sound settings:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to update sound settings",
       );
@@ -828,7 +808,7 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
   },
 
   updateRidePreferences: async (preferences: Partial<RidePreferences>) => {
-    console.log("[DriverConfigStore] Updating ride preferences:", preferences);
+    
     const state = get();
 
     try {
@@ -840,12 +820,9 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[DriverConfigStore] Ride preferences updated");
+      
     } catch (error) {
-      console.error(
-        "[DriverConfigStore] Error updating ride preferences:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to update ride preferences",
       );
@@ -856,17 +833,17 @@ export const useDriverConfigStore = create<DriverConfigStore>((set, get) => ({
 
   // Utility Functions
   setLoading: (loading: boolean) => {
-    console.log("[DriverConfigStore] Setting loading:", loading);
+    
     set(() => ({ isLoading: loading }));
   },
 
   setError: (error: string | null) => {
-    console.log("[DriverConfigStore] Setting error:", error);
+    
     set(() => ({ error }));
   },
 
   clearError: () => {
-    console.log("[DriverConfigStore] Clearing error");
+    
     set(() => ({ error: null }));
   },
 }));

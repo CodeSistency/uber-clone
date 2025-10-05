@@ -39,9 +39,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
     if (visible && isOnline && onRetry && retryCount < 3) {
       const timer = setTimeout(
         async () => {
-          console.log(
-            `[NetworkErrorModal] Auto-retrying (attempt ${retryCount + 1})`,
-          );
+          
           setRetryCount((prev) => prev + 1);
 
           try {
@@ -49,7 +47,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
             await onRetry();
             onClose();
           } catch (error) {
-            console.error("[NetworkErrorModal] Auto-retry failed:", error);
+            
           } finally {
             setRetrying(false);
           }
@@ -71,7 +69,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
       await onRetry();
       onClose();
     } catch (error) {
-      console.error("[NetworkErrorModal] Manual retry failed:", error);
+      
     } finally {
       setRetrying(false);
     }
@@ -86,7 +84,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
       await onSaveOffline();
       onClose();
     } catch (error) {
-      console.error("[NetworkErrorModal] Save offline failed:", error);
+      
     } finally {
       setSavingOffline(false);
     }
@@ -97,7 +95,7 @@ export const NetworkErrorModal: React.FC<NetworkErrorModalProps> = ({
       await syncNow();
       onClose();
     } catch (error) {
-      console.error("[NetworkErrorModal] Sync failed:", error);
+      
     }
   };
 

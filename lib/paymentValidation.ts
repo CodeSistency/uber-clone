@@ -250,7 +250,7 @@ export const mapFrontendPaymentMethodToBackend = (
 ): string => {
   // Validate input
   if (!frontendId || typeof frontendId !== 'string') {
-    console.warn('[PaymentValidation] mapFrontendPaymentMethodToBackend: Invalid frontendId:', frontendId);
+    
     return 'cash'; // Fallback to cash
   }
 

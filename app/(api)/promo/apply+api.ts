@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error applying promo code:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

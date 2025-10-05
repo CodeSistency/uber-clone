@@ -82,10 +82,7 @@ export const useNotifications = () => {
   useEffect(() => {
     if (setBadgeCount) {
       setBadgeCount(unreadCount).catch((error) => {
-        console.error(
-          "[useNotifications] Failed to update badge count:",
-          error,
-        );
+        
       });
     }
   }, [unreadCount, setBadgeCount]);

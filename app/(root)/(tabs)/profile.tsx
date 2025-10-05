@@ -15,47 +15,47 @@ import { useUserStore } from "@/store";
 const Profile = () => {
   const { user, isLoading, error, refreshUser } = useUserStore();
 
-  console.log("[Profile] User data:", user);
-  console.log("[Profile] Loading:", isLoading);
-  console.log("[Profile] Error:", error);
-  console.log("[Profile] User ID:", user?.id);
-  console.log("[Profile] User Name:", user?.name);
-  console.log("[Profile] User Email:", user?.email);
+  
+  
+  
+  
+  
+  
 
   const handleRefresh = async () => {
-    console.log("[Profile] Refreshing user data...");
+    
     try {
       await refreshUser();
-      console.log("[Profile] Refresh completed, new user data:", user);
+      
     } catch (err) {
-      console.error("[Profile] Error refreshing user data:", err);
+      
     }
   };
 
   const handleDebugProfile = async () => {
-    console.log("[Profile] Running profile API debug...");
+    
     try {
       const { debugProfileResponse } = await import("@/lib/auth");
       if (typeof debugProfileResponse === "function") {
         const debugResult = await debugProfileResponse();
-        console.log("[Profile] Debug result:", debugResult);
+        
       } else {
-        console.error("[Profile] debugProfileResponse is not a function");
+        
       }
     } catch (err) {
-      console.error("[Profile] Error importing/running debug:", err);
+      
     }
   };
 
   // Debug: Check UserStore state on component mount
   React.useEffect(() => {
-    console.log("[Profile] Component mounted, checking UserStore state...");
+    
     const storeState = useUserStore.getState();
-    console.log("[Profile] Current UserStore state:", storeState);
+    
 
     // If no user but we should have one, run debug
     if (!user && !isLoading) {
-      console.log("[Profile] No user found, running debug automatically...");
+      
       handleDebugProfile();
     }
   }, []);

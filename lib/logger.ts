@@ -101,15 +101,11 @@ export class Logger {
         console.info(`${prefix} ${message}`, entry.data || "");
         break;
       case LogLevel.WARN:
-        console.warn(`${prefix} ${message}`, entry.data || "");
+        
         break;
       case LogLevel.ERROR:
       case LogLevel.CRITICAL:
-        console.error(
-          `${prefix} ${message}`,
-          entry.data || "",
-          entry.stackTrace || "",
-        );
+        
         break;
     }
   }
@@ -132,7 +128,7 @@ export class Logger {
 
       await AsyncStorage.setItem("uber_app_logs", JSON.stringify(logs));
     } catch (error) {
-      console.error("[Logger] Failed to persist log:", error);
+      
     }
   }
 
@@ -148,7 +144,7 @@ export class Logger {
         }));
       }
     } catch (error) {
-      console.error("[Logger] Failed to load persisted logs:", error);
+      
     }
   }
 

@@ -4,10 +4,10 @@ import CustomButton from "@/components/CustomButton";
 import { icons } from "@/constants";
 
 const OAuth = () => {
-  console.log("[OAuth] Rendering OAuth component");
+  
 
   const handleGoogleSignIn = () => {
-    console.log("[OAuth] OAuth not available - using internal authentication");
+    
     Alert.alert(
       "OAuth Unavailable",
       "OAuth authentication is not available in this version. Please use email and password to sign in.",

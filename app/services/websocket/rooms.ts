@@ -11,11 +11,11 @@ export class RoomManager implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log("[RoomManager] Initializing room management system");
+    
   }
 
   async destroy(): Promise<void> {
-    console.log("[RoomManager] Destroying room management system");
+    
     this.rooms.clear();
     this.roomEmitter = null;
   }
@@ -42,7 +42,7 @@ export class RoomManager implements BaseModule {
     emitter: (event: string, roomId: string, data?: any) => void,
   ): void {
     this.roomEmitter = emitter;
-    console.log("[RoomManager] Room emitter set");
+    
   }
 
   // Join a room
@@ -50,13 +50,13 @@ export class RoomManager implements BaseModule {
     if (this.rooms.has(roomId)) {
       const existingRoom = this.rooms.get(roomId)!;
       if (existingRoom.isActive) {
-        console.log(`[RoomManager] Already in room: ${roomId}`);
+        
         return true; // Already joined
       } else {
         // Reactivate existing room
         existingRoom.isActive = true;
         existingRoom.joinedAt = new Date();
-        console.log(`[RoomManager] Reactivated room: ${roomId}`);
+        
       }
     } else {
       // Create new room
@@ -69,7 +69,7 @@ export class RoomManager implements BaseModule {
       };
 
       this.rooms.set(roomId, roomState);
-      console.log(`[RoomManager] Joined new room: ${roomId}`);
+      
     }
 
     // Emit room joined event
@@ -81,14 +81,14 @@ export class RoomManager implements BaseModule {
   leaveRoom(roomId: string): boolean {
     const room = this.rooms.get(roomId);
     if (!room || !room.isActive) {
-      console.log(`[RoomManager] Not in room or room inactive: ${roomId}`);
+      
       return false;
     }
 
     room.isActive = false;
     room.lastActivity = new Date();
 
-    console.log(`[RoomManager] Left room: ${roomId}`);
+    
 
     // Emit room left event
     this.emitRoomEvent("room_left", roomId);
@@ -101,9 +101,7 @@ export class RoomManager implements BaseModule {
       ([, room]) => room.isActive,
     );
 
-    console.log(
-      `[RoomManager] Leaving all rooms (${activeRooms.length} active)`,
-    );
+    
 
     for (const [roomId] of activeRooms) {
       this.leaveRoom(roomId);
@@ -144,7 +142,7 @@ export class RoomManager implements BaseModule {
     const room = this.rooms.get(roomId);
     if (room) {
       room.memberCount = count;
-      console.log(`[RoomManager] Updated member count for ${roomId}: ${count}`);
+      
     }
   }
 
@@ -200,13 +198,11 @@ export class RoomManager implements BaseModule {
 
     roomsToRemove.forEach((roomId) => {
       this.rooms.delete(roomId);
-      console.log(`[RoomManager] Cleaned up inactive room: ${roomId}`);
+      
     });
 
     if (roomsToRemove.length > 0) {
-      console.log(
-        `[RoomManager] Cleaned up ${roomsToRemove.length} inactive rooms`,
-      );
+      
     }
 
     return roomsToRemove.length;
@@ -215,23 +211,18 @@ export class RoomManager implements BaseModule {
   // Broadcast to room (if supported by the connection)
   broadcastToRoom(roomId: string, event: string, data: any): boolean {
     if (!this.isInRoom(roomId)) {
-      console.warn(
-        `[RoomManager] Cannot broadcast to room ${roomId}: not joined`,
-      );
+      
       return false;
     }
 
-    console.log(`[RoomManager] Broadcasting to room ${roomId}: ${event}`);
+    
     this.emitRoomEvent("broadcast", roomId, { event, data });
     return true;
   }
 
   // Handle room events from server
   handleRoomEvent(event: string, roomId: string, data?: any): void {
-    console.log(
-      `[RoomManager] Handling room event: ${event} for room ${roomId}`,
-      data,
-    );
+    
 
     switch (event) {
       case "member_joined":
@@ -244,7 +235,7 @@ export class RoomManager implements BaseModule {
         this.handleRoomClosed(roomId, data);
         break;
       default:
-        console.log(`[RoomManager] Unknown room event: ${event}`);
+        
     }
   }
 
@@ -252,9 +243,7 @@ export class RoomManager implements BaseModule {
     const room = this.rooms.get(roomId);
     if (room) {
       room.memberCount++;
-      console.log(
-        `[RoomManager] Member joined room ${roomId}, new count: ${room.memberCount}`,
-      );
+      
     }
     this.emitRoomEvent("member_joined", roomId, data);
   }
@@ -263,9 +252,7 @@ export class RoomManager implements BaseModule {
     const room = this.rooms.get(roomId);
     if (room) {
       room.memberCount = Math.max(0, room.memberCount - 1);
-      console.log(
-        `[RoomManager] Member left room ${roomId}, new count: ${room.memberCount}`,
-      );
+      
     }
     this.emitRoomEvent("member_left", roomId, data);
   }
@@ -275,7 +262,7 @@ export class RoomManager implements BaseModule {
     if (room) {
       room.isActive = false;
       room.lastActivity = new Date();
-      console.log(`[RoomManager] Room closed: ${roomId}`);
+      
     }
     this.emitRoomEvent("room_closed", roomId, data);
   }
@@ -285,10 +272,7 @@ export class RoomManager implements BaseModule {
       try {
         this.roomEmitter(event, roomId, data);
       } catch (error) {
-        console.error(
-          `[RoomManager] Error emitting room event ${event}:`,
-          error,
-        );
+        
       }
     }
   }
@@ -314,7 +298,7 @@ export class RoomManager implements BaseModule {
         joinedCount++;
       }
     }
-    console.log(`[RoomManager] Joined ${joinedCount}/${roomIds.length} rooms`);
+    
     return joinedCount;
   }
 
@@ -325,7 +309,7 @@ export class RoomManager implements BaseModule {
         leftCount++;
       }
     }
-    console.log(`[RoomManager] Left ${leftCount}/${roomIds.length} rooms`);
+    
     return leftCount;
   }
 }

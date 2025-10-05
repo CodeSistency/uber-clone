@@ -105,7 +105,7 @@ const MapViewWithBottomSheet: React.FC<MapViewWithBottomSheetProps> = ({
 
   // Handle marker press
   const handleMarkerPress = (marker: any) => {
-    console.log("[MapViewWithBottomSheet] Marker pressed:", marker);
+    
     if (onMarkerPress) {
       onMarkerPress(marker);
     }

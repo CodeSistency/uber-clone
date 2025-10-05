@@ -29,8 +29,6 @@ SplashScreen.preventAutoHideAsync();
 LogBox.ignoreLogs(["Clerk:"]);
 
 export default function RootLayout() {
-  console.log("[RootLayout] Rendering root layout");
-
   const { isAuthenticated, user } = useUserStore();
 
   const [loaded, error] = useFonts({
@@ -44,144 +42,88 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    console.log("[RootLayout] useEffect - loaded:", loaded, "error:", error);
     if (loaded || error) {
       // Hide splash screen regardless of success/failure
       SplashScreen.hideAsync();
 
       // Validate environment configuration first (highest priority)
-      console.log("[RootLayout] Validating environment configuration...");
       try {
         const config = getConfig();
-        console.log(
-          "[RootLayout] ✅ Environment configuration validated successfully",
-        );
-        console.log(
-          "[RootLayout] Environment:",
-          process.env.NODE_ENV || "development",
-        );
-        console.log(
-          "[RootLayout] API URL:",
-          config.EXPO_PUBLIC_SERVER_URL || "Not configured",
-        );
       } catch (error: any) {
-        console.error(
-          "[RootLayout] ❌ Environment configuration failed:",
-          error.message,
-        );
+        
         // In a production app, you might want to show an error screen or prevent app initialization
         // For now, we'll log the error but continue (useful for development)
-        console.warn(
-          "[RootLayout] Continuing with potentially incomplete configuration...",
-        );
+        
       }
 
       // Perform health checks for critical endpoints
-      console.log("[RootLayout] Performing endpoint health checks...");
       (async () => {
         try {
           const healthResults: HealthCheckResult[] = await checkAllEndpoints();
           const allAvailable = areAllEndpointsAvailable();
 
-          console.log("[RootLayout] Health check results:");
-          healthResults.forEach((result) => {
-            const status = result.available ? "✅" : "❌";
-            console.log(
-              `[RootLayout] ${status} ${result.endpoint}: ${result.available ? "Available" : result.error || "Unavailable"} (${result.responseTime}ms)`,
-            );
-          });
-
           if (!allAvailable) {
-            console.warn(
-              "[RootLayout] ⚠️ Some endpoints are not available. App may have limited functionality.",
-            );
+            
             // In production, you might want to show a warning or retry
-          } else {
-            console.log("[RootLayout] ✅ All critical endpoints are available");
           }
         } catch (error: any) {
-          console.error("[RootLayout] ❌ Health check failed:", error.message);
-          console.warn(
-            "[RootLayout] Continuing without health check results...",
-          );
+          
+          
         }
       })();
 
       // Initialize connectivity manager first (foundation for all network operations)
       const initializeConnectivity = async () => {
-        console.log("[RootLayout] Initializing connectivity manager...");
         try {
           const { connectivityManager } = await import("@/lib/connectivity");
           await connectivityManager.initialize();
-          console.log("[RootLayout] ✅ Connectivity manager initialized");
         } catch (error) {
-          console.error(
-            "[RootLayout] ❌ Connectivity manager initialization failed:",
-            error,
-          );
-          console.warn("[RootLayout] Network detection may not work properly");
+          
+          
         }
       };
       initializeConnectivity();
 
       // Initialize Firebase (highest priority)
-      console.log("[RootLayout] Initializing Firebase service...");
       try {
         firebaseService.initializeFirebase().catch((error: any) => {
-          console.warn(
-            "[RootLayout] Firebase initialization failed (expected in dev):",
-            error.message,
-          );
+          
         });
       } catch (error) {
-        console.warn("[RootLayout] Error initializing Firebase:", error);
+        
       }
 
       // Initialize user store after fonts are loaded (or failed)
-      console.log("[RootLayout] Initializing user store...");
       try {
         const { initializeUserStore } = require("@/lib/auth");
         if (typeof initializeUserStore === "function") {
           initializeUserStore().catch((error: any) => {
-            console.error(
-              "[RootLayout] Failed to initialize user store:",
-              error,
-            );
+            
           });
         } else {
-          console.error("[RootLayout] initializeUserStore is not a function");
+          
         }
       } catch (error) {
-        console.error(
-          "[RootLayout] Error importing initializeUserStore:",
-          error,
-        );
+        
       }
 
       // Initialize module store after user store
-      console.log("[RootLayout] Initializing module store...");
       try {
         const { initializeModuleStore } = require("@/store/module");
         if (typeof initializeModuleStore === "function") {
           initializeModuleStore().catch((error: any) => {
-            console.warn(
-              "[RootLayout] Failed to initialize module store (non-critical):",
-              error,
-            );
+            
           });
         } else {
-          console.error("[RootLayout] initializeModuleStore is not a function");
+          
         }
       } catch (error) {
-        console.warn(
-          "[RootLayout] Error importing initializeModuleStore (non-critical):",
-          error,
-        );
+        
       }
     }
 
     if (error) {
-      console.error("[RootLayout] Font loading error:", error);
+      
     }
   }, [loaded, error]);
 
@@ -206,27 +148,17 @@ export default function RootLayout() {
             useDevStore.getState().wsBypass
           )
         ) {
-          console.log(
-            "[RootLayout] Attempting WebSocket connect for user:",
-            user.id,
-          );
           const token = await tokenManager.getAccessToken();
           if (!token) {
-            console.warn(
-              "[RootLayout] No access token available for WebSocket connect",
-            );
+            
             return;
           }
           await websocketService.connect(String(user.id), token);
-          console.log("[RootLayout] WebSocket connected");
         } else {
-          console.log(
-            "[RootLayout] Not authenticated, ensuring WebSocket disconnected",
-          );
           websocketService.disconnect();
         }
       } catch (e: any) {
-        console.warn("[RootLayout] WebSocket connect failed:", e?.message || e);
+        
       }
     };
 
@@ -234,7 +166,6 @@ export default function RootLayout() {
 
     return () => {
       if (!isMounted) return;
-      console.log("[RootLayout] Cleaning up WebSocket on unmount/auth change");
       websocketService.disconnect();
       isMounted = false;
     };
@@ -242,7 +173,6 @@ export default function RootLayout() {
 
   // Don't block app loading on font loading - render with system fonts as fallback
   if (!loaded && !error) {
-    console.log("[RootLayout] Fonts still loading, showing loading state");
     return (
       <GestureHandlerRootView style={{ flex: 1 }}>
         <UIWrapper>
@@ -256,16 +186,10 @@ export default function RootLayout() {
     );
   }
 
-  console.log("[RootLayout] Rendering stack");
-
   return (
     <ErrorBoundary
       onError={(error, errorInfo) => {
-        console.log(
-          "[RootLayout] Error boundary caught error:",
-          error,
-          errorInfo,
-        );
+        
       }}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
@@ -273,6 +197,7 @@ export default function RootLayout() {
           <Stack>
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(customer)" options={{ headerShown: false }} />
             <Stack.Screen name="(root)" options={{ headerShown: false }} />
             <Stack.Screen name="(business)" options={{ headerShown: false }} />
             <Stack.Screen name="(driver)" options={{ headerShown: false }} />

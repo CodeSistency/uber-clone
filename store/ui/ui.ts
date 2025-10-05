@@ -273,7 +273,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // Event Actions
   showLoading: (message = "Loading...", options = {}) => {
-    console.log("[UIStore] Showing loading:", message);
     const id = `loading_${Date.now()}_${Math.random()}`;
     set((state) => ({
       events: [
@@ -295,7 +294,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   hideLoading: (id) => {
-    console.log("[UIStore] Hiding loading:", id);
     set((state) => ({
       events: id
         ? state.events.filter((event) => event.id !== id)
@@ -328,7 +326,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   showSuccess: (title, message, action, options = {}) => {
-    console.log("[UIStore] Showing success:", title, message);
     const id = `success_${Date.now()}_${Math.random()}`;
     set((state) => ({
       events: [
@@ -352,7 +349,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   showInfo: (title, message, action, options = {}) => {
-    console.log("[UIStore] Showing info:", title, message);
     const id = `info_${Date.now()}_${Math.random()}`;
     set((state) => ({
       events: [
@@ -376,7 +372,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   showWarning: (title, message, action, options = {}) => {
-    console.log("[UIStore] Showing warning:", title, message);
     const id = `warning_${Date.now()}_${Math.random()}`;
     set((state) => ({
       events: [
@@ -400,7 +395,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   showAdvancedToast: (config) => {
-    console.log("[UIStore] Showing advanced toast:", config.title);
     const id = `toast_${Date.now()}_${Math.random()}`;
     set((state) => ({
       events: [
@@ -421,7 +415,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   updateEvent: (id, updates) => {
-    console.log("[UIStore] Updating event:", id, updates);
     set((state) => ({
       events: state.events.map((event) =>
         event.id === id ? { ...event, ...updates } : event,
@@ -431,7 +424,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // Bottom Sheet Actions
   showBottomSheet: (config) => {
-    console.log("[UIStore] Showing bottom sheet:", config.title);
     const id = `bottomsheet_${Date.now()}_${Math.random()}`;
     set((state) => ({
       bottomSheets: [
@@ -451,14 +443,12 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   hideBottomSheet: (id) => {
-    console.log("[UIStore] Hiding bottom sheet:", id);
     set((state) => ({
       bottomSheets: state.bottomSheets.filter((sheet) => sheet.id !== id),
     }));
   },
 
   updateBottomSheet: (id, updates) => {
-    console.log("[UIStore] Updating bottom sheet:", id, updates);
     set((state) => ({
       bottomSheets: state.bottomSheets.map((sheet) =>
         sheet.id === id ? { ...sheet, ...updates } : sheet,
@@ -468,7 +458,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // Modal Actions
   showModal: (config) => {
-    console.log("[UIStore] Showing modal:", config.title);
     const id = `modal_${Date.now()}_${Math.random()}`;
     set((state) => ({
       modals: [
@@ -487,14 +476,12 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   hideModal: (id) => {
-    console.log("[UIStore] Hiding modal:", id);
     set((state) => ({
       modals: state.modals.filter((modal) => modal.id !== id),
     }));
   },
 
   updateModal: (id, updates) => {
-    console.log("[UIStore] Updating modal:", id, updates);
     set((state) => ({
       modals: state.modals.map((modal) =>
         modal.id === id ? { ...modal, ...updates } : modal,
@@ -529,7 +516,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   updateSnackbar: (id, updates) => {
-    console.log("[UIStore] Updating snackbar:", id, updates);
     set((state) => ({
       snackbars: state.snackbars.map((snackbar) =>
         snackbar.id === id ? { ...snackbar, ...updates } : snackbar,
@@ -539,7 +525,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // Loading State Actions
   showLoadingState: (config) => {
-    console.log("[UIStore] Showing loading state:", config.type);
     const id = `loading_${Date.now()}_${Math.random()}`;
     set((state) => ({
       loadingStates: [
@@ -557,14 +542,12 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   hideLoadingState: (id) => {
-    console.log("[UIStore] Hiding loading state:", id);
     set((state) => ({
       loadingStates: state.loadingStates.filter((loading) => loading.id !== id),
     }));
   },
 
   updateLoadingState: (id, updates) => {
-    console.log("[UIStore] Updating loading state:", id, updates);
     set((state) => ({
       loadingStates: state.loadingStates.map((loading) =>
         loading.id === id ? { ...loading, ...updates } : loading,
@@ -574,7 +557,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
 
   // Progress Indicator Actions
   showProgress: (config) => {
-    console.log("[UIStore] Showing progress:", config.type);
     const id = `progress_${Date.now()}_${Math.random()}`;
     set((state) => ({
       progressIndicators: [
@@ -592,7 +574,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   hideProgress: (id) => {
-    console.log("[UIStore] Hiding progress:", id);
     set((state) => ({
       progressIndicators: state.progressIndicators.filter(
         (progress) => progress.id !== id,
@@ -601,7 +582,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   updateProgress: (id, updates) => {
-    console.log("[UIStore] Updating progress:", id, updates);
     set((state) => ({
       progressIndicators: state.progressIndicators.map((progress) =>
         progress.id === id ? { ...progress, ...updates } : progress,
@@ -617,14 +597,12 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   clearAllEvents: () => {
-    console.log("[UIStore] Clearing all events");
     set(() => ({
       events: [],
     }));
   },
 
   clearAllUI: () => {
-    console.log("[UIStore] Clearing all UI");
     set(() => ({
       events: [],
       bottomSheets: [],
@@ -637,7 +615,6 @@ export const useUIStore = create<UIStore>((set, get) => ({
   },
 
   setGlobalLoading: (loading, message = "Loading...") => {
-    console.log("[UIStore] Setting global loading:", loading, message);
     set(() => ({
       globalLoading: loading,
       globalLoadingMessage: message,

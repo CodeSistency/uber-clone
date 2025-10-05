@@ -47,7 +47,7 @@ const DriverEmergency = () => {
     try {
       await Promise.all([fetchEmergencyContacts(), fetchEmergencyHistory()]);
     } catch (error) {
-      console.error("Error loading emergency data:", error);
+      
     }
   };
 
@@ -133,7 +133,7 @@ const DriverEmergency = () => {
         "Emergency services have been notified. Help is on the way.",
       );
     } catch (error) {
-      console.error("Emergency trigger failed:", error);
+      
       showError(
         "Emergency Failed",
         "Unable to send emergency alert. Please call emergency services directly.",
@@ -163,7 +163,7 @@ const DriverEmergency = () => {
       await resolveEmergency(activeEmergency.id);
       showSuccess("Emergency Resolved", "Emergency alert has been resolved.");
     } catch (error) {
-      console.error("Emergency resolution failed:", error);
+      
       showError(
         "Resolution Failed",
         "Unable to resolve emergency. Please contact support.",

@@ -109,7 +109,7 @@ const DriverProfileEdit = () => {
       }, 1500);
     } catch (error) {
       // Error is already handled in the store
-      console.error("Profile update failed:", error);
+      
     } finally {
       setIsSubmitting(false);
     }

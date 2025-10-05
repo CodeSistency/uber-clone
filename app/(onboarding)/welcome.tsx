@@ -8,19 +8,19 @@ import { useUI } from "@/components/UIWrapper";
 import { useOnboardingStore } from "@/store";
 
 export default function Welcome() {
-  console.log("[Welcome] Rendering welcome screen");
+  
 
   const { resetOnboarding } = useOnboardingStore();
   const { theme } = useUI();
 
   const handleStartExploring = () => {
-    console.log("[Welcome] Starting exploration");
+    
     // Don't reset onboarding here - keep the completion status
     router.replace("/(root)/(tabs)/home");
   };
 
   const handleViewProfile = () => {
-    console.log("[Welcome] Viewing profile");
+    
     // Don't reset onboarding here - keep the completion status
     router.replace("/(root)/(tabs)/profile");
   };

@@ -19,14 +19,7 @@ export const sortRides = (rides: Ride[]): Ride[] => {
 export function formatTime(minutes: number): string {
   const formattedMinutes = +minutes?.toFixed(1) || 0;
 
-  console.log("[formatTime] Formatting:", {
-    input: minutes,
-    formatted: formattedMinutes,
-    result:
-      formattedMinutes < 60
-        ? `${formattedMinutes} min`
-        : `${Math.floor(formattedMinutes / 60)}h ${(formattedMinutes % 60).toFixed(0)}m`,
-  });
+  
 
   if (formattedMinutes < 60) {
     return `${formattedMinutes} min`;

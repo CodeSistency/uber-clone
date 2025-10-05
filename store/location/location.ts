@@ -42,26 +42,15 @@ export const useLocationStore = create<{
     longitude: number;
     address: string;
   }) => {
-    console.log("[LocationStore] 📍 setUserLocation called with:", {
-      latitude,
-      longitude,
-      address,
-    });
-
     set(() => ({
       userLatitude: latitude,
       userLongitude: longitude,
       userAddress: address,
     }));
 
-    console.log("[LocationStore] ✅ User location updated in store");
-
     // if driver is selected and now new location is set, clear the selected driver
     const { selectedDriver, clearSelectedDriver } = useDriverStore.getState();
     if (selectedDriver) {
-      console.log(
-        "[LocationStore] 🔄 Clearing selected driver due to location change",
-      );
       clearSelectedDriver();
     }
   },
@@ -75,26 +64,15 @@ export const useLocationStore = create<{
     longitude: number;
     address: string;
   }) => {
-    console.log("[LocationStore] 🎯 setDestinationLocation called with:", {
-      latitude,
-      longitude,
-      address,
-    });
-
     set(() => ({
       destinationLatitude: latitude,
       destinationLongitude: longitude,
       destinationAddress: address,
     }));
 
-    console.log("[LocationStore] ✅ Destination location updated in store");
-
     // if driver is selected and now new location is set, clear the selected driver
     const { selectedDriver, clearSelectedDriver } = useDriverStore.getState();
     if (selectedDriver) {
-      console.log(
-        "[LocationStore] 🔄 Clearing selected driver due to location change",
-      );
       clearSelectedDriver();
     }
   },

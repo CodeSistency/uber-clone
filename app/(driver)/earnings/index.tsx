@@ -47,7 +47,7 @@ const DriverEarningsDashboard = () => {
         fetchChallenges(),
       ]);
     } catch (error) {
-      console.error("Error loading earnings data:", error);
+      
     }
   };
 
@@ -56,7 +56,7 @@ const DriverEarningsDashboard = () => {
     try {
       await refreshEarnings();
     } catch (error) {
-      console.error("Error refreshing earnings:", error);
+      
     } finally {
       setRefreshing(false);
     }

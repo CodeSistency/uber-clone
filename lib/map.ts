@@ -4,15 +4,7 @@ import { DARK_MODERN_STYLE } from "@/constants/mapStyles";
 
 // Debug function para verificar estilos del mapa
 export const debugMapStyles = () => {
-  console.log("[debugMapStyles] 🎨 DARK_MODERN_STYLE sample:", {
-    name: DARK_MODERN_STYLE.name,
-    jsonLength: DARK_MODERN_STYLE.json.length,
-    firstElement: DARK_MODERN_STYLE.json[0],
-    hasGeometryFill: DARK_MODERN_STYLE.json.some((style: any) => style.elementType === "geometry.fill"),
-    darkColors: DARK_MODERN_STYLE.json.filter((style: any) =>
-      style.stylers?.some((s: any) => s.color && s.color.includes("#1d"))
-    ),
-  });
+  
 };
 
 export const generateMarkersFromData = ({
@@ -24,11 +16,7 @@ export const generateMarkersFromData = ({
   userLatitude: number;
   userLongitude: number;
 }): MarkerData[] => {
-  console.log("[map] generateMarkersFromData ▶", {
-    driversCount: data?.length,
-    userLatitude,
-    userLongitude,
-  });
+  
   return data.map((driver, index) => {
     const latOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
     const lngOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
@@ -37,14 +25,7 @@ export const generateMarkersFromData = ({
     const firstName = driver.first_name || "Unknown";
     const lastName = driver.last_name || "Driver";
 
-    console.log("[generateMarkersFromData] Driver data structure:", {
-      driver,
-      firstName,
-      lastName,
-      name: `${firstName} ${lastName}`,
-      fullName: `${firstName} ${lastName}`,
-      index,
-    });
+    
 
     const markerData = {
       latitude: userLatitude + latOffset,
@@ -56,14 +37,7 @@ export const generateMarkersFromData = ({
       last_name: lastName, // Ensure consistent naming for compatibility
     };
 
-    console.log("[generateMarkersFromData] Creating marker:", {
-      originalDriverId: driver.id,
-      assignedId: markerData.id,
-      title: markerData.title,
-      firstName,
-      lastName,
-      index,
-    });
+    
 
     return markerData;
   });
@@ -139,19 +113,9 @@ export const calculateDriverTimes = async ({
     return;
 
   try {
-    console.log("[map] calculateDriverTimes ▶", {
-      markersCount: markers?.length,
-      userLatitude,
-      userLongitude,
-      destinationLatitude,
-      destinationLongitude,
-    });
+    
     const timesPromises = markers.map(async (marker) => {
-      console.log("[map] calculateDriverTimes ▶ marker", {
-        id: (marker as any)?.id,
-        latitude: marker.latitude,
-        longitude: marker.longitude,
-      });
+      
       const responseToUser = await fetch(
         endpoints.googleMaps.directions("json", {
           origin: `${marker.latitude},${marker.longitude}`,
@@ -159,11 +123,7 @@ export const calculateDriverTimes = async ({
         }),
       );
       const dataToUser = await responseToUser.json();
-      console.log(
-        "[map] directions to user ◀",
-        dataToUser?.status,
-        dataToUser?.routes?.[0]?.legs?.[0]?.duration,
-      );
+      
       const timeToUser = dataToUser.routes[0].legs[0].duration.value; // Time in seconds
 
       const responseToDestination = await fetch(
@@ -173,11 +133,7 @@ export const calculateDriverTimes = async ({
         }),
       );
       const dataToDestination = await responseToDestination.json();
-      console.log(
-        "[map] directions to destination ◀",
-        dataToDestination?.status,
-        dataToDestination?.routes?.[0]?.legs?.[0]?.duration,
-      );
+      
       const timeToDestination =
         dataToDestination.routes[0].legs[0].duration.value; // Time in seconds
 
@@ -185,19 +141,13 @@ export const calculateDriverTimes = async ({
       const roundedTime = Math.round(totalTime * 10) / 10; // Round to 1 decimal place
       const price = (roundedTime * 0.5).toFixed(2); // Calculate price based on time
 
-      console.log("[calculateDriverTimes] Time calculation:", {
-        timeToUser: timeToUser / 60,
-        timeToDestination: timeToDestination / 60,
-        totalTime,
-        roundedTime,
-        price,
-      });
+      
 
       return { ...marker, time: roundedTime, price };
     });
 
     return await Promise.all(timesPromises);
   } catch (error) {
-    console.error("[map] ✖ Error calculating driver times", error);
+    
   }
 };

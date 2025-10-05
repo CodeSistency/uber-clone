@@ -50,7 +50,7 @@ const ConfirmDestination: React.FC<ConfirmDestinationProps> = ({
         // For now, return a mock address. In production, use Google Maps reverse geocoding
         return `Ubicación aproximada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       } catch (error) {
-        console.warn("Reverse geocoding failed:", error);
+        
         return `Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       }
     },
@@ -75,7 +75,7 @@ const ConfirmDestination: React.FC<ConfirmDestinationProps> = ({
         );
         setCurrentAddress(address);
       } catch (error) {
-        console.warn("Failed to get address for new location");
+        
       } finally {
         setIsLoadingAddress(false);
       }
@@ -93,10 +93,7 @@ const ConfirmDestination: React.FC<ConfirmDestinationProps> = ({
     // Save confirmed destination to store
     setConfirmedDestination(confirmedLocation);
 
-    console.log(
-      "[ConfirmDestination] Destination confirmed:",
-      confirmedLocation,
-    );
+    
     onConfirm(confirmedLocation);
 
     // Navigate to next step (vehicle selection)

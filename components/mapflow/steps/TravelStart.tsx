@@ -4,9 +4,9 @@ import { View, Text, TouchableOpacity } from "react-native";
 import { useMapFlow } from "@/hooks/useMapFlow";
 
 const TravelStart: React.FC = () => {
-  console.log("[TravelStart] Component rendered");
+  
   const { next } = useMapFlow();
-  console.log("[TravelStart] Next function available:", typeof next);
+  
 
   return (
     <View>
@@ -15,7 +15,7 @@ const TravelStart: React.FC = () => {
       </Text>
       <TouchableOpacity
         onPress={() => {
-          console.log("[TravelStart] Viajar button pressed, calling next()");
+          
           next();
         }}
         className="mt-2 bg-primary-500 rounded-lg p-4"

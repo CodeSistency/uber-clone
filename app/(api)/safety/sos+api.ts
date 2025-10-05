@@ -40,14 +40,14 @@ export async function POST(request: Request) {
     // If there's an active ride, notify the driver
     if (rideId) {
       // This would send a notification to the driver
-      console.log(`SOS alert for ride ${rideId}: User needs assistance`);
+      
     }
 
     return new Response(JSON.stringify({ data: sosResponse }), {
       status: 200,
     });
   } catch (error) {
-    console.error("Error processing SOS:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

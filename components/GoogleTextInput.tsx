@@ -41,17 +41,7 @@ const apiKeyToUse = googlePlacesApiKey;
 // Debug environment variables (only once)
 const globalAny = global as any;
 if (!globalAny.googlePlacesLogged) {
-  console.log("[GoogleTextInput] 🔑 API Keys Check:", {
-    PLACES_API_KEY: googlePlacesApiKey
-      ? `EXISTS (length: ${googlePlacesApiKey.length})`
-      : "MISSING",
-    DIRECTIONS_API_KEY: googleDirectionsApiKey
-      ? `EXISTS (length: ${googleDirectionsApiKey.length})`
-      : "MISSING",
-    USING_KEY: apiKeyToUse
-      ? `USING: ${apiKeyToUse.substring(0, 10)}...`
-      : "NO KEY AVAILABLE",
-  });
+  
   globalAny.googlePlacesLogged = true;
 }
 
@@ -78,10 +68,7 @@ const GoogleTextInput = ({
 
   // Only log mount once per component instance
   React.useEffect(() => {
-    console.log(
-      "[GoogleTextInput] 🚀 Component mounted at:",
-      new Date().toISOString(),
-    );
+    
 
     // Cleanup timeout on unmount
     return () => {
@@ -100,22 +87,16 @@ const GoogleTextInput = ({
 
   // Additional validation
   if (!apiKeyToUse) {
-    console.error(
-      "[GoogleTextInput] ❌ NO API KEY AVAILABLE! Check your .env file or app.json",
-    );
+    
   }
 
   if (typeof handlePress !== "function") {
-    console.error("[GoogleTextInput] ❌ handlePress is not a function!", {
-      handlePress,
-    });
+    
   }
 
   // Test API key format
   if (apiKeyToUse && !apiKeyToUse.startsWith("AIza")) {
-    console.warn(
-      "[GoogleTextInput] ⚠️ API key doesn't start with 'AIza'. This might be invalid.",
-    );
+    
   }
 
   const searchPlaces = async (searchQuery: string) => {
@@ -127,10 +108,7 @@ const GoogleTextInput = ({
       return;
     }
 
-    console.log("[GoogleTextInput] 🔍 Searching for places with query:", {
-      query: searchQuery,
-      apiKey: apiKeyToUse ? "SET" : "NOT_SET",
-    });
+    
 
     lastSearchRef.current = searchQuery;
     setLoading(true);
@@ -144,19 +122,14 @@ const GoogleTextInput = ({
 
       const apiUrl = `https://maps.googleapis.com/maps/api/place/autocomplete/json?${params.toString()}`;
 
-      console.log("[GoogleTextInput] 🌐 API URL:", apiUrl);
+      
 
       const response = await fetch(apiUrl, {
         method: "GET",
       });
 
       const data: PlacesApiResponse = await response.json();
-      console.log("[GoogleTextInput] 📡 API Response:", {
-        status: data.status,
-        predictionsCount: data.predictions?.length || 0,
-        errorMessage: data.error_message,
-        fullResponse: data,
-      });
+      
 
       if (data.status === "OK" && data.predictions) {
         setResults(data.predictions.slice(0, 5)); // Limit to 5 results
@@ -164,15 +137,12 @@ const GoogleTextInput = ({
         // Update position when results change
         setTimeout(updateDropdownPosition, 100);
       } else {
-        console.warn(
-          "[GoogleTextInput] ⚠️ API returned non-OK status:",
-          data.status,
-        );
+        
         setResults([]);
         setShowResults(false);
       }
     } catch (error) {
-      console.error("[GoogleTextInput] ❌ Error searching places:", error);
+      
       setResults([]);
       setShowResults(false);
     } finally {
@@ -181,7 +151,7 @@ const GoogleTextInput = ({
   };
 
   const handlePlaceSelect = async (place: PlaceResult) => {
-    console.log("[GoogleTextInput] 🎯 Place selected:", place);
+    
 
     setLoading(true);
     try {
@@ -197,10 +167,7 @@ const GoogleTextInput = ({
       );
 
       const detailsData = await detailsResponse.json();
-      console.log("[GoogleTextInput] 📍 Place details:", {
-        status: detailsData.status,
-        hasGeometry: !!detailsData.result?.geometry,
-      });
+      
 
       if (
         detailsData.status === "OK" &&
@@ -212,14 +179,11 @@ const GoogleTextInput = ({
           address: place.description,
         };
 
-        console.log(
-          "[GoogleTextInput] 📍 Calling handlePress with:",
-          locationData,
-        );
+        
 
         try {
           handlePress(locationData);
-          console.log("[GoogleTextInput] ✅ handlePress called successfully");
+          
 
           // Clear results and hide dropdown
           setQuery(place.description);
@@ -227,25 +191,20 @@ const GoogleTextInput = ({
           setShowResults(false);
           inputRef.current?.blur();
         } catch (error) {
-          console.error(
-            "[GoogleTextInput] ❌ Error calling handlePress:",
-            error,
-          );
+          
         }
       } else {
-        console.error(
-          "[GoogleTextInput] ❌ No geometry found in place details",
-        );
+        
       }
     } catch (error) {
-      console.error("[GoogleTextInput] ❌ Error getting place details:", error);
+      
     } finally {
       setLoading(false);
     }
   };
 
   const handleTextChange = (text: string) => {
-    console.log("[GoogleTextInput] ✏️ Text changed:", text);
+    
     setQuery(text);
 
     // Clear previous timeout
@@ -307,7 +266,7 @@ const GoogleTextInput = ({
   };
 
   const handleFocus = () => {
-    console.log("[GoogleTextInput] 🎯 Input focused");
+    
     updateDropdownPosition();
     setShowResults(true);
   };
@@ -338,7 +297,7 @@ const GoogleTextInput = ({
             className="flex-1 text-base font-JakartaSemiBold text-black dark:text-white"
             onFocus={handleFocus}
             onBlur={() => {
-              console.log("[GoogleTextInput] 👀 Input blurred");
+              
               // Delay hiding results to allow selection
               setTimeout(() => setShowResults(false), 200);
             }}

@@ -47,7 +47,7 @@ const TransportDefinition: React.FC = () => {
       back();
     } catch (error) {
       // Si falla (no hay historial), ir a selección de servicio
-      console.log("[TransportDefinition] No history available, going to service selection");
+      
       goTo(FLOW_STEPS.SELECCION_SERVICIO);
     }
   };
@@ -75,12 +75,12 @@ const TransportDefinition: React.FC = () => {
   ]);
 
   const handleOriginSelect = (locationData: LocationData) => {
-    console.log("[TransportDefinition] Origin selected:", locationData);
+    
     setOriginLocation(locationData);
   };
 
   const handleDestinationSelect = (locationData: LocationData) => {
-    console.log("[TransportDefinition] Destination selected:", locationData);
+    
     setDestinationLocation(locationData);
   };
 
@@ -115,30 +115,21 @@ const TransportDefinition: React.FC = () => {
     }
 
     // Guardar ubicaciones iniciales para que estén disponibles en los pasos de confirmación
-    console.log("[TransportDefinition] About to save locations:");
-    console.log("[TransportDefinition] originLocation:", originLocation);
-    console.log(
-      "[TransportDefinition] destinationLocation:",
-      destinationLocation,
-    );
+    
+    
+    
 
     if (originLocation) {
       setConfirmedOrigin(originLocation);
-      console.log(
-        "[TransportDefinition] Origin saved to store:",
-        originLocation,
-      );
+      
     }
     if (destinationLocation) {
       setConfirmedDestination(destinationLocation);
-      console.log(
-        "[TransportDefinition] Destination saved to store:",
-        destinationLocation,
-      );
+      
     }
 
-    console.log("[TransportDefinition] Ride type selected:", rideType);
-    console.log("[TransportDefinition] Navigating to next step");
+    
+    
 
     next(); // Navegará condicionalmente según rideType
   };

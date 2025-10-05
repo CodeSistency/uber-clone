@@ -30,16 +30,8 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({ onConfirm, onBack }) => {
   const { userLatitude, userLongitude, userAddress } = useLocationStore();
 
   // Debug location store values
-  console.log("[ConfirmOrigin] Location store values:", {
-    userLatitude,
-    userLongitude,
-    userAddress,
-    hasGPS: !!(userLatitude && userLongitude),
-  });
-  console.log("[ConfirmOrigin] Map flow store values:", {
-    confirmedOrigin,
-    confirmedDestination,
-  });
+  
+  
 
   // Usar la ubicación guardada en el store, o una por defecto si no existe
   const initialLocation = confirmedOrigin || {
@@ -61,7 +53,7 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({ onConfirm, onBack }) => {
         // For now, return a mock address. In production, use Google Maps reverse geocoding
         return `Ubicación aproximada: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       } catch (error) {
-        console.warn("Reverse geocoding failed:", error);
+        
         return `Coordenadas: ${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       }
     },
@@ -86,7 +78,7 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({ onConfirm, onBack }) => {
         );
         setCurrentAddress(address);
       } catch (error) {
-        console.warn("Failed to get address for new location");
+        
       } finally {
         setIsLoadingAddress(false);
       }
@@ -104,7 +96,7 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({ onConfirm, onBack }) => {
     // Save confirmed origin to store
     setConfirmedOrigin(confirmedLocation);
 
-    console.log("[ConfirmOrigin] Origin confirmed:", confirmedLocation);
+    
     onConfirm(confirmedLocation);
 
     // Navigate to next step (ConfirmDestination)
@@ -170,11 +162,8 @@ const ConfirmOrigin: React.FC<ConfirmOriginProps> = ({ onConfirm, onBack }) => {
           longitude: userLongitude || -74.0817,
           address: userAddress || "Tu ubicación actual",
         };
-        console.log("[ConfirmOrigin] Sending to header - Origin:", originData);
-        console.log(
-          "[ConfirmOrigin] Sending to header - Destination:",
-          confirmedDestination,
-        );
+        
+        
 
         return (
           <TripSummaryHeader

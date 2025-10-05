@@ -115,7 +115,7 @@ export class CriticalDataCache {
   }
 
   async initializeCache(): Promise<void> {
-    console.log("[CriticalDataCache] Initializing cache system...");
+    
 
     try {
       // Load existing data
@@ -128,12 +128,9 @@ export class CriticalDataCache {
       // Cleanup expired data
       await this.cleanupExpiredData();
 
-      console.log("[CriticalDataCache] ✅ Cache initialized successfully");
+      
     } catch (error) {
-      console.error(
-        "[CriticalDataCache] ❌ Failed to initialize cache:",
-        error,
-      );
+      
     }
   }
 
@@ -142,7 +139,7 @@ export class CriticalDataCache {
       try {
         listener(type, data);
       } catch (error) {
-        console.error("[CriticalDataCache] Error notifying listener:", error);
+        
       }
     });
   }
@@ -164,21 +161,17 @@ export class CriticalDataCache {
           // Compress if data is large
           let dataToStore = data;
           if (dataSize > this.COMPRESSION_THRESHOLD) {
-            console.log(
-              `[CriticalDataCache] Compressing large data (${(dataSize / 1024 / 1024).toFixed(2)}MB)`,
-            );
+            
             dataToStore = await this.compressData(data);
           }
 
           await AsyncStorage.setItem(key, JSON.stringify(dataToStore));
-          console.log(
-            `[CriticalDataCache] ✅ Saved ${key} (${(dataSize / 1024).toFixed(1)}KB)`,
-          );
+          
 
           this.debounceTimers.delete(key);
           resolve();
         } catch (error) {
-          console.error(`[CriticalDataCache] Failed to save ${key}:`, error);
+          
           this.debounceTimers.delete(key);
           reject(error);
         }
@@ -260,12 +253,10 @@ export class CriticalDataCache {
       await AsyncStorage.setItem(this.LOCATIONS_KEY, JSON.stringify(trimmed));
       this.notifyListeners("location_added", location);
 
-      console.log(
-        `[CriticalDataCache] ✅ Cached location: ${location.address}`,
-      );
+      
       return location.address;
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to cache location:", error);
+      
       throw error;
     }
   }
@@ -296,10 +287,7 @@ export class CriticalDataCache {
 
       return sorted;
     } catch (error) {
-      console.error(
-        "[CriticalDataCache] Failed to get cached locations:",
-        error,
-      );
+      
       return [];
     }
   }
@@ -342,7 +330,7 @@ export class CriticalDataCache {
 
       return searchResults;
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to search locations:", error);
+      
       return [];
     }
   }
@@ -415,9 +403,9 @@ export class CriticalDataCache {
       await AsyncStorage.setItem(this.RIDES_KEY, JSON.stringify(trimmed));
       this.notifyListeners("ride_cached", ride);
 
-      console.log(`[CriticalDataCache] ✅ Cached ride: ${ride.ride_id}`);
+      
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to cache ride:", error);
+      
     }
   }
 
@@ -439,7 +427,7 @@ export class CriticalDataCache {
 
       return sorted;
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to get cached rides:", error);
+      
       return [];
     }
   }
@@ -483,11 +471,9 @@ export class CriticalDataCache {
       await AsyncStorage.setItem(this.DRIVERS_KEY, JSON.stringify(trimmed));
       this.notifyListeners("driver_cached", driver);
 
-      console.log(
-        `[CriticalDataCache] ✅ Cached driver: ${driver.first_name} ${driver.last_name}`,
-      );
+      
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to cache driver:", error);
+      
     }
   }
 
@@ -509,7 +495,7 @@ export class CriticalDataCache {
 
       return sorted;
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to get cached drivers:", error);
+      
       return [];
     }
   }
@@ -529,7 +515,7 @@ export class CriticalDataCache {
 
       return data;
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to load locations:", error);
+      
       return [];
     }
   }
@@ -541,7 +527,7 @@ export class CriticalDataCache {
       // Debounce storage writes
       await this.debouncedSave(this.LOCATIONS_KEY, locations);
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to save locations:", error);
+      
     }
   }
 
@@ -549,7 +535,7 @@ export class CriticalDataCache {
     try {
       await this.debouncedSave(this.RIDES_KEY, rides);
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to save rides:", error);
+      
     }
   }
 
@@ -557,7 +543,7 @@ export class CriticalDataCache {
     try {
       await this.debouncedSave(this.DRIVERS_KEY, drivers);
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to save drivers:", error);
+      
     }
   }
 
@@ -566,7 +552,7 @@ export class CriticalDataCache {
       const stored = await AsyncStorage.getItem(this.RIDES_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to load rides:", error);
+      
       return [];
     }
   }
@@ -576,7 +562,7 @@ export class CriticalDataCache {
       const stored = await AsyncStorage.getItem(this.DRIVERS_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to load drivers:", error);
+      
       return [];
     }
   }
@@ -621,15 +607,10 @@ export class CriticalDataCache {
       }
 
       if (cleanupCount > 0) {
-        console.log(
-          `[CriticalDataCache] 🧹 Cleaned up ${cleanupCount} expired cache entries`,
-        );
+        
       }
     } catch (error) {
-      console.error(
-        "[CriticalDataCache] Failed to cleanup expired data:",
-        error,
-      );
+      
     }
   }
 
@@ -643,9 +624,9 @@ export class CriticalDataCache {
       ]);
 
       this.notifyListeners("cache_cleared", null);
-      console.log("[CriticalDataCache] 🗑️ All cache cleared");
+      
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to clear cache:", error);
+      
     }
   }
 
@@ -733,7 +714,7 @@ export class CriticalDataCache {
         totalSize,
       };
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to get stats:", error);
+      
       return {
         locations: {
           total: 0,
@@ -764,12 +745,10 @@ export class CriticalDataCache {
           JSON.stringify(favorites),
         );
         this.notifyListeners("favorite_added", location);
-        console.log(
-          `[CriticalDataCache] ⭐ Added to favorites: ${location.address}`,
-        );
+        
       }
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to add to favorites:", error);
+      
     }
   }
 
@@ -784,15 +763,10 @@ export class CriticalDataCache {
           JSON.stringify(filtered),
         );
         this.notifyListeners("favorite_removed", locationId);
-        console.log(
-          `[CriticalDataCache] ⭐ Removed from favorites: ${locationId}`,
-        );
+        
       }
     } catch (error) {
-      console.error(
-        "[CriticalDataCache] Failed to remove from favorites:",
-        error,
-      );
+      
     }
   }
 
@@ -801,7 +775,7 @@ export class CriticalDataCache {
       const stored = await AsyncStorage.getItem(this.FAVORITES_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to get favorites:", error);
+      
       return [];
     }
   }
@@ -814,20 +788,15 @@ export class CriticalDataCache {
     >[],
   ): Promise<void> {
     try {
-      console.log(
-        `[CriticalDataCache] 📦 Bulk caching ${locations.length} locations`,
-      );
+      
 
       for (const location of locations) {
         await this.cacheLocation(location);
       }
 
-      console.log(`[CriticalDataCache] ✅ Bulk cache completed`);
+      
     } catch (error) {
-      console.error(
-        "[CriticalDataCache] Failed to bulk cache locations:",
-        error,
-      );
+      
     }
   }
 
@@ -835,15 +804,15 @@ export class CriticalDataCache {
     rides: Omit<CachedRide, "id" | "timestamp" | "lastAccessed">[],
   ): Promise<void> {
     try {
-      console.log(`[CriticalDataCache] 📦 Bulk caching ${rides.length} rides`);
+      
 
       for (const ride of rides) {
         await this.cacheRide(ride);
       }
 
-      console.log(`[CriticalDataCache] ✅ Bulk cache completed`);
+      
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to bulk cache rides:", error);
+      
     }
   }
 
@@ -902,7 +871,7 @@ export class CriticalDataCache {
         recommendations,
       };
     } catch (error) {
-      console.error("[CriticalDataCache] Failed to check cache health:", error);
+      
       return {
         isHealthy: false,
         issues: ["Failed to check cache health"],
@@ -960,7 +929,7 @@ export class CriticalDataCache {
       avgResponseTime: 0,
       totalOperations: 0,
     };
-    console.log("[CriticalDataCache] 📊 Performance metrics reset");
+    
   }
 }
 

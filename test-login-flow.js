@@ -12,7 +12,7 @@ const mockFirebaseService = {
 // Mock the auth functions
 const mockFetchAPI = async (endpoint, options) => {
   const body = JSON.parse(options.body);
-  console.log("📤 Request body:", body);
+  
 
   // Check if Firebase fields are present
   const hasFirebaseFields =
@@ -38,7 +38,7 @@ const mockFetchAPI = async (endpoint, options) => {
 
 // Simulate the login function logic
 const simulateLogin = async () => {
-  console.log("🧪 Simulating login flow...\n");
+  
 
   const credentials = {
     email: "test@example.com",
@@ -46,14 +46,14 @@ const simulateLogin = async () => {
   };
 
   try {
-    console.log("📧 Attempting login for:", credentials.email);
+    
 
     // Simulate Firebase token retrieval (this will fail)
     let firebaseData = null;
     try {
       firebaseData = await mockFirebaseService.getFirebaseTokenData();
     } catch (error) {
-      console.warn("⚠️ Firebase service error (expected):", error.message);
+      
     }
 
     // Create request body conditionally
@@ -71,11 +71,9 @@ const simulateLogin = async () => {
       requestBody.firebaseToken = firebaseData.token;
       requestBody.deviceType = firebaseData.deviceType;
       requestBody.deviceId = firebaseData.deviceId;
-      console.log("✅ Firebase fields included in request");
+      
     } else {
-      console.log(
-        "⚠️ Firebase fields NOT included (due to error or unavailability)",
-      );
+      
     }
 
     // Simulate API call
@@ -86,11 +84,11 @@ const simulateLogin = async () => {
     });
 
     if (response.statusCode === 400) {
-      console.log("❌ Backend rejected request with Firebase fields");
-      console.log("📝 Error:", response.message);
+      
+      
 
       // Retry without Firebase fields
-      console.log("\n🔄 Retrying without Firebase fields...");
+      
       const retryBody = {
         email: credentials.email,
         password: credentials.password,
@@ -103,25 +101,25 @@ const simulateLogin = async () => {
       });
 
       if (retryResponse.accessToken) {
-        console.log("✅ Login successful without Firebase fields");
+        
         return { success: true, message: "Login successful" };
       }
     } else if (response.accessToken) {
-      console.log("✅ Login successful with Firebase fields");
+      
       return { success: true, message: "Login successful" };
     }
   } catch (error) {
-    console.error("❌ Login failed:", error);
+    
     return { success: false, message: error.message };
   }
 };
 
 // Run the simulation
 simulateLogin().then((result) => {
-  console.log("\n📊 Final Result:", result);
+  
   if (result.success) {
-    console.log("🎉 Login flow handles Firebase errors correctly!");
+    
   } else {
-    console.log("❌ Login flow needs fixes");
+    
   }
 });

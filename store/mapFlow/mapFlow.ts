@@ -1451,9 +1451,9 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   ...getInitialStepConfig("SELECCION_SERVICIO"),
 
   start: (role) => {
-    console.log("[MapFlowStore] Starting flow with role:", role);
+    
     const cfg = get().stepConfig["travel_start"];
-    console.log("[MapFlowStore] Step config for travel_start:", cfg);
+    
     const newState = {
       role,
       isActive: true,
@@ -1471,12 +1471,12 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
       transitionType: cfg.transition?.type || "none",
       transitionDuration: cfg.transition?.duration || 0,
     };
-    console.log("[MapFlowStore] Setting new state:", newState);
+    
     set(() => newState as MapFlowState);
   },
 
   startService: (service: ServiceType, role: FlowRole = "customer") => {
-    console.log("[MapFlowStore] Starting service flow:", { service, role });
+    
     const firstStep = SERVICE_FLOWS[role][service][0];
     const cfg = get().stepConfig[firstStep];
 
@@ -1566,24 +1566,21 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   },
 
   goToStep: (stepName: string) => {
-    console.log("[MapFlowStore] goToStep called with:", stepName);
+    
 
     // Validate that the step exists in our configuration
     const stepConfig = get().stepConfig;
     const validStepNames = Object.keys(stepConfig);
 
     if (!validStepNames.includes(stepName)) {
-      console.error(
-        `[MapFlowStore] Invalid step name: ${stepName}. Valid steps:`,
-        validStepNames,
-      );
-      console.warn("[MapFlowStore] goToStep ignored - step does not exist");
+      
+      
       return;
     }
 
     // Convert string to MapFlowStep type (it's safe now that we validated)
     const step = stepName as MapFlowStep;
-    console.log("[MapFlowStore] Navigating to valid step:", step);
+    
 
     // Use the existing goTo method
     get().goTo(step);
@@ -1735,22 +1732,22 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
 
   // Price calculation actions
   setEstimatedPrice: (price) => {
-    console.log("[MapFlowStore] setEstimatedPrice called with:", price);
+    
     set(() => ({ estimatedPrice: price }));
-    console.log("[MapFlowStore] setEstimatedPrice completed");
+    
   },
   setRouteInfo: (routeInfo) => {
-    console.log("[MapFlowStore] setRouteInfo called with:", routeInfo);
+    
     set(() => ({ routeInfo }));
   },
   setPriceBreakdown: (breakdown) => {
-    console.log("[MapFlowStore] setPriceBreakdown called with:", breakdown);
+    
     set(() => ({ priceBreakdown: breakdown }));
   },
 
   // Async driver search actions
   startAsyncSearch: (searchId, timeRemaining) => {
-    console.log("[MapFlowStore] startAsyncSearch called with:", { searchId, timeRemaining });
+    
     set((state) => ({
       asyncSearch: {
         ...state.asyncSearch,
@@ -1764,7 +1761,7 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   },
 
   updateAsyncSearchStatus: (status, data) => {
-    console.log("[MapFlowStore] updateAsyncSearchStatus called with:", { status, data });
+    
     set((state) => ({
       asyncSearch: {
         ...state.asyncSearch,
@@ -1777,7 +1774,7 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   },
 
   cancelAsyncSearch: () => {
-    console.log("[MapFlowStore] cancelAsyncSearch called");
+    
     set((state) => ({
       asyncSearch: {
         ...state.asyncSearch,
@@ -1789,7 +1786,7 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   },
 
   confirmAsyncDriver: (driverId) => {
-    console.log("[MapFlowStore] confirmAsyncDriver called with:", driverId);
+    
     // Aquí podríamos actualizar el estado del conductor confirmado
     // o simplemente resetear la búsqueda
     set((state) => ({
@@ -1820,12 +1817,12 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
   startAsyncSearchTimer: () => {
     const state = get();
     if (state.asyncSearch.status !== 'searching' || !state.asyncSearch.startTime) {
-      console.log("[MapFlowStore] Cannot start timer: search not active");
+      
       return;
     }
 
     const maxWaitTime = 300; // 5 minutes default
-    console.log("[MapFlowStore] Starting async search timer with maxWaitTime:", maxWaitTime);
+    
 
     // Clear any existing timer
     if ((state as any).asyncSearchTimer) {
@@ -1852,7 +1849,7 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
 
       // Check if time is up
       if (remaining === 0) {
-        console.log("[MapFlowStore] Async search timeout reached");
+        
         clearInterval(timer);
 
         // Update status to timeout
@@ -1936,12 +1933,12 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
 
   // Helper methods
   getInitialStepConfig: (step) => {
-    console.log("[MapFlowStore] getInitialStepConfig called for step:", step);
+    
     return getInitialStepConfig(step);
   },
 
   startWithConfig: (step, role) => {
-    console.log("[MapFlowStore] startWithConfig called:", { step, role });
+    
 
     // Get the configuration for the step
     const config = getInitialStepConfig(step);
@@ -1970,35 +1967,32 @@ export const useMapFlowStore = create<MapFlowState>((set, get) => ({
 
   // Type-safe helper methods
   startWithCustomerStep: (step) => {
-    console.log("[MapFlowStore] startWithCustomerStep called:", step);
+    
     return get().startWithConfig(step, "customer");
   },
 
   startWithDriverStep: (step) => {
-    console.log("[MapFlowStore] startWithDriverStep called:", step);
+    
     return get().startWithConfig(step, "driver");
   },
 
   startWithTransportStep: (step, role) => {
-    console.log("[MapFlowStore] startWithTransportStep called:", {
-      step,
-      role,
-    });
+    
     return get().startWithConfig(step, role);
   },
 
   startWithDeliveryStep: (step, role) => {
-    console.log("[MapFlowStore] startWithDeliveryStep called:", { step, role });
+    
     return get().startWithConfig(step, role);
   },
 
   startWithMandadoStep: (step, role) => {
-    console.log("[MapFlowStore] startWithMandadoStep called:", { step, role });
+    
     return get().startWithConfig(step, role);
   },
 
   startWithEnvioStep: (step, role) => {
-    console.log("[MapFlowStore] startWithEnvioStep called:", { step, role });
+    
     return get().startWithConfig(step, role);
   },
 }));

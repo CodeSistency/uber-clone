@@ -41,10 +41,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
       try {
         await expoNotificationService.initialize();
       } catch (error) {
-        console.error(
-          "[useExpoNotifications] Failed to initialize service:",
-          error,
-        );
+        
       }
     };
 
@@ -68,10 +65,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
           );
         return notificationId;
       } catch (error) {
-        console.error(
-          "[useExpoNotifications] Failed to send local notification:",
-          error,
-        );
+        
         throw error;
       }
     },
@@ -92,10 +86,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
           );
         return notificationId;
       } catch (error) {
-        console.error(
-          "[useExpoNotifications] Failed to schedule notification:",
-          error,
-        );
+        
         throw error;
       }
     },
@@ -107,10 +98,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
     try {
       await expoNotificationService.cancelNotification(id);
     } catch (error) {
-      console.error(
-        "[useExpoNotifications] Failed to cancel notification:",
-        error,
-      );
+      
       throw error;
     }
   }, []);
@@ -120,10 +108,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
     try {
       await expoNotificationService.cancelAllNotifications();
     } catch (error) {
-      console.error(
-        "[useExpoNotifications] Failed to cancel all notifications:",
-        error,
-      );
+      
       throw error;
     }
   }, []);
@@ -134,10 +119,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
       try {
         return await expoNotificationService.getPushToken();
       } catch (error) {
-        console.error(
-          "[useExpoNotifications] Failed to get device token:",
-          error,
-        );
+        
         throw error;
       }
     }, []);
@@ -149,10 +131,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
         const permissions = await expoNotificationService.requestPermissions();
         return permissions;
       } catch (error) {
-        console.error(
-          "[useExpoNotifications] Failed to request permissions:",
-          error,
-        );
+        
         throw error;
       }
     }, []);
@@ -162,7 +141,7 @@ export const useExpoNotifications = (): UseExpoNotificationsReturn => {
     try {
       await expoNotificationService.setBadgeCount(count);
     } catch (error) {
-      console.error("[useExpoNotifications] Failed to set badge count:", error);
+      
       throw error;
     }
   }, []);
@@ -243,7 +222,7 @@ export const useAppBadge = () => {
   // Actualizar badge automáticamente cuando cambie el contador
   useEffect(() => {
     setBadgeCount(unreadCount).catch((error) => {
-      console.error("[useAppBadge] Failed to update badge:", error);
+      
     });
   }, [unreadCount, setBadgeCount]);
 
@@ -251,7 +230,7 @@ export const useAppBadge = () => {
     try {
       await setBadgeCount(0);
     } catch (error) {
-      console.error("[useAppBadge] Failed to clear badge:", error);
+      
       throw error;
     }
   }, [setBadgeCount]);

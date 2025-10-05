@@ -44,8 +44,8 @@ function loadEnvFile() {
   const envPath = path.join(process.cwd(), ".env");
 
   if (!fs.existsSync(envPath)) {
-    console.error("❌ .env file not found!");
-    console.log("💡 Please copy .env.example to .env and fill in your values");
+    
+    
     return {};
   }
 
@@ -66,7 +66,7 @@ function loadEnvFile() {
 }
 
 function validateEnvironment() {
-  console.log("🔍 Validating environment configuration...\n");
+  
 
   const envVars = loadEnvFile();
   const missingRequired = [];
@@ -84,7 +84,7 @@ function validateEnvironment() {
     ) {
       missingRequired.push(varName);
     } else {
-      console.log(`✅ ${varName}: Configured`);
+      
     }
   });
 
@@ -97,37 +97,33 @@ function validateEnvironment() {
     } else if (value.includes("your_") || value.includes("here")) {
       warnings.push(`${varName}: Has placeholder value`);
     } else {
-      console.log(`✅ ${varName}: Configured`);
+      
     }
   });
 
   // Report results
-  console.log("\n" + "=".repeat(50));
+  
 
   if (missingRequired.length > 0) {
-    console.error("❌ CRITICAL: Missing required environment variables:");
+    
     missingRequired.forEach((varName) => {
-      console.error(`   - ${varName}`);
+      
     });
-    console.log(
-      "\n💡 Please check your .env file and ensure all required variables are properly configured.",
-    );
-    console.log(
-      "📋 See .env.example for the complete list of required variables.\n",
-    );
+    
+    
     process.exit(1);
   }
 
   if (warnings.length > 0) {
-    console.warn("⚠️  Warnings:");
+    
     warnings.forEach((warning) => {
-      console.warn(`   - ${warning}`);
+      
     });
-    console.log("");
+    
   }
 
-  console.log("✅ Environment validation passed!");
-  console.log("🚀 Build can proceed safely.\n");
+  
+  
 
   return true;
 }
@@ -137,7 +133,7 @@ if (require.main === module) {
   try {
     validateEnvironment();
   } catch (error) {
-    console.error("💥 Environment validation failed:", error.message);
+    
     process.exit(1);
   }
 }

@@ -56,17 +56,14 @@ export const useSplashStore = create<SplashState>((set, get) => ({
 
   // Actions
   showSplash: (config: SplashConfig) => {
-    console.log("[SplashStore] 🚀 showSplash called with:", config);
+    
 
     const state = get();
     const currentSplash = state.activeSplash;
 
     // If there's already an active splash, queue the new one
     if (currentSplash && currentSplash.id !== config.id) {
-      console.log(
-        "[SplashStore] Queueing splash, active splash exists:",
-        currentSplash.id,
-      );
+      
       state.queueSplash(config);
       return;
     }
@@ -86,7 +83,7 @@ export const useSplashStore = create<SplashState>((set, get) => ({
   },
 
   hideSplash: (id?: string) => {
-    console.log("[SplashStore] 👁️ hideSplash called for id:", id);
+    
 
     const state = get();
     const currentSplash = state.activeSplash;
@@ -106,20 +103,12 @@ export const useSplashStore = create<SplashState>((set, get) => ({
         globalProgress: nextSplash ? nextSplash.progress || 0 : 0,
       }));
 
-      console.log(
-        "[SplashStore] Hidden splash, next in queue:",
-        nextSplash?.id || "none",
-      );
+      
     }
   },
 
   updateProgress: (progress: number, id?: string) => {
-    console.log(
-      "[SplashStore] 📊 updateProgress called with:",
-      progress,
-      "for id:",
-      id,
-    );
+    
 
     const state = get();
     const currentSplash = state.activeSplash;
@@ -134,7 +123,7 @@ export const useSplashStore = create<SplashState>((set, get) => ({
   },
 
   queueSplash: (config: SplashConfig) => {
-    console.log("[SplashStore] 📋 queueSplash called with:", config.id);
+    
 
     set((state) => ({
       splashQueue: [...state.splashQueue, config],
@@ -142,7 +131,7 @@ export const useSplashStore = create<SplashState>((set, get) => ({
   },
 
   clearQueue: () => {
-    console.log("[SplashStore] 🗑️ clearQueue called");
+    
 
     set(() => ({
       splashQueue: [],
@@ -150,7 +139,7 @@ export const useSplashStore = create<SplashState>((set, get) => ({
   },
 
   setGlobalProgress: (progress: number) => {
-    console.log("[SplashStore] 🌍 setGlobalProgress called with:", progress);
+    
 
     set(() => ({
       globalProgress: progress,

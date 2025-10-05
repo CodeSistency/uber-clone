@@ -58,7 +58,7 @@ const MandadoCommsAndConfirm: React.FC = () => {
         onClose={() => setChatOpen(false)}
         driverName="Juan Pérez"
         rideId="demo-ride-123"
-        onSendMessage={(message) => console.log("Message sent:", message)}
+        onSendMessage={(message) => }
         messages={[]}
       />
 

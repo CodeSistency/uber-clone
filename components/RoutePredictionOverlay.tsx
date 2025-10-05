@@ -165,10 +165,7 @@ export const RoutePredictionOverlay: React.FC<RoutePredictionOverlayProps> = ({
     duration: `${prediction.duration.toFixed(1)}s`,
   };
 
-  console.log(
-    "[RoutePredictionOverlay] Rendering prediction:",
-    predictionStats,
-  );
+  
 
   return (
     <View pointerEvents="none">

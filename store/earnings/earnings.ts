@@ -233,7 +233,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
   // Actions
   fetchDailyEarnings: async (date: string) => {
-    console.log("[EarningsStore] Fetching daily earnings for:", date);
+    
     const state = get();
 
     try {
@@ -259,7 +259,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ dailyEarnings: mockEarnings }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching daily earnings:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch daily earnings",
       );
@@ -269,7 +269,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchWeeklyEarnings: async (weekStart: string) => {
-    console.log("[EarningsStore] Fetching weekly earnings for:", weekStart);
+    
     const state = get();
 
     try {
@@ -293,7 +293,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ weeklyEarnings: mockWeeklyEarnings }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching weekly earnings:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch weekly earnings",
       );
@@ -303,7 +303,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchMonthlyEarnings: async (month: string, year: number) => {
-    console.log("[EarningsStore] Fetching monthly earnings for:", month, year);
+    
     const state = get();
 
     try {
@@ -323,7 +323,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ monthlyEarnings: mockMonthlyEarnings }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching monthly earnings:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch monthly earnings",
       );
@@ -333,7 +333,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchRideDetails: async (date: string) => {
-    console.log("[EarningsStore] Fetching ride details for:", date);
+    
     const state = get();
 
     try {
@@ -366,7 +366,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ rideDetails: mockRideDetails }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching ride details:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch ride details",
       );
@@ -376,7 +376,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchTransactionHistory: async (limit = 50) => {
-    console.log("[EarningsStore] Fetching transaction history, limit:", limit);
+    
     const state = get();
 
     try {
@@ -408,10 +408,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ transactionHistory: mockTransactions }));
     } catch (error) {
-      console.error(
-        "[EarningsStore] Error fetching transaction history:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to fetch transaction history",
       );
@@ -421,7 +418,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchHourlyEarnings: async (date: string) => {
-    console.log("[EarningsStore] Fetching hourly earnings for:", date);
+    
     const state = get();
 
     try {
@@ -441,7 +438,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ hourlyEarnings: mockHourlyEarnings }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching hourly earnings:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch hourly earnings",
       );
@@ -451,7 +448,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchPeakHours: async () => {
-    console.log("[EarningsStore] Fetching peak hours");
+    
     const state = get();
 
     try {
@@ -468,7 +465,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ peakHours: mockPeakHours }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching peak hours:", error);
+      
       state.setError((error as Error).message || "Failed to fetch peak hours");
     } finally {
       state.setLoading(false);
@@ -476,7 +473,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchActivePromotions: async () => {
-    console.log("[EarningsStore] Fetching active promotions");
+    
     const state = get();
 
     try {
@@ -510,7 +507,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ activePromotions: mockPromotions }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching active promotions:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch active promotions",
       );
@@ -520,7 +517,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchCompletedChallenges: async () => {
-    console.log("[EarningsStore] Fetching completed challenges");
+    
     const state = get();
 
     try {
@@ -551,10 +548,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ completedChallenges: mockChallenges }));
     } catch (error) {
-      console.error(
-        "[EarningsStore] Error fetching completed challenges:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to fetch completed challenges",
       );
@@ -564,7 +558,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   fetchPaymentMethods: async () => {
-    console.log("[EarningsStore] Fetching payment methods");
+    
     const state = get();
 
     try {
@@ -590,7 +584,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
       set(() => ({ paymentMethods: mockPaymentMethods }));
     } catch (error) {
-      console.error("[EarningsStore] Error fetching payment methods:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch payment methods",
       );
@@ -600,7 +594,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   requestInstantPay: async (request: InstantPayRequest) => {
-    console.log("[EarningsStore] Requesting instant pay:", request);
+    
     const state = get();
 
     try {
@@ -626,9 +620,9 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
         transactionHistory: [newTransaction, ...state.transactionHistory],
       }));
 
-      console.log("[EarningsStore] Instant pay request completed");
+      
     } catch (error) {
-      console.error("[EarningsStore] Error requesting instant pay:", error);
+      
       state.setError(
         (error as Error).message || "Failed to request instant pay",
       );
@@ -638,7 +632,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   checkInstantPayAvailability: async () => {
-    console.log("[EarningsStore] Checking instant pay availability");
+    
     const state = get();
 
     try {
@@ -654,10 +648,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
         instantPayFee: 0.5,
       }));
     } catch (error) {
-      console.error(
-        "[EarningsStore] Error checking instant pay availability:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to check instant pay availability",
       );
@@ -667,7 +658,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   joinChallenge: async (challengeId: string) => {
-    console.log("[EarningsStore] Joining challenge:", challengeId);
+    
     const state = get();
 
     try {
@@ -678,12 +669,9 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      console.log(
-        "[EarningsStore] Successfully joined challenge:",
-        challengeId,
-      );
+      
     } catch (error) {
-      console.error("[EarningsStore] Error joining challenge:", error);
+      
       state.setError((error as Error).message || "Failed to join challenge");
     } finally {
       state.setLoading(false);
@@ -691,7 +679,7 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
   },
 
   claimPromotion: async (promotionId: string) => {
-    console.log("[EarningsStore] Claiming promotion:", promotionId);
+    
     const state = get();
 
     try {
@@ -702,12 +690,9 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
       // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
-      console.log(
-        "[EarningsStore] Successfully claimed promotion:",
-        promotionId,
-      );
+      
     } catch (error) {
-      console.error("[EarningsStore] Error claiming promotion:", error);
+      
       state.setError((error as Error).message || "Failed to claim promotion");
     } finally {
       state.setLoading(false);
@@ -716,17 +701,17 @@ export const useEarningsStore = create<EarningsStore>((set, get) => ({
 
   // Utility Actions
   setLoading: (loading: boolean) => {
-    console.log("[EarningsStore] Setting loading:", loading);
+    
     set(() => ({ isLoading: loading }));
   },
 
   setError: (error: string | null) => {
-    console.log("[EarningsStore] Setting error:", error);
+    
     set(() => ({ error }));
   },
 
   clearError: () => {
-    console.log("[EarningsStore] Clearing error");
+    
     set(() => ({ error: null }));
   },
 }));

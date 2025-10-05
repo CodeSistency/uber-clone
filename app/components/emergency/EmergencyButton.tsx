@@ -65,7 +65,7 @@ export const EmergencyButton: React.FC<EmergencyButtonProps> = ({
       //   setLocation(newLocation);
       // }
     } catch (error) {
-      console.warn("[EmergencyButton] Failed to get location:", error);
+      
     }
   };
 
@@ -178,7 +178,7 @@ export const EmergencyButton: React.FC<EmergencyButtonProps> = ({
         ],
       );
     } catch (error) {
-      console.error("[EmergencyButton] Failed to trigger emergency:", error);
+      
       Alert.alert(
         "Error",
         "Failed to trigger emergency alert. Please try again.",
@@ -203,7 +203,7 @@ export const EmergencyButton: React.FC<EmergencyButtonProps> = ({
       // Show success feedback
       // Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success); // Temporarily commented
     } catch (error) {
-      console.error("[EmergencyButton] Emergency trigger failed:", error);
+      
       Alert.alert(
         "Error",
         "Emergency alert failed. Please call emergency services directly.",

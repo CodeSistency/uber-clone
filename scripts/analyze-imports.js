@@ -8,7 +8,7 @@ const path = require("path");
  * Analyzes import patterns to identify optimization opportunities
  */
 
-console.log("🔍 Analyzing Import Patterns...\n");
+
 
 // Function to recursively find all TypeScript/JavaScript files
 function findFiles(dir, extensions = [".ts", ".tsx", ".js", ".jsx"]) {
@@ -99,7 +99,7 @@ function analyzeImports(files) {
         }
       }
     } catch (error) {
-      console.warn(`Warning: Could not analyze ${file}:`, error.message);
+      
     }
   }
 
@@ -159,15 +159,15 @@ const files = findFiles("./app");
 const importStats = analyzeImports(files);
 const bundleImpact = analyzeBundleImpact(importStats);
 
-console.log(`📊 Import Analysis Results`);
-console.log(`==========================`);
-console.log(`Total files analyzed: ${importStats.totalFiles}`);
-console.log(`Unique packages imported: ${importStats.importsByPackage.size}`);
-console.log(`Dynamic imports found: ${importStats.dynamicImports.length}`);
-console.log("");
 
-console.log("📦 Top 10 Most Imported Packages:");
-console.log("==================================");
+
+
+
+
+
+
+
+
 
 const sortedPackages = Array.from(importStats.importsByPackage.entries())
   .sort(([, a], [, b]) => b - a)
@@ -176,37 +176,35 @@ const sortedPackages = Array.from(importStats.importsByPackage.entries())
 sortedPackages.forEach(([pkg, count], index) => {
   const impact = bundleImpact.get(pkg);
   const marker = impact?.isHeavy ? "⚠️" : "✅";
-  console.log(`${index + 1}. ${marker} ${pkg} (${count} imports)`);
+  
   if (impact) {
-    console.log(
-      `   Efficiency: ${impact.efficiency}% | ${impact.recommendation}`,
-    );
+    
   }
 });
 
-console.log("");
-console.log("🚨 Heavy Packages Analysis:");
-console.log("===========================");
+
+
+
 
 const heavyPackages = Array.from(bundleImpact.entries())
   .filter(([, impact]) => impact.isHeavy)
   .sort(([, a], [, b]) => a.efficiency - b.efficiency); // Sort by lowest efficiency first
 
 if (heavyPackages.length === 0) {
-  console.log("✅ No heavy packages detected");
+  
 } else {
   heavyPackages.forEach(([pkg, impact]) => {
-    console.log(`🔴 ${pkg}`);
-    console.log(`   Usage: ${impact.usageCount} files`);
-    console.log(`   Full imports: ${impact.fullImports}`);
-    console.log(`   Efficiency: ${impact.efficiency}%`);
-    console.log(`   Recommendation: ${impact.recommendation}`);
-    console.log("");
+    
+    
+    
+    
+    
+    
   });
 }
 
-console.log("💡 Optimization Suggestions:");
-console.log("============================");
+
+
 
 // Specific suggestions based on findings
 const suggestions = [];
@@ -228,16 +226,14 @@ if (lowEfficiencyPackages.length > 0) {
 }
 
 suggestions.forEach((suggestion, index) => {
-  console.log(`${index + 1}. ${suggestion}`);
+  
 });
 
-console.log("");
-console.log("📋 Next Steps:");
-console.log("   1. Address HIGH priority recommendations first");
-console.log("   2. Implement lazy loading for heavy components");
-console.log(
-  "   3. Use specific imports instead of full imports where possible",
-);
-console.log("   4. Consider code splitting for different app sections");
 
-console.log("\n✨ Import analysis complete!\n");
+
+
+
+
+
+
+

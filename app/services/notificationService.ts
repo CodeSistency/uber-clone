@@ -595,10 +595,7 @@ export class NotificationService {
     }
 
     // TODO: Handle navigation based on notification type when navigation is integrated
-    console.log(
-      "[NotificationService] Would navigate based on notification data:",
-      data,
-    );
+    
 
     // // Original implementation (commented until expo-notifications is available)
     // // Mark as read

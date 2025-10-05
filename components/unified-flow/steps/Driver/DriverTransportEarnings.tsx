@@ -54,10 +54,7 @@ const DriverTransportEarnings: React.FC = () => {
         // Clear active ride
         useRealtimeStore.getState().setActiveRide(null);
       } catch (error) {
-        console.error(
-          "[DriverTransportEarnings] Error calculating earnings:",
-          error,
-        );
+        
       } finally {
         setLoading(false);
       }

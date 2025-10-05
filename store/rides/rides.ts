@@ -47,7 +47,6 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
 
   // Cache management methods
   loadFromCache: async () => {
-    console.log("[RidesStore] Loading rides from cache...");
     set({ isLoadingCache: true, error: null });
 
     try {
@@ -64,11 +63,8 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
         isLoadingCache: false,
       });
 
-      console.log(
-        `[RidesStore] ✅ Loaded ${userRides.length} rides from cache`,
-      );
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to load from cache:", error);
+      
       set({
         error: error instanceof Error ? error.message : "Failed to load cache",
         isLoadingCache: false,
@@ -77,11 +73,10 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
   },
 
   syncWithServer: async () => {
-    console.log("[RidesStore] Syncing rides with server...");
     const user = useUserStore.getState().user;
 
     if (!user?.email) {
-      console.warn("[RidesStore] Cannot sync - no user logged in");
+      
       return;
     }
 
@@ -123,15 +118,13 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
           })),
       );
 
-      console.log("[RidesStore] ✅ Synced with server successfully");
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to sync with server:", error);
+      
       // Don't throw - allow app to continue with cached data
     }
   },
 
   clearCache: async () => {
-    console.log("[RidesStore] Clearing rides cache...");
     try {
       await criticalDataCache.clearAllCache();
       set({
@@ -139,16 +132,14 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
         cachedRides: [],
         error: null,
       });
-      console.log("[RidesStore] ✅ Cache cleared");
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to clear cache:", error);
+      
       set({ error: "Failed to clear cache" });
     }
   },
 
   // CRUD operations
   fetchRides: async (userId?: string) => {
-    console.log("[RidesStore] Fetching rides...", { userId });
     set({ isLoading: true, error: null });
 
     try {
@@ -202,12 +193,10 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
         })),
       );
 
-      console.log(`[RidesStore] ✅ Fetched ${rides.length} rides from server`);
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to fetch rides:", error);
+      
 
       // Fallback to cache
-      console.log("[RidesStore] 🔄 Falling back to cached rides");
       await get().loadFromCache();
 
       set({
@@ -220,8 +209,6 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
   },
 
   addRide: async (ride: Ride) => {
-    console.log("[RidesStore] Adding ride:", ride.ride_id);
-
     try {
       // Add to local state
       set((state) => ({
@@ -254,16 +241,13 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
           : undefined,
       });
 
-      console.log("[RidesStore] ✅ Ride added and cached");
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to add ride:", error);
+      
       set({ error: "Failed to add ride" });
     }
   },
 
   updateRide: async (rideId: number, updates: Partial<Ride>) => {
-    console.log("[RidesStore] Updating ride:", rideId);
-
     try {
       // Update local state
       set((state) => ({
@@ -306,16 +290,13 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
         } as any);
       }
 
-      console.log("[RidesStore] ✅ Ride updated");
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to update ride:", error);
+      
       set({ error: "Failed to update ride" });
     }
   },
 
   deleteRide: async (rideId: number) => {
-    console.log("[RidesStore] Deleting ride:", rideId);
-
     try {
       // Remove from local state
       set((state) => ({
@@ -323,17 +304,14 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
       }));
 
       // Remove from cache (we'll just not cache it anymore)
-      console.log("[RidesStore] ✅ Ride deleted");
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to delete ride:", error);
+      
       set({ error: "Failed to delete ride" });
     }
   },
 
   // Offline operations
   addRideOffline: async (ride: Omit<Ride, "ride_id">): Promise<string> => {
-    console.log("[RidesStore] Adding ride offline...");
-
     try {
       // Generate temporary ID
       const tempId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -385,10 +363,9 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
         requiresAuth: true,
       });
 
-      console.log(`[RidesStore] ✅ Ride added offline with temp ID: ${tempId}`);
       return tempId;
     } catch (error) {
-      console.error("[RidesStore] ❌ Failed to add ride offline:", error);
+      
       throw error;
     }
   },
@@ -398,7 +375,7 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
       const cachedRides = await criticalDataCache.getCachedRides();
       return cachedRides;
     } catch (error) {
-      console.error("[RidesStore] Failed to get offline rides:", error);
+      
       return [];
     }
   },

@@ -39,7 +39,7 @@ const DriverTransportEndPayment: React.FC = () => {
       try {
         setLoadingPaymentInfo(true);
         
-        console.log("[DriverTransportEndPayment] Fetching ride details for payment info...");
+        
         
         // ✅ Obtener detalles completos del ride desde el endpoint
         const [rideDetails, exchangeRateData] = await Promise.all([
@@ -47,8 +47,8 @@ const DriverTransportEndPayment: React.FC = () => {
           driverTransportService.getExchangeRate(), // ✅ Obtener tasa de cambio dinámicamente
         ]);
         
-        console.log("[DriverTransportEndPayment] Ride details received:", rideDetails);
-        console.log("[DriverTransportEndPayment] Exchange rate received:", exchangeRateData);
+        
+        
 
         // ✅ Usar datos reales del endpoint
         const paymentInfoFromRide: PaymentInfo = {
@@ -61,14 +61,11 @@ const DriverTransportEndPayment: React.FC = () => {
           exchangeRate: exchangeRateData.rate, // ✅ Dinámico
         };
 
-        console.log("[DriverTransportEndPayment] Payment info prepared:", paymentInfoFromRide);
+        
 
         setPaymentInfo(paymentInfoFromRide);
       } catch (error) {
-        console.error(
-          "[DriverTransportEndPayment] Error loading payment info:",
-          error,
-        );
+        
         showError("Error", "No se pudo cargar la información de pago");
         
         // ✅ Fallback: usar datos del activeRide si falla el endpoint
@@ -132,10 +129,7 @@ const DriverTransportEndPayment: React.FC = () => {
       // Go to transport-specific rating step
       goTo(FLOW_STEPS.DRIVER_FINALIZACION_RATING);
     } catch (error) {
-      console.error(
-        "[DriverTransportEndPayment] Error completing ride:",
-        error,
-      );
+      
       showError("Error", "No se pudo completar el viaje");
     } finally {
       setFinishing(false);

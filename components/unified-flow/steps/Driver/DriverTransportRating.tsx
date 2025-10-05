@@ -22,11 +22,7 @@ const DriverTransportRating: React.FC = () => {
     setSubmitting(true);
 
     try {
-      console.log("[DriverTransportRating] Submitting passenger rating:", {
-        rideId,
-        rating,
-        comment,
-      });
+      
 
       if (rideId) {
         // Use the new ratePassenger endpoint
@@ -45,10 +41,7 @@ const DriverTransportRating: React.FC = () => {
       // Go to earnings summary
       goTo(FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE);
     } catch (error) {
-      console.error(
-        "[DriverTransportRating] Error submitting passenger rating:",
-        error,
-      );
+      
       showError("Error", "No se pudo enviar la calificación");
     } finally {
       setSubmitting(false);
@@ -56,7 +49,7 @@ const DriverTransportRating: React.FC = () => {
   };
 
   const handleSkip = () => {
-    console.log("[DriverTransportRating] Skipping rating");
+    
     goTo(FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE);
   };
 

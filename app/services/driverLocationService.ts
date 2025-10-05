@@ -29,12 +29,10 @@ export class DriverLocationService {
    */
   // Start tracking for available drivers (no active ride)
   async startAvailabilityTracking(): Promise<void> {
-    console.log(
-      "[DriverLocationService] 🚀 Starting availability tracking (no ride)",
-    );
+    
 
     if (this.isTracking) {
-      console.log("[DriverLocationService] Already tracking, stopping first");
+      
       await this.stopTracking();
     }
 
@@ -48,9 +46,7 @@ export class DriverLocationService {
         throw new Error("Location permission denied");
       }
 
-      console.log(
-        "[DriverLocationService] ✅ Location permissions granted for availability tracking",
-      );
+      
 
       // Start watching position
       this.watchId = await Location.watchPositionAsync(
@@ -76,14 +72,7 @@ export class DriverLocationService {
             });
 
             // Send to backend - general driver location update for matching
-            console.log(
-              "[DriverLocationService] 📍 Updating availability location:",
-              {
-                lat: location.coords.latitude,
-                lng: location.coords.longitude,
-                accuracy: location.coords.accuracy,
-              },
-            );
+            
 
             await driverTransportService.updateDriverLocation({
               lat: location.coords.latitude,
@@ -92,24 +81,16 @@ export class DriverLocationService {
               speed: location.coords.speed || 0,
             });
 
-            console.log(
-              "[DriverLocationService] ✅ Availability location updated",
-            );
+            
           } catch (error) {
-            console.error(
-              "[DriverLocationService] ❌ Error updating availability location:",
-              error,
-            );
+            
           }
         },
       );
 
-      console.log("[DriverLocationService] ✅ Availability tracking started");
+      
     } catch (error) {
-      console.error(
-        "[DriverLocationService] ❌ Error starting availability tracking:",
-        error,
-      );
+      
       this.isTracking = false;
       throw error;
     }
@@ -117,14 +98,11 @@ export class DriverLocationService {
 
   async startTracking(rideId: number): Promise<void> {
     if (this.isTracking) {
-      console.log("[DriverLocationService] Already tracking, stopping first");
+      
       await this.stopTracking();
     }
 
-    console.log(
-      "[DriverLocationService] Starting location tracking for ride:",
-      rideId,
-    );
+    
 
     this.currentRideId = rideId;
     this.isTracking = true;
@@ -153,14 +131,9 @@ export class DriverLocationService {
       // Update driver state
       useDriverStateStore.getState().setAvailable(true);
 
-      console.log(
-        "[DriverLocationService] Location tracking started successfully",
-      );
+      
     } catch (error) {
-      console.error(
-        "[DriverLocationService] Failed to start location tracking:",
-        error,
-      );
+      
       this.isTracking = false;
       throw error;
     }
@@ -170,7 +143,7 @@ export class DriverLocationService {
    * Stop tracking location
    */
   async stopTracking(): Promise<void> {
-    console.log("[DriverLocationService] Stopping location tracking");
+    
 
     if (this.watchId) {
       this.watchId.remove();
@@ -189,7 +162,7 @@ export class DriverLocationService {
     // Update driver state
     useDriverStateStore.getState().setAvailable(false);
 
-    console.log("[DriverLocationService] Location tracking stopped");
+    
   }
 
   /**
@@ -217,63 +190,34 @@ export class DriverLocationService {
         });
 
         // Send to backend - use appropriate endpoint based on ride status
-        console.log("[DriverLocationService] 🔄 Processing location update:", {
-          hasRide: !!this.currentRideId,
-          currentRideId: this.currentRideId,
-          location: {
-            lat: location.coords.latitude,
-            lng: location.coords.longitude,
-            accuracy: location.coords.accuracy,
-            speed: location.coords.speed,
-          },
-          timestamp: new Date().toISOString(),
-        });
+        
 
         if (this.currentRideId) {
           // During active ride - use ride-specific location update
-          console.log(
-            "[DriverLocationService] 🚗 Updating location for active ride:",
-            this.currentRideId,
-          );
+          
           await driverTransportService.updateLocation(this.currentRideId, {
             lat: location.coords.latitude,
             lng: location.coords.longitude,
             accuracy: location.coords.accuracy || 0,
             speed: location.coords.speed || 0,
           });
-          console.log(
-            "[DriverLocationService] ✅ Ride location update completed for ride:",
-            this.currentRideId,
-          );
+          
         } else {
           // No active ride - use general driver location update for matching
-          console.log(
-            "[DriverLocationService] 🚖 Updating general driver location for matching",
-          );
+          
           await driverTransportService.updateDriverLocation({
             lat: location.coords.latitude,
             lng: location.coords.longitude,
             accuracy: location.coords.accuracy || 0,
             speed: location.coords.speed || 0,
           });
-          console.log(
-            "[DriverLocationService] ✅ General driver location update completed",
-          );
+          
         }
 
-        console.log(
-          "[DriverLocationService] 📍 Location update cycle completed:",
-          {
-            lat: location.coords.latitude,
-            lng: location.coords.longitude,
-            accuracy: location.coords.accuracy,
-            speed: location.coords.speed,
-            timestamp: new Date().toISOString(),
-          },
-        );
+        
       }
     } catch (error) {
-      console.error("[DriverLocationService] Error updating location:", error);
+      
       // Continue tracking even if one update fails
     }
   }
@@ -345,7 +289,7 @@ export class DriverLocationService {
    * Update driver availability status
    */
   async updateAvailability(available: boolean): Promise<void> {
-    console.log("[DriverLocationService] Updating availability:", available);
+    
 
     const driverState = useDriverStateStore.getState();
 
@@ -368,13 +312,7 @@ export class DriverLocationService {
         speed: location.coords.speed || 0,
       });
 
-      console.log(
-        "[DriverLocationService] Initial location sent for matching:",
-        {
-          lat: location.coords.latitude,
-          lng: location.coords.longitude,
-        },
-      );
+      
     }
 
     driverState.setAvailable(available);
@@ -401,7 +339,7 @@ export class DriverLocationService {
    * Emergency location sharing
    */
   async shareEmergencyLocation(): Promise<Location.LocationObject> {
-    console.log("[DriverLocationService] Sharing emergency location");
+    
 
     const location = await this.getCurrentLocation();
 
@@ -419,7 +357,7 @@ export class DriverLocationService {
    * Cleanup on app close
    */
   cleanup(): void {
-    console.log("[DriverLocationService] Cleaning up");
+    
     this.stopTracking();
   }
 }

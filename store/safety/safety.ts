@@ -199,11 +199,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
 
   // Actions
   setInRide: (inRide: boolean, ride?: any) => {
-    console.log(
-      "[SafetyStore] Setting in ride:",
-      inRide,
-      ride ? "with ride data" : "without ride data",
-    );
+    
     set(() => ({
       isInRide: inRide,
       currentRide: ride || null,
@@ -214,7 +210,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
     type: EmergencyType,
     location?: { latitude: number; longitude: number },
   ) => {
-    console.log("[SafetyStore] Triggering emergency:", type, location);
+    
     const state = get();
 
     try {
@@ -257,9 +253,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       // 3. Send location data
       // 4. Create incident report
 
-      console.log("[SafetyStore] Emergency alert created:", alertId);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error triggering emergency:", error);
+      
       state.setError(
         (error as Error).message || "Failed to trigger emergency alert",
       );
@@ -269,7 +265,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   cancelEmergency: async (alertId: string) => {
-    console.log("[SafetyStore] Canceling emergency:", alertId);
+    
     const state = get();
 
     try {
@@ -286,9 +282,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
         emergencyButtonActive: false,
       }));
 
-      console.log("[SafetyStore] Emergency alert canceled:", alertId);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error canceling emergency:", error);
+      
       state.setError(
         (error as Error).message || "Failed to cancel emergency alert",
       );
@@ -298,7 +294,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   shareTrip: async (contacts: string[]) => {
-    console.log("[SafetyStore] Sharing trip with contacts:", contacts);
+    
     const state = get();
 
     try {
@@ -331,9 +327,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Send share notifications to contacts
-      console.log("[SafetyStore] Trip shared successfully");
+      
     } catch (error) {
-      console.error("[SafetyStore] Error sharing trip:", error);
+      
       state.setError((error as Error).message || "Failed to share trip");
     } finally {
       state.setLoading(false);
@@ -341,7 +337,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   stopSharingTrip: async () => {
-    console.log("[SafetyStore] Stopping trip sharing");
+    
     const state = get();
 
     try {
@@ -353,9 +349,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
         shareTripActive: false,
       }));
 
-      console.log("[SafetyStore] Trip sharing stopped");
+      
     } catch (error) {
-      console.error("[SafetyStore] Error stopping trip sharing:", error);
+      
       state.setError((error as Error).message || "Failed to stop sharing trip");
     } finally {
       state.setLoading(false);
@@ -366,7 +362,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
     latitude: number;
     longitude: number;
   }) => {
-    console.log("[SafetyStore] Updating share trip location:", location);
+    
     const state = get();
 
     if (state.shareTripData) {
@@ -382,7 +378,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   reportIncident: async (
     incident: Omit<SafetyIncident, "id" | "timestamp" | "status">,
   ) => {
-    console.log("[SafetyStore] Reporting incident:", incident);
+    
     const state = get();
 
     try {
@@ -402,9 +398,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Send incident report to backend
-      console.log("[SafetyStore] Incident reported:", incidentId);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error reporting incident:", error);
+      
       state.setError((error as Error).message || "Failed to report incident");
     } finally {
       state.setLoading(false);
@@ -415,7 +411,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
     incidentId: string,
     status: SafetyIncident["status"],
   ) => {
-    console.log("[SafetyStore] Updating incident status:", incidentId, status);
+    
     const state = get();
 
     try {
@@ -428,9 +424,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
         ),
       }));
 
-      console.log("[SafetyStore] Incident status updated:", incidentId, status);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error updating incident status:", error);
+      
       state.setError(
         (error as Error).message || "Failed to update incident status",
       );
@@ -440,7 +436,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   addSafetyContact: async (contact: Omit<SafetyContact, "id">) => {
-    console.log("[SafetyStore] Adding safety contact:", contact);
+    
     const state = get();
 
     try {
@@ -458,9 +454,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[SafetyStore] Safety contact added:", contactId);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error adding safety contact:", error);
+      
       state.setError(
         (error as Error).message || "Failed to add safety contact",
       );
@@ -473,7 +469,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
     contactId: string,
     updates: Partial<SafetyContact>,
   ) => {
-    console.log("[SafetyStore] Updating safety contact:", contactId, updates);
+    
     const state = get();
 
     try {
@@ -487,9 +483,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[SafetyStore] Safety contact updated:", contactId);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error updating safety contact:", error);
+      
       state.setError(
         (error as Error).message || "Failed to update safety contact",
       );
@@ -499,7 +495,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   deleteSafetyContact: async (contactId: string) => {
-    console.log("[SafetyStore] Deleting safety contact:", contactId);
+    
     const state = get();
 
     try {
@@ -513,9 +509,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Delete from backend
-      console.log("[SafetyStore] Safety contact deleted:", contactId);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error deleting safety contact:", error);
+      
       state.setError(
         (error as Error).message || "Failed to delete safety contact",
       );
@@ -525,7 +521,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   fetchSafetyContacts: async () => {
-    console.log("[SafetyStore] Fetching safety contacts");
+    
     const state = get();
 
     try {
@@ -555,7 +551,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
 
       set(() => ({ safetyContacts: mockContacts }));
     } catch (error) {
-      console.error("[SafetyStore] Error fetching safety contacts:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch safety contacts",
       );
@@ -568,7 +564,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
     checkId: string,
     response: RideCheck["response"],
   ) => {
-    console.log("[SafetyStore] Responding to ride check:", checkId, response);
+    
     const state = get();
 
     try {
@@ -584,9 +580,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Send response to backend
-      console.log("[SafetyStore] Ride check response sent:", checkId, response);
+      
     } catch (error) {
-      console.error("[SafetyStore] Error responding to ride check:", error);
+      
       state.setError(
         (error as Error).message || "Failed to respond to ride check",
       );
@@ -596,7 +592,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   fetchRideChecks: async (rideId: string) => {
-    console.log("[SafetyStore] Fetching ride checks for ride:", rideId);
+    
     const state = get();
 
     try {
@@ -617,7 +613,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
 
       set(() => ({ rideChecks: mockRideChecks }));
     } catch (error) {
-      console.error("[SafetyStore] Error fetching ride checks:", error);
+      
       state.setError((error as Error).message || "Failed to fetch ride checks");
     } finally {
       state.setLoading(false);
@@ -625,7 +621,7 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
   },
 
   updateSafetySettings: async (settings) => {
-    console.log("[SafetyStore] Updating safety settings:", settings);
+    
     const state = get();
 
     try {
@@ -637,9 +633,9 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
       }));
 
       // TODO: Save to backend
-      console.log("[SafetyStore] Safety settings updated");
+      
     } catch (error) {
-      console.error("[SafetyStore] Error updating safety settings:", error);
+      
       state.setError(
         (error as Error).message || "Failed to update safety settings",
       );
@@ -650,17 +646,17 @@ export const useSafetyStore = create<SafetyStore>((set, get) => ({
 
   // Utility Functions
   setLoading: (loading: boolean) => {
-    console.log("[SafetyStore] Setting loading:", loading);
+    
     set(() => ({ isLoading: loading }));
   },
 
   setError: (error: string | null) => {
-    console.log("[SafetyStore] Setting error:", error);
+    
     set(() => ({ error }));
   },
 
   clearError: () => {
-    console.log("[SafetyStore] Clearing error");
+    
     set(() => ({ error: null }));
   },
 }));

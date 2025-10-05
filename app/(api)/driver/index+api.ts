@@ -12,13 +12,7 @@ export async function GET(request: Request) {
     const lng = url.searchParams.get("lng");
     const radius = url.searchParams.get("radius") || "10"; // Default 10km
 
-    console.log("[API] Fetching drivers with params:", {
-      status,
-      verified,
-      lat,
-      lng,
-      radius,
-    });
+    
 
     // Build dynamic WHERE clause
     let whereClause = `WHERE verification_status = 'approved'`;
@@ -81,14 +75,11 @@ export async function GET(request: Request) {
       LIMIT 50;
     `;
 
-    console.log("[API] Executing driver query:", {
-      query,
-      params: queryParams,
-    });
+    
 
     const response = await sql(query, queryParams);
 
-    console.log(`[API] Found ${response.length} drivers`);
+    
 
     // Transform to match API response format
     const transformedDrivers = response.map((driver: any) => ({
@@ -128,7 +119,7 @@ export async function GET(request: Request) {
 
     return Response.json(result, { status: 200 });
   } catch (error) {
-    console.error("Error fetching drivers:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

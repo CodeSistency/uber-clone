@@ -125,11 +125,7 @@ export class RatingsService {
         throw new Error("Comment cannot exceed 500 characters");
       }
 
-      console.log("[RatingsService] Rating passenger:", {
-        rideId,
-        rating,
-        commentLength: comment?.length,
-      });
+      
 
       const response = await fetchAPI(
         `rides/flow/driver/${rideId}/rate-passenger`,
@@ -142,13 +138,10 @@ export class RatingsService {
         } as any,
       );
 
-      console.log(
-        "[RatingsService] Passenger rating submitted successfully:",
-        response,
-      );
+      
       return { success: true, message: "Passenger rated successfully" };
     } catch (error) {
-      console.error("[RatingsService] Error rating passenger:", error);
+      
       throw error;
     }
   }
@@ -171,7 +164,7 @@ export class RatingsService {
       } as any);
       return res || { success: true };
     } catch (error) {
-      console.error("[RatingsService] Error sending rating:", error);
+      
       throw error;
     }
   }
@@ -186,7 +179,7 @@ export class RatingsService {
     totalPages: number;
   }> {
     try {
-      console.log("[RatingsService] Fetching ratings:", { page, limit });
+      
       const response = await fetchAPI(
         `driver/ratings?page=${page}&limit=${limit}`,
         {
@@ -195,46 +188,46 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching ratings:", error);
+      
       throw error;
     }
   }
 
   async getRatingDetails(ratingId: string): Promise<Rating> {
     try {
-      console.log("[RatingsService] Fetching rating details:", ratingId);
+      
       const response = await fetchAPI(`driver/ratings/${ratingId}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching rating details:", error);
+      
       throw error;
     }
   }
 
   async getRatingSummary(): Promise<RatingSummary> {
     try {
-      console.log("[RatingsService] Fetching rating summary");
+      
       const response = await fetchAPI("driver/ratings/summary", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching rating summary:", error);
+      
       throw error;
     }
   }
 
   async getRecentRatings(limit: number = 10): Promise<Rating[]> {
     try {
-      console.log("[RatingsService] Fetching recent ratings:", limit);
+      
       const response = await fetchAPI(`driver/ratings/recent?limit=${limit}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching recent ratings:", error);
+      
       throw error;
     }
   }
@@ -243,16 +236,13 @@ export class RatingsService {
     category: keyof Rating["categories"],
   ): Promise<Rating[]> {
     try {
-      console.log("[RatingsService] Fetching ratings by category:", category);
+      
       const response = await fetchAPI(`driver/ratings/category/${category}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[RatingsService] Error fetching ratings by category:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -260,16 +250,13 @@ export class RatingsService {
   // Performance Metrics
   async getPerformanceMetrics(): Promise<PerformanceMetrics> {
     try {
-      console.log("[RatingsService] Fetching performance metrics");
+      
       const response = await fetchAPI("driver/ratings/performance", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[RatingsService] Error fetching performance metrics:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -284,7 +271,7 @@ export class RatingsService {
     onTimeRates: number[];
   }> {
     try {
-      console.log("[RatingsService] Fetching performance trends:", period);
+      
       const response = await fetchAPI(
         `driver/ratings/performance/trends?period=${period}`,
         {
@@ -293,10 +280,7 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[RatingsService] Error fetching performance trends:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -312,7 +296,7 @@ export class RatingsService {
     totalPages: number;
   }> {
     try {
-      console.log("[RatingsService] Fetching feedback:", { page, limit });
+      
       const response = await fetchAPI(
         `driver/ratings/feedback?page=${page}&limit=${limit}`,
         {
@@ -321,20 +305,20 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching feedback:", error);
+      
       throw error;
     }
   }
 
   async getFeedbackDetails(feedbackId: string): Promise<Feedback> {
     try {
-      console.log("[RatingsService] Fetching feedback details:", feedbackId);
+      
       const response = await fetchAPI(`driver/ratings/feedback/${feedbackId}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching feedback details:", error);
+      
       throw error;
     }
   }
@@ -344,7 +328,7 @@ export class RatingsService {
     response: string,
   ): Promise<Feedback> {
     try {
-      console.log("[RatingsService] Responding to feedback:", feedbackId);
+      
       const result = await fetchAPI(
         `driver/ratings/feedback/${feedbackId}/respond`,
         {
@@ -355,7 +339,7 @@ export class RatingsService {
       );
       return result;
     } catch (error) {
-      console.error("[RatingsService] Error responding to feedback:", error);
+      
       throw error;
     }
   }
@@ -364,7 +348,7 @@ export class RatingsService {
     category: Feedback["category"],
   ): Promise<Feedback[]> {
     try {
-      console.log("[RatingsService] Fetching feedback by category:", category);
+      
       const response = await fetchAPI(
         `driver/ratings/feedback/category/${category}`,
         {
@@ -373,10 +357,7 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[RatingsService] Error fetching feedback by category:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -384,13 +365,13 @@ export class RatingsService {
   // Support Tickets
   async getSupportTickets(): Promise<SupportTicket[]> {
     try {
-      console.log("[RatingsService] Fetching support tickets");
+      
       const response = await fetchAPI("driver/ratings/support-tickets", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching support tickets:", error);
+      
       throw error;
     }
   }
@@ -399,7 +380,7 @@ export class RatingsService {
     ticket: Omit<SupportTicket, "id" | "createdAt" | "updatedAt" | "status">,
   ): Promise<SupportTicket> {
     try {
-      console.log("[RatingsService] Creating support ticket:", ticket);
+      
       const response = await fetchAPI("driver/ratings/support-tickets", {
         method: "POST",
         body: JSON.stringify(ticket),
@@ -407,17 +388,14 @@ export class RatingsService {
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error creating support ticket:", error);
+      
       throw error;
     }
   }
 
   async getSupportTicketDetails(ticketId: string): Promise<SupportTicket> {
     try {
-      console.log(
-        "[RatingsService] Fetching support ticket details:",
-        ticketId,
-      );
+      
       const response = await fetchAPI(
         `driver/ratings/support-tickets/${ticketId}`,
         {
@@ -426,10 +404,7 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[RatingsService] Error fetching support ticket details:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -439,11 +414,7 @@ export class RatingsService {
     updates: Partial<SupportTicket>,
   ): Promise<SupportTicket> {
     try {
-      console.log(
-        "[RatingsService] Updating support ticket:",
-        ticketId,
-        updates,
-      );
+      
       const response = await fetchAPI(
         `driver/ratings/support-tickets/${ticketId}`,
         {
@@ -454,7 +425,7 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error updating support ticket:", error);
+      
       throw error;
     }
   }
@@ -462,13 +433,13 @@ export class RatingsService {
   // Rating Goals
   async getRatingGoals(): Promise<RatingGoal[]> {
     try {
-      console.log("[RatingsService] Fetching rating goals");
+      
       const response = await fetchAPI("driver/ratings/goals", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching rating goals:", error);
+      
       throw error;
     }
   }
@@ -477,7 +448,7 @@ export class RatingsService {
     goal: Omit<RatingGoal, "id" | "currentRating" | "progress" | "milestones">,
   ): Promise<RatingGoal> {
     try {
-      console.log("[RatingsService] Creating rating goal:", goal);
+      
       const response = await fetchAPI("driver/ratings/goals", {
         method: "POST",
         body: JSON.stringify(goal),
@@ -485,7 +456,7 @@ export class RatingsService {
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error creating rating goal:", error);
+      
       throw error;
     }
   }
@@ -495,7 +466,7 @@ export class RatingsService {
     updates: Partial<RatingGoal>,
   ): Promise<RatingGoal> {
     try {
-      console.log("[RatingsService] Updating rating goal:", goalId, updates);
+      
       const response = await fetchAPI(`driver/ratings/goals/${goalId}`, {
         method: "PUT",
         body: JSON.stringify(updates),
@@ -503,20 +474,20 @@ export class RatingsService {
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error updating rating goal:", error);
+      
       throw error;
     }
   }
 
   async deleteRatingGoal(goalId: string): Promise<void> {
     try {
-      console.log("[RatingsService] Deleting rating goal:", goalId);
+      
       await fetchAPI(`driver/ratings/goals/${goalId}`, {
         method: "DELETE",
         requiresAuth: true,
       });
     } catch (error) {
-      console.error("[RatingsService] Error deleting rating goal:", error);
+      
       throw error;
     }
   }
@@ -540,7 +511,7 @@ export class RatingsService {
     strengths: string[];
   }> {
     try {
-      console.log("[RatingsService] Fetching rating analytics:", period);
+      
       const response = await fetchAPI(
         `driver/ratings/analytics?period=${period}`,
         {
@@ -549,7 +520,7 @@ export class RatingsService {
       );
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching rating analytics:", error);
+      
       throw error;
     }
   }
@@ -565,7 +536,7 @@ export class RatingsService {
     submittedAt: Date;
   }> {
     try {
-      console.log("[RatingsService] Disputing rating:", ratingId, reason);
+      
       const response = await fetchAPI(`driver/ratings/${ratingId}/dispute`, {
         method: "POST",
         body: JSON.stringify({ reason, evidence }),
@@ -573,7 +544,7 @@ export class RatingsService {
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error disputing rating:", error);
+      
       throw error;
     }
   }
@@ -590,13 +561,13 @@ export class RatingsService {
     }[]
   > {
     try {
-      console.log("[RatingsService] Fetching rating disputes");
+      
       const response = await fetchAPI("driver/ratings/disputes", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[RatingsService] Error fetching rating disputes:", error);
+      
       throw error;
     }
   }

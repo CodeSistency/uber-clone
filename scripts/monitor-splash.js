@@ -88,29 +88,21 @@ function formatPercentage(value) {
 }
 
 function displayHeader(title) {
-  console.log(colorize("\n" + "=".repeat(60), colors.cyan));
-  console.log(colorize(`📊 ${title}`, colors.cyan));
-  console.log(colorize("=".repeat(60), colors.cyan));
+  
+  
+  
 }
 
 function displaySplashTransitions() {
   displayHeader("SPLASH TRANSITIONS");
 
   const transitions = mockMetrics.splashTransitions;
-  console.log(
-    `Total Transitions: ${colorize(transitions.total, colors.yellow)}`,
-  );
-  console.log(
-    `Success Rate: ${colorize(formatPercentage(transitions.successful / transitions.total), colors.green)}`,
-  );
-  console.log(
-    `Average Duration: ${colorize(formatDuration(transitions.avgDuration), colors.blue)}`,
-  );
-  console.log(
-    `Failed Transitions: ${colorize(transitions.failed, transitions.failed > 0 ? colors.red : colors.green)}`,
-  );
+  
+  
+  
+  
 
-  console.log(colorize("\nBy Module:", colors.magenta));
+  
   Object.entries(transitions.byModule).forEach(([transition, stats]) => {
     const successColor =
       stats.successRate > 0.95
@@ -118,12 +110,10 @@ function displaySplashTransitions() {
         : stats.successRate > 0.9
           ? colors.yellow
           : colors.red;
-    console.log(`  ${transition}:`);
-    console.log(`    Count: ${stats.count}`);
-    console.log(`    Avg Time: ${formatDuration(stats.avgTime)}`);
-    console.log(
-      `    Success Rate: ${colorize(formatPercentage(stats.successRate), successColor)}`,
-    );
+    
+    
+    
+    
   });
 }
 
@@ -134,16 +124,12 @@ function displayDataLoading() {
   const cacheHitRate =
     loading.cacheHits / (loading.cacheHits + loading.cacheMisses);
 
-  console.log(
-    `Cache Hit Rate: ${colorize(formatPercentage(cacheHitRate), colors.green)}`,
-  );
-  console.log(
-    `Average Load Time: ${colorize(formatDuration(loading.avgLoadTime), colors.blue)}`,
-  );
-  console.log(`Cache Hits: ${colorize(loading.cacheHits, colors.green)}`);
-  console.log(`Cache Misses: ${colorize(loading.cacheMisses, colors.yellow)}`);
+  
+  
+  
+  
 
-  console.log(colorize("\nBy Data Type:", colors.magenta));
+  
   Object.entries(loading.byDataType).forEach(([type, stats]) => {
     const timeColor =
       stats.avgTime < 400
@@ -153,13 +139,9 @@ function displayDataLoading() {
           : colors.red;
     const successColor =
       stats.successRate > 0.95 ? colors.green : colors.yellow;
-    console.log(`  ${type}:`);
-    console.log(
-      `    Avg Time: ${colorize(formatDuration(stats.avgTime), timeColor)}`,
-    );
-    console.log(
-      `    Success Rate: ${colorize(formatPercentage(stats.successRate), successColor)}`,
-    );
+    
+    
+    
   });
 }
 
@@ -173,26 +155,20 @@ function displayErrors() {
     errors.authErrors +
     errors.otherErrors;
 
-  console.log(
-    `Total Errors (24h): ${colorize(totalErrors, totalErrors > 0 ? colors.red : colors.green)}`,
-  );
+  
 
   if (totalErrors > 0) {
-    console.log(
-      `Timeout Errors: ${colorize(errors.timeoutErrors, colors.yellow)}`,
-    );
-    console.log(
-      `Network Errors: ${colorize(errors.networkErrors, colors.red)}`,
-    );
-    console.log(`Auth Errors: ${colorize(errors.authErrors, colors.red)}`);
-    console.log(`Other Errors: ${colorize(errors.otherErrors, colors.yellow)}`);
+    
+    
+    
+    
 
-    console.log(colorize("\nRecent Errors:", colors.red));
+    
     errors.recentErrors.forEach((error) => {
-      console.log(`  ${error.timestamp}: ${error.type} - ${error.message}`);
+      
     });
   } else {
-    console.log(colorize("✅ No errors in the last 24 hours", colors.green));
+    
   }
 }
 
@@ -201,16 +177,10 @@ function displayPerformance() {
 
   const perf = mockMetrics.performance;
 
-  console.log(
-    `Average Splash Show Time: ${colorize(formatDuration(perf.avgSplashShowTime), colors.green)}`,
-  );
-  console.log(
-    `Average Splash Hide Time: ${colorize(formatDuration(perf.avgSplashHideTime), colors.green)}`,
-  );
-  console.log(`Memory Usage: ${colorize(perf.memoryUsage, colors.blue)}`);
-  console.log(
-    `Animation Frame Drops: ${colorize(perf.animationFrameDrops, perf.animationFrameDrops > 5 ? colors.red : colors.green)}`,
-  );
+  
+  
+  
+  
 }
 
 function displayRecommendations() {
@@ -265,12 +235,7 @@ function displayRecommendations() {
   }
 
   if (recommendations.length === 0) {
-    console.log(
-      colorize(
-        "✅ All metrics are within acceptable ranges. System performing well!",
-        colors.green,
-      ),
-    );
+    
   } else {
     recommendations.forEach((rec) => {
       const color =
@@ -279,7 +244,7 @@ function displayRecommendations() {
           : rec.type === "warning"
             ? colors.yellow
             : colors.blue;
-      console.log(colorize(`• ${rec.message}`, color));
+      
     });
   }
 }
@@ -308,17 +273,12 @@ function generateReport() {
   };
 
   fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
-  console.log(colorize(`\n📄 Report saved to: ${reportPath}`, colors.green));
+  
 }
 
 // Main execution
-console.log(colorize("🚀 Splash System Monitor", colors.cyan));
-console.log(
-  colorize(
-    "Monitoring splash transitions, data loading, and system performance",
-    colors.gray,
-  ),
-);
+
+
 
 displaySplashTransitions();
 displayDataLoading();
@@ -327,4 +287,4 @@ displayPerformance();
 displayRecommendations();
 generateReport();
 
-console.log(colorize("\n🏁 Monitoring complete", colors.green));
+

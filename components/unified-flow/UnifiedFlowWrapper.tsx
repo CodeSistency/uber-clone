@@ -151,9 +151,7 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
             };
             const mappedStatus = statusMap[status] || "requested";
 
-            console.log(
-              `[UnifiedFlowWrapper] Polling status for ride ${rideId}: ${status} -> ${mappedStatus}`,
-            );
+            
             useRealtimeStore.getState().updateRideStatus(rideId, mappedStatus);
 
             // Mostrar notificación solo para cambios importantes
@@ -194,7 +192,7 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
         }
       } catch (e) {
         // Silent poll errors
-        console.warn("[UnifiedFlowWrapper] Polling error:", e);
+        
       }
     };
 

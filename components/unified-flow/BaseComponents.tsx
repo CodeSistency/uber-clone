@@ -78,9 +78,7 @@ export const NotificationSettings: React.FC = () => {
   const toggleNotifications = () => {
     setNotificationsEnabled(!notificationsEnabled);
     // Aquí se implementaría la lógica real para habilitar/deshabilitar notificaciones
-    console.log(
-      `Notifications ${!notificationsEnabled ? "enabled" : "disabled"}`,
-    );
+    
   };
 
   return (
@@ -295,7 +293,7 @@ export const RideStatusControls: React.FC = () => {
             title={status.label}
             onPress={() => {
               realtime.updateRideStatus(1 as any, status.status as any);
-              console.log(`Status updated to: ${status.status}`);
+              
             }}
             className={`px-3 py-2 min-w-[70px] ${status.color}`}
           />
@@ -344,7 +342,7 @@ export const SimulationControls: React.FC = () => {
                 longitude: baseLng + jitter(),
                 timestamp: new Date(),
               });
-            console.log("Driver location updated");
+            
           }}
           className="px-4 py-2 bg-purple-600"
         />
@@ -375,7 +373,7 @@ export const SimulationControls: React.FC = () => {
                 longitude: driverLoc.longitude,
               });
 
-            console.log("Fit Route - Points:", points.length);
+            
           }}
           className="px-4 py-2 bg-indigo-600"
         />

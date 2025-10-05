@@ -4,17 +4,12 @@ import { useEffect } from "react";
 import { useOnboardingStore } from "@/store";
 
 export default function OnboardingLayout() {
-  console.log("[OnboardingLayout] Rendering onboarding layout");
+  
 
   const { currentStep, isCompleted } = useOnboardingStore();
 
   useEffect(() => {
-    console.log(
-      "[OnboardingLayout] Current step:",
-      currentStep,
-      "Completed:",
-      isCompleted,
-    );
+    
   }, [currentStep, isCompleted]);
 
   return (

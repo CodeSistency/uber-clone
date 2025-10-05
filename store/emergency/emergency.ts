@@ -82,7 +82,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   fetchEmergencyContacts: async () => {
     const state = get();
-    console.log("[EmergencyStore] fetchEmergencyContacts called");
+    
 
     try {
       state.setLoading(true);
@@ -98,15 +98,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
       // Update state with API response
       set({ emergencyContacts: contacts });
-      console.log(
-        "[EmergencyStore] Emergency contacts fetched successfully:",
-        contacts.length,
-      );
+      
     } catch (error: any) {
-      console.error(
-        "[EmergencyStore] Error fetching emergency contacts:",
-        error,
-      );
+      
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to fetch emergency contacts";
@@ -117,9 +111,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       state.setError(errorMessage);
 
       // Fallback to dummy data for development
-      console.log(
-        "[EmergencyStore] Using fallback dummy data for emergency contacts",
-      );
+      
       set({
         emergencyContacts: [
           {
@@ -145,7 +137,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   fetchEmergencyHistory: async () => {
     const state = get();
-    console.log("[EmergencyStore] fetchEmergencyHistory called");
+    
 
     try {
       state.setLoading(true);
@@ -161,15 +153,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
       // Update state with API response
       set({ emergencyHistory: history as any });
-      console.log(
-        "[EmergencyStore] Emergency history fetched successfully:",
-        history.length,
-      );
+      
     } catch (error: any) {
-      console.error(
-        "[EmergencyStore] Error fetching emergency history:",
-        error,
-      );
+      
 
       // Enhanced error handling with specific messages
       let errorMessage = "Failed to fetch emergency history";
@@ -180,9 +166,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       state.setError(errorMessage);
 
       // Fallback to dummy data for development
-      console.log(
-        "[EmergencyStore] Using fallback dummy data for emergency history",
-      );
+      
       set({
         emergencyHistory: [
           {
@@ -226,7 +210,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   addEmergencyContact: async (contactData) => {
     const state = get();
-    console.log("[EmergencyStore] addEmergencyContact called:", contactData);
+    
 
     try {
       state.setLoading(true);
@@ -241,12 +225,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
         emergencyContacts: [...prevState.emergencyContacts, newContact],
       }));
 
-      console.log(
-        "[EmergencyStore] Emergency contact added successfully:",
-        newContact,
-      );
+      
     } catch (error: any) {
-      console.error("[EmergencyStore] Error adding emergency contact:", error);
+      
 
       // Enhanced error handling
       let errorMessage = "Failed to add emergency contact";
@@ -263,10 +244,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   updateEmergencyContact: async (id, updates) => {
     const state = get();
-    console.log("[EmergencyStore] updateEmergencyContact called:", {
-      id,
-      updates,
-    });
+    
 
     try {
       state.setLoading(true);
@@ -285,15 +263,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
         ),
       }));
 
-      console.log(
-        "[EmergencyStore] Emergency contact updated successfully:",
-        updatedContact,
-      );
+      
     } catch (error: any) {
-      console.error(
-        "[EmergencyStore] Error updating emergency contact:",
-        error,
-      );
+      
 
       // Enhanced error handling
       let errorMessage = "Failed to update emergency contact";
@@ -310,7 +282,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   removeEmergencyContact: async (id) => {
     const state = get();
-    console.log("[EmergencyStore] removeEmergencyContact called:", id);
+    
 
     try {
       state.setLoading(true);
@@ -326,12 +298,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
         ),
       }));
 
-      console.log("[EmergencyStore] Emergency contact removed successfully");
+      
     } catch (error: any) {
-      console.error(
-        "[EmergencyStore] Error removing emergency contact:",
-        error,
-      );
+      
 
       // Enhanced error handling
       let errorMessage = "Failed to remove emergency contact";
@@ -348,7 +317,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   triggerEmergency: async (emergencyData) => {
     const state = get();
-    console.log("[EmergencyStore] triggerEmergency called:", emergencyData);
+    
 
     try {
       state.setLoading(true);
@@ -374,12 +343,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
         },
       });
 
-      console.log(
-        "[EmergencyStore] Emergency triggered successfully:",
-        emergency,
-      );
+      
     } catch (error: any) {
-      console.error("[EmergencyStore] Error triggering emergency:", error);
+      
 
       // Enhanced error handling
       let errorMessage = "Failed to trigger emergency alert";
@@ -396,7 +362,7 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
 
   resolveEmergency: async (emergencyId) => {
     const state = get();
-    console.log("[EmergencyStore] resolveEmergency called:", emergencyId);
+    
 
     try {
       state.setLoading(true);
@@ -414,9 +380,9 @@ export const useEmergencyStore = create<EmergencyState>((set, get) => ({
       // Refresh emergency history
       await state.fetchEmergencyHistory();
 
-      console.log("[EmergencyStore] Emergency resolved successfully");
+      
     } catch (error: any) {
-      console.error("[EmergencyStore] Error resolving emergency:", error);
+      
 
       // Enhanced error handling
       let errorMessage = "Failed to resolve emergency";

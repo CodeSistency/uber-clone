@@ -36,7 +36,7 @@ const PaymentConfirmation = () => {
 
   const handleViewReceipt = () => {
     // In real app, this would open receipt modal or navigate to receipt screen
-    console.log("View receipt clicked");
+    
   };
 
   if (isComplete) {

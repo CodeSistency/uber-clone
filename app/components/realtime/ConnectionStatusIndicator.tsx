@@ -44,14 +44,9 @@ export const ConnectionStatusIndicator: React.FC<
     const initializeConnectivity = async () => {
       try {
         await connectivityManager.initialize();
-        console.log(
-          "[ConnectionStatusIndicator] ConnectivityManager initialized",
-        );
+        
       } catch (error) {
-        console.error(
-          "[ConnectionStatusIndicator] Failed to initialize connectivity:",
-          error,
-        );
+        
       }
     };
 

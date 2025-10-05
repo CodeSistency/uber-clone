@@ -29,12 +29,12 @@ export class ConnectionManager implements BaseModule {
   }
 
   async initialize(): Promise<void> {
-    console.log("[ConnectionManager] Initializing with config:", this.config);
+    
     // Connection will be established when connect() is called
   }
 
   async destroy(): Promise<void> {
-    console.log("[ConnectionManager] Destroying connection manager");
+    
     await this.disconnect();
     this.clearTimers();
     this.eventListeners.clear();
@@ -60,7 +60,7 @@ export class ConnectionManager implements BaseModule {
 
   async connect(userId: string, token: string): Promise<boolean> {
     if (this.state.isConnecting) {
-      console.log("[ConnectionManager] Connection already in progress");
+      
       return false;
     }
 
@@ -69,7 +69,7 @@ export class ConnectionManager implements BaseModule {
     this.userId = userId;
 
     try {
-      console.log("[ConnectionManager] Connecting to WebSocket server...");
+      
 
       // Create socket connection
       this.socket = io(this.config.url, {
@@ -84,30 +84,28 @@ export class ConnectionManager implements BaseModule {
 
       return new Promise((resolve, reject) => {
         const authTimeout = setTimeout(() => {
-          console.error("[ConnectionManager] Authentication timeout");
+          
           this.state.isConnecting = false;
           reject(new Error("Authentication timeout"));
         }, this.config.authTimeout);
 
         this.socket!.on("connect", () => {
           clearTimeout(authTimeout);
-          console.log(
-            "[ConnectionManager] ✅ WebSocket connected successfully",
-          );
+          
           this.handleConnect();
           resolve(true);
         });
 
         this.socket!.on("connect_error", (error) => {
           clearTimeout(authTimeout);
-          console.error("[ConnectionManager] ❌ Connection error:", error);
+          
           this.state.isConnecting = false;
           this.handleConnectionError(error);
           reject(error);
         });
 
         this.socket!.on("disconnect", (reason) => {
-          console.log("[ConnectionManager] Disconnected:", reason);
+          
           this.handleDisconnect(reason);
         });
 
@@ -115,14 +113,14 @@ export class ConnectionManager implements BaseModule {
         this.socket!.connect();
       });
     } catch (error) {
-      console.error("[ConnectionManager] Connection failed:", error);
+      
       this.state.isConnecting = false;
       return false;
     }
   }
 
   async disconnect(): Promise<void> {
-    console.log("[ConnectionManager] Disconnecting...");
+    
 
     this.clearTimers();
 
@@ -143,7 +141,7 @@ export class ConnectionManager implements BaseModule {
   }
 
   async forceReconnect(): Promise<boolean> {
-    console.log("[ConnectionManager] Forcing reconnection...");
+    
 
     await this.disconnect();
 
@@ -160,9 +158,7 @@ export class ConnectionManager implements BaseModule {
     this.state.lastConnected = new Date();
     this.state.reconnectAttempts = 0;
 
-    console.log(
-      "[ConnectionManager] Connection established, starting heartbeat",
-    );
+    
     this.startHeartbeat();
 
     this.emitEvent("connected", {
@@ -189,7 +185,7 @@ export class ConnectionManager implements BaseModule {
   }
 
   private handleConnectionError(error: any): void {
-    console.error("[ConnectionManager] Connection error:", error);
+    
 
     this.state.isConnected = false;
     this.state.isConnecting = false;
@@ -205,7 +201,7 @@ export class ConnectionManager implements BaseModule {
 
   private scheduleReconnection(): void {
     if (this.state.reconnectAttempts >= this.config.maxRetries) {
-      console.error("[ConnectionManager] Max reconnection attempts reached");
+      
       this.emitEvent("reconnect_failed", {
         attempts: this.state.reconnectAttempts,
         timestamp: new Date(),
@@ -221,9 +217,7 @@ export class ConnectionManager implements BaseModule {
       Math.pow(2, this.state.reconnectAttempts - 1);
     const clampedDelay = Math.min(delay, 30000); // Max 30 seconds
 
-    console.log(
-      `[ConnectionManager] Scheduling reconnection in ${clampedDelay}ms (attempt ${this.state.reconnectAttempts})`,
-    );
+    
 
     this.reconnectTimer = setTimeout(async () => {
       this.emitEvent("reconnecting", {
@@ -235,7 +229,7 @@ export class ConnectionManager implements BaseModule {
         try {
           await this.connect(this.userId, this.authToken);
         } catch (error) {
-          console.error("[ConnectionManager] Reconnection failed:", error);
+          
         }
       }
     }, clampedDelay);
@@ -251,9 +245,7 @@ export class ConnectionManager implements BaseModule {
 
         // Set timeout for pong response
         const pongTimeout = setTimeout(() => {
-          console.warn(
-            "[ConnectionManager] Heartbeat timeout - no pong received",
-          );
+          
           this.socket?.disconnect();
         }, 5000);
 
@@ -261,7 +253,7 @@ export class ConnectionManager implements BaseModule {
         this.socket.once("pong", (data: any) => {
           clearTimeout(pongTimeout);
           const latency = Date.now() - pingTime;
-          console.log(`[ConnectionManager] Heartbeat: ${latency}ms latency`);
+          
 
           this.emitEvent("heartbeat", {
             latency,
@@ -306,10 +298,7 @@ export class ConnectionManager implements BaseModule {
       try {
         listener(data);
       } catch (error) {
-        console.error(
-          `[ConnectionManager] Error in event listener for ${event}:`,
-          error,
-        );
+        
       }
     }
   }

@@ -137,29 +137,21 @@ export const useNotificationsCompat = () => {
         const history = await notificationStorage.getNotificationHistory();
 
         if (savedPreferences) {
-          console.log("[useNotificationsCompat] Migrating legacy preferences");
+          
           updatePreferences(savedPreferences);
         }
 
         if (history && history.length > 0) {
-          console.log(
-            "[useNotificationsCompat] Migrating legacy notification history",
-            {
-              count: history.length,
-            },
-          );
+          
           // Convertir y agregar notificaciones legacy al nuevo store
           history.forEach((notification) => {
             addNotification(notification);
           });
         }
 
-        console.log("[useNotificationsCompat] Compatibility layer initialized");
+        
       } catch (error) {
-        console.error(
-          "[useNotificationsCompat] Error initializing compatibility layer:",
-          error,
-        );
+        
       }
     };
 
@@ -171,14 +163,9 @@ export const useNotificationsCompat = () => {
     const initializeService = async () => {
       try {
         await expoNotificationService.initialize();
-        console.log(
-          "[useNotificationsCompat] Expo notification service initialized",
-        );
+        
       } catch (error) {
-        console.error(
-          "[useNotificationsCompat] Failed to initialize Expo service:",
-          error,
-        );
+        
       }
     };
 
@@ -193,10 +180,7 @@ export const useNotificationsCompat = () => {
         await notificationStorage.savePreferences(legacyPreferences);
         await notificationStorage.saveNotificationHistory(legacyNotifications);
       } catch (error) {
-        console.error(
-          "[useNotificationsCompat] Error saving to legacy storage:",
-          error,
-        );
+        
       }
     };
 

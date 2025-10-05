@@ -50,7 +50,7 @@ const ChooseDriver: React.FC = () => {
     setIsLoadingDrivers(true);
     try {
       if (simulateBeforeSearch) {
-        console.log("[ChooseDriver] Simulating drivers before search");
+        
 
         // Primero simular conductores en el backend
         await (transportClient as any).simulateDriverLocations({
@@ -62,7 +62,7 @@ const ChooseDriver: React.FC = () => {
         });
       }
 
-      console.log("[ChooseDriver] Searching for nearby drivers");
+      
 
       // Siempre usar el mismo endpoint de búsqueda
       const response = await (transportClient as any).getNearbyDrivers({
@@ -73,10 +73,7 @@ const ChooseDriver: React.FC = () => {
       });
 
       if (response?.data && Array.isArray(response.data)) {
-        console.log(
-          `[ChooseDriver] ${simulateBeforeSearch ? "Simulated" : "Nearby"} drivers loaded:`,
-          response.data.length,
-        );
+        
 
         const driverMarkers: MarkerData[] = response.data.map(
           (driver: any) => ({
@@ -97,11 +94,11 @@ const ChooseDriver: React.FC = () => {
 
         setDrivers(driverMarkers);
       } else {
-        console.log("[ChooseDriver] No drivers found");
+        
         setDrivers([]);
       }
     } catch (error) {
-      console.error("[ChooseDriver] Error loading drivers:", error);
+      
       showError(
         "Error",
         `No se pudieron cargar los conductores ${simulateBeforeSearch ? "(con simulación)" : "(búsqueda directa)"}`,
@@ -138,7 +135,7 @@ const ChooseDriver: React.FC = () => {
         "Esperando respuesta del conductor...",
       );
     } catch (error: any) {
-      console.error("[ChooseDriver] Driver selection error:", error);
+      
       showError("Error", error?.message || "Error al solicitar conductor");
     }
   };
@@ -155,7 +152,7 @@ const ChooseDriver: React.FC = () => {
           const response = await transportClient.getStatus(rideId);
           const status = response?.data?.status || response?.status;
 
-          console.log("[ChooseDriver] Polling ride status:", status);
+          
 
           if (status === "accepted") {
             // Conductor aceptó - continuar al siguiente paso
@@ -178,12 +175,10 @@ const ChooseDriver: React.FC = () => {
             setSelectedDriver(null);
           } else if (status === "requested") {
             // Aún esperando - continuar polling
-            console.log(
-              "[ChooseDriver] Still waiting for driver acceptance...",
-            );
+            
           }
         } catch (error) {
-          console.error("[ChooseDriver] Error polling ride status:", error);
+          
           // Continue polling despite errors
         }
       }, 2000); // Poll cada 2 segundos
@@ -206,7 +201,7 @@ const ChooseDriver: React.FC = () => {
   // Cargar drivers cuando tengamos ubicación o cambie el modo de búsqueda
   React.useEffect(() => {
     if (userLatitude && userLongitude && !isLoadingDrivers) {
-      console.log("[ChooseDriver] Location available, loading nearby drivers");
+      
       loadNearbyDrivers();
     }
   }, [

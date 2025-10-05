@@ -269,9 +269,7 @@ export function getEndpoint(name: string): Endpoint | null {
   const endpoints = ENDPOINTS[env];
 
   if (!endpoints || !endpoints[name]) {
-    console.warn(
-      `[Endpoints] Endpoint '${name}' not found for environment '${env}'`,
-    );
+    
     return null;
   }
 
@@ -631,6 +629,8 @@ export const endpoints = {
   },
   websocket: {
     url: getWebSocketUrl,
+    namespace: "/uber-realtime", // ✅ Separar namespace
+    fullUrl: () => `${getWebSocketUrl()}/uber-realtime`, // ✅ URL completa con namespace
     endpoint: () => getEndpoint("websocket") as WebSocketEndpoint,
   },
   googleMaps: {

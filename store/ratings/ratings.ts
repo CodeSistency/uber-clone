@@ -140,7 +140,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
   // Actions
   fetchRatings: async () => {
-    console.log("[RatingsStore] Fetching ratings");
+    
     const state = get();
 
     try {
@@ -158,9 +158,9 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
         totalRatings: mockRatings.totalRatings,
       }));
 
-      console.log("[RatingsStore] Ratings fetched successfully");
+      
     } catch (error) {
-      console.error("[RatingsStore] Error fetching ratings:", error);
+      
       state.setError((error as Error).message || "Failed to fetch ratings");
     } finally {
       state.setLoading(false);
@@ -168,7 +168,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   fetchRatingBreakdown: async () => {
-    console.log("[RatingsStore] Fetching rating breakdown");
+    
     const state = get();
 
     try {
@@ -186,7 +186,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ ratingBreakdown: mockBreakdown }));
     } catch (error) {
-      console.error("[RatingsStore] Error fetching rating breakdown:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch rating breakdown",
       );
@@ -196,7 +196,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   fetchRecentComments: async (limit = 10) => {
-    console.log("[RatingsStore] Fetching recent comments, limit:", limit);
+    
     const state = get();
 
     try {
@@ -239,7 +239,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ recentComments: mockComments.slice(0, limit) }));
     } catch (error) {
-      console.error("[RatingsStore] Error fetching recent comments:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch recent comments",
       );
@@ -249,7 +249,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   fetchPerformanceMetrics: async () => {
-    console.log("[RatingsStore] Fetching performance metrics");
+    
     const state = get();
 
     try {
@@ -272,10 +272,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ performanceMetrics: mockMetrics }));
     } catch (error) {
-      console.error(
-        "[RatingsStore] Error fetching performance metrics:",
-        error,
-      );
+      
       state.setError(
         (error as Error).message || "Failed to fetch performance metrics",
       );
@@ -287,7 +284,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   createSupportTicket: async (
     ticket: Omit<SupportTicket, "id" | "createdAt" | "updatedAt" | "responses">,
   ) => {
-    console.log("[RatingsStore] Creating support ticket:", ticket);
+    
     const state = get();
 
     try {
@@ -308,9 +305,9 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       }));
 
       // TODO: Send to backend
-      console.log("[RatingsStore] Support ticket created:", ticketId);
+      
     } catch (error) {
-      console.error("[RatingsStore] Error creating support ticket:", error);
+      
       state.setError(
         (error as Error).message || "Failed to create support ticket",
       );
@@ -320,7 +317,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   fetchSupportTickets: async () => {
-    console.log("[RatingsStore] Fetching support tickets");
+    
     const state = get();
 
     try {
@@ -368,7 +365,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ supportTickets: mockTickets }));
     } catch (error) {
-      console.error("[RatingsStore] Error fetching support tickets:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch support tickets",
       );
@@ -381,7 +378,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
     ticketId: string,
     updates: Partial<SupportTicket>,
   ) => {
-    console.log("[RatingsStore] Updating support ticket:", ticketId, updates);
+    
     const state = get();
 
     try {
@@ -397,9 +394,9 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       }));
 
       // TODO: Update in backend
-      console.log("[RatingsStore] Support ticket updated:", ticketId);
+      
     } catch (error) {
-      console.error("[RatingsStore] Error updating support ticket:", error);
+      
       state.setError(
         (error as Error).message || "Failed to update support ticket",
       );
@@ -412,7 +409,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
     ticketId: string,
     response: Omit<SupportResponse, "id" | "timestamp">,
   ) => {
-    console.log("[RatingsStore] Adding support response:", ticketId, response);
+    
     const state = get();
 
     try {
@@ -439,9 +436,9 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       }));
 
       // TODO: Send to backend
-      console.log("[RatingsStore] Support response added:", responseId);
+      
     } catch (error) {
-      console.error("[RatingsStore] Error adding support response:", error);
+      
       state.setError(
         (error as Error).message || "Failed to add support response",
       );
@@ -451,7 +448,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   searchHelpArticles: async (query: string) => {
-    console.log("[RatingsStore] Searching help articles:", query);
+    
     const state = get();
 
     try {
@@ -497,7 +494,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       set(() => ({ helpArticles: filteredArticles }));
       return filteredArticles;
     } catch (error) {
-      console.error("[RatingsStore] Error searching help articles:", error);
+      
       state.setError(
         (error as Error).message || "Failed to search help articles",
       );
@@ -508,7 +505,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   fetchHelpArticles: async (category?: string) => {
-    console.log("[RatingsStore] Fetching help articles, category:", category);
+    
     const state = get();
 
     try {
@@ -557,7 +554,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
       set(() => ({ helpArticles: filteredArticles }));
     } catch (error) {
-      console.error("[RatingsStore] Error fetching help articles:", error);
+      
       state.setError(
         (error as Error).message || "Failed to fetch help articles",
       );
@@ -567,7 +564,7 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
   },
 
   rateHelpArticle: async (articleId: string, helpful: boolean) => {
-    console.log("[RatingsStore] Rating help article:", articleId, helpful);
+    
     const state = get();
 
     try {
@@ -589,9 +586,9 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
       }));
 
       // TODO: Send rating to backend
-      console.log("[RatingsStore] Help article rated:", articleId, helpful);
+      
     } catch (error) {
-      console.error("[RatingsStore] Error rating help article:", error);
+      
       state.setError((error as Error).message || "Failed to rate help article");
     } finally {
       state.setLoading(false);
@@ -600,17 +597,17 @@ export const useRatingsStore = create<RatingsStore>((set, get) => ({
 
   // Utility Functions
   setLoading: (loading: boolean) => {
-    console.log("[RatingsStore] Setting loading:", loading);
+    
     set(() => ({ isLoading: loading }));
   },
 
   setError: (error: string | null) => {
-    console.log("[RatingsStore] Setting error:", error);
+    
     set(() => ({ error }));
   },
 
   clearError: () => {
-    console.log("[RatingsStore] Clearing error");
+    
     set(() => ({ error: null }));
   },
 }));

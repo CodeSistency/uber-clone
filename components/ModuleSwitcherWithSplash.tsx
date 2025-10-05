@@ -26,7 +26,7 @@ const ModuleSwitcherWithSplash: React.FC<ModuleSwitcherWithSplashProps> = ({
 
   const handleModuleSwitch = async (targetModule: ModuleType) => {
     if (targetModule === currentModule) {
-      console.log(`Already in module ${targetModule}`);
+      
       return;
     }
 
@@ -47,7 +47,7 @@ const ModuleSwitcherWithSplash: React.FC<ModuleSwitcherWithSplashProps> = ({
       onClose?.(); // Close drawer after successful module switch
     } catch (error) {
       Alert.alert("No se pudo cambiar el módulo");
-      console.error("Module switch error:", error);
+      
     }
   };
 

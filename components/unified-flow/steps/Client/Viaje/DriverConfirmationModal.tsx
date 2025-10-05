@@ -52,14 +52,11 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
 
     setIsProcessing(true);
     try {
-      console.log("[DriverConfirmationModal] Confirming driver:", driver.id);
+      
       await onConfirm();
       showSuccess("¡Conductor confirmado!", "Esperando aceptación...");
     } catch (error: any) {
-      console.error(
-        "[DriverConfirmationModal] Error confirming driver:",
-        error,
-      );
+      
       showError("Error", error.message || "No se pudo confirmar el conductor");
     } finally {
       setIsProcessing(false);
@@ -70,13 +67,10 @@ const DriverConfirmationModal: React.FC<DriverConfirmationModalProps> = ({
     if (isProcessing) return;
 
     try {
-      console.log("[DriverConfirmationModal] Finding another driver");
+      
       await onFindAnother();
     } catch (error: any) {
-      console.error(
-        "[DriverConfirmationModal] Error finding another driver:",
-        error,
-      );
+      
       showError("Error", "No se pudo buscar otro conductor");
     }
   };

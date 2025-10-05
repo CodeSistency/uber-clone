@@ -37,11 +37,7 @@ export async function calculateRouteDistance(
 
   const url = `${baseUrl}?${params.toString()}`;
 
-  console.log('[GoogleMapsService] Calculating route:', {
-    origin,
-    destination,
-    url: url.replace(googleMapsApiKey, '[API_KEY]'), // Don't log the actual key
-  });
+  
 
   try {
     const response = await fetch(url);
@@ -78,16 +74,12 @@ export async function calculateRouteDistance(
       rawResponse: data,
     };
 
-    console.log('[GoogleMapsService] Route calculated:', {
-      distanceMiles: result.distanceMiles.toFixed(1),
-      durationMinutes: result.durationMinutes,
-      status: element.status,
-    });
+    
 
     return result;
 
   } catch (error) {
-    console.error('[GoogleMapsService] Error calculating route:', error);
+    
 
     // Type guard for GoogleMapsError
     if (error && typeof error === 'object' && 'status' in error) {
@@ -114,7 +106,7 @@ export async function validateGoogleMapsApiKey(apiKey: string): Promise<boolean>
     );
     return true;
   } catch (error) {
-    console.error('[GoogleMapsService] API key validation failed:', error);
+    
     return false;
   }
 }

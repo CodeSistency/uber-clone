@@ -201,7 +201,7 @@ const PaymentMethodology: React.FC = () => {
       setBankCode(null); // Reset bank code when switching modes
     }
 
-    console.log("[PaymentMethodology] Payment mode changed to:", newMode);
+    
   };
 
   // Función para manejar cambio de método de pago
@@ -309,20 +309,17 @@ const PaymentMethodology: React.FC = () => {
       } else {
         // 🆕 Pago múltiple usando nuevos endpoints
         if (!Array.isArray(multiplePayments) || multiplePayments.length === 0) {
-          console.error("[PaymentMethodology] multiplePayments is not a valid array:", multiplePayments);
+          
           throw new Error("No se han configurado pagos múltiples válidos");
         }
 
-        console.log(
-          "[PaymentMethodology] Processing multiple payments:",
-          multiplePayments,
-        );
+        
 
         // Convertir SplitPayment a formato del backend según documentación
         const paymentMethods = multiplePayments.map((payment) => {
           // Validate payment object
           if (!payment || typeof payment !== 'object') {
-            console.error("[PaymentMethodology] Invalid payment object:", payment);
+            
             throw new Error("Objeto de pago inválido");
           }
           // Mapear métodos del frontend al backend
@@ -417,7 +414,7 @@ const PaymentMethodology: React.FC = () => {
       // Continuar con el flujo de matching
       next();
     } catch (error: any) {
-      console.error("[PaymentMethodology] Payment confirmation error:", error);
+      
       const errorMessage = error?.message || "Error al procesar el pago";
       showError("Error de pago", errorMessage);
     } finally {

@@ -6,12 +6,20 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Alert,
+  Dimensions,
 } from "react-native";
 import { router } from "expo-router";
 
+import { 
+  AnimatedDrawerLayout, 
+  AnimatedBackdrop, 
+  DriverModuleDrawerContent 
+} from "@/components/drawer";
 import { useUI } from "@/components/UIWrapper";
 import { useUserStore } from "@/store/user";
 import { useDriverRoleStore } from "@/store/driverRole";
+
+const SCREEN_WIDTH = Dimensions.get("window").width;
 
 export default function DriverLayout() {
   const { theme, showError } = useUI();
@@ -26,39 +34,38 @@ export default function DriverLayout() {
   const [authChecked, setAuthChecked] = useState(false);
   const verificationInProgressRef = useRef(false);
   const authCheckCompletedRef = useRef(false);
+  
+  const drawerWidth = SCREEN_WIDTH * 0.6;
+  const overflowMargin = SCREEN_WIDTH * 0.1;
 
   // Memoized authorization check function
   const checkAuthorization = useCallback(async () => {
     // Prevent multiple simultaneous verifications
     if (verificationInProgressRef.current) {
-      console.log(
-        "[DriverLayout] Verification already in progress, skipping...",
-      );
+      
       return;
     }
 
     // Skip if we already completed auth check
     if (authCheckCompletedRef.current) {
-      console.log("[DriverLayout] Auth check already completed, skipping...");
+      
       return;
     }
 
     try {
-      console.log("[DriverLayout] Checking authorization for driver module");
+      
       verificationInProgressRef.current = true;
 
       // Wait for authentication to be determined
       if (authLoading) {
-        console.log("[DriverLayout] Authentication still loading...");
+        
         verificationInProgressRef.current = false;
         return;
       }
 
       // Check if user is authenticated
       if (!isAuthenticated) {
-        console.log(
-          "[DriverLayout] User not authenticated, redirecting to auth",
-        );
+        
         Alert.alert("No se pudo cambiar el módulo", "Usuario no autenticado");
         router.replace("/(auth)/sign-in");
         setAuthChecked(true);
@@ -68,12 +75,12 @@ export default function DriverLayout() {
       }
 
       // Check driver role using the DriverRoleStore
-      console.log("[DriverLayout] Checking driver role...");
+      
       try {
         await checkDriverRole();
-        console.log("[DriverLayout] Driver role check completed successfully");
+        
       } catch (roleError) {
-        console.error("[DriverLayout] Error in driver role check:", roleError);
+        
         // Continue with the layout decision even if role check fails
         // The store will handle the error state
       }
@@ -82,7 +89,7 @@ export default function DriverLayout() {
       setAuthChecked(true);
       authCheckCompletedRef.current = true;
     } catch (error: any) {
-      console.error("[DriverLayout] Error checking authorization:", error);
+      
       Alert.alert(
         "No se pudo cambiar el módulo",
         "Error al verificar permisos",
@@ -141,113 +148,127 @@ export default function DriverLayout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-        contentStyle: {
-          backgroundColor: theme === "dark" ? "#000000" : "#FFFFFF",
-        },
-        // Driver-specific navigation options
-        animation: "slide_from_right",
-        presentation: "card",
-      }}
-    >
-      {/* Core driver functionality */}
-      <Stack.Screen
-        name="dashboard"
-        options={{
-          title: "Driver Dashboard",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="earnings"
-        options={{
-          title: "Earnings",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="safety"
-        options={{
-          title: "Safety",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="ratings"
-        options={{
-          title: "Ratings",
-          headerShown: false,
-        }}
-      />
+    <AnimatedDrawerLayout
+      width={drawerWidth}
+      screenWidth={SCREEN_WIDTH}
+      overflowMargin={overflowMargin}
+      animationDuration={300}
+      scaleFactor={0.65}
+      borderRadius={24}
+      secondaryScaleFactor={0.75}
+      secondaryTranslateMultiplier={0.75}
+      renderBackdrop={({ progress }) => <AnimatedBackdrop progress={progress} />}
+      renderDrawer={(params) => <DriverModuleDrawerContent drawerParams={params} />}
+      renderContent={(params) => (
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: {
+              backgroundColor: theme === "dark" ? "#000000" : "#FFFFFF",
+            },
+            // Driver-specific navigation options
+            animation: "slide_from_right",
+            presentation: "card",
+          }}
+        >
+          {/* Core driver functionality */}
+          <Stack.Screen
+            name="dashboard"
+            options={{
+              title: "Driver Dashboard",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="earnings"
+            options={{
+              title: "Earnings",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="safety"
+            options={{
+              title: "Safety",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ratings"
+            options={{
+              title: "Ratings",
+              headerShown: false,
+            }}
+          />
 
-      {/* Driver management screens */}
-      <Stack.Screen
-        name="profile"
-        options={{
-          title: "Driver Profile",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="vehicles"
-        options={{
-          title: "My Vehicles",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="documents"
-        options={{
-          title: "Documents",
-          headerShown: false,
-        }}
-      />
+          {/* Driver management screens */}
+          <Stack.Screen
+            name="profile"
+            options={{
+              title: "Driver Profile",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="vehicles"
+            options={{
+              title: "My Vehicles",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="documents"
+            options={{
+              title: "Documents",
+              headerShown: false,
+            }}
+          />
 
-      {/* Additional driver screens */}
-      <Stack.Screen
-        name="settings"
-        options={{
-          title: "Settings",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="ride-requests"
-        options={{
-          title: "Ride Requests",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="active-ride"
-        options={{
-          title: "Active Ride",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="wallet"
-        options={{
-          title: "Driver Wallet",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="emergency"
-        options={{
-          title: "Emergency",
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="support"
-        options={{
-          title: "Driver Support",
-          headerShown: false,
-        }}
-      />
-    </Stack>
+          {/* Additional driver screens */}
+          <Stack.Screen
+            name="settings"
+            options={{
+              title: "Settings",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="ride-requests"
+            options={{
+              title: "Ride Requests",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="active-ride"
+            options={{
+              title: "Active Ride",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="wallet"
+            options={{
+              title: "Driver Wallet",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="emergency"
+            options={{
+              title: "Emergency",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="support"
+            options={{
+              title: "Driver Support",
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      )}
+    />
   );
 }

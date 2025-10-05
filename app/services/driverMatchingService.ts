@@ -90,7 +90,7 @@ class DriverMatchingService {
    */
   async findBestDriver(request: MatchingRequest): Promise<MatchingResponse> {
     try {
-      console.log("[DriverMatchingService] Finding best driver:", request);
+      
 
       const response = await fetchAPI(
         "rides/flow/client/transport/match-best-driver",
@@ -106,7 +106,7 @@ class DriverMatchingService {
         },
       );
 
-      console.log("[DriverMatchingService] Backend response:", response);
+      
 
       if (response.data?.matchedDriver) {
         const backendDriver = response.data.matchedDriver as BackendDriverMatch;
@@ -142,10 +142,7 @@ class DriverMatchingService {
         };
       }
     } catch (error: any) {
-      console.error(
-        "[DriverMatchingService] Error finding best driver:",
-        error,
-      );
+      
 
       // Manejar errores específicos del backend
       if (error.statusCode === 404) {
@@ -171,10 +168,7 @@ class DriverMatchingService {
     request: ConfirmDriverRequest,
   ): Promise<ConfirmDriverResponse> {
     try {
-      console.log("[DriverMatchingService] Confirming driver:", {
-        rideId,
-        ...request,
-      });
+      
 
       const response = await fetchAPI(
         `rides/flow/client/transport/${rideId}/confirm-driver`,
@@ -184,7 +178,7 @@ class DriverMatchingService {
         },
       );
 
-      console.log("[DriverMatchingService] Confirm driver response:", response);
+      
 
       if (response.data) {
         return response.data as ConfirmDriverResponse;
@@ -192,7 +186,7 @@ class DriverMatchingService {
         throw new Error("Respuesta del servidor inesperada");
       }
     } catch (error: any) {
-      console.error("[DriverMatchingService] Error confirming driver:", error);
+      
       throw error;
     }
   }
@@ -203,18 +197,12 @@ class DriverMatchingService {
    */
   async findAnotherDriver(request: MatchingRequest): Promise<MatchingResponse> {
     try {
-      console.log(
-        "[DriverMatchingService] Finding another driver with request:",
-        request,
-      );
+      
 
       // Simplemente buscar el mejor conductor disponible nuevamente
       return await this.findBestDriver(request);
     } catch (error: any) {
-      console.error(
-        "[DriverMatchingService] Error finding another driver:",
-        error,
-      );
+      
       return {
         success: false,
         message: error.message || "Error al buscar otro conductor",

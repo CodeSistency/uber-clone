@@ -13,13 +13,13 @@ export class DocumentService {
   // Get all documents for the current driver
   async getDocuments(): Promise<Document[]> {
     try {
-      console.log("[DocumentService] Fetching driver documents");
+      
       const response = await fetchAPI("driver/documents", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error fetching documents:", error);
+      
       throw error;
     }
   }
@@ -27,13 +27,13 @@ export class DocumentService {
   // Get a specific document by ID
   async getDocument(documentId: string): Promise<Document> {
     try {
-      console.log("[DocumentService] Fetching document:", documentId);
+      
       const response = await fetchAPI(`driver/documents/${documentId}`, {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error fetching document:", error);
+      
       throw error;
     }
   }
@@ -41,7 +41,7 @@ export class DocumentService {
   // Upload a new document
   async uploadDocument(request: UploadDocumentRequest): Promise<Document> {
     try {
-      console.log("[DocumentService] Uploading document:", request.type);
+      
 
       const formData = new FormData();
 
@@ -66,7 +66,7 @@ export class DocumentService {
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error uploading document:", error);
+      
       throw error;
     }
   }
@@ -77,7 +77,7 @@ export class DocumentService {
     updates: Partial<Document>,
   ): Promise<Document> {
     try {
-      console.log("[DocumentService] Updating document:", documentId, updates);
+      
       const response = await fetchAPI(`driver/documents/${documentId}`, {
         method: "PUT",
         body: JSON.stringify(updates),
@@ -85,7 +85,7 @@ export class DocumentService {
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error updating document:", error);
+      
       throw error;
     }
   }
@@ -93,13 +93,13 @@ export class DocumentService {
   // Delete a document
   async deleteDocument(documentId: string): Promise<void> {
     try {
-      console.log("[DocumentService] Deleting document:", documentId);
+      
       await fetchAPI(`driver/documents/${documentId}`, {
         method: "DELETE",
         requiresAuth: true,
       });
     } catch (error) {
-      console.error("[DocumentService] Error deleting document:", error);
+      
       throw error;
     }
   }
@@ -107,16 +107,13 @@ export class DocumentService {
   // Get driver verification status
   async getVerificationStatus(): Promise<DriverVerificationStatus> {
     try {
-      console.log("[DocumentService] Fetching verification status");
+      
       const response = await fetchAPI("driver/verification-status", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[DocumentService] Error fetching verification status:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -126,13 +123,13 @@ export class DocumentService {
     { type: DocumentType; name: string; description: string }[]
   > {
     try {
-      console.log("[DocumentService] Fetching required document types");
+      
       const response = await fetchAPI("driver/document-types", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error fetching document types:", error);
+      
       throw error;
     }
   }
@@ -144,7 +141,7 @@ export class DocumentService {
     fileName?: string,
   ): Promise<Document> {
     try {
-      console.log("[DocumentService] Re-uploading document:", documentId);
+      
 
       const formData = new FormData();
 
@@ -166,7 +163,7 @@ export class DocumentService {
       );
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error re-uploading document:", error);
+      
       throw error;
     }
   }
@@ -174,7 +171,7 @@ export class DocumentService {
   // Get document verification history
   async getDocumentHistory(documentId: string): Promise<any[]> {
     try {
-      console.log("[DocumentService] Fetching document history:", documentId);
+      
       const response = await fetchAPI(
         `driver/documents/${documentId}/history`,
         {
@@ -183,10 +180,7 @@ export class DocumentService {
       );
       return response;
     } catch (error) {
-      console.error(
-        "[DocumentService] Error fetching document history:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -197,21 +191,14 @@ export class DocumentService {
     priority: "normal" | "high" | "urgent",
   ): Promise<void> {
     try {
-      console.log(
-        "[DocumentService] Requesting expedited verification:",
-        documentId,
-        priority,
-      );
+      
       await fetchAPI(`driver/documents/${documentId}/expedite`, {
         method: "POST",
         body: JSON.stringify({ priority }),
         requiresAuth: true,
       });
     } catch (error) {
-      console.error(
-        "[DocumentService] Error requesting expedited verification:",
-        error,
-      );
+      
       throw error;
     }
   }
@@ -219,10 +206,7 @@ export class DocumentService {
   // Get document download URL
   async getDocumentDownloadUrl(documentId: string): Promise<string> {
     try {
-      console.log(
-        "[DocumentService] Getting download URL for document:",
-        documentId,
-      );
+      
       const response = await fetchAPI(
         `driver/documents/${documentId}/download`,
         {
@@ -231,7 +215,7 @@ export class DocumentService {
       );
       return response.url;
     } catch (error) {
-      console.error("[DocumentService] Error getting download URL:", error);
+      
       throw error;
     }
   }
@@ -241,10 +225,7 @@ export class DocumentService {
     documents: UploadDocumentRequest[],
   ): Promise<Document[]> {
     try {
-      console.log(
-        "[DocumentService] Bulk uploading documents:",
-        documents.length,
-      );
+      
 
       const formData = new FormData();
 
@@ -271,7 +252,7 @@ export class DocumentService {
       });
       return response;
     } catch (error) {
-      console.error("[DocumentService] Error bulk uploading documents:", error);
+      
       throw error;
     }
   }
@@ -285,16 +266,13 @@ export class DocumentService {
     expiredDocuments: number;
   }> {
     try {
-      console.log("[DocumentService] Fetching document statistics");
+      
       const response = await fetchAPI("driver/documents/statistics", {
         requiresAuth: true,
       });
       return response;
     } catch (error) {
-      console.error(
-        "[DocumentService] Error fetching document statistics:",
-        error,
-      );
+      
       throw error;
     }
   }

@@ -19,6 +19,9 @@ export { useDrawer } from "./useDrawer";
 // Exportar componentes
 export { default as Drawer } from "./Drawer";
 export { default as AnimatedDrawerLayout } from "./AnimatedDrawerLayout";
+export { default as AnimatedBackdrop } from "./AnimatedBackdrop";
+export { default as CustomerModuleDrawerContent } from "./CustomerModuleDrawerContent";
+export { default as DriverModuleDrawerContent } from "./DriverModuleDrawerContent";
 export { DrawerHeader } from "./DrawerHeader";
 export { DrawerRouteItem } from "./DrawerRouteItem";
 export { DrawerFooter } from "./DrawerFooter";

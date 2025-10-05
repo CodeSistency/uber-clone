@@ -1,9 +1,13 @@
 import { Stack } from "expo-router";
-import React from "react";
-import { View, Text, TouchableOpacity, ScrollView } from "react-native";
+import React, { useMemo } from "react";
+import {
+  Dimensions,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 
-import { Button } from "@/components/ui";
-import { useDrawer, Drawer } from "@/components/drawer";
+import { AppHeader } from "@/components/AppHeader";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import DriverAvailability from "@/components/unified-flow/steps/Client/Delivery/DriverAvailability";
 import DriverDeliveryConfirmFinish from "@/components/unified-flow/steps/Driver/Delivery/DriverDeliveryConfirmFinish";
@@ -32,6 +36,9 @@ import { useMapFlow } from "@/hooks/useMapFlow";
 import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 import { MapFlowStep } from "@/store/mapFlow/mapFlow";
 
+const SCREEN_WIDTH = Dimensions.get("window").width;
+
+// Componente para pasos por defecto con navegación hacia atrás
 const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
   const { back } = useMapFlow();
 
@@ -52,6 +59,7 @@ const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
   );
 };
 
+// Función helper para crear un renderStep completamente type-safe
 const createTypeSafeRenderStep = (
   stepMappings: Partial<Record<MapFlowStep, () => React.ReactNode>>,
 ) => {
@@ -64,6 +72,7 @@ const createTypeSafeRenderStep = (
   };
 };
 
+// Mapeo type-safe de pasos a componentes
 const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   // Driver availability
   [FLOW_STEPS.DRIVER_DISPONIBILIDAD]: () => <DriverAvailability />,
@@ -132,15 +141,15 @@ const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
   ),
 };
 
+// Crear la función renderStep usando el helper type-safe
 const renderStep = createTypeSafeRenderStep(STEP_COMPONENTS);
 
-interface DriverUnifiedFlowContentProps {
-  drawer: ReturnType<typeof useDrawer>;
-}
+// Función para renderizar pasos sin logging (para uso en UnifiedFlowWrapper)
+const quietRenderStep = (step: MapFlowStep) => {
+  return renderStep(step);
+};
 
-const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({
-  drawer,
-}) => {
+const DriverUnifiedFlowDemo: React.FC = () => {
   const { startWithDriverStep } = useMapFlow();
   const hasInitialized = React.useRef(false);
 
@@ -152,71 +161,30 @@ const DriverUnifiedFlowContent: React.FC<DriverUnifiedFlowContentProps> = ({
   }, []);
 
   return (
-    <>
-      {/* Header con drawer */}
-      <View className="flex-row items-center justify-between p-4 bg-brand-primary dark:bg-brand-primaryDark shadow-sm z-10 border-b border-secondary-300 dark:border-secondary-600">
-        <Button
-          variant="ghost"
-          title="☰"
-          onPress={drawer.toggle}
-          className="p-2 text-secondary-700 dark:text-secondary-300"
-        />
-        <Text className="text-lg font-JakartaBold text-secondary-700 dark:text-secondary-300">
-          Flujo Unificado Conductor
-        </Text>
-        <View className="w-10" />
-      </View>
-
-      <UnifiedFlowWrapper role="driver" renderStep={renderStep} />
-    </>
+    <View style={styles.container}>
+      <AppHeader
+        title="Flujo Unificado Conductor"
+        subtitle="Sistema de navegación modular"
+        showHamburgerMenu={true}
+      />
+      
+      <UnifiedFlowWrapper role="driver" renderStep={quietRenderStep} />
+    </View>
   );
 };
 
-// Componente del drawer driver separado para estar encima de todo
-const DrawerDriver: React.FC<{
-  drawerState?: ReturnType<typeof useDrawer>;
-}> = ({ drawerState }) => {
-  // Si se proporciona drawerState, úsalo. Si no, crea uno nuevo.
-  const drawer = drawerState || useDrawer({ module: "driver" });
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: "#FFFFFF",
+  },
+});
 
-  return (
-    <Drawer
-      config={drawer.config}
-      isOpen={drawer.isOpen}
-      activeRoute={drawer.activeRoute}
-      expandedRoutes={drawer.expandedRoutes}
-      currentModule={drawer.currentModule}
-      isTransitioning={drawer.isTransitioning}
-      onRoutePress={drawer.handleRoutePress}
-      onToggleExpanded={drawer.toggleExpanded}
-      onClose={drawer.close}
-      onModuleChange={drawer.switchModule}
-    />
-  );
-};
-
-// Hook para compartir el estado del drawer entre componentes
-const useDriverDrawer = () => {
-  return useDrawer({ module: "driver" });
-};
-
-// Wrapper para compartir el estado del drawer
-const DriverUnifiedFlowDemoContent: React.FC = () => {
-  const drawer = useDriverDrawer();
-
-  return (
-    <>
-      <DriverUnifiedFlowContent drawer={drawer} />
-      <DrawerDriver drawerState={drawer} />
-    </>
-  );
-};
-
-export default function DriverUnifiedFlowDemo() {
+export default function DriverUnifiedFlowDemoScreen() {
   return (
     <>
       <Stack.Screen options={{ headerShown: false }} />
-      <DriverUnifiedFlowDemoContent />
+      <DriverUnifiedFlowDemo />
     </>
   );
 }

@@ -32,9 +32,7 @@ const DriverConfirmationStep: React.FC = () => {
   const handleConfirm = async () => {
     setIsConfirming(true);
     try {
-      console.log(
-        "[DriverConfirmationStep] Driver confirmed, waiting for acceptance",
-      );
+      
       showSuccess("Conductor confirmado", "Esperando aceptación del conductor");
 
       // Cerrar modal y continuar
@@ -43,14 +41,14 @@ const DriverConfirmationStep: React.FC = () => {
         next(); // Ir a ESPERANDO_ACEPTACION
       }, 500);
     } catch (error) {
-      console.error("[DriverConfirmationStep] Error confirming driver:", error);
+      
     } finally {
       setIsConfirming(false);
     }
   };
 
   const handleFindAnother = async () => {
-    console.log("[DriverConfirmationStep] Finding another driver");
+    
 
     if (
       !selectedTierId ||
@@ -84,10 +82,7 @@ const DriverConfirmationStep: React.FC = () => {
         await driverMatchingService.findAnotherDriver(matchingRequest);
 
       if (response.success && response.driver) {
-        console.log(
-          "[DriverConfirmationStep] Another driver found:",
-          response.driver,
-        );
+        
 
         // Reiniciar búsqueda con el nuevo conductor
         startMatching();
@@ -106,10 +101,7 @@ const DriverConfirmationStep: React.FC = () => {
         }, 2000);
       }
     } catch (error: any) {
-      console.error(
-        "[DriverConfirmationStep] Error finding another driver:",
-        error,
-      );
+      
       showError("Error", error.message || "Error al buscar otro conductor");
     }
   };

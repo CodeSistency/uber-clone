@@ -70,7 +70,7 @@ const DriverRegister = () => {
 
     try {
       // TODO: Save driver registration to database
-      console.log("Driver registration data:", formData);
+      
 
       // Save to storage using utility
       await userModeStorage.setDriverRegistered({
@@ -93,7 +93,7 @@ const DriverRegister = () => {
         ],
       );
     } catch (error) {
-      console.error("Registration error:", error);
+      
       Alert.alert("Error", "Failed to submit registration. Please try again.");
     } finally {
       setLoading(false);

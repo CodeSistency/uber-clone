@@ -167,7 +167,7 @@ class AsyncDriverMatchingService {
    */
   async startAsyncSearch(params: AsyncSearchParams): Promise<AsyncSearchResponse> {
     try {
-      console.log("[AsyncDriverMatchingService] Starting async search:", params);
+      
 
       const requestBody = {
         lat: params.lat,
@@ -179,7 +179,7 @@ class AsyncDriverMatchingService {
         priority: params.priority || 'normal',
       };
 
-      console.log("[AsyncDriverMatchingService] Sending request to backend:", requestBody);
+      
 
       const response = await fetchAPI(
         "rides/flow/client/transport/async-search/start",
@@ -191,7 +191,7 @@ class AsyncDriverMatchingService {
         }
       );
 
-      console.log("[AsyncDriverMatchingService] Backend response:", response);
+      
 
       if (response.data) {
         const searchResponse: AsyncSearchResponse = {
@@ -203,13 +203,13 @@ class AsyncDriverMatchingService {
           createdAt: response.data.createdAt,
         };
 
-        console.log("[AsyncDriverMatchingService] Search started successfully:", searchResponse.searchId);
+        
         return searchResponse;
       } else {
         throw new Error("Respuesta del servidor inesperada");
       }
     } catch (error: any) {
-      console.error("[AsyncDriverMatchingService] Error starting async search:", error);
+      
       throw error;
     }
   }
@@ -220,7 +220,7 @@ class AsyncDriverMatchingService {
    */
   async getSearchStatus(searchId: string): Promise<SearchStatusResponse> {
     try {
-      console.log("[AsyncDriverMatchingService] Getting search status for:", searchId);
+      
 
       const response = await fetchAPI(
         `rides/flow/client/transport/async-search/${searchId}/status`,
@@ -230,7 +230,7 @@ class AsyncDriverMatchingService {
         }
       );
 
-      console.log("[AsyncDriverMatchingService] Status response:", response);
+      
 
       if (response.data) {
         let matchedDriver: DriverMatch | undefined;
@@ -255,7 +255,7 @@ class AsyncDriverMatchingService {
         throw new Error("Respuesta del servidor inesperada");
       }
     } catch (error: any) {
-      console.error("[AsyncDriverMatchingService] Error getting search status:", error);
+      
       throw error;
     }
   }
@@ -266,7 +266,7 @@ class AsyncDriverMatchingService {
    */
   async cancelSearch(searchId: string): Promise<CancelResponse> {
     try {
-      console.log("[AsyncDriverMatchingService] Cancelling search:", searchId);
+      
 
       const response = await fetchAPI(
         "rides/flow/client/transport/async-search/cancel",
@@ -278,7 +278,7 @@ class AsyncDriverMatchingService {
         }
       );
 
-      console.log("[AsyncDriverMatchingService] Cancel response:", response);
+      
 
       if (response.data) {
         const cancelResponse: CancelResponse = {
@@ -287,13 +287,13 @@ class AsyncDriverMatchingService {
           searchId: response.data.searchId || searchId,
         };
 
-        console.log("[AsyncDriverMatchingService] Search cancelled successfully");
+        
         return cancelResponse;
       } else {
         throw new Error("Respuesta del servidor inesperada");
       }
     } catch (error: any) {
-      console.error("[AsyncDriverMatchingService] Error cancelling search:", error);
+      
       throw error;
     }
   }
@@ -307,7 +307,7 @@ class AsyncDriverMatchingService {
     request: ConfirmDriverRequest
   ): Promise<ConfirmDriverResponse> {
     try {
-      console.log("[AsyncDriverMatchingService] Confirming driver:", { searchId, ...request });
+      
 
       const response = await fetchAPI(
         `rides/flow/client/transport/async-search/confirm-driver`,
@@ -323,7 +323,7 @@ class AsyncDriverMatchingService {
         }
       );
 
-      console.log("[AsyncDriverMatchingService] Confirm driver response:", response);
+      
 
       if (response.data) {
         const confirmResponse: ConfirmDriverResponse = {
@@ -335,13 +335,13 @@ class AsyncDriverMatchingService {
           responseTimeoutMinutes: response.data.responseTimeoutMinutes,
         };
 
-        console.log("[AsyncDriverMatchingService] Driver confirmed successfully");
+        
         return confirmResponse;
       } else {
         throw new Error("Respuesta del servidor inesperada");
       }
     } catch (error: any) {
-      console.error("[AsyncDriverMatchingService] Error confirming driver:", error);
+      
       throw error;
     }
   }

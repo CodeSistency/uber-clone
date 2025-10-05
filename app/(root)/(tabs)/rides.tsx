@@ -22,12 +22,12 @@ const Rides = () => {
   const transformedRides = useMemo(() => {
     if (!Array.isArray(recentRides)) return [];
 
-    console.log("[Rides] Transforming rides data:", recentRides.length);
+    
 
     return recentRides.map((item, index) => {
-      console.log("[Rides] Raw item from backend:", item);
+      
       const transformedRide = transformRideData(item);
-      console.log("[Rides] Transformed ride:", transformedRide);
+      
       return transformedRide as Ride;
     });
   }, [recentRides]);
@@ -61,13 +61,7 @@ const Rides = () => {
     [],
   );
 
-  console.log("[Rides] Page data:", {
-    userId,
-    recentRidesCount: Array.isArray(recentRides) ? recentRides.length : 0,
-    transformedRidesCount: transformedRides.length,
-    loading,
-    error,
-  });
+  
 
   // Show loading state
   if (loading) {

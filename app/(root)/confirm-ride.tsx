@@ -91,24 +91,19 @@ const ConfirmRide = () => {
     return Math.round(totalFare * 100) / 100; // Round to 2 decimal places
   };
 
-  console.log("[ConfirmRide] Component state:", {
-    driversCount: drivers?.length,
-    selectedDriver,
-    selectedDriverData,
-    userId: user?.id,
-  });
+  
 
   const handleConfirmRide = async () => {
-    console.log("[ConfirmRide] Starting ride confirmation process...");
-    console.log("[ConfirmRide] Selected driver ID:", selectedDriver);
-    console.log("[ConfirmRide] Available drivers:", drivers?.length);
-    console.log("[ConfirmRide] User ID:", user?.id);
-    console.log("[ConfirmRide] Selected driver data:", selectedDriverData);
+    
+    
+    
+    
+    
 
     if (!selectedDriverData || !user?.id) {
-      console.error("[ConfirmRide] Missing driver data or user ID");
-      console.error("[ConfirmRide] selectedDriverData:", selectedDriverData);
-      console.error("[ConfirmRide] userId:", user?.id);
+      
+      
+      
       return;
     }
 
@@ -118,18 +113,16 @@ const ConfirmRide = () => {
       !userLatitude ||
       !destinationLatitude
     ) {
-      console.error("[ConfirmRide] Missing location data");
-      console.error("[ConfirmRide] userAddress:", userAddress);
-      console.error("[ConfirmRide] destinationAddress:", destinationAddress);
-      console.error("[ConfirmRide] userLatitude:", userLatitude);
-      console.error("[ConfirmRide] destinationLatitude:", destinationLatitude);
+      
+      
+      
+      
+      
       return;
     }
 
     try {
-      console.log(
-        "[ConfirmRide] Creating ride without payment for debugging...",
-      );
+      
 
       const calculatedFare = calculateFare();
 
@@ -148,11 +141,7 @@ const ConfirmRide = () => {
         tier_id: selectedTierId, // Use selected tier
       };
 
-      console.log("[ConfirmRide] Ride data to send:", {
-        ...rideData,
-        selectedTier: selectedTier?.name,
-        calculatedFare,
-      });
+      
 
       const response = await fetchAPI("ride/create", {
         method: "POST",
@@ -162,12 +151,9 @@ const ConfirmRide = () => {
         body: JSON.stringify(rideData),
       });
 
-      console.log("[ConfirmRide] API Response:", response);
-      console.log("[ConfirmRide] Addresses in response:", {
-        origin: response?.origin_address,
-        destination: response?.destination_address,
-      });
-      console.log("[ConfirmRide] Ride created successfully without payment");
+      
+      
+      
 
       // Simular transición de estado del viaje para UI activa
       const rideId =
@@ -176,28 +162,19 @@ const ConfirmRide = () => {
       try {
         realtime.setActiveRide({ ride_id: rideId, status: "accepted" } as any);
       } catch (e) {
-        console.log("[ConfirmRide] setActiveRide failed, continuing", e);
+        
       }
       realtime.updateRideStatus(rideId, "accepted");
       setTimeout(() => realtime.updateRideStatus(rideId, "arriving"), 1500);
       setTimeout(() => realtime.updateRideStatus(rideId, "arrived"), 4000);
       setTimeout(() => realtime.updateRideStatus(rideId, "in_progress"), 7000);
     } catch (error) {
-      console.error("[ConfirmRide] Error creating ride:", error);
+      
       // Mantener al usuario en la pantalla para reintentar
     }
   };
 
-  console.log("[ConfirmRide] All drivers in store:", {
-    driversCount: drivers?.length,
-    drivers: drivers?.map((d) => ({
-      id: d.id,
-      title: d.title,
-      firstName: d.first_name,
-      lastName: d.last_name,
-      keys: Object.keys(d),
-    })),
-  });
+  
 
   // To control sheet and list from CTA
   const listRef = useRef<FlatList<any>>(null);
@@ -245,26 +222,14 @@ const ConfirmRide = () => {
           data={drivers}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item, index }) => {
-            console.log("[ConfirmRide] Rendering DriverCard:", {
-              index,
-              driverId: item.id,
-              driverTitle: item.title,
-              driverKeys: Object.keys(item),
-              firstName: item.first_name,
-              lastName: item.last_name,
-              selectedDriver,
-              isSelected: selectedDriver === item.id,
-            });
+            
 
             return (
               <DriverCard
                 item={item}
                 selected={selectedDriver!}
                 setSelected={() => {
-                  console.log(
-                    "[ConfirmRide] Calling setSelectedDriver with:",
-                    item.id,
-                  );
+                  
                   setSelectedDriver(item.id!);
                   // Expand sheet and focus summary when a driver is picked
                   sheetApiRef.current?.snapToIndex(1);

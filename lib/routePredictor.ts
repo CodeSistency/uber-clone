@@ -98,11 +98,7 @@ class RoutePredictor {
     this.lastKnownBearing = bearing;
     this.lastUpdateTime = Date.now();
 
-    console.log("[RoutePredictor] State updated:", {
-      position: `${position.latitude.toFixed(6)}, ${position.longitude.toFixed(6)}`,
-      speed: `${speed.toFixed(1)} km/h`,
-      bearing: `${bearing.toFixed(1)}°`,
-    });
+    
   }
 
   /**
@@ -110,7 +106,7 @@ class RoutePredictor {
    */
   generatePrediction(): RoutePrediction | null {
     if (!this.lastKnownPosition || this.lastKnownSpeed < 1) {
-      console.log("[RoutePredictor] Cannot predict: no position or speed data");
+      
       return null;
     }
 
@@ -119,7 +115,7 @@ class RoutePredictor {
 
     // Don't predict if data is too old (> 10 seconds)
     if (timeSinceLastUpdate > 10000) {
-      console.log("[RoutePredictor] Data too old, skipping prediction");
+      
       return null;
     }
 
@@ -214,7 +210,7 @@ class RoutePredictor {
     }
 
     if (prediction.length === 0) {
-      console.log("[RoutePredictor] No valid prediction points generated");
+      
       return null;
     }
 
@@ -230,12 +226,7 @@ class RoutePredictor {
       validUntil: now + this.config.predictionInterval * 2, // Valid for 2 intervals
     };
 
-    console.log("[RoutePredictor] Prediction generated:", {
-      points: prediction.length,
-      confidence: overallConfidence.toFixed(2),
-      distance: `${totalDistance.toFixed(0)}m`,
-      duration: `${totalTime.toFixed(1)}s`,
-    });
+    
 
     // Cache the prediction for future use
     this.cachePrediction(
@@ -271,7 +262,7 @@ class RoutePredictor {
    */
   updateConfig(newConfig: Partial<PredictionConfig>): void {
     this.config = { ...this.config, ...newConfig };
-    console.log("[RoutePredictor] Configuration updated:", this.config);
+    
   }
 
   /**
@@ -367,7 +358,7 @@ class RoutePredictor {
     if (!this.cacheConfig.enableCache || this.cacheInitialized) return;
 
     try {
-      console.log("[RoutePredictor] Initializing cache from storage");
+      
 
       // Load route cache
       const routeCacheData = await AsyncStorage.getItem(
@@ -387,9 +378,7 @@ class RoutePredictor {
             this.routeCache.delete(key);
           }
         }
-        console.log(
-          `[RoutePredictor] Loaded ${this.routeCache.size} route cache entries`,
-        );
+        
       }
 
       // Load prediction cache
@@ -410,14 +399,12 @@ class RoutePredictor {
             this.predictionCache.delete(key);
           }
         }
-        console.log(
-          `[RoutePredictor] Loaded ${this.predictionCache.size} prediction cache entries`,
-        );
+        
       }
 
       this.cacheInitialized = true;
     } catch (error) {
-      console.error("[RoutePredictor] Error initializing cache:", error);
+      
     }
   }
 
@@ -442,9 +429,9 @@ class RoutePredictor {
         JSON.stringify(predictionCacheObject),
       );
 
-      console.log("[RoutePredictor] Cache saved to storage");
+      
     } catch (error) {
-      console.error("[RoutePredictor] Error saving cache:", error);
+      
     }
   }
 
@@ -458,7 +445,7 @@ class RoutePredictor {
     const cached = this.routeCache.get(cacheKey);
 
     if (cached && cached.expiresAt > Date.now()) {
-      console.log("[RoutePredictor] Route cache hit:", cacheKey);
+      
       return cached;
     }
 
@@ -506,7 +493,7 @@ class RoutePredictor {
     // Save to storage asynchronously
     this.saveCacheToStorage();
 
-    console.log(`[RoutePredictor] Route cached: ${cacheKey}`);
+    
   }
 
   /**
@@ -525,7 +512,7 @@ class RoutePredictor {
     if (cached && cached.expiresAt > Date.now()) {
       // Check if prediction is still valid
       if (this.isPredictionValid(cached.prediction)) {
-        console.log("[RoutePredictor] Prediction cache hit:", cacheKey);
+        
         return cached.prediction;
       }
     }
@@ -572,7 +559,7 @@ class RoutePredictor {
     // Save to storage asynchronously
     this.saveCacheToStorage();
 
-    console.log(`[RoutePredictor] Prediction cached: ${cacheKey}`);
+    
   }
 
   /**
@@ -585,9 +572,9 @@ class RoutePredictor {
     try {
       await AsyncStorage.removeItem("routePredictor_routeCache");
       await AsyncStorage.removeItem("routePredictor_predictionCache");
-      console.log("[RoutePredictor] Cache cleared");
+      
     } catch (error) {
-      console.error("[RoutePredictor] Error clearing cache:", error);
+      
     }
   }
 
@@ -648,7 +635,7 @@ class RoutePredictor {
     this.lastKnownSpeed = 0;
     this.lastKnownBearing = 0;
     this.lastUpdateTime = 0;
-    console.log("[RoutePredictor] State reset");
+    
   }
 }
 

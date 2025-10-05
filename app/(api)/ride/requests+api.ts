@@ -10,11 +10,7 @@ export async function GET(request: Request) {
     const driverLng = url.searchParams.get("driverLng");
     const radius = url.searchParams.get("radius") || "5"; // Default 5km
 
-    console.log("[API] Fetching ride requests with params:", {
-      driverLat,
-      driverLng,
-      radius,
-    });
+    
 
     // Validate required parameters
     if (!driverLat || !driverLng) {
@@ -71,11 +67,11 @@ export async function GET(request: Request) {
       LIMIT 20;
     `;
 
-    console.log("[API] Executing ride requests query");
+    
 
     const availableRides = await sql(query);
 
-    console.log(`[API] Found ${availableRides.length} rides in bounding box`);
+    
 
     // Calculate exact distance and filter by radius
     const filteredRides = availableRides
@@ -110,13 +106,11 @@ export async function GET(request: Request) {
       })
       .filter(Boolean);
 
-    console.log(
-      `[API] Returning ${filteredRides.length} rides within ${radiusNum}km radius`,
-    );
+    
 
     return Response.json({ data: filteredRides }, { status: 200 });
   } catch (error) {
-    console.error("Error fetching ride requests:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

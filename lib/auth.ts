@@ -23,7 +23,7 @@ const getUserStore = (): any => {
       const { useUserStore } = require("@/store");
       userStoreInstance = useUserStore.getState();
     } catch (error) {
-      console.warn("[Auth] Could not load user store:", error);
+      
       return null;
     }
   }
@@ -118,7 +118,7 @@ function isTokenExpired(token: string): boolean {
     const expirationTime = decoded.exp * 1000 - 5 * 60 * 1000;
     return Date.now() >= expirationTime;
   } catch (error) {
-    console.warn("[TokenManager] Error checking token expiration:", error);
+    
     return true; // Assume expired if we can't check
   }
 }
@@ -138,12 +138,9 @@ export const tokenManager = {
         issuedAt: new Date(),
       };
 
-      console.log("[TokenManager] Access token stored securely", {
-        expiresAt: tokenCache.accessToken.expiresAt,
-        issuedAt: tokenCache.accessToken.issuedAt,
-      });
+      
     } catch (error) {
-      console.error("[TokenManager] Error storing access token:", error);
+      
     }
   },
 
@@ -153,22 +150,20 @@ export const tokenManager = {
       let token = await SecureStore.getItemAsync("access_token");
 
       if (!token) {
-        console.log("[TokenManager] No access token found");
+        
         return null;
       }
 
       // Check if token is expired and attempt refresh
       if (isTokenExpired(token)) {
-        console.log("[TokenManager] Access token expired, attempting refresh");
+        
 
         const refreshResult = await this.refreshAccessToken();
         if (refreshResult?.success && refreshResult.data?.accessToken) {
-          console.log("[TokenManager] Token refreshed successfully");
+          
           return refreshResult.data.accessToken;
         } else {
-          console.warn(
-            "[TokenManager] Token refresh failed, returning expired token",
-          );
+          
           // Return the expired token anyway - let the API handle the 401
           return token;
         }
@@ -176,7 +171,7 @@ export const tokenManager = {
 
       return token;
     } catch (error) {
-      console.error("[TokenManager] Error retrieving access token:", error);
+      
       return null;
     }
   },
@@ -194,12 +189,9 @@ export const tokenManager = {
         issuedAt: new Date(),
       };
 
-      console.log("[TokenManager] Refresh token stored securely", {
-        expiresAt: tokenCache.refreshToken.expiresAt,
-        issuedAt: tokenCache.refreshToken.issuedAt,
-      });
+      
     } catch (error) {
-      console.error("[TokenManager] Error storing refresh token:", error);
+      
     }
   },
 
@@ -209,7 +201,7 @@ export const tokenManager = {
       const token = await SecureStore.getItemAsync("refresh_token");
       return token;
     } catch (error) {
-      console.error("[Auth] Error retrieving refresh token:", error);
+      
       return null;
     }
   },
@@ -222,7 +214,7 @@ export const tokenManager = {
   }> {
     // Prevent multiple simultaneous refresh attempts
     if (tokenCache.isRefreshing) {
-      console.log("[TokenManager] Refresh already in progress, waiting...");
+      
       if (tokenCache.refreshPromise) {
         return await tokenCache.refreshPromise;
       }
@@ -239,7 +231,7 @@ export const tokenManager = {
         };
       }
 
-      console.log("[TokenManager] Attempting token refresh");
+      
 
       // Import fetchAPI dynamically to avoid circular dependency
       const { fetchAPI } = require("./fetch");
@@ -260,7 +252,7 @@ export const tokenManager = {
         await this.setAccessToken(response.accessToken);
         await this.setRefreshToken(response.refreshToken);
 
-        console.log("[TokenManager] ✅ Token refresh successful");
+        
         return {
           success: true,
           message: "Token refreshed successfully",
@@ -270,16 +262,14 @@ export const tokenManager = {
           },
         };
       } else {
-        console.log(
-          "[TokenManager] ❌ Token refresh failed - invalid response",
-        );
+        
         return {
           success: false,
           message: response?.message || "Token refresh failed",
         };
       }
     } catch (error: any) {
-      console.error("[TokenManager] ❌ Token refresh error:", error);
+      
       return {
         success: false,
         message: error.message || "Token refresh failed",
@@ -312,7 +302,7 @@ export const tokenManager = {
         payload: decoded,
       };
     } catch (error) {
-      console.warn("[TokenManager] Token validation error:", error);
+      
       return { valid: false, expired: true };
     }
   },
@@ -330,9 +320,9 @@ export const tokenManager = {
       });
 
       await SecureStore.setItemAsync(key, secureData);
-      console.log(`[TokenManager] Data stored securely for key: ${key}`);
+      
     } catch (error) {
-      console.error(`[TokenManager] Error storing data for key ${key}:`, error);
+      
       throw error;
     }
   },
@@ -348,23 +338,18 @@ export const tokenManager = {
         if (parsed.data && parsed.hash) {
           const computedHash = this.generateIntegrityHash(parsed.data);
           if (computedHash !== parsed.hash) {
-            console.warn(
-              `[TokenManager] Data integrity check failed for key: ${key}`,
-            );
+            
             // Don't fail, but log the issue
           }
         }
         return parsed.data || storedData;
       } catch (parseError) {
         // Fallback for old format data
-        console.log(`[TokenManager] Using legacy data format for key: ${key}`);
+        
         return storedData;
       }
     } catch (error) {
-      console.error(
-        `[TokenManager] Error retrieving data for key ${key}:`,
-        error,
-      );
+      
       return null;
     }
   },
@@ -397,11 +382,11 @@ export const tokenManager = {
 
       // Store backup in a separate key
       await SecureStore.setItemAsync("token_backup", JSON.stringify(backup));
-      console.log("[TokenManager] Token backup created");
+      
 
       return backup;
     } catch (error) {
-      console.error("[TokenManager] Error creating token backup:", error);
+      
       return {};
     }
   },
@@ -419,20 +404,17 @@ export const tokenManager = {
 
       if (isRecent && backup.accessToken) {
         await this.secureStore("access_token", backup.accessToken);
-        console.log("[TokenManager] Access token restored from backup");
+        
       }
 
       if (isRecent && backup.refreshToken) {
         await this.secureStore("refresh_token", backup.refreshToken);
-        console.log("[TokenManager] Refresh token restored from backup");
+        
       }
 
       return true;
     } catch (error) {
-      console.error(
-        "[TokenManager] Error restoring tokens from backup:",
-        error,
-      );
+      
       return false;
     }
   },
@@ -452,9 +434,9 @@ export const tokenManager = {
       tokenCache.isRefreshing = false;
       tokenCache.refreshPromise = null;
 
-      console.log("[TokenManager] All tokens cleared");
+      
     } catch (error) {
-      console.error("[TokenManager] Error clearing tokens:", error);
+      
     }
   },
 
@@ -497,7 +479,7 @@ export const registerUser = async (
   userData: RegisterData,
 ): Promise<{ success: boolean; message: string; data?: AuthResponse }> => {
   try {
-    console.log("[Auth] Registering user:", userData.email);
+    
 
     // Prepare base user data without Firebase fields
     const baseUserData = {
@@ -517,43 +499,34 @@ export const registerUser = async (
     // Get Firebase token data if not provided
     let firebaseData = null;
     if (!userData.firebaseToken) {
-      console.log("[Auth] No Firebase token provided, attempting to get one");
+      
       try {
         // Lazy import to avoid circular dependency
         const { firebaseService } = require("../app/services/firebaseService");
         firebaseData = await firebaseService.getFirebaseTokenData();
       } catch (error) {
-        console.warn("[Auth] Firebase service not available:", error);
+        
       }
 
       if (firebaseData) {
         userData.firebaseToken = firebaseData.token;
         userData.deviceType = firebaseData.deviceType;
         userData.deviceId = firebaseData.deviceId;
-        console.log(
-          "[Auth] Firebase token obtained and added to registration data",
-        );
+        
       } else {
-        console.log(
-          "[Auth] Could not obtain Firebase token, proceeding without it",
-        );
+        
       }
     }
 
     // For compatibility with current backend, do NOT send Firebase fields on register either
     const requestBody: any = { ...baseUserData };
     if (userData.firebaseToken || userData.deviceType || userData.deviceId) {
-      console.log(
-        "[Auth] Firebase fields obtained but will NOT be sent in registration request (backend rejects them)",
-      );
+      
     } else {
-      console.log("[Auth] Sending basic registration without Firebase fields");
+      
     }
 
-    console.log(
-      "[Auth] Final request body:",
-      JSON.stringify(requestBody, null, 2),
-    );
+    
 
     const response = await fetchAPI("auth/register", {
       method: "POST",
@@ -563,41 +536,32 @@ export const registerUser = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log("[Auth] Register response:", response);
+    
 
     // Handle nested response structure from backend
     const accessToken = response?.data?.accessToken || response?.accessToken;
     const refreshToken = response?.data?.refreshToken || response?.refreshToken;
     const user = response?.data?.user || response?.user;
 
-    console.log("[Auth] Extracted tokens:");
-    console.log("[Auth] accessToken:", accessToken ? "PRESENT" : "MISSING");
-    console.log("[Auth] refreshToken:", refreshToken ? "PRESENT" : "MISSING");
-    console.log(
-      "[Auth] accessToken value:",
-      accessToken ? accessToken.substring(0, 20) + "..." : "undefined",
-    );
-    console.log(
-      "[Auth] refreshToken value:",
-      refreshToken ? refreshToken.substring(0, 20) + "..." : "undefined",
-    );
-    console.log("[Auth] accessToken type:", typeof accessToken);
-    console.log("[Auth] refreshToken type:", typeof refreshToken);
-    console.log("[Auth] accessToken length:", accessToken?.length);
-    console.log("[Auth] refreshToken length:", refreshToken?.length);
-    console.log("[Auth] accessToken truthy:", !!accessToken);
-    console.log("[Auth] refreshToken truthy:", !!refreshToken);
-    console.log("[Auth] Combined condition:", !!(accessToken && refreshToken));
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 
     // Test the condition explicitly
     const hasAccessToken = !!accessToken;
     const hasRefreshToken = !!refreshToken;
-    console.log("[Auth] hasAccessToken:", hasAccessToken);
-    console.log("[Auth] hasRefreshToken:", hasRefreshToken);
-    console.log(
-      "[Auth] Final condition result:",
-      hasAccessToken && hasRefreshToken,
-    );
+    
+    
+    
 
     // Check if we have a successful response regardless of token extraction
     const isSuccessful =
@@ -605,15 +569,13 @@ export const registerUser = async (
       response?.message === "Success" ||
       (accessToken && refreshToken);
 
-    console.log("[Auth] isSuccessful check:", isSuccessful);
-    console.log("[Auth] statusCode check:", response?.statusCode === 201);
-    console.log("[Auth] message check:", response?.message === "Success");
-    console.log("[Auth] tokens check:", !!(accessToken && refreshToken));
+    
+    
+    
+    
 
     if (isSuccessful) {
-      console.log(
-        "[Auth] Registration successful, proceeding with token storage",
-      );
+      
 
       // Store tokens securely (use extracted tokens or try alternative extraction)
       const finalAccessToken =
@@ -625,18 +587,18 @@ export const registerUser = async (
       if (finalAccessToken && finalRefreshToken) {
         await tokenManager.setAccessToken(finalAccessToken);
         await tokenManager.setRefreshToken(finalRefreshToken);
-        console.log("[Auth] Tokens stored successfully");
+        
       } else {
-        console.log("[Auth] Warning: Could not extract tokens for storage");
+        
       }
 
       // Store user data in global store
       if (finalUser) {
-        console.log("[Auth] Storing user data in global store:", finalUser);
+        
         getUserStore().setUser(finalUser);
       }
 
-      console.log("[Auth] User registered successfully:", finalUser?.email);
+      
 
       return {
         success: true,
@@ -649,17 +611,17 @@ export const registerUser = async (
       };
     }
 
-    console.log("[Auth] Tokens are missing, registration failed");
-    console.log("[Auth] accessToken exists:", !!accessToken);
-    console.log("[Auth] refreshToken exists:", !!refreshToken);
-    console.log("[Auth] response.message:", response?.message);
+    
+    
+    
+    
 
     return {
       success: false,
       message: response?.message || "Registration failed",
     };
   } catch (error: any) {
-    console.error("[Auth] Registration error:", error);
+    
     return {
       success: false,
       message: error.message || "Registration failed",
@@ -672,7 +634,7 @@ export const loginUser = async (
   credentials: LoginCredentials,
 ): Promise<{ success: boolean; message: string; data?: AuthResponse }> => {
   try {
-    console.log("[Auth] Logging in user:", credentials.email);
+    
 
     // Prepare base credentials without Firebase fields
     const baseCredentials = {
@@ -683,26 +645,22 @@ export const loginUser = async (
     // Get Firebase token data if not provided
     let firebaseData = null;
     if (!credentials.firebaseToken) {
-      console.log("[Auth] No Firebase token provided, attempting to get one");
+      
       try {
         // Lazy import to avoid circular dependency
         const { firebaseService } = require("../app/services/firebaseService");
         firebaseData = await firebaseService.getFirebaseTokenData();
       } catch (error) {
-        console.warn("[Auth] Firebase service not available:", error);
+        
       }
 
       if (firebaseData) {
         credentials.firebaseToken = firebaseData.token;
         credentials.deviceType = firebaseData.deviceType;
         credentials.deviceId = firebaseData.deviceId;
-        console.log(
-          "[Auth] Firebase token obtained and added to login credentials",
-        );
+        
       } else {
-        console.log(
-          "[Auth] Could not obtain Firebase token, proceeding without it",
-        );
+        
       }
     }
 
@@ -723,17 +681,12 @@ export const loginUser = async (
       requestBody.firebaseToken = credentials.firebaseToken;
       requestBody.deviceType = credentials.deviceType;
       requestBody.deviceId = credentials.deviceId;
-      console.log("[Auth] Including Firebase fields in login request");
+      
     } else {
-      console.log(
-        "[Auth] Firebase fields missing or invalid, sending basic login",
-      );
+      
     }
 
-    console.log(
-      "[Auth] Final request body:",
-      JSON.stringify(requestBody, null, 2),
-    );
+    
 
     const response = await fetchAPI("auth/login", {
       method: "POST",
@@ -743,24 +696,18 @@ export const loginUser = async (
       body: JSON.stringify(requestBody),
     });
 
-    console.log("[Auth] Login response:", response);
+    
 
     // Handle nested response structure from backend
     const accessToken = response?.data?.accessToken || response?.accessToken;
     const refreshToken = response?.data?.refreshToken || response?.refreshToken;
     const user = response?.data?.user || response?.user;
 
-    console.log("[Auth] Extracted tokens (login):");
-    console.log("[Auth] accessToken:", accessToken ? "PRESENT" : "MISSING");
-    console.log("[Auth] refreshToken:", refreshToken ? "PRESENT" : "MISSING");
-    console.log(
-      "[Auth] accessToken value:",
-      accessToken ? accessToken.substring(0, 20) + "..." : "undefined",
-    );
-    console.log(
-      "[Auth] refreshToken value:",
-      refreshToken ? refreshToken.substring(0, 20) + "..." : "undefined",
-    );
+    
+    
+    
+    
+    
 
     // Check if we have a successful response regardless of token extraction
     const isSuccessful =
@@ -769,7 +716,7 @@ export const loginUser = async (
       (accessToken && refreshToken);
 
     if (isSuccessful) {
-      console.log("[Auth] Login successful, proceeding with token storage");
+      
 
       // Store tokens securely (use extracted tokens or try alternative extraction)
       const finalAccessToken =
@@ -781,18 +728,18 @@ export const loginUser = async (
       if (finalAccessToken && finalRefreshToken) {
         await tokenManager.setAccessToken(finalAccessToken);
         await tokenManager.setRefreshToken(finalRefreshToken);
-        console.log("[Auth] Tokens stored successfully");
+        
       } else {
-        console.log("[Auth] Warning: Could not extract tokens for storage");
+        
       }
 
       // Store user data in global store
       if (finalUser) {
-        console.log("[Auth] Storing user data in global store:", finalUser);
+        
         getUserStore().setUser(finalUser);
       }
 
-      console.log("[Auth] User logged in successfully:", finalUser?.email);
+      
 
       return {
         success: true,
@@ -810,7 +757,7 @@ export const loginUser = async (
       message: response?.message || "Login failed",
     };
   } catch (error: any) {
-    console.error("[Auth] Login error:", error);
+    
     return {
       success: false,
       message: error.message || "Login failed",
@@ -824,7 +771,7 @@ export const logoutUser = async (): Promise<{
   message: string;
 }> => {
   try {
-    console.log("[Auth] Logging out user");
+    
 
     const response = await fetchAPI("auth/logout", {
       method: "POST",
@@ -835,31 +782,29 @@ export const logoutUser = async (): Promise<{
     await tokenManager.clearTokens();
 
     // Clear user data from global store
-    console.log("[Auth] Clearing user data from global store");
+    
     getUserStore().clearUser();
 
     // Reset onboarding local status to avoid skipping flow on next login
     try {
       await resetOnboardingStatus();
-      console.log(
-        "[Auth] Onboarding status reset locally (and API if available)",
-      );
+      
     } catch (e) {
-      console.warn("[Auth] Failed to reset onboarding status:", e);
+      
     }
 
-    console.log("[Auth] User logged out successfully");
+    
     return {
       success: true,
       message: response?.message || "Logout successful",
     };
   } catch (error: any) {
-    console.error("[Auth] Logout error:", error);
+    
     // Still clear tokens even if API call fails
     await tokenManager.clearTokens();
 
     // Clear user data from global store even on error
-    console.log("[Auth] Clearing user data from global store (error case)");
+    
     getUserStore().clearUser();
 
     try {
@@ -880,25 +825,25 @@ export const getUserProfile = async (): Promise<{
   data?: User;
 }> => {
   try {
-    console.log("[Auth] Getting user profile");
+    
 
     const response = await fetchAPI("auth/profile", {
       method: "GET",
       headers: await tokenManager.getAuthHeaders(),
     });
 
-    console.log("[Auth] Profile response:", response);
-    console.log("[Auth] Profile response type:", typeof response);
-    console.log("[Auth] Profile response keys:", Object.keys(response || {}));
+    
+    
+    
 
     // Handle nested response structure (data wrapper)
     const userData = response?.data || response;
 
-    console.log("[Auth] Extracted user data:", userData);
-    console.log("[Auth] UserData has id:", !!userData?.id);
-    console.log("[Auth] UserData has email:", !!userData?.email);
-    console.log("[Auth] Response has statusCode:", !!response?.statusCode);
-    console.log("[Auth] StatusCode value:", response?.statusCode);
+    
+    
+    
+    
+    
 
     // Primary check: HTTP status success with valid data
     if (
@@ -906,7 +851,7 @@ export const getUserProfile = async (): Promise<{
       userData?.id &&
       userData?.email
     ) {
-      console.log("[Auth] ✅ HTTP success with valid user data");
+      
       return {
         success: true,
         message: response.message || "Profile retrieved successfully",
@@ -915,7 +860,7 @@ export const getUserProfile = async (): Promise<{
     }
 
     if (userData?.id && userData?.email) {
-      console.log("[Auth] Valid user data found:", userData);
+      
       return {
         success: true,
         message: "Profile retrieved successfully",
@@ -925,7 +870,7 @@ export const getUserProfile = async (): Promise<{
 
     // Check if response has success/message structure
     if (response?.success === true && response?.data) {
-      console.log("[Auth] Success response with data:", response.data);
+      
       return {
         success: true,
         message: response.message || "Profile retrieved successfully",
@@ -935,7 +880,7 @@ export const getUserProfile = async (): Promise<{
 
     // Check if response has success/message structure without data wrapper
     if (response?.success === true && userData?.id) {
-      console.log("[Auth] Success response with user data:", userData);
+      
       return {
         success: true,
         message: response.message || "Profile retrieved successfully",
@@ -943,16 +888,13 @@ export const getUserProfile = async (): Promise<{
       };
     }
 
-    console.log("[Auth] ❌ No valid condition matched, treating as error");
-    console.log("[Auth] Response success:", response?.success);
-    console.log("[Auth] Response statusCode:", response?.statusCode);
-    console.log("[Auth] Response message:", response?.message);
-    console.log("[Auth] UserData id:", userData?.id);
-    console.log("[Auth] UserData email:", userData?.email);
-    console.log(
-      "[Auth] Full response for debugging:",
-      JSON.stringify(response, null, 2),
-    );
+    
+    
+    
+    
+    
+    
+    
 
     return {
       success: false,
@@ -961,7 +903,7 @@ export const getUserProfile = async (): Promise<{
         "Failed to get profile - invalid response structure",
     };
   } catch (error: any) {
-    console.error("[Auth] Profile error:", error);
+    
     return {
       success: false,
       message: error.message || "Failed to get profile",
@@ -976,7 +918,7 @@ export const refreshAccessToken = async (): Promise<{
   data?: { accessToken: string; refreshToken: string };
 }> => {
   try {
-    console.log("[Auth] Refreshing access token");
+    
 
     const refreshToken = await tokenManager.getRefreshToken();
     if (!refreshToken) {
@@ -992,7 +934,7 @@ export const refreshAccessToken = async (): Promise<{
       body: JSON.stringify({ refreshToken }),
     });
 
-    console.log("[Auth] Refresh response:", response);
+    
 
     if (response?.accessToken && response?.refreshToken) {
       // Store new tokens
@@ -1014,7 +956,7 @@ export const refreshAccessToken = async (): Promise<{
       message: response?.message || "Token refresh failed",
     };
   } catch (error: any) {
-    console.error("[Auth] Token refresh error:", error);
+    
     return {
       success: false,
       message: error.message || "Token refresh failed",
@@ -1028,7 +970,7 @@ export const isAuthenticated = async (): Promise<boolean> => {
     // First check if user exists in store (fast check)
     const userStore = getUserStore();
     if (userStore.user && userStore.isAuthenticated) {
-      console.log("[Auth] User authenticated via store:", userStore.user.email);
+      
       return true;
     }
 
@@ -1038,32 +980,24 @@ export const isAuthenticated = async (): Promise<boolean> => {
 
     // Update store based on token existence
     if (hasToken && !userStore.user) {
-      console.log(
-        "[Auth] Token exists but no user in store, attempting to fetch user profile",
-      );
+      
       // Try to refresh user data if we have token but no user in store
       const profileResult = await getUserProfile();
-      console.log(
-        "[Auth] Profile fetch result in isAuthenticated:",
-        profileResult,
-      );
+      
 
       if (profileResult.success && profileResult.data) {
-        console.log("[Auth] Setting user from profile:", profileResult.data);
+        
         userStore.setUser(profileResult.data);
         return true;
       } else {
-        console.log(
-          "[Auth] Failed to fetch profile in isAuthenticated:",
-          profileResult.message,
-        );
+        
       }
     }
 
-    console.log("[Auth] Authentication check result:", hasToken);
+    
     return hasToken;
   } catch (error) {
-    console.error("[Auth] Error checking authentication:", error);
+    
     return false;
   }
 };
@@ -1074,51 +1008,48 @@ export const jwtTokenManager = tokenManager; // Alias for backward compatibility
 // Initialize user store on app startup
 export const initializeUserStore = async (): Promise<void> => {
   try {
-    console.log("[Auth] Initializing user store...");
+    
 
     // Check if we have a valid token
     const token = await tokenManager.getAccessToken();
-    console.log("[Auth] Access token exists:", !!token);
+    
 
     if (!token) {
-      console.log("[Auth] No token found, clearing user store");
+      
       getUserStore().clearUser();
       return;
     }
 
     // Check if user is already in store
     const userStore = getUserStore();
-    console.log("[Auth] Current user in store:", userStore.user);
+    
 
     if (userStore.user) {
-      console.log("[Auth] User already in store:", userStore.user.email);
+      
       return;
     }
 
     // Fetch user profile and store it
-    console.log("[Auth] Fetching user profile for store initialization");
+    
     const result = await getUserProfile();
-    console.log("[Auth] Profile fetch result:", result);
+    
 
     if (result.success && result.data) {
-      console.log("[Auth] ✅ User profile fetched successfully:", result.data);
-      console.log("[Auth] Storing user in store:", result.data.email);
+      
+      
       userStore.setUser(result.data);
 
       // Verify the user was stored
       const updatedStore = getUserStore();
-      console.log("[Auth] ✅ User stored in store:", updatedStore.user);
+      
     } else {
-      console.log("[Auth] ❌ Failed to fetch user profile:", result.message);
-      console.log("[Auth] Clearing user store due to fetch failure");
+      
+      
       userStore.clearUser();
     }
   } catch (error) {
-    console.error("[Auth] ❌ Error initializing user store:", error);
-    console.error(
-      "[Auth] Error details:",
-      error instanceof Error ? error.message : String(error),
-    );
+    
+    
     getUserStore().clearUser();
   }
 };
@@ -1156,34 +1087,34 @@ export const useEnsureUserData = () => {
 // Test function to debug profile API response
 export const debugProfileResponse = async () => {
   try {
-    console.log("[Auth] 🔍 Debug: Testing profile API response");
+    
 
     const response = await fetchAPI("auth/profile", {
       method: "GET",
       headers: await tokenManager.getAuthHeaders(),
     });
 
-    console.log("[Auth] 🔍 Debug: Raw profile response:", response);
-    console.log("[Auth] 🔍 Debug: Response type:", typeof response);
-    console.log("[Auth] 🔍 Debug: Response keys:", Object.keys(response || {}));
-    console.log("[Auth] 🔍 Debug: Response has data:", !!response?.data);
-    console.log("[Auth] 🔍 Debug: Response data:", response?.data);
-    console.log("[Auth] 🔍 Debug: Response has user directly:", !!response?.id);
-    console.log("[Auth] 🔍 Debug: Response success:", response?.success);
-    console.log("[Auth] 🔍 Debug: Response message:", response?.message);
+    
+    
+    
+    
+    
+    
+    
+    
 
     // Test different extraction methods
     const method1 = response?.data || response;
     const method2 = response?.data;
     const method3 = response;
 
-    console.log("[Auth] 🔍 Debug: Method 1 (data || response):", method1);
-    console.log("[Auth] 🔍 Debug: Method 2 (data only):", method2);
-    console.log("[Auth] 🔍 Debug: Method 3 (response only):", method3);
+    
+    
+    
 
     return response;
   } catch (error) {
-    console.error("[Auth] 🔍 Debug: Error testing profile response:", error);
+    
     return null;
   }
 };
@@ -1201,10 +1132,7 @@ export const sessionManager = {
   updateActivity: () => {
     sessionState.lastActivity = new Date();
     sessionState.warningShown = false; // Reset warning flag
-    console.log(
-      "[SessionManager] Activity updated:",
-      sessionState.lastActivity,
-    );
+    
   },
 
   // Start automatic logout monitoring
@@ -1216,11 +1144,7 @@ export const sessionManager = {
       clearInterval(sessionState.autoLogoutTimer);
     }
 
-    console.log("[SessionManager] Starting auto-logout monitoring", {
-      timeout: sessionConfig.autoLogoutTimeout,
-      warningTime: sessionConfig.warningTime,
-      checkInterval: sessionConfig.checkInterval,
-    });
+    
 
     sessionState.autoLogoutTimer = setInterval(() => {
       if (!sessionState.isActive) return;
@@ -1239,9 +1163,7 @@ export const sessionManager = {
         timeUntilLogout > 0
       ) {
         sessionState.warningShown = true;
-        console.warn(
-          "[SessionManager] ⚠️ Auto-logout warning: Session will expire soon",
-        );
+        
 
         // Show UI warning (if UI store is available)
         try {
@@ -1253,15 +1175,13 @@ export const sessionManager = {
             );
           }
         } catch (error) {
-          console.warn("[SessionManager] Could not show UI warning:", error);
+          
         }
       }
 
       // Auto logout when timeout is reached
       if (timeSinceActivity >= sessionConfig.autoLogoutTimeout) {
-        console.log(
-          "[SessionManager] 🔄 Auto-logout triggered due to inactivity",
-        );
+        
         sessionManager.stopAutoLogout();
         sessionManager.forceLogout("Session expired due to inactivity");
       }
@@ -1273,19 +1193,19 @@ export const sessionManager = {
     if (sessionState.autoLogoutTimer) {
       clearInterval(sessionState.autoLogoutTimer);
       sessionState.autoLogoutTimer = null;
-      console.log("[SessionManager] Auto-logout monitoring stopped");
+      
     }
   },
 
   // Force logout with reason
   forceLogout: async (reason: string = "Session terminated") => {
-    console.log(`[SessionManager] Force logout: ${reason}`);
+    
 
     try {
       await logoutUser();
-      console.log("[SessionManager] ✅ User logged out successfully");
+      
     } catch (error) {
-      console.error("[SessionManager] ❌ Error during logout:", error);
+      
       // Clear tokens anyway
       await tokenManager.clearTokens();
     }
@@ -1300,7 +1220,7 @@ export const sessionManager = {
     sessionState.warningShown = false;
     sessionState.isActive = true;
     sessionManager.stopAutoLogout();
-    console.log("[SessionManager] Session state reset");
+    
   },
 
   // Get session info
@@ -1315,13 +1235,13 @@ export const sessionManager = {
   // Pause/resume session monitoring (useful for background/foreground transitions)
   pauseSession: () => {
     sessionState.isActive = false;
-    console.log("[SessionManager] Session monitoring paused");
+    
   },
 
   resumeSession: () => {
     sessionState.isActive = true;
     sessionManager.updateActivity(); // Reset activity timer
-    console.log("[SessionManager] Session monitoring resumed");
+    
   },
 };
 

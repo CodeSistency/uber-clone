@@ -61,14 +61,12 @@ const DriverAvailability: React.FC = () => {
     const timeLeft = expiresAt.getTime() - now.getTime();
 
     if (timeLeft <= 0) {
-      console.log(`[DriverAvailability] Request ${requestId} already expired`);
+      
       removeExpiredRequest(requestId);
       return;
     }
 
-    console.log(
-      `[DriverAvailability] Creating timer for request ${requestId}, expires in ${Math.round(timeLeft / 1000)}s`,
-    );
+    
 
     // Crear interval para actualizar UI cada segundo
     const intervalId = setInterval(() => {
@@ -76,7 +74,7 @@ const DriverAvailability: React.FC = () => {
       const remaining = expiresAt.getTime() - currentTime.getTime();
 
       if (remaining <= 0) {
-        console.log(`[DriverAvailability] Request ${requestId} expired`);
+        
         clearRequestTimer(requestId);
         removeExpiredRequest(requestId);
       }
@@ -107,7 +105,7 @@ const DriverAvailability: React.FC = () => {
     // Feedback visual de expiración
     showError("Solicitud expirada", "La solicitud de viaje ha expirado");
 
-    console.log(`[DriverAvailability] Removed expired request ${requestId}`);
+    
   };
 
   const getTimeRemaining = (requestId: number): number => {
@@ -146,25 +144,15 @@ const DriverAvailability: React.FC = () => {
 
   // Polling function for pending requests
   const pollPendingRequests = async () => {
-    console.log(
-      "[DriverAvailability] 🔍 Poll function called - driverStatus:",
-      driverState.status,
-      "intervalActive:",
-      !!pollingIntervalRef.current,
-    );
+    
 
     // Only poll if driver is online (regardless of isPolling state)
     if (driverState.status !== "online") {
-      console.log(
-        "[DriverAvailability] ❌ Polling skipped - driver not online, status:",
-        driverState.status,
-      );
+      
 
       // Clean up any orphaned intervals when not online
       if (pollingIntervalRef.current) {
-        console.log(
-          "[DriverAvailability] 🧹 Cleaning up interval - driver went offline",
-        );
+        
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
@@ -173,31 +161,18 @@ const DriverAvailability: React.FC = () => {
     }
 
     try {
-      console.log(
-        "[DriverAvailability] 🔄 Starting polling for pending requests...",
-      );
-      console.log(
-        "[DriverAvailability] 📊 Current state - isPolling:",
-        isPolling,
-        "driverStatus:",
-        driverState.status,
-      );
+      
+      
 
       // Get current location from location store (more reliable than driver state)
       const currentLat = locationState.userLatitude;
       const currentLng = locationState.userLongitude;
 
-      console.log("[DriverAvailability] 📍 Using location for polling:", {
-        lat: currentLat,
-        lng: currentLng,
-        hasValidLocation: !!(currentLat && currentLng),
-      });
+      
 
       // Skip polling if we don't have valid coordinates yet
       if (!currentLat || !currentLng) {
-        console.log(
-          "[DriverAvailability] ⚠️ Skipping poll - no valid GPS coordinates yet",
-        );
+        
         return;
       }
 
@@ -208,24 +183,11 @@ const DriverAvailability: React.FC = () => {
       );
       const endTime = Date.now();
 
-      console.log(
-        "[DriverAvailability] 📡 Raw API response received in",
-        endTime - startTime,
-        "ms:",
-        response,
-      );
+      
 
       const requests = response?.data || [];
-      console.log(
-        "[DriverAvailability] 📋 Extracted requests array:",
-        requests,
-      );
-      console.log("[DriverAvailability] 📊 Requests details:", {
-        totalRequests: requests.length,
-        hasData: !!response?.data,
-        responseKeys: Object.keys(response || {}),
-        firstRequest: requests[0] || null,
-      });
+      
+      
 
       // Only update if there are changes to avoid unnecessary re-renders
       setPendingRequests((prevRequests) => {
@@ -234,132 +196,81 @@ const DriverAvailability: React.FC = () => {
           JSON.stringify(prevRequests) !== JSON.stringify(requests);
 
         if (hasChanges) {
-          console.log(
-            "[DriverAvailability] 🔄 Updating pending requests - OLD:",
-            prevRequests.length,
-            "NEW:",
-            requests.length,
-          );
+          
           return requests;
         } else {
-          console.log(
-            "[DriverAvailability] ⏭️ No changes in pending requests, skipping update",
-          );
+          
           return prevRequests;
         }
       });
 
       if (requests.length > 0) {
-        console.log(
-          `[DriverAvailability] 🎯 Found ${requests.length} pending request(s)`,
-        );
+        
         requests.forEach((req: PendingRequest, index: number) => {
-          console.log(`[DriverAvailability] 📝 Request ${index + 1}:`, {
-            rideId: req.rideId,
-            passenger: req.passenger?.name,
-            origin: req.originAddress,
-            destination: req.destinationAddress,
-            fare: req.farePrice,
-            timeLeft: req.timeRemainingSeconds,
-          });
+          
         });
       } else {
-        console.log("[DriverAvailability] 📭 No pending requests found");
+        
       }
 
-      console.log(
-        "[DriverAvailability] ✅ Polling cycle completed successfully",
-      );
+      
     } catch (error: any) {
-      console.error(
-        "[DriverAvailability] ❌ Error polling pending requests:",
-        error,
-      );
-      console.error("[DriverAvailability] 🔍 Error details:", {
-        message: error?.message,
-        status: error?.status,
-        stack: error?.stack,
-      });
+      
+      
       // Don't show error to user for polling failures, just log it
     }
   };
 
   // Start/stop polling based on online status
   const managePolling = (shouldPoll: boolean) => {
-    console.log(
-      "[DriverAvailability] 🎛️ managePolling called with shouldPoll:",
-      shouldPoll,
-      "driverStatus:",
-      driverState.status,
-    );
+    
 
     if (shouldPoll && driverState.status === "online") {
       // Clear any existing interval first (safety check)
       if (pollingIntervalRef.current) {
-        console.log(
-          "[DriverAvailability] 🧹 Clearing existing interval before starting new one:",
-          pollingIntervalRef.current,
-        );
+        
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
       }
 
-      console.log(
-        "[DriverAvailability] 🟢 Starting polling for pending requests",
-      );
-      console.log(
-        "[DriverAvailability] ⏱️ Polling interval:",
-        POLLING_INTERVAL,
-        "ms",
-      );
+      
+      
 
       setIsPolling(true);
 
       // Initial poll
-      console.log("[DriverAvailability] 🚀 Making initial poll...");
+      
       pollPendingRequests();
 
       // Set up interval polling
       pollingIntervalRef.current = setInterval(() => {
-        console.log("[DriverAvailability] 🔄 Interval poll triggered");
+        
         pollPendingRequests();
       }, POLLING_INTERVAL);
 
-      console.log(
-        "[DriverAvailability] ✅ Polling started with interval ID:",
-        pollingIntervalRef.current,
-      );
+      
     } else {
-      console.log(
-        "[DriverAvailability] 🔴 Stopping polling for pending requests",
-      );
+      
 
       setIsPolling(false);
       setPendingRequests([]);
 
       // 🚀 NUEVO: Limpiar todos los temporizadores activos cuando se detiene el polling
-      console.log("[DriverAvailability] 🧹 Clearing all request timers");
+      
       requestTimers.forEach((timer, requestId) => {
         clearInterval(timer.intervalId);
-        console.log(
-          `[DriverAvailability] Cleared timer for request ${requestId}`,
-        );
+        
       });
       setRequestTimers(new Map());
 
       if (pollingIntervalRef.current) {
-        console.log(
-          "[DriverAvailability] 🕒 Clearing interval:",
-          pollingIntervalRef.current,
-        );
+        
         clearInterval(pollingIntervalRef.current);
         pollingIntervalRef.current = null;
-        console.log("[DriverAvailability] ✅ Interval cleared");
+        
       }
 
-      console.log(
-        "[DriverAvailability] ✅ Polling and timers stopped successfully",
-      );
+      
     }
   };
 
@@ -369,10 +280,7 @@ const DriverAvailability: React.FC = () => {
 
     setProcessingRequest(request.rideId);
     try {
-      console.log(
-        "[DriverAvailability] Accepting pending request:",
-        request.rideId,
-      );
+      
 
       // 🚀 NUEVO: Limpiar temporizador antes de aceptar
       clearRequestTimer(request.id);
@@ -398,7 +306,7 @@ const DriverAvailability: React.FC = () => {
       // Navigate to next step
       startWithDriverStep(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
     } catch (error) {
-      console.error("[DriverAvailability] Error accepting request:", error);
+      
       showError("No se pudo aceptar", "Intenta de nuevo");
     } finally {
       setProcessingRequest(null);
@@ -411,10 +319,7 @@ const DriverAvailability: React.FC = () => {
 
     setProcessingRequest(request.rideId);
     try {
-      console.log(
-        "[DriverAvailability] Rejecting pending request:",
-        request.rideId,
-      );
+      
 
       // 🚀 NUEVO: Limpiar temporizador antes de rechazar
       clearRequestTimer(request.id);
@@ -426,7 +331,7 @@ const DriverAvailability: React.FC = () => {
       );
       showSuccess("Solicitud rechazada", "Buscando otras oportunidades");
     } catch (error) {
-      console.error("[DriverAvailability] Error rejecting request:", error);
+      
     } finally {
       setProcessingRequest(null);
     }
@@ -440,9 +345,7 @@ const DriverAvailability: React.FC = () => {
 
         // Check if user is already a driver based on local state
         if (!driverState.isDriver) {
-          console.log(
-            "[DriverAvailability] User is not a driver, initializing...",
-          );
+          
 
           // Initialize as driver (this will set status to offline)
           await driverStateService.initializeAsDriver();
@@ -457,13 +360,11 @@ const DriverAvailability: React.FC = () => {
 
           showSuccess("¡Bienvenido!", "Has sido configurado como conductor");
         } else {
-          console.log(
-            "[DriverAvailability] Driver already initialized, using local state",
-          );
+          
           // Driver is already initialized, use existing local state
         }
       } catch (error) {
-        console.error("[DriverAvailability] Error initializing driver:", error);
+        
         showError("Error", "No se pudo inicializar el estado del conductor");
       } finally {
         setIsInitializing(false);
@@ -484,51 +385,28 @@ const DriverAvailability: React.FC = () => {
 
   // Monitor driver status changes to manage polling
   useEffect(() => {
-    console.log(
-      "[DriverAvailability] 🚨🚨 USEEFFECT EXECUTING - Driver status changed to:",
-      driverState.status,
-      "isPolling:",
-      isPolling,
-      "hasInterval:",
-      !!pollingIntervalRef.current,
-      "timestamp:",
-      new Date().toISOString(),
-    );
+    
 
     const handleStatusChange = async () => {
       if (driverState.status === "online" && !isPolling) {
-        console.log(
-          "[DriverAvailability] 🎯 Driver went online, ensuring driver registration before polling...",
-        );
+        
 
         try {
           // Ensure user is registered as driver before starting polling
           await ensureDriverRegistration();
-          console.log(
-            "[DriverAvailability] ✅ Driver registration confirmed, starting polling...",
-          );
+          
           managePolling(true);
         } catch (error) {
-          console.error(
-            "[DriverAvailability] ❌ Failed to register as driver:",
-            error,
-          );
+          
           showError("Error", "No se pudo registrar como conductor");
           // Revert status back to offline
           driverState.updateStatus("offline");
         }
       } else if (driverState.status === "offline" && isPolling) {
-        console.log(
-          "[DriverAvailability] 🛑 Driver went offline, stopping polling...",
-        );
+        
         managePolling(false);
       } else {
-        console.log(
-          "[DriverAvailability] ℹ️ No action needed - status:",
-          driverState.status,
-          "isPolling:",
-          isPolling,
-        );
+        
       }
     };
 
@@ -538,16 +416,11 @@ const DriverAvailability: React.FC = () => {
   // 🚀 NUEVO: WebSocket listener para ride:requested (reemplaza polling)
   useEffect(() => {
     const handleRideRequested = async (data: any) => {
-      console.log(
-        "[DriverAvailability] 🚨 WebSocket: ride:requested received",
-        data,
-      );
+      
 
       // Solo procesar si el conductor está online
       if (driverState.status !== "online") {
-        console.log(
-          "[DriverAvailability] ❌ Ignoring ride request - driver not online",
-        );
+        
         return;
       }
 
@@ -556,9 +429,7 @@ const DriverAvailability: React.FC = () => {
         const driverLng = locationState.userLongitude;
 
         if (!driverLat || !driverLng) {
-          console.log(
-            "[DriverAvailability] ❌ Ignoring ride request - no driver location",
-          );
+          
           return;
         }
 
@@ -570,15 +441,11 @@ const DriverAvailability: React.FC = () => {
           data.originLng || data.origin?.longitude,
         );
 
-        console.log(
-          `[DriverAvailability] 📏 Distance to ride: ${distance.toFixed(2)}km (max: ${MAX_DISTANCE_KM}km)`,
-        );
+        
 
         // Solo mostrar solicitudes dentro del radio de 5km
         if (distance <= MAX_DISTANCE_KM) {
-          console.log(
-            "[DriverAvailability] ✅ Ride within range, fetching pending requests...",
-          );
+          
 
           // Fetch único para obtener detalles completos de las solicitudes
           const response = await driverTransportService.getPendingRequests(
@@ -588,9 +455,7 @@ const DriverAvailability: React.FC = () => {
 
           if (response?.success && response?.data) {
             const requests = response.data;
-            console.log(
-              `[DriverAvailability] 📋 Found ${requests.length} pending requests`,
-            );
+            
 
             setPendingRequests(requests);
             setIsPolling(true); // Mantener compatibilidad con UI existente
@@ -604,9 +469,7 @@ const DriverAvailability: React.FC = () => {
                 // Si no tiene expiresAt, asumir 2 minutos desde ahora
                 const expiresAt = new Date(Date.now() + 2 * 60 * 1000);
                 createRequestTimer(request.id, expiresAt);
-                console.log(
-                  `[DriverAvailability] No expiresAt for request ${request.id}, setting 2min timer`,
-                );
+                
               }
             });
 
@@ -626,16 +489,13 @@ const DriverAvailability: React.FC = () => {
               // Haptics no disponible, ignorar
             }
           } else {
-            console.log("[DriverAvailability] ❌ No pending requests found");
+            
           }
         } else {
-          console.log("[DriverAvailability] ❌ Ride too far, ignoring");
+          
         }
       } catch (error) {
-        console.error(
-          "[DriverAvailability] ❌ Error processing ride request:",
-          error,
-        );
+        
         showError("Error", "No se pudo procesar la solicitud de viaje");
       }
     };
@@ -656,15 +516,11 @@ const DriverAvailability: React.FC = () => {
   // Function to ensure user is registered as driver
   const ensureDriverRegistration = async () => {
     try {
-      console.log(
-        "[DriverAvailability] 🔍 Checking if user is registered as driver...",
-      );
+      
 
       // Check if user is already a driver based on local state
       if (!driverState.isDriver) {
-        console.log(
-          "[DriverAvailability] 👤 User is not a driver, initializing...",
-        );
+        
         await driverStateService.initializeAsDriver();
 
         // Set basic driver info (no GET endpoint available)
@@ -675,20 +531,15 @@ const DriverAvailability: React.FC = () => {
           isAvailable: false,
         });
 
-        console.log("[DriverAvailability] ✅ Driver initialized locally");
+        
 
         // Start location tracking since we're going online
         await driverLocationService.updateAvailability(true);
       } else {
-        console.log(
-          "[DriverAvailability] ✅ User is already registered as driver",
-        );
+        
       }
     } catch (error) {
-      console.error(
-        "[DriverAvailability] ❌ Error ensuring driver registration:",
-        error,
-      );
+      
       throw error;
     }
   };
@@ -700,40 +551,28 @@ const DriverAvailability: React.FC = () => {
     try {
       const newStatus = driverState.status === "online" ? "offline" : "online";
 
-      console.log(`[DriverAvailability] Toggling status to: ${newStatus}`);
+      
 
       if (newStatus === "online") {
         // Going online - update backend status first, then local status
-        console.log(
-          "[DriverAvailability] 🔄 Going online - updating backend status",
-        );
+        
         await driverStateService.goOnline();
 
         driverState.updateStatus("online");
 
-        console.log(
-          "[DriverAvailability] 📊 After update - new status:",
-          driverState.status,
-        );
+        
 
         // Update WebSocket status
         websocketService.updateDriverStatus({ available: true });
 
         // Start GPS tracking for available drivers (no active ride)
-        console.log(
-          "[DriverAvailability] 🚀 Starting GPS tracking for available driver",
-        );
+        
         try {
           // Start availability tracking (no ride ID needed)
           await driverLocationService.startAvailabilityTracking();
-          console.log(
-            "[DriverAvailability] ✅ GPS tracking started successfully",
-          );
+          
         } catch (error) {
-          console.error(
-            "[DriverAvailability] ❌ Error starting GPS tracking:",
-            error,
-          );
+          
         }
 
         showSuccess("¡Conectado!", "Configurando como conductor...");
@@ -743,19 +582,12 @@ const DriverAvailability: React.FC = () => {
         await driverLocationService.updateAvailability(false);
 
         // Stop GPS tracking
-        console.log(
-          "[DriverAvailability] 🛑 Stopping GPS tracking for offline driver",
-        );
+        
         try {
           await driverLocationService.stopTracking();
-          console.log(
-            "[DriverAvailability] ✅ GPS tracking stopped successfully",
-          );
+          
         } catch (error) {
-          console.error(
-            "[DriverAvailability] ❌ Error stopping GPS tracking:",
-            error,
-          );
+          
         }
 
         // Update WebSocket status
@@ -766,7 +598,7 @@ const DriverAvailability: React.FC = () => {
         showSuccess("Desconectado", "Ya no recibirás solicitudes de viaje");
       }
     } catch (error) {
-      console.error("[DriverAvailability] Error toggling availability:", error);
+      
       showError("Error", "No se pudo cambiar el estado. Intenta de nuevo.");
     } finally {
       setIsToggling(false);
@@ -778,15 +610,12 @@ const DriverAvailability: React.FC = () => {
 
     setIsToggling(true);
     try {
-      console.log("[DriverAvailability] Simulating incoming request...");
+      
 
       const result = await driverTransportService.simulateRequest();
 
       if (result?.data) {
-        console.log(
-          "[DriverAvailability] Request simulated successfully:",
-          result.data,
-        );
+        
         showSuccess("¡Solicitud simulada!", "Nueva solicitud de viaje creada");
 
         // Navigate to incoming request step
@@ -795,7 +624,7 @@ const DriverAvailability: React.FC = () => {
         throw new Error("Respuesta inválida del servidor");
       }
     } catch (error: any) {
-      console.error("[DriverAvailability] Error simulating request:", error);
+      
 
       if (error.statusCode === 404 && error.error === "NO_USERS_AVAILABLE") {
         showError(

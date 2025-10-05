@@ -45,7 +45,7 @@ export async function GET(request: Request) {
       },
     });
   } catch (error) {
-    console.error("Error fetching wallet:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
       status: 200,
     });
   } catch (error) {
-    console.error("Error adding funds to wallet:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }

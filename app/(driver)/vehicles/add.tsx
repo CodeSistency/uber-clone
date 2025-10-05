@@ -188,7 +188,7 @@ const DriverAddVehicle = () => {
       }, 2000);
     } catch (error) {
       // Error is handled by the store
-      console.error("Vehicle addition failed:", error);
+      
     } finally {
       setIsSubmitting(false);
     }

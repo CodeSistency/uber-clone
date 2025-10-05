@@ -1,0 +1,891 @@
+{
+  "proyecto": "wallet_module",
+  "descripcion": "Módulo completo de wallet para aplicación Uber-like con funcionalidades de transferencia, historial de transacciones y gestión de saldo. Implementado en app/(customer)/wallet/",
+  "fecha_creacion": "2024-01-15",
+  "estado": "planning",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Configuración Base y Servicios",
+      "descripcion": "Configuración inicial de tipos, servicios API y store de estado para el módulo wallet",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Configuración de Tipos TypeScript",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Definir interfaces y tipos TypeScript para todas las entidades del módulo wallet",
+          "dependencias": ["@/types", "tailwind.config.js"],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Crear tipos base de wallet",
+              "descripcion": "Definir interfaces para Wallet, Transaction, TransferData y respuestas de API",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Definir interface Wallet",
+                  "descripcion": "Crear interface con id, userId, balance, createdAt, updatedAt"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Definir interface Transaction",
+                  "descripcion": "Crear interface con id, amount, transactionType, description, createdAt"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Definir interface TransferData",
+                  "descripcion": "Crear interface para datos de transferencia con toUserEmail, amount, description"
+                },
+                {
+                  "id": "ST1.1.1.4",
+                  "nombre": "Definir interfaces de respuesta API",
+                  "descripcion": "Crear interfaces para WalletData, TransactionList, ValidationResult, etc."
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Definir tipos de enums y constantes",
+              "descripcion": "Crear enums para tipos de transacción, estados y constantes del módulo",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Crear enum TransactionType",
+                  "descripcion": "Definir credit, debit, transfer, refund, etc."
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Crear enum TransferStatus",
+                  "descripcion": "Definir pending, completed, failed, cancelled"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Definir constantes de validación",
+                  "descripcion": "Crear constantes para límites mínimos/máximos, formatos de email, etc."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Implementación de WalletService",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Crear servicio para manejar todas las operaciones de API del módulo wallet",
+          "dependencias": ["@/lib/fetch", "@/lib/auth", "types/wallet.ts"],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Crear clase WalletService base",
+              "descripcion": "Implementar clase base con métodos para todas las operaciones de wallet",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Implementar método getWallet",
+                  "descripcion": "GET /api/user/wallet - Obtener wallet completa con balance y transacciones"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Implementar método getBalance",
+                  "descripcion": "GET /api/user/wallet/balance - Obtener solo el balance actual"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Implementar método getTransactions",
+                  "descripcion": "GET /api/user/wallet/transactions - Obtener historial con filtros y paginación"
+                },
+                {
+                  "id": "ST1.2.1.4",
+                  "nombre": "Implementar método transferFunds",
+                  "descripcion": "POST /api/user/wallet/transfer - Transferir fondos por email"
+                },
+                {
+                  "id": "ST1.2.1.5",
+                  "nombre": "Implementar método validateTransfer",
+                  "descripcion": "POST /api/user/wallet/validate - Validar operaciones antes de ejecutar"
+                },
+                {
+                  "id": "ST1.2.1.6",
+                  "nombre": "Implementar método getLimits",
+                  "descripcion": "GET /api/user/wallet/limits - Obtener límites de transacción"
+                },
+                {
+                  "id": "ST1.2.1.7",
+                  "nombre": "Implementar método getStats",
+                  "descripcion": "GET /api/user/wallet/stats - Obtener estadísticas de wallet"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Implementar manejo de errores y validaciones",
+              "descripcion": "Agregar manejo robusto de errores y validaciones de datos",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Implementar error handling",
+                  "descripcion": "Manejar errores 401, 400, 404, 429, 500 con mensajes apropiados"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Implementar validaciones de entrada",
+                  "descripcion": "Validar formato de email, montos, límites antes de enviar a API"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Implementar retry logic",
+                  "descripcion": "Agregar lógica de reintento para errores de red"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.3",
+          "nombre": "Configuración del WalletStore",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Implementar store de Zustand para manejo de estado del módulo wallet",
+          "dependencias": ["zustand", "WalletService", "types/wallet.ts"],
+          "tareas": [
+            {
+              "id": "T1.3.1",
+              "nombre": "Crear interface WalletStore",
+              "descripcion": "Definir estructura del store con estado y acciones",
+              "subtareas": [
+                {
+                  "id": "ST1.3.1.1",
+                  "nombre": "Definir estado del store",
+                  "descripcion": "balance, transactions, limits, stats, isLoading, error"
+                },
+                {
+                  "id": "ST1.3.1.2",
+                  "nombre": "Definir acciones del store",
+                  "descripcion": "fetchWallet, fetchBalance, transferFunds, validateTransfer, etc."
+                }
+              ]
+            },
+            {
+              "id": "T1.3.2",
+              "nombre": "Implementar store con Zustand",
+              "descripcion": "Crear implementación del store usando create de Zustand",
+              "subtareas": [
+                {
+                  "id": "ST1.3.2.1",
+                  "nombre": "Implementar acciones síncronas",
+                  "descripcion": "setBalance, setTransactions, setLoading, setError"
+                },
+                {
+                  "id": "ST1.3.2.2",
+                  "nombre": "Implementar acciones asíncronas",
+                  "descripcion": "fetchWallet, fetchBalance, transferFunds con manejo de loading/error"
+                },
+                {
+                  "id": "ST1.3.2.3",
+                  "nombre": "Implementar selectores",
+                  "descripcion": "Crear selectores para optimizar re-renders"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Componentes Base",
+      "descripcion": "Crear componentes reutilizables y especializados para el módulo wallet",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Componentes de Display",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Componentes para mostrar información de wallet y transacciones",
+          "dependencias": ["@/components/common", "types/wallet.ts", "tailwind.config.js", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Crear WalletCard",
+              "descripcion": "Componente principal para mostrar balance y información de wallet",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Implementar diseño de card principal",
+                  "descripcion": "Card con fondo degradado, balance principal y detalles"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Implementar formateo de moneda",
+                  "descripcion": "Formatear montos con símbolo $ y decimales"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Implementar estados de loading",
+                  "descripcion": "Skeleton loader mientras carga el balance"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Crear TransactionItem",
+              "descripcion": "Componente para mostrar transacciones individuales",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Implementar layout de transacción",
+                  "descripcion": "Avatar, nombre, descripción, monto y fecha"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Implementar colores por tipo",
+                  "descripcion": "Verde para créditos, rojo para débitos"
+                },
+                {
+                  "id": "ST2.1.2.3",
+                  "nombre": "Implementar avatares dinámicos",
+                  "descripcion": "Generar avatares con colores únicos por usuario"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Crear BalanceDisplay",
+              "descripcion": "Componente especializado para mostrar balance con animaciones",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Implementar animación de contador",
+                  "descripcion": "Animación de números al cambiar el balance"
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Implementar indicadores de cambio",
+                  "descripcion": "Mostrar flechas o colores cuando el balance cambia"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Componentes de Input",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Componentes especializados para inputs de email, montos y validaciones",
+          "dependencias": ["@/components/common/InputField", "types/wallet.ts", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Crear EmailInput",
+              "descripcion": "Input especializado para email con validación en tiempo real",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Implementar validación de email",
+                  "descripcion": "Validar formato de email con regex"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Implementar verificación de usuario",
+                  "descripcion": "Verificar si el email existe en el sistema"
+                },
+                {
+                  "id": "ST2.2.1.3",
+                  "nombre": "Implementar debounce",
+                  "descripcion": "Evitar llamadas excesivas a la API"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.2",
+              "nombre": "Crear AmountInput",
+              "descripcion": "Input especializado para montos con formato de moneda",
+              "subtareas": [
+                {
+                  "id": "ST2.2.2.1",
+                  "nombre": "Implementar formateo de moneda",
+                  "descripcion": "Formatear input con $ y decimales automáticamente"
+                },
+                {
+                  "id": "ST2.2.2.2",
+                  "nombre": "Implementar validación de límites",
+                  "descripcion": "Validar contra límites mínimos y máximos"
+                },
+                {
+                  "id": "ST2.2.2.3",
+                  "nombre": "Implementar máscara de entrada",
+                  "descripcion": "Solo permitir números y punto decimal"
+                }
+              ]
+            },
+            {
+              "id": "T2.2.3",
+              "nombre": "Crear UserCard",
+              "descripcion": "Card para mostrar información del usuario destinatario",
+              "subtareas": [
+                {
+                  "id": "ST2.2.3.1",
+                  "nombre": "Implementar diseño de card de usuario",
+                  "descripcion": "Avatar, nombre, email y estado de verificación"
+                },
+                {
+                  "id": "ST2.2.3.2",
+                  "nombre": "Implementar estados de verificación",
+                  "descripcion": "Mostrar checkmark verde si usuario es válido"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.3",
+          "nombre": "Componentes de Acción",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Componentes para botones de acción y navegación",
+          "dependencias": ["@/components/common/CustomButton", "tailwind.config.js", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T2.3.1",
+              "nombre": "Crear ActionButton",
+              "descripcion": "Botón circular para acciones principales del wallet",
+              "subtareas": [
+                {
+                  "id": "ST2.3.1.1",
+                  "nombre": "Implementar diseño circular",
+                  "descripcion": "Botón circular con icono y texto debajo"
+                },
+                {
+                  "id": "ST2.3.1.2",
+                  "nombre": "Implementar variantes de color",
+                  "descripcion": "Primary, secondary, success, warning"
+                },
+                {
+                  "id": "ST2.3.1.3",
+                  "nombre": "Implementar estados disabled",
+                  "descripcion": "Estado deshabilitado con opacidad reducida"
+                }
+              ]
+            },
+            {
+              "id": "T2.3.2",
+              "nombre": "Crear TransactionList",
+              "descripcion": "Lista optimizada para mostrar transacciones",
+              "subtareas": [
+                {
+                  "id": "ST2.3.2.1",
+                  "nombre": "Implementar FlatList optimizada",
+                  "descripcion": "Usar FlatList con optimizaciones de performance"
+                },
+                {
+                  "id": "ST2.3.2.2",
+                  "nombre": "Implementar agrupación por fecha",
+                  "descripcion": "Agrupar transacciones por día"
+                },
+                {
+                  "id": "ST2.3.2.3",
+                  "nombre": "Implementar pull-to-refresh",
+                  "descripcion": "Permitir actualizar lista deslizando hacia abajo"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Vistas Principales",
+      "descripcion": "Implementar las 4 vistas principales del módulo wallet",
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Vista Principal del Wallet",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Pantalla principal que muestra balance, botones de acción y transacciones recientes",
+          "dependencias": ["WalletCard", "ActionButton", "TransactionList", "WalletStore", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Implementar layout principal",
+              "descripcion": "Crear estructura de la vista con header, balance card y botones",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Implementar header con perfil",
+                  "descripcion": "Header con avatar, saludo y notificaciones"
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Implementar tabs de navegación",
+                  "descripcion": "Tabs Balance y Wallet con indicador activo"
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Implementar card de balance principal",
+                  "descripcion": "Card destacada con balance total y detalles"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Implementar botones de acción",
+              "descripcion": "Grid de botones circulares para acciones principales",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Implementar botón Send to",
+                  "descripcion": "Botón para enviar dinero con navegación a app/(customer)/wallet/send-money"
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "Implementar botón Request",
+                  "descripcion": "Botón para solicitar dinero (funcionalidad futura)"
+                },
+                {
+                  "id": "ST3.1.2.3",
+                  "nombre": "Implementar botón Top up",
+                  "descripcion": "Botón para agregar fondos (funcionalidad futura)"
+                },
+                {
+                  "id": "ST3.1.2.4",
+                  "nombre": "Implementar botón More",
+                  "descripcion": "Botón para más opciones (funcionalidad futura)"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.3",
+              "nombre": "Implementar sección de transacciones recientes",
+              "descripcion": "Mostrar últimas transacciones con botón ver más",
+              "subtareas": [
+                {
+                  "id": "ST3.1.3.1",
+                  "nombre": "Implementar lista de transacciones",
+                  "descripcion": "Mostrar últimas 3-5 transacciones"
+                },
+                {
+                  "id": "ST3.1.3.2",
+                  "nombre": "Implementar botón View all",
+                  "descripcion": "Navegar a app/(customer)/wallet/transaction-history"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Vista de Envío de Saldo",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Pantalla para enviar dinero por email con validaciones",
+          "dependencias": ["EmailInput", "AmountInput", "WalletStore", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Implementar formulario de envío",
+              "descripcion": "Formulario con email, monto y nota opcional",
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Implementar input de email",
+                  "descripcion": "EmailInput con validación en tiempo real"
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Implementar input de monto",
+                  "descripcion": "AmountInput con formato de moneda"
+                },
+                {
+                  "id": "ST3.2.1.3",
+                  "nombre": "Implementar input de nota",
+                  "descripcion": "Input opcional para mensaje"
+                }
+              ]
+            },
+            {
+              "id": "T3.2.2",
+              "nombre": "Implementar validaciones",
+              "descripcion": "Validar datos antes de continuar",
+              "subtareas": [
+                {
+                  "id": "ST3.2.2.1",
+                  "nombre": "Implementar validación de email",
+                  "descripcion": "Verificar formato y existencia del usuario"
+                },
+                {
+                  "id": "ST3.2.2.2",
+                  "nombre": "Implementar validación de monto",
+                  "descripcion": "Verificar límites y saldo suficiente"
+                },
+                {
+                  "id": "ST3.2.2.3",
+                  "nombre": "Implementar validación de límites diarios",
+                  "descripcion": "Verificar que no se excedan límites diarios"
+                }
+              ]
+            },
+            {
+              "id": "T3.2.3",
+              "nombre": "Implementar navegación",
+              "descripcion": "Navegar a confirmación o mostrar errores",
+              "subtareas": [
+                {
+                  "id": "ST3.2.3.1",
+                  "nombre": "Implementar botón Continue",
+                  "descripcion": "Validar y navegar a app/(customer)/wallet/confirm-transfer"
+                },
+                {
+                  "id": "ST3.2.3.2",
+                  "nombre": "Implementar manejo de errores",
+                  "descripcion": "Mostrar errores de validación inline"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.3",
+          "nombre": "Vista de Confirmación",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Pantalla de confirmación antes de realizar la transferencia",
+          "dependencias": ["UserCard", "WalletStore", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T3.3.1",
+              "nombre": "Implementar información del destinatario",
+              "descripcion": "Mostrar datos del usuario destinatario",
+              "subtareas": [
+                {
+                  "id": "ST3.3.1.1",
+                  "nombre": "Implementar UserCard",
+                  "descripcion": "Mostrar avatar, nombre y email del destinatario"
+                },
+                {
+                  "id": "ST3.3.1.2",
+                  "nombre": "Implementar estado de verificación",
+                  "descripcion": "Mostrar checkmark si usuario es válido"
+                }
+              ]
+            },
+            {
+              "id": "T3.3.2",
+              "nombre": "Implementar resumen de transferencia",
+              "descripcion": "Mostrar monto, nota y comisiones",
+              "subtareas": [
+                {
+                  "id": "ST3.3.2.1",
+                  "nombre": "Implementar display de monto",
+                  "descripcion": "Mostrar monto a transferir"
+                },
+                {
+                  "id": "ST3.3.2.2",
+                  "nombre": "Implementar display de nota",
+                  "descripcion": "Mostrar nota opcional"
+                },
+                {
+                  "id": "ST3.3.2.3",
+                  "nombre": "Implementar cálculo de comisiones",
+                  "descripcion": "Calcular y mostrar comisiones y total"
+                }
+              ]
+            },
+            {
+              "id": "T3.3.3",
+              "nombre": "Implementar procesamiento de transferencia",
+              "descripcion": "Realizar transferencia y manejar resultado",
+              "subtareas": [
+                {
+                  "id": "ST3.3.3.1",
+                  "nombre": "Implementar botón Send Payment",
+                  "descripcion": "Botón para confirmar y procesar transferencia"
+                },
+                {
+                  "id": "ST3.3.3.2",
+                  "nombre": "Implementar estados de loading",
+                  "descripcion": "Mostrar loading durante procesamiento"
+                },
+                {
+                  "id": "ST3.3.3.3",
+                  "nombre": "Implementar manejo de resultado",
+                  "descripcion": "Manejar éxito/error y navegar apropiadamente"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.4",
+          "nombre": "Vista de Historial Completo",
+          "progreso": 100,
+          "prioridad": "Media",
+          "descripcion": "Pantalla con historial completo de transacciones con filtros",
+          "dependencias": ["TransactionList", "WalletStore", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T3.4.1",
+              "nombre": "Implementar header con filtros",
+              "descripcion": "Header con filtros de fecha y tipo de transacción",
+              "subtareas": [
+                {
+                  "id": "ST3.4.1.1",
+                  "nombre": "Implementar filtro de fecha",
+                  "descripcion": "Dropdown para seleccionar rango de fechas"
+                },
+                {
+                  "id": "ST3.4.1.2",
+                  "nombre": "Implementar filtro de tipo",
+                  "descripcion": "Dropdown para filtrar por tipo de transacción"
+                }
+              ]
+            },
+            {
+              "id": "T3.4.2",
+              "nombre": "Implementar lista de transacciones",
+              "descripcion": "Lista completa con agrupación por fecha",
+              "subtareas": [
+                {
+                  "id": "ST3.4.2.1",
+                  "nombre": "Implementar agrupación por fecha",
+                  "descripcion": "Agrupar transacciones por día con headers"
+                },
+                {
+                  "id": "ST3.4.2.2",
+                  "nombre": "Implementar paginación",
+                  "descripcion": "Cargar más transacciones al hacer scroll"
+                },
+                {
+                  "id": "ST3.4.2.3",
+                  "nombre": "Implementar pull-to-refresh",
+                  "descripcion": "Actualizar lista deslizando hacia abajo"
+                }
+              ]
+            },
+            {
+              "id": "T3.4.3",
+              "nombre": "Implementar estados vacíos y errores",
+              "descripcion": "Manejar estados cuando no hay transacciones o hay errores",
+              "subtareas": [
+                {
+                  "id": "ST3.4.3.1",
+                  "nombre": "Implementar estado vacío",
+                  "descripcion": "Mostrar mensaje cuando no hay transacciones"
+                },
+                {
+                  "id": "ST3.4.3.2",
+                  "nombre": "Implementar estado de error",
+                  "descripcion": "Mostrar error y botón de reintento"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Funcionalidades Avanzadas",
+      "descripcion": "Implementar funcionalidades avanzadas como filtros, búsqueda y optimizaciones",
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Sistema de Filtros y Búsqueda",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Implementar filtros avanzados y búsqueda de transacciones",
+          "dependencias": ["TransactionList", "WalletStore", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Implementar filtros de fecha",
+              "descripcion": "Filtros por rango de fechas con calendario",
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Implementar selector de rango",
+                  "descripcion": "Componente para seleccionar fecha inicio y fin"
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Implementar filtros predefinidos",
+                  "descripcion": "Hoy, esta semana, este mes, últimos 3 meses"
+                }
+              ]
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Implementar filtros de tipo",
+              "descripcion": "Filtros por tipo de transacción y monto",
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "Implementar filtro por tipo",
+                  "descripcion": "Credit, debit, transfer, refund"
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "Implementar filtro por monto",
+                  "descripcion": "Rango de montos mínimo y máximo"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Integración Completa",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Integrar todas las funcionalidades y conectar con el sistema existente",
+          "dependencias": ["Todas las vistas", "WalletStore", "UIWrapper", "app/(customer)/_layout.tsx"],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Implementar navegación completa",
+              "descripcion": "Conectar todas las vistas con navegación fluida",
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Implementar navegación entre vistas",
+                  "descripcion": "Usar router.push para navegar entre pantallas en app/(customer)/wallet/"
+                },
+                {
+                  "id": "ST4.2.1.2",
+                  "nombre": "Implementar manejo de parámetros",
+                  "descripcion": "Pasar datos entre vistas usando params"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.2",
+              "nombre": "Implementar integración con UIWrapper",
+              "descripcion": "Integrar con sistema de notificaciones y loading existente",
+              "subtareas": [
+                {
+                  "id": "ST4.2.2.1",
+                  "nombre": "Implementar notificaciones de éxito",
+                  "descripcion": "Mostrar toasts para transferencias exitosas"
+                },
+                {
+                  "id": "ST4.2.2.2",
+                  "nombre": "Implementar notificaciones de error",
+                  "descripcion": "Mostrar errores con UIWrapper"
+                },
+                {
+                  "id": "ST4.2.2.3",
+                  "nombre": "Implementar loading states",
+                  "descripcion": "Usar loading global para operaciones"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "nombre": "Testing y Optimización",
+      "descripcion": "Implementar tests y optimizaciones de performance",
+      "modulos": [
+        {
+          "id": "M5.1",
+          "nombre": "Testing Unitario",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Implementar tests unitarios para componentes y servicios",
+          "dependencias": ["@testing-library/react-native", "jest"],
+          "tareas": [
+            {
+              "id": "T5.1.1",
+              "nombre": "Implementar tests de componentes",
+              "descripcion": "Tests para todos los componentes del módulo",
+              "subtareas": [
+                {
+                  "id": "ST5.1.1.1",
+                  "nombre": "Test WalletCard",
+                  "descripcion": "Verificar renderizado y formateo de balance"
+                },
+                {
+                  "id": "ST5.1.1.2",
+                  "nombre": "Test TransactionItem",
+                  "descripcion": "Verificar renderizado y colores por tipo"
+                },
+                {
+                  "id": "ST5.1.1.3",
+                  "nombre": "Test EmailInput",
+                  "descripcion": "Verificar validación de email"
+                }
+              ]
+            },
+            {
+              "id": "T5.1.2",
+              "nombre": "Implementar tests de servicios",
+              "descripcion": "Tests para WalletService y WalletStore",
+              "subtareas": [
+                {
+                  "id": "ST5.1.2.1",
+                  "nombre": "Test WalletService",
+                  "descripcion": "Mockear API calls y verificar respuestas"
+                },
+                {
+                  "id": "ST5.1.2.2",
+                  "nombre": "Test WalletStore",
+                  "descripcion": "Verificar acciones y actualizaciones de estado"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M5.2",
+          "nombre": "Optimizaciones de Performance",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Optimizar performance del módulo wallet",
+          "dependencias": ["React.memo", "useCallback", "useMemo"],
+          "tareas": [
+            {
+              "id": "T5.2.1",
+              "nombre": "Implementar memoización",
+              "descripcion": "Usar memo, useCallback y useMemo para optimizar",
+              "subtareas": [
+                {
+                  "id": "ST5.2.1.1",
+                  "nombre": "Memoizar componentes pesados",
+                  "descripcion": "Usar React.memo en TransactionItem y WalletCard"
+                },
+                {
+                  "id": "ST5.2.1.2",
+                  "nombre": "Optimizar callbacks",
+                  "descripcion": "Usar useCallback para event handlers"
+                }
+              ]
+            },
+            {
+              "id": "T5.2.2",
+              "nombre": "Optimizar listas",
+              "descripcion": "Optimizar FlatList y paginación",
+              "subtareas": [
+                {
+                  "id": "ST5.2.2.1",
+                  "nombre": "Implementar getItemLayout",
+                  "descripcion": "Optimizar FlatList con getItemLayout"
+                },
+                {
+                  "id": "ST5.2.2.2",
+                  "nombre": "Implementar lazy loading",
+                  "descripcion": "Cargar transacciones bajo demanda"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

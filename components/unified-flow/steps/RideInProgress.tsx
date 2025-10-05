@@ -124,46 +124,34 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
   // Actualizar estado cuando cambie la ubicación del conductor
   useEffect(() => {
     if (!actualRideId) {
-      console.warn(
-        "[RideInProgress] No rideId available for real-time updates",
-      );
+      
       return;
     }
 
-    console.log("[RideInProgress] Setting up real-time ride tracking", {
-      actualRideId,
-    });
+    
   }, [actualRideId]);
 
   // 🚀 NUEVO: Listener WebSocket para actualizaciones de ubicación del conductor
   useEffect(() => {
     if (!actualRideId) {
-      console.warn("[RideInProgress] No rideId available for GPS tracking");
+      
       return;
     }
 
-    console.log(
-      "[RideInProgress] Setting up WebSocket GPS tracking for ride:",
-      actualRideId,
-    );
+    
 
     const handleDriverLocationUpdate = (data: any) => {
-      console.log(
-        "[RideInProgress] 🚨 WebSocket driverLocationUpdate received:",
-        data,
-      );
+      
 
       // Validar que el evento corresponde a este viaje
       if (data.rideId !== actualRideId) {
-        console.log(
-          "[RideInProgress] Ignoring location update for different ride",
-        );
+        
         return;
       }
 
       // Validar coordenadas GPS
       if (!data.latitude || !data.longitude) {
-        console.warn("[RideInProgress] Invalid GPS coordinates received");
+        
         return;
       }
 
@@ -198,9 +186,7 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
       setDynamicEta(etaResult.eta);
       setEtaAccuracy(etaResult.accuracy);
 
-      console.log(
-        `[RideInProgress] ETA updated: ${etaResult.eta}min (accuracy: ${etaResult.accuracy})`,
-      );
+      
     };
 
     // Suscribirse al evento driverLocationUpdate
@@ -209,64 +195,62 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
       handleDriverLocationUpdate,
     );
 
-    console.log("[RideInProgress] ✅ GPS tracking active via WebSocket");
+    
 
     return () => {
       websocketEventManager.off(
         "driverLocationUpdate",
         handleDriverLocationUpdate,
       );
-      console.log("[RideInProgress] 🧹 GPS tracking cleaned up");
+      
     };
   }, [actualRideId, confirmedDestination]);
 
   // 🚀 NUEVO: Listeners para eventos del viaje en progreso
   useEffect(() => {
     if (!actualRideId) {
-      console.warn("[RideInProgress] No rideId available for ride events");
+      
       return;
     }
 
-    console.log("[RideInProgress] Setting up ride lifecycle event listeners", {
-      actualRideId,
-    });
+    
 
     const handleRideArrived = (data: any) => {
-      console.log("[RideInProgress] 🚨 ride:arrived received:", data);
+      
 
       if (data.rideId === actualRideId) {
         // El conductor ha llegado al punto de recogida
         // La navegación automática la maneja useAutoNavigation
-        console.log("[RideInProgress] Driver has arrived at pickup location");
+        
       }
     };
 
     const handleRideStarted = (data: any) => {
-      console.log("[RideInProgress] 🚨 ride:started received:", data);
+      
 
       if (data.rideId === actualRideId) {
         // El viaje ha comenzado oficialmente
-        console.log("[RideInProgress] Ride has officially started");
+        
         // Actualizar estado local si es necesario
       }
     };
 
     const handleRideCompleted = (data: any) => {
-      console.log("[RideInProgress] 🚨 ride:completed received:", data);
+      
 
       if (data.rideId === actualRideId) {
         // El viaje ha finalizado
-        console.log("[RideInProgress] Ride has been completed");
+        
         // La navegación automática la maneja useAutoNavigation
       }
     };
 
     const handleRideCancelled = (data: any) => {
-      console.log("[RideInProgress] 🚨 ride:cancelled received:", data);
+      
 
       if (data.rideId === actualRideId) {
         // El viaje ha sido cancelado
-        console.log("[RideInProgress] Ride has been cancelled");
+        
         // La navegación automática la maneja useAutoNavigation
       }
     };
@@ -277,14 +261,14 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
     websocketEventManager.on("ride:completed", handleRideCompleted);
     websocketEventManager.on("ride:cancelled", handleRideCancelled);
 
-    console.log("[RideInProgress] ✅ Ride lifecycle listeners active");
+    
 
     return () => {
       websocketEventManager.off("ride:arrived", handleRideArrived);
       websocketEventManager.off("ride:started", handleRideStarted);
       websocketEventManager.off("ride:completed", handleRideCompleted);
       websocketEventManager.off("ride:cancelled", handleRideCancelled);
-      console.log("[RideInProgress] 🧹 Ride lifecycle listeners cleaned up");
+      
     };
   }, [actualRideId]);
 

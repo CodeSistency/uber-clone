@@ -61,7 +61,7 @@ const DriverConfirmation: React.FC = () => {
       setPaymentMethod(null);
     }
 
-    console.log("[DriverConfirmation] Payment mode changed to:", newMode);
+    
   };
 
   // Función para manejar la confirmación de pagos
@@ -87,10 +87,7 @@ const DriverConfirmation: React.FC = () => {
           throw new Error("No se han configurado pagos múltiples");
         }
 
-        console.log(
-          "[DriverConfirmation] Processing multiple payments:",
-          multiplePayments,
-        );
+        
 
         // Convertir SplitPayment a PaymentMethod para la API
         const paymentMethods = multiplePayments.map((payment) => ({
@@ -114,10 +111,7 @@ const DriverConfirmation: React.FC = () => {
             `Grupo ${paymentGroup.groupId} creado con ${multiplePayments.length} métodos`,
           );
 
-          console.log(
-            "[DriverConfirmation] Payment group created:",
-            paymentGroup.groupId,
-          );
+          
         } else {
           throw new Error("Error al crear grupo de pagos");
         }
@@ -126,7 +120,7 @@ const DriverConfirmation: React.FC = () => {
       // Continuar con el flujo
       goTo(FLOW_STEPS.CUSTOMER_TRANSPORT_DURANTE_FINALIZACION);
     } catch (error: any) {
-      console.error("[DriverConfirmation] Payment confirmation error:", error);
+      
       const errorMessage = error?.message || "Error al procesar el pago";
       showError("Error de pago", errorMessage);
     } finally {

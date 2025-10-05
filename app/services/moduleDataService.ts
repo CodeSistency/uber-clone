@@ -100,7 +100,7 @@ class DataLoadingQueue {
         if (task.cacheable) {
           const cached = this.cache.get(task.id);
           if (cached !== null) {
-            console.log(`[DataLoadingQueue] 📋 Cache hit for: ${task.name}`);
+            
             return cached;
           }
         }
@@ -125,10 +125,7 @@ class DataLoadingQueue {
         return result;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.warn(
-          `[DataLoadingQueue] Attempt ${attempt + 1} failed for ${task.name}:`,
-          lastError.message,
-        );
+        
 
         if (attempt < maxRetries) {
           // Exponential backoff for retries
@@ -159,7 +156,7 @@ class DataLoadingQueue {
     ) => void,
   ): Promise<ModuleDataResult> {
     if (this.isProcessing) {
-      console.warn("[DataLoadingQueue] Already processing queue");
+      
       return {
         success: false,
         data: {},
@@ -176,17 +173,13 @@ class DataLoadingQueue {
     const totalTasks = this.queue.length;
     let completedTasks = 0;
 
-    console.log(
-      `[DataLoadingQueue] 🚀 Starting optimized processing of ${totalTasks} tasks`,
-    );
+    
 
     // Process tasks in waves based on priority and dependencies
     const priorityGroups = this.groupTasksByPriorityAndDependencies();
 
     for (const [priority, tasks] of priorityGroups) {
-      console.log(
-        `[DataLoadingQueue] 📊 Processing priority ${priority} (${tasks.length} tasks)`,
-      );
+      
 
       if (priority === DataPriority.CRITICAL_BLOCKING) {
         // Process blocking critical tasks sequentially
@@ -199,12 +192,10 @@ class DataLoadingQueue {
             );
             this.results[task.id] = result;
             completedTasks++;
-            console.log(
-              `[DataLoadingQueue] ✅ Blocking critical task completed: ${task.name}`,
-            );
+            
           } catch (error) {
             const errorMsg = `Failed to load ${task.name}: ${error instanceof Error ? error.message : "Unknown error"}`;
-            console.error(`[DataLoadingQueue] ❌ ${errorMsg}`);
+            
             this.errors.push(errorMsg);
 
             // Blocking critical tasks stop the entire process
@@ -241,13 +232,11 @@ class DataLoadingQueue {
             );
             this.results[task.id] = result;
             completedTasks++;
-            console.log(
-              `[DataLoadingQueue] ✅ Parallel task completed: ${task.name}`,
-            );
+            
             return { success: true, taskId: task.id, result };
           } catch (error) {
             const errorMsg = `Failed to load ${task.name}: ${error instanceof Error ? error.message : "Unknown error"}`;
-            console.error(`[DataLoadingQueue] ❌ ${errorMsg}`);
+            
             this.errors.push(errorMsg);
 
             // For non-critical tasks, we don't fail the whole process unless required
@@ -292,9 +281,7 @@ class DataLoadingQueue {
       (task) => this.results[task.id] !== undefined,
     );
 
-    console.log(
-      `[DataLoadingQueue] 🎉 Processing complete. Success: ${success}, Completed: ${completedTasks}/${totalTasks}`,
-    );
+    
 
     return {
       success,
@@ -381,7 +368,7 @@ export class ModuleDataService {
       currentTask: string,
     ) => void,
   ): Promise<ModuleDataResult> {
-    console.log("[ModuleDataService] 🚗 Loading optimized driver data");
+    
 
     dataQueue.clear();
 
@@ -533,7 +520,7 @@ export class ModuleDataService {
       currentTask: string,
     ) => void,
   ): Promise<ModuleDataResult> {
-    console.log("[ModuleDataService] 🏢 Loading business data");
+    
 
     dataQueue.clear();
 
@@ -621,7 +608,7 @@ export class ModuleDataService {
       currentTask: string,
     ) => void,
   ): Promise<ModuleDataResult> {
-    console.log("[ModuleDataService] 👤 Loading customer data");
+    
 
     dataQueue.clear();
 

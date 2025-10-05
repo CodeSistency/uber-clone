@@ -60,7 +60,7 @@ export async function POST(request: Request) {
       status: 201,
     });
   } catch (error) {
-    console.error("Error creating driver:", error);
+    
     return Response.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
