@@ -18,7 +18,7 @@ import {
 import { roomTracker } from "@/lib/roomTracker";
 import { useDevStore } from "@/store/dev/dev";
 import { useDriverConfigStore } from "@/store/driverConfig/driverConfig";
-import { useMapFlowStore, FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { useMapFlowStore, FLOW_STEPS } from "@/store/mapFlow";
 
 import {
   useRealtimeStore,

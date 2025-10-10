@@ -23,8 +23,8 @@ export const useWebSocketDebug = () => {
     const updateConnectionStatus = () => {
       setDebugInfo(prev => ({
         ...prev,
-        isConnected: websocketService.isConnected(),
-        connectionStatus: websocketService.isConnected() ? "connected" : "disconnected"
+        isConnected: websocketService.isConnected,
+        connectionStatus: websocketService.isConnected ? "connected" : "disconnected"
       }));
     };
 
@@ -60,7 +60,7 @@ export const useWebSocketDebug = () => {
     ];
 
     events.forEach(event => {
-      websocketEventManager.on(event, (data) => handleAnyEvent(event, data));
+      websocketEventManager.on(event, (data: any) => handleAnyEvent(event, data));
     });
 
     return () => {

@@ -9,7 +9,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverDeliveryConfirmFinish: React.FC = () => {
   const { startWithDriverStep } = useMapFlow();

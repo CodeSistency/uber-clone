@@ -55,7 +55,7 @@ export default function ConfirmTransferScreen() {
         toUserEmail: email,
         amount: amount,
         description: note || `Transfer to ${userInfo.name}`,
-        referenceType: 'user_transfer' as const
+        referenceType: 'USER_TRANSFER' as any
       };
 
       const result = await transferFunds(transferData);
@@ -246,6 +246,7 @@ export default function ConfirmTransferScreen() {
     </View>
   );
 }
+
 
 
 

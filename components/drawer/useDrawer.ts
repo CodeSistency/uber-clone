@@ -1,6 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, usePathname } from "expo-router";
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useEffect, useCallback, useMemo, useState } from "react";
+import { create } from "zustand";
 
 import { useUI } from "@/components/UIWrapper";
 import { useModuleStore, useModuleTransition } from "@/store/module";
@@ -14,7 +15,20 @@ import {
   DrawerConfig,
 } from "./types";
 
-// Importar configuraciones
+// Store global compartido para el drawer
+interface GlobalDrawerState {
+  isOpen: boolean;
+  activeRoute: string | null;
+  expandedRoutes: string[];
+  currentModule: ModuleType;
+}
+
+const useGlobalDrawerStore = create<GlobalDrawerState>((set) => ({
+  isOpen: false,
+  activeRoute: null,
+  expandedRoutes: [],
+  currentModule: "customer",
+}));
 
 // Hook personalizado para manejar el estado y lógica del drawer
 export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
@@ -25,11 +39,12 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
     config: configOverride,
   } = options;
 
-  // Estado local del drawer
-  const [isOpen, setIsOpen] = useState(initialOpen);
-  const [activeRoute, setActiveRoute] = useState<string | null>(null);
-  const [expandedRoutes, setExpandedRoutes] = useState<Set<string>>(new Set());
-
+  // Usar el store global compartido
+  const globalDrawer = useGlobalDrawerStore();
+  
+  // Estado local para expandedRoutes (para evitar problemas con Set)
+  const [localExpandedRoutes, setLocalExpandedRoutes] = useState<Set<string>>(new Set());
+  
   // Estado global de módulos
   const moduleStore = useModuleStore();
   const moduleTransition = useModuleTransition();
@@ -41,6 +56,9 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
   // Determinar el módulo actual (del store global o forzado)
   const currentModule = forcedModule || moduleStore.currentModule;
   const isTransitioning = moduleStore.isTransitioning;
+
+  // Log cuando el estado cambia
+  console.log('[useDrawer] State updated - isOpen:', globalDrawer.isOpen, 'module:', currentModule);
 
   // Obtener configuración del módulo actual
   const baseConfig = drawerConfigs[currentModule];
@@ -75,7 +93,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
           const activeSubroute = findActiveRoute(route.subroutes);
           if (activeSubroute) {
             // Expandir automáticamente la ruta padre si hay una subruta activa
-            setExpandedRoutes((prev) => new Set([...prev, route.id]));
+            setLocalExpandedRoutes(prev => new Set([...prev, route.id]));
             return activeSubroute;
           }
         }
@@ -84,11 +102,10 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
     };
 
     const active = findActiveRoute(config.routes);
-    if (active !== activeRoute) {
-      
-      setActiveRoute(active);
+    if (active !== globalDrawer.activeRoute) {
+      useGlobalDrawerStore.setState({ activeRoute: active });
     }
-  }, [currentPath, config.routes, activeRoute]);
+  }, [currentPath, config.routes, globalDrawer.activeRoute]);
 
   // Efecto para cargar estado persistido
   useEffect(() => {
@@ -103,14 +120,14 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
         if (savedExpanded) {
           const expanded = new Set<string>(JSON.parse(savedExpanded));
-          setExpandedRoutes(expanded);
+          setLocalExpandedRoutes(expanded);
         }
 
         if (savedActive && savedActive !== "null") {
-          setActiveRoute(savedActive);
+          useGlobalDrawerStore.setState({ activeRoute: savedActive });
         }
       } catch (error) {
-        
+        console.error("[useDrawer] Error loading persisted state:", error);
       }
     };
 
@@ -127,32 +144,34 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
           JSON.stringify(value),
         );
       } catch (error) {
-        
+        console.error("[useDrawer] Error persisting state:", error);
       }
     },
     [persistState, currentModule],
   );
 
-  // Acciones del drawer
+  // Funciones de control del drawer
   const toggle = useCallback(() => {
-    
-    setIsOpen((prev) => !prev);
+    console.log('[useDrawer] toggle() called');
+    const currentState = useGlobalDrawerStore.getState();
+    useGlobalDrawerStore.setState({ isOpen: !currentState.isOpen });
   }, []);
 
   const open = useCallback(() => {
-    
-    setIsOpen(true);
-  }, []);
+    console.log('[useDrawer] open() called, current state:', globalDrawer.isOpen);
+    useGlobalDrawerStore.setState({ isOpen: true });
+    console.log('[useDrawer] open() completed, new state:', true);
+  }, [globalDrawer.isOpen]);
 
   const close = useCallback(() => {
-    
-    setIsOpen(false);
-  }, []);
+    console.log('[useDrawer] close() called - current state:', globalDrawer.isOpen);
+    useGlobalDrawerStore.setState({ isOpen: false });
+    console.log('[useDrawer] close() completed - new state should be false');
+  }, [globalDrawer.isOpen]);
 
   const setActiveRouteHandler = useCallback(
     (routeId: string) => {
-      
-      setActiveRoute(routeId);
+      useGlobalDrawerStore.setState({ activeRoute: routeId });
       persistStateAsync("active", routeId);
     },
     [persistStateAsync],
@@ -160,8 +179,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
   const toggleExpandedHandler = useCallback(
     (routeId: string) => {
-      
-      setExpandedRoutes((prev) => {
+      setLocalExpandedRoutes(prev => {
         const newSet = new Set(prev);
         if (newSet.has(routeId)) {
           newSet.delete(routeId);
@@ -178,7 +196,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
   // Función para manejar cambios de módulo
   const switchModule = useCallback(
     async (targetModule: ModuleType) => {
-      
+      console.log('[useDrawer] switchModule called:', targetModule);
 
       // Buscar la ruta que cambia al módulo objetivo
       const switchRoute = config.routes.find(
@@ -208,7 +226,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
         });
 
         if (!confirmed) {
-          
+          console.log('[useDrawer] Module switch cancelled');
           return;
         }
       }
@@ -227,13 +245,13 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
           driver: "/(auth)/driver-register",
         };
 
-        
+        console.log('[useDrawer] Navigating to:', initialRoutes[targetModule]);
         router.replace(initialRoutes[targetModule] as any);
 
         // Mostrar notificación de éxito
         showSuccess("Success", `Switched to ${targetModule} mode`);
       } catch (error) {
-        
+        console.error('[useDrawer] Error switching module:', error);
         showError("Switch Failed", "Unable to switch modes. Please try again.");
       }
     },
@@ -243,7 +261,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
   // Handler principal para presionar rutas
   const handleRoutePress = useCallback(
     (route: DrawerRoute) => {
-      
+      console.log('[useDrawer] handleRoutePress called:', route.id);
 
       // Si es un cambio de módulo
       if (route.switchToModule) {
@@ -259,7 +277,7 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
 
       // Si tiene href, navegar
       if (route.href) {
-        
+        console.log('[useDrawer] Navigating to:', route.href);
         router.push(route.href as any);
         setActiveRouteHandler(route.id);
         close(); // Cerrar drawer después de navegar
@@ -272,16 +290,16 @@ export const useDrawer = (options: UseDrawerOptions = {}): UseDrawerReturn => {
         return;
       }
 
-      
+      console.log('[useDrawer] No action for route:', route.id);
     },
     [switchModule, setActiveRouteHandler, close, toggleExpandedHandler],
   );
 
   return {
-    // Estado
-    isOpen,
-    activeRoute,
-    expandedRoutes,
+    // Estado del store global
+    isOpen: globalDrawer.isOpen,
+    activeRoute: globalDrawer.activeRoute,
+    expandedRoutes: localExpandedRoutes,
     currentModule,
     isTransitioning,
 

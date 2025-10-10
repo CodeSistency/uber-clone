@@ -1,6 +1,7 @@
 import { useCallback } from "react";
-import {
-  useMapFlowStore,
+import { shallow } from "zustand/shallow";
+import { useMapFlowStore } from "@/store/mapFlow/mapFlow";
+import type {
   MapFlowRole,
   MapFlowStep,
   ServiceType,
@@ -15,15 +16,16 @@ import {
   DriverMandadoStep,
   CustomerEnvioStep,
   DriverEnvioStep,
-} from "@/store/mapFlow/mapFlow";
+} from "@/store/mapFlow/types";
 import { useVehicleTiersStore } from "@/store";
+import { MapFlowState } from "@/store/mapFlow/types";
 
 /**
  * Hook para controlar el flujo de mapas con navegación type-safe
  *
  * @example
  * ```typescript
- * import { FLOW_STEPS } from '@/store/mapFlow/mapFlow';
+ * import { FLOW_STEPS } from '@/store/mapFlow';
  *
  * const { startWithCustomerStep, startWithTransportStep } = useMapFlow();
  *
@@ -113,11 +115,11 @@ export const useMapFlow = () => {
     [state],
   );
 
-  const stop = useCallback(() => state.stop(), [state]);
-  const reset = useCallback(() => state.reset(), [state]);
-  const next = useCallback(() => state.next(), [state]);
-  const back = useCallback(() => state.back(), [state]);
-  const goTo = useCallback((step: MapFlowStep) => state.goTo(step), [state]);
+  const stopFlow = useCallback(() => state.stop(), [state]);
+  const resetFlow = useCallback(() => state.reset(), [state]);
+  const nextFlow = useCallback(() => state.next(), [state]);
+  const backFlow = useCallback(() => state.back(), [state]);
+  const goToFlow = useCallback((step: MapFlowStep) => state.goTo(step), [state]);
   const goToStep = useCallback(
     (stepName: string) => state.goToStep(stepName),
     [state],
@@ -165,16 +167,14 @@ export const useMapFlow = () => {
   );
 
   return {
-    // Include all state properties and functions from the store
     ...state,
-    // Override with custom functions
     start,
     startService,
-    stop,
-    reset,
-    next,
-    back,
-    goTo,
+    stop: stopFlow,
+    reset: resetFlow,
+    next: nextFlow,
+    back: backFlow,
+    goTo: goToFlow,
     goToStep,
     getInitialStepConfig,
     startWithConfig,
@@ -186,4 +186,11 @@ export const useMapFlow = () => {
     startWithMandadoStep,
     startWithEnvioStep,
   };
+};
+
+export const useMapFlowSelector = <T>(
+  selector: (state: MapFlowState) => T,
+  equalityFn?: (a: T, b: T) => boolean,
+) => {
+  return useMapFlowStore(selector, equalityFn ?? shallow);
 };

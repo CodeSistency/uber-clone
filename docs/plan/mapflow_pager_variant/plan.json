@@ -1,0 +1,742 @@
+{
+  "proyecto": "mapflow_pager_variant",
+  "descripcion": "Implementación de variante PagerView + Progress Handle para el sistema MapFlow del Uber Clone",
+  "fecha_creacion": "2025-01-07",
+  "estado": "en_desarrollo",
+  "etapas": [
+    {
+      "id": "E1",
+      "nombre": "Análisis y Preparación del Sistema",
+      "descripcion": "Análisis del sistema actual y preparación para la implementación de la variante PagerView",
+      "modulos": [
+        {
+          "id": "M1.1",
+          "nombre": "Análisis del Sistema Actual",
+          "progreso": 100,
+          "prioridad": "Alta",
+          "descripcion": "Analizar la implementación actual del MapFlow y identificar puntos de integración para la variante PagerView",
+          "dependencias": [
+            "store/mapFlow/mapFlow.ts",
+            "components/ui/GorhomMapFlowBottomSheet.tsx",
+            "components/mapFlow/MapFlowPagerView.tsx",
+            "hooks/useMapFlowPageContent.ts"
+          ],
+          "tareas": [
+            {
+              "id": "T1.1.1",
+              "nombre": "Auditoría del Store Actual",
+              "descripcion": "Revisar y documentar la estructura actual del MapFlowStore y sus acciones",
+              "subtareas": [
+                {
+                  "id": "ST1.1.1.1",
+                  "nombre": "Documentar MapFlowState",
+                  "descripcion": "Crear documentación detallada de la interfaz MapFlowState actual"
+                },
+                {
+                  "id": "ST1.1.1.2",
+                  "nombre": "Mapear Acciones Existentes",
+                  "descripcion": "Listar y documentar todas las acciones disponibles en el store"
+                },
+                {
+                  "id": "ST1.1.1.3",
+                  "nombre": "Identificar Puntos de Extensión",
+                  "descripcion": "Determinar dónde se pueden agregar nuevas propiedades para la variante PagerView"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.2",
+              "nombre": "Análisis de Componentes Existentes",
+              "descripcion": "Evaluar los componentes MapFlowPagerView y MapFlowPage existentes",
+              "subtareas": [
+                {
+                  "id": "ST1.1.2.1",
+                  "nombre": "Revisar MapFlowPagerView",
+                  "descripcion": "Analizar la implementación actual de MapFlowPagerView y sus capacidades"
+                },
+                {
+                  "id": "ST1.1.2.2",
+                  "nombre": "Evaluar MapFlowPage",
+                  "descripcion": "Revisar el componente MapFlowPage y su integración con el sistema"
+                },
+                {
+                  "id": "ST1.1.2.3",
+                  "nombre": "Identificar Gaps de Funcionalidad",
+                  "descripcion": "Determinar qué funcionalidades faltan para la implementación completa"
+                }
+              ]
+            },
+            {
+              "id": "T1.1.3",
+              "nombre": "Análisis de Hooks Existentes",
+              "descripcion": "Revisar los hooks relacionados con MapFlow y determinar reutilización",
+              "subtareas": [
+                {
+                  "id": "ST1.1.3.1",
+                  "nombre": "Auditar useMapFlowPageContent",
+                  "descripcion": "Analizar el hook useMapFlowPageContent y sus capacidades"
+                },
+                {
+                  "id": "ST1.1.3.2",
+                  "nombre": "Revisar Otros Hooks MapFlow",
+                  "descripcion": "Evaluar otros hooks relacionados con MapFlow para reutilización"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M1.2",
+          "nombre": "Diseño de Arquitectura de Variante",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Diseñar la arquitectura para la variante PagerView manteniendo compatibilidad con el sistema actual",
+          "dependencias": [
+            "M1.1"
+          ],
+          "tareas": [
+            {
+              "id": "T1.2.1",
+              "nombre": "Diseño de Extensión del Store",
+              "descripcion": "Diseñar las extensiones necesarias al MapFlowStore para soportar la variante PagerView",
+              "subtareas": [
+                {
+                  "id": "ST1.2.1.1",
+                  "nombre": "Definir Nueva Interfaz Variant",
+                  "descripcion": "Crear interfaz para el estado de la variante PagerView"
+                },
+                {
+                  "id": "ST1.2.1.2",
+                  "nombre": "Diseñar Acciones de Variante",
+                  "descripcion": "Definir las acciones necesarias para manejar la variante PagerView"
+                },
+                {
+                  "id": "ST1.2.1.3",
+                  "nombre": "Planificar Migración Gradual",
+                  "descripcion": "Diseñar estrategia para migración gradual sin romper funcionalidad existente"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.2",
+              "nombre": "Diseño de Componente Progress Handle",
+              "descripcion": "Diseñar el componente MapFlowProgressHandle para mostrar progreso visual",
+              "subtareas": [
+                {
+                  "id": "ST1.2.2.1",
+                  "nombre": "Definir Interfaz del Handle",
+                  "descripcion": "Crear interfaz para MapFlowProgressHandle con todas las props necesarias"
+                },
+                {
+                  "id": "ST1.2.2.2",
+                  "nombre": "Diseñar Estados Visuales",
+                  "descripcion": "Definir los diferentes estados visuales del handle (activo, completado, pendiente, error)"
+                },
+                {
+                  "id": "ST1.2.2.3",
+                  "nombre": "Planificar Interactividad",
+                  "descripcion": "Diseñar la interactividad del handle (tocar para navegar, animaciones)"
+                }
+              ]
+            },
+            {
+              "id": "T1.2.3",
+              "nombre": "Diseño de Integración con BottomSheet",
+              "descripcion": "Diseñar cómo integrar la variante PagerView con GorhomMapFlowBottomSheet",
+              "subtareas": [
+                {
+                  "id": "ST1.2.3.1",
+                  "nombre": "Definir Props de Variante",
+                  "descripcion": "Diseñar las props necesarias para activar la variante en GorhomMapFlowBottomSheet"
+                },
+                {
+                  "id": "ST1.2.3.2",
+                  "nombre": "Planificar Renderizado Condicional",
+                  "descripcion": "Diseñar la lógica de renderizado condicional entre contenido directo y PagerView"
+                },
+                {
+                  "id": "ST1.2.3.3",
+                  "nombre": "Diseñar Handle Personalizado",
+                  "descripcion": "Planificar la integración del MapFlowProgressHandle como handleComponent"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E2",
+      "nombre": "Implementación del Store Extendido",
+      "descripcion": "Extender el MapFlowStore para soportar la variante PagerView manteniendo compatibilidad",
+      "modulos": [
+        {
+          "id": "M2.1",
+          "nombre": "Extensión de MapFlowState",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Agregar nuevas propiedades al MapFlowState para soportar la variante PagerView",
+          "dependencias": [
+            "E1"
+          ],
+          "tareas": [
+            {
+              "id": "T2.1.1",
+              "nombre": "Agregar Interfaz Variant",
+              "descripcion": "Crear la interfaz para el estado de la variante en MapFlowState",
+              "subtareas": [
+                {
+                  "id": "ST2.1.1.1",
+                  "nombre": "Definir VariantState",
+                  "descripcion": "Crear interfaz VariantState con propiedades usePagerView, currentPageIndex, totalPages, isTransitioning"
+                },
+                {
+                  "id": "ST2.1.1.2",
+                  "nombre": "Integrar en MapFlowState",
+                  "descripcion": "Agregar la propiedad variant al MapFlowState principal"
+                },
+                {
+                  "id": "ST2.1.1.3",
+                  "nombre": "Actualizar Estado Inicial",
+                  "descripcion": "Actualizar el estado inicial del store para incluir la nueva propiedad variant"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.2",
+              "nombre": "Implementar Acciones de Variante",
+              "descripcion": "Crear las acciones necesarias para manejar la variante PagerView",
+              "subtareas": [
+                {
+                  "id": "ST2.1.2.1",
+                  "nombre": "Crear setUsePagerView",
+                  "descripcion": "Implementar acción para activar/desactivar la variante PagerView"
+                },
+                {
+                  "id": "ST2.1.2.2",
+                  "nombre": "Crear setCurrentPageIndex",
+                  "descripcion": "Implementar acción para cambiar el índice de página actual"
+                },
+                {
+                  "id": "ST2.1.2.3",
+                  "nombre": "Crear setTotalPages",
+                  "descripcion": "Implementar acción para establecer el total de páginas"
+                },
+                {
+                  "id": "ST2.1.2.4",
+                  "nombre": "Crear Acciones de Navegación",
+                  "descripcion": "Implementar goToNextPage, goToPreviousPage, goToPage"
+                }
+              ]
+            },
+            {
+              "id": "T2.1.3",
+              "nombre": "Actualizar setCurrentStep",
+              "descripcion": "Modificar la acción setCurrentStep para manejar la variante PagerView",
+              "subtareas": [
+                {
+                  "id": "ST2.1.3.1",
+                  "nombre": "Detectar Cambio de Variante",
+                  "descripcion": "Modificar setCurrentStep para detectar si debe usar PagerView o contenido directo"
+                },
+                {
+                  "id": "ST2.1.3.2",
+                  "nombre": "Actualizar Página Actual",
+                  "descripcion": "Actualizar currentPageIndex cuando cambia el paso en modo PagerView"
+                },
+                {
+                  "id": "ST2.1.3.3",
+                  "nombre": "Mantener Compatibilidad",
+                  "descripcion": "Asegurar que el comportamiento existente no se vea afectado"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M2.2",
+          "nombre": "Testing del Store Extendido",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Crear tests para verificar que la extensión del store funciona correctamente",
+          "dependencias": [
+            "M2.1"
+          ],
+          "tareas": [
+            {
+              "id": "T2.2.1",
+              "nombre": "Tests de Acciones de Variante",
+              "descripcion": "Crear tests unitarios para las nuevas acciones del store",
+              "subtareas": [
+                {
+                  "id": "ST2.2.1.1",
+                  "nombre": "Test setUsePagerView",
+                  "descripcion": "Verificar que setUsePagerView actualiza correctamente el estado"
+                },
+                {
+                  "id": "ST2.2.1.2",
+                  "nombre": "Test Navegación de Páginas",
+                  "descripcion": "Verificar que las acciones de navegación funcionan correctamente"
+                },
+                {
+                  "id": "ST2.2.1.3",
+                  "nombre": "Test Compatibilidad",
+                  "descripcion": "Verificar que las acciones existentes siguen funcionando"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E3",
+      "nombre": "Implementación del Progress Handle",
+      "descripcion": "Crear el componente MapFlowProgressHandle para mostrar progreso visual del flujo",
+      "modulos": [
+        {
+          "id": "M3.1",
+          "nombre": "Componente MapFlowProgressHandle",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Implementar el componente principal del handle con progreso visual",
+          "dependencias": [
+            "E2"
+          ],
+          "tareas": [
+            {
+              "id": "T3.1.1",
+              "nombre": "Crear Estructura Base",
+              "descripcion": "Crear la estructura básica del componente MapFlowProgressHandle",
+              "subtareas": [
+                {
+                  "id": "ST3.1.1.1",
+                  "nombre": "Definir Interfaz Props",
+                  "descripcion": "Crear interfaz MapFlowProgressHandleProps con todas las propiedades necesarias"
+                },
+                {
+                  "id": "ST3.1.1.2",
+                  "nombre": "Implementar Componente Base",
+                  "descripcion": "Crear la estructura básica del componente con renderizado de props"
+                },
+                {
+                  "id": "ST3.1.1.3",
+                  "nombre": "Agregar Estilos Base",
+                  "descripcion": "Implementar estilos básicos para el handle"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.2",
+              "nombre": "Implementar Indicadores de Progreso",
+              "descripcion": "Crear los indicadores visuales de progreso (puntos, barras, etc.)",
+              "subtareas": [
+                {
+                  "id": "ST3.1.2.1",
+                  "nombre": "Crear Indicadores de Paso",
+                  "descripcion": "Implementar indicadores visuales para cada paso del flujo"
+                },
+                {
+                  "id": "ST3.1.2.2",
+                  "nombre": "Implementar Estados Visuales",
+                  "descripcion": "Crear diferentes estados visuales (activo, completado, pendiente, error)"
+                },
+                {
+                  "id": "ST3.1.2.3",
+                  "nombre": "Agregar Animaciones",
+                  "descripcion": "Implementar animaciones para transiciones entre estados"
+                }
+              ]
+            },
+            {
+              "id": "T3.1.3",
+              "nombre": "Implementar Interactividad",
+              "descripcion": "Agregar funcionalidad de interacción (tocar para navegar)",
+              "subtareas": [
+                {
+                  "id": "ST3.1.3.1",
+                  "nombre": "Implementar Touch Handlers",
+                  "descripcion": "Agregar manejadores de toque para navegación"
+                },
+                {
+                  "id": "ST3.1.3.2",
+                  "nombre": "Crear Callback de Navegación",
+                  "descripcion": "Implementar callback onStepPress para navegación"
+                },
+                {
+                  "id": "ST3.1.3.3",
+                  "nombre": "Agregar Feedback Visual",
+                  "descripcion": "Implementar feedback visual al tocar (highlight, ripple)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M3.2",
+          "nombre": "Testing del Progress Handle",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Crear tests para el componente MapFlowProgressHandle",
+          "dependencias": [
+            "M3.1"
+          ],
+          "tareas": [
+            {
+              "id": "T3.2.1",
+              "nombre": "Tests de Renderizado",
+              "descripcion": "Verificar que el componente se renderiza correctamente con diferentes props",
+              "subtareas": [
+                {
+                  "id": "ST3.2.1.1",
+                  "nombre": "Test Props Básicas",
+                  "descripcion": "Verificar renderizado con props básicas"
+                },
+                {
+                  "id": "ST3.2.1.2",
+                  "nombre": "Test Estados Visuales",
+                  "descripcion": "Verificar que los diferentes estados visuales se renderizan correctamente"
+                },
+                {
+                  "id": "ST3.2.1.3",
+                  "nombre": "Test Interactividad",
+                  "descripcion": "Verificar que la interactividad funciona correctamente"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E4",
+      "nombre": "Integración con GorhomMapFlowBottomSheet",
+      "descripcion": "Modificar GorhomMapFlowBottomSheet para soportar la variante PagerView",
+      "modulos": [
+        {
+          "id": "M4.1",
+          "nombre": "Extensión de Props",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Agregar props necesarias para la variante PagerView al GorhomMapFlowBottomSheet",
+          "dependencias": [
+            "E3"
+          ],
+          "tareas": [
+            {
+              "id": "T4.1.1",
+              "nombre": "Agregar Props de Variante",
+              "descripcion": "Extender GorhomMapFlowBottomSheetProps con props para la variante",
+              "subtareas": [
+                {
+                  "id": "ST4.1.1.1",
+                  "nombre": "Agregar usePagerView",
+                  "descripcion": "Agregar prop usePagerView para activar/desactivar la variante"
+                },
+                {
+                  "id": "ST4.1.1.2",
+                  "nombre": "Agregar pagerSteps",
+                  "descripcion": "Agregar prop pagerSteps para definir los pasos del pager"
+                },
+                {
+                  "id": "ST4.1.1.3",
+                  "nombre": "Agregar onStepChange",
+                  "descripcion": "Agregar callback onStepChange para manejar cambios de paso"
+                }
+              ]
+            },
+            {
+              "id": "T4.1.2",
+              "nombre": "Implementar Renderizado Condicional",
+              "descripcion": "Implementar lógica de renderizado condicional entre contenido directo y PagerView",
+              "subtareas": [
+                {
+                  "id": "ST4.1.2.1",
+                  "nombre": "Crear Función de Renderizado",
+                  "descripcion": "Implementar función que decide qué contenido renderizar"
+                },
+                {
+                  "id": "ST4.1.2.2",
+                  "nombre": "Integrar MapFlowPagerView",
+                  "descripcion": "Integrar MapFlowPagerView cuando usePagerView es true"
+                },
+                {
+                  "id": "ST4.1.2.3",
+                  "nombre": "Mantener Contenido Directo",
+                  "descripcion": "Asegurar que el contenido directo siga funcionando cuando usePagerView es false"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.2",
+          "nombre": "Integración del Progress Handle",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Integrar MapFlowProgressHandle como handleComponent del BottomSheet",
+          "dependencias": [
+            "M4.1"
+          ],
+          "tareas": [
+            {
+              "id": "T4.2.1",
+              "nombre": "Implementar Handle Condicional",
+              "descripcion": "Implementar lógica para usar MapFlowProgressHandle cuando usePagerView es true",
+              "subtareas": [
+                {
+                  "id": "ST4.2.1.1",
+                  "nombre": "Crear Handle Dinámico",
+                  "descripcion": "Implementar función que retorna el handle apropiado según la variante"
+                },
+                {
+                  "id": "ST4.2.1.2",
+                  "nombre": "Integrar Progress Handle",
+                  "descripcion": "Integrar MapFlowProgressHandle como handleComponent"
+                },
+                {
+                  "id": "ST4.2.1.3",
+                  "nombre": "Mantener Handle Original",
+                  "descripcion": "Asegurar que el handle original siga funcionando en modo normal"
+                }
+              ]
+            },
+            {
+              "id": "T4.2.2",
+              "nombre": "Configurar Navegación",
+              "descripcion": "Configurar la navegación entre pasos en el Progress Handle",
+              "subtareas": [
+                {
+                  "id": "ST4.2.2.1",
+                  "nombre": "Implementar onStepPress",
+                  "descripcion": "Implementar callback para navegación al tocar el handle"
+                },
+                {
+                  "id": "ST4.2.2.2",
+                  "nombre": "Sincronizar con Store",
+                  "descripcion": "Sincronizar la navegación del handle con el store"
+                },
+                {
+                  "id": "ST4.2.2.3",
+                  "nombre": "Agregar Validaciones",
+                  "descripcion": "Agregar validaciones para navegación (pasos requeridos, etc.)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M4.3",
+          "nombre": "Testing de Integración",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Crear tests para verificar la integración de la variante",
+          "dependencias": [
+            "M4.2"
+          ],
+          "tareas": [
+            {
+              "id": "T4.3.1",
+              "nombre": "Tests de Renderizado Condicional",
+              "descripcion": "Verificar que el renderizado condicional funciona correctamente",
+              "subtareas": [
+                {
+                  "id": "ST4.3.1.1",
+                  "nombre": "Test Modo Normal",
+                  "descripcion": "Verificar que el modo normal (contenido directo) sigue funcionando"
+                },
+                {
+                  "id": "ST4.3.1.2",
+                  "nombre": "Test Modo PagerView",
+                  "descripcion": "Verificar que el modo PagerView se renderiza correctamente"
+                },
+                {
+                  "id": "ST4.3.1.3",
+                  "nombre": "Test Cambio de Modo",
+                  "descripcion": "Verificar que el cambio entre modos funciona correctamente"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E5",
+      "nombre": "Configuración y Optimización",
+      "descripcion": "Configurar la variante por paso y optimizar el rendimiento",
+      "modulos": [
+        {
+          "id": "M5.1",
+          "nombre": "Configuración por Paso",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Extender la configuración de pasos para soportar la variante PagerView",
+          "dependencias": [
+            "E4"
+          ],
+          "tareas": [
+            {
+              "id": "T5.1.1",
+              "nombre": "Extender StepConfig",
+              "descripcion": "Agregar configuración de pager a StepConfig",
+              "subtareas": [
+                {
+                  "id": "ST5.1.1.1",
+                  "nombre": "Agregar Configuración Pager",
+                  "descripcion": "Agregar objeto pager a StepConfig con propiedades enableSwipe, showProgress, allowSkip, required"
+                },
+                {
+                  "id": "ST5.1.1.2",
+                  "nombre": "Actualizar DEFAULT_CONFIG",
+                  "descripcion": "Actualizar la configuración por defecto para incluir la configuración de pager"
+                },
+                {
+                  "id": "ST5.1.1.3",
+                  "nombre": "Configurar Pasos Específicos",
+                  "descripcion": "Configurar pasos específicos como confirm_origin, choose_service, etc."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M5.2",
+          "nombre": "Optimizaciones de Rendimiento",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Implementar optimizaciones para mejorar el rendimiento de la variante",
+          "dependencias": [
+            "M5.1"
+          ],
+          "tareas": [
+            {
+              "id": "T5.2.1",
+              "nombre": "Lazy Loading de Páginas",
+              "descripcion": "Implementar lazy loading para las páginas del PagerView",
+              "subtareas": [
+                {
+                  "id": "ST5.2.1.1",
+                  "nombre": "Configurar offscreenPageLimit",
+                  "descripcion": "Configurar PagerView para solo renderizar páginas adyacentes"
+                },
+                {
+                  "id": "ST5.2.1.2",
+                  "nombre": "Implementar Memoización",
+                  "descripcion": "Usar React.memo para componentes de página"
+                },
+                {
+                  "id": "ST5.2.1.3",
+                  "nombre": "Optimizar Re-renders",
+                  "descripcion": "Optimizar para evitar re-renders innecesarios"
+                }
+              ]
+            },
+            {
+              "id": "T5.2.2",
+              "nombre": "Optimizaciones de Animación",
+              "descripcion": "Optimizar las animaciones del Progress Handle y PagerView",
+              "subtareas": [
+                {
+                  "id": "ST5.2.2.1",
+                  "nombre": "Usar react-native-reanimated",
+                  "descripcion": "Implementar animaciones con react-native-reanimated para mejor rendimiento"
+                },
+                {
+                  "id": "ST5.2.2.2",
+                  "nombre": "Optimizar Transiciones",
+                  "descripcion": "Optimizar las transiciones entre páginas"
+                },
+                {
+                  "id": "ST5.2.2.3",
+                  "nombre": "Reducir Jank",
+                  "descripcion": "Minimizar jank en las animaciones"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "E6",
+      "nombre": "Testing y Documentación",
+      "descripcion": "Crear tests completos y documentación para la variante PagerView",
+      "modulos": [
+        {
+          "id": "M6.1",
+          "nombre": "Testing Integral",
+          "progreso": 0,
+          "prioridad": "Alta",
+          "descripcion": "Crear tests integrales para toda la funcionalidad de la variante",
+          "dependencias": [
+            "E5"
+          ],
+          "tareas": [
+            {
+              "id": "T6.1.1",
+              "nombre": "Tests de Integración",
+              "descripcion": "Crear tests de integración para toda la funcionalidad",
+              "subtareas": [
+                {
+                  "id": "ST6.1.1.1",
+                  "nombre": "Test Flujo Completo",
+                  "descripcion": "Crear test que verifique el flujo completo de la variante"
+                },
+                {
+                  "id": "ST6.1.1.2",
+                  "nombre": "Test Compatibilidad",
+                  "descripcion": "Verificar que la funcionalidad existente sigue funcionando"
+                },
+                {
+                  "id": "ST6.1.1.3",
+                  "nombre": "Test Performance",
+                  "descripcion": "Crear tests de rendimiento para la variante"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "id": "M6.2",
+          "nombre": "Documentación",
+          "progreso": 0,
+          "prioridad": "Media",
+          "descripcion": "Crear documentación completa para la variante PagerView",
+          "dependencias": [
+            "M6.1"
+          ],
+          "tareas": [
+            {
+              "id": "T6.2.1",
+              "nombre": "Documentación de Uso",
+              "descripcion": "Crear documentación de cómo usar la variante PagerView",
+              "subtareas": [
+                {
+                  "id": "ST6.2.1.1",
+                  "nombre": "Guía de Implementación",
+                  "descripcion": "Crear guía paso a paso para implementar la variante"
+                },
+                {
+                  "id": "ST6.2.1.2",
+                  "nombre": "Ejemplos de Uso",
+                  "descripcion": "Crear ejemplos de código para diferentes casos de uso"
+                },
+                {
+                  "id": "ST6.2.1.3",
+                  "nombre": "API Reference",
+                  "descripcion": "Crear referencia de API para todos los componentes y props"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "proximos_pasos": [
+    "Continuar con la Etapa 1: Análisis y Preparación del Sistema",
+    "Revisar y ajustar las dependencias entre módulos si es necesario",
+    "Generar documentación adicional para casos de uso específicos"
+  ]
+}

@@ -1,8 +1,6 @@
 import { Stack } from "expo-router";
 import React from "react";
 import {
-  Dimensions,
-  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -10,16 +8,12 @@ import {
   Animated,
 } from "react-native";
 import Reanimated from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { useRouter } from "expo-router";
 
 import { AppHeader } from "@/components/AppHeader";
 import { Button } from "@/components/ui";
 import { websocketService } from "@/app/services/websocketService";
 import { useUI } from "@/components/UIWrapper";
 import {
-  ErrorBoundaryStep,
-  LoadingTransition,
   WebSocketStatus,
   NotificationSettings,
   VenezuelanPaymentSelector,
@@ -30,31 +24,19 @@ import {
   SimulationControls as BaseSimulationControls,
 } from "@/components/unified-flow/BaseComponents";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
-import ChooseDriver from "@/components/unified-flow/steps/Client/ChooseDriver";
-import DeliveryBusinessSearch from "@/components/unified-flow/steps/Client/Delivery/DeliveryBusinessSearch";
-import DeliveryCheckout from "@/components/unified-flow/steps/Client/Delivery/DeliveryCheckout";
-import DeliveryTracking from "@/components/unified-flow/steps/Client/Delivery/DeliveryTracking";
-import EnvioDeliveryConfirm from "@/components/unified-flow/steps/Client/Envio/EnvioDeliveryConfirm";
-import EnvioDetails from "@/components/unified-flow/steps/Client/Envio/EnvioDetails";
-import EnvioPricingAndPayment from "@/components/unified-flow/steps/Client/Envio/EnvioPricingAndPayment";
-import EnvioTracking from "@/components/unified-flow/steps/Client/Envio/EnvioTracking";
-import MandadoCommsAndConfirm from "@/components/unified-flow/steps/Client/Mandado/MandadoCommsAndConfirm";
-import MandadoDetails from "@/components/unified-flow/steps/Client/Mandado/MandadoDetails";
-import MandadoFinalize from "@/components/unified-flow/steps/Client/Mandado/MandadoFinalize";
-import MandadoPriceAndPayment from "@/components/unified-flow/steps/Client/Mandado/MandadoPriceAndPayment";
-import MandadoSearching from "@/components/unified-flow/steps/Client/Mandado/MandadoSearching";
-import ServiceSelection from "@/components/unified-flow/steps/Client/ServiceSelection";
-import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
-import { useMapFlowContext } from "@/context/MapFlowContext";
-import { useMapFlow } from "@/hooks/useMapFlow";
-import { useRealtimeStore, useDevStore } from "@/store";
-import { FLOW_STEPS } from "@/lib/unified-flow/constants";
-import { MapFlowStep } from "@/store/mapFlow/mapFlow";
 
-const SCREEN_WIDTH = Dimensions.get("window").width;
+import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
+import { useMapFlow } from "@/hooks/useMapFlow";
+import { useMapFlowActions } from "@/hooks/useMapFlowActions";
+import { useDevStore, useRealtimeStore, useUserStore } from "@/store";
+import { tokenManager } from "@/lib/auth";
+import { FLOW_STEPS } from "@/lib/unified-flow/constants";
+import { MapFlowStep } from '@/store';
+import { stepRegistry, componentMapper } from "@/components/unified-flow/registry";
+import { log } from "@/lib/logger";
 
 // Componente para pasos por defecto con navegación hacia atrás
-const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
+const DefaultStep: React.FC<{ step: MapFlowStep }> = React.memo(({ step }) => {
   const { back } = useMapFlow();
 
   return (
@@ -72,50 +54,33 @@ const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
       </View>
     </View>
   );
+});
+
+DefaultStep.displayName = "DefaultStep";
+
+  // Función helper para crear un renderStep usando el registry
+  const createTypeSafeRenderStep = () => {
+    // Configurar mapper
+    componentMapper.setDefaultComponent(() => <DefaultStep step="SELECCION_SERVICIO" />);
+
+    // Crear función de renderizado
+    return (step: MapFlowStep) => {
+      log.unifiedFlow.debug('Render step called', { data: step });
+      
+      const renderFn = componentMapper.createMapper({
+        role: 'customer',
+        fallbackToDefault: true,
+        showDebugInfo: __DEV__,
+      });
+      
+      const result = renderFn(step);
+      log.unifiedFlow.debug('Render result', { data: result });
+      return result;
+    };
 };
 
-// Función helper para crear un renderStep completamente type-safe
-const createTypeSafeRenderStep = (
-  stepMappings: Partial<Record<MapFlowStep, () => React.ReactNode>>,
-) => {
-  return (step: MapFlowStep) => {
-    const renderFn = stepMappings[step];
-    if (renderFn) {
-      return renderFn();
-    }
-    return <DefaultStep step={step} />;
-  };
-};
-
-// Mapeo type-safe de pasos a componentes - usando solo pasos que existen
-const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
-  // Service selection
-  [FLOW_STEPS.SELECCION_SERVICIO]: () => <ServiceSelection />,
-
-  // Transport - usando pasos que existen
-  [FLOW_STEPS.CUSTOMER_TRANSPORT_ELECCION_CONDUCTOR]: () => <ChooseDriver />,
-
-  // Delivery - usando pasos que existen (comentados hasta que existan las constantes)
-  // [FLOW_STEPS.CUSTOMER_DELIVERY_BUSINESS_SEARCH]: () => <DeliveryBusinessSearch />,
-  // [FLOW_STEPS.CUSTOMER_DELIVERY_CHECKOUT]: () => <DeliveryCheckout />,
-  // [FLOW_STEPS.CUSTOMER_DELIVERY_TRACKING]: () => <DeliveryTracking />,
-
-  // Mandado - usando pasos que existen (comentados hasta que existan las constantes)
-  [FLOW_STEPS.CUSTOMER_MANDADO_DETALLES_MANDADO]: () => <MandadoDetails />,
-  // [FLOW_STEPS.CUSTOMER_MANDADO_SEARCHING]: () => <MandadoSearching />,
-  // [FLOW_STEPS.CUSTOMER_MANDADO_COMMS_AND_CONFIRM]: () => <MandadoCommsAndConfirm />,
-  // [FLOW_STEPS.CUSTOMER_MANDADO_PRICE_AND_PAYMENT]: () => <MandadoPriceAndPayment />,
-  [FLOW_STEPS.CUSTOMER_MANDADO_FINALIZACION]: () => <MandadoFinalize />,
-
-  // Envío - usando pasos que existen (comentados hasta que existan las constantes)
-  [FLOW_STEPS.CUSTOMER_ENVIO_DETALLES_ENVIO]: () => <EnvioDetails />,
-  // [FLOW_STEPS.CUSTOMER_ENVIO_PRICING_AND_PAYMENT]: () => <EnvioPricingAndPayment />,
-  // [FLOW_STEPS.CUSTOMER_ENVIO_TRACKING]: () => <EnvioTracking />,
-  // [FLOW_STEPS.CUSTOMER_ENVIO_DELIVERY_CONFIRM]: () => <EnvioDeliveryConfirm />,
-};
-
-// Crear la función renderStep usando el helper type-safe
-const renderStep = createTypeSafeRenderStep(STEP_COMPONENTS);
+// Crear la función renderStep usando el registry centralizado
+const renderStep = createTypeSafeRenderStep();
 
 // Función para renderizar pasos sin logging (para uso en UnifiedFlowWrapper)
 const quietRenderStep = (step: MapFlowStep) => {
@@ -123,307 +88,164 @@ const quietRenderStep = (step: MapFlowStep) => {
 };
 
 const SimulationControls: React.FC = () => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
-  const [animationValue] = React.useState(new Animated.Value(0));
   const realtime = useRealtimeStore();
-  const devStore = useDevStore();
-  const ui = useUI();
-  const { map } = useMapFlowContext();
-
-  React.useEffect(() => {
-    Animated.spring(animationValue, {
-      toValue: isExpanded ? 1 : 0,
-      useNativeDriver: true,
-      tension: 50,
-      friction: 8,
-    }).start();
-  }, [isExpanded]);
-
-  React.useEffect(() => {
-  }, [devStore.developerMode, devStore.networkBypass, devStore.wsBypass]);
+  const actions = useMapFlowActions();
 
   return (
-    <View
-      style={{
-        position: "absolute",
-        top: 120,
-        right: 16,
-        zIndex: 2000,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 10,
-      }}
-    >
-      {isExpanded && (
-        <TouchableOpacity
-          style={{
-            position: "absolute",
-            top: -120,
-            left: -1000,
-            right: -1000,
-            bottom: -1000,
-            zIndex: -1,
+    <View className="px-4 py-3">
+      <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 mb-2 uppercase tracking-wide">
+        Simulation & Map
+      </Text>
+      <View className="space-y-2">
+        <Button
+          variant={realtime.simulationEnabled ? "danger" : "primary"}
+          title={
+            realtime.simulationEnabled
+              ? "⏸️ Pause Simulation"
+              : "▶️ Resume Simulation"
+          }
+          onPress={() => {
+            realtime.setSimulationEnabled(!realtime.simulationEnabled)
           }}
-          onPress={() => setIsExpanded(false)}
-          activeOpacity={1}
+          className="px-4 py-2"
         />
-      )}
-      <View className="relative">
+
         <Button
           variant="primary"
-          title={isExpanded ? "✕" : "🔧"}
-          onPress={() => setIsExpanded(!isExpanded)}
-          className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 rounded-full w-14 h-14 shadow-lg border-2 border-white/20"
-        />
-        {devStore.developerMode && (
-          <View className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-400 rounded-full border border-white" />
-        )}
-      </View>
-
-      {isExpanded && (
-        <Reanimated.View
-          className="mt-2 bg-white/95 dark:bg-brand-primaryDark rounded-xl shadow-lg border border-gray-200/50 overflow-hidden min-w-[280px] max-w-[320px]"
-          style={{
-            opacity: animationValue,
-            transform: [
-              {
-                scale: animationValue.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0.8, 1],
-                }),
-              },
-            ],
+          title="📍 Move Driver"
+          onPress={() => {
+            const state = actions.getCurrentState();
+            const baseLat = state.location.userLatitude || 40.7128;
+            const baseLng = state.location.userLongitude || -74.006;
+            const jitter = () => (Math.random() - 0.5) * 0.003;
+            actions.updateDriverLocation({
+              latitude: baseLat + jitter(),
+              longitude: baseLng + jitter(),
+              timestamp: new Date(),
+            });
           }}
-        >
-          <View className="bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 px-4 py-3">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-JakartaBold text-sm text-white">
-                ⚙️ Simulation Controls
-              </Text>
-              <View className="flex-row items-center space-x-1">
-                <View
-                  className={`w-2 h-2 rounded-full ${
-                    devStore.developerMode
-                      ? "bg-emerald-300"
-                      : devStore.networkBypass
-                        ? "bg-orange-300"
-                        : devStore.wsBypass
-                          ? "bg-red-300"
-                          : "bg-gray-400"
-                  }`}
-                />
-                <Text className="text-white text-xs font-JakartaMedium">
-                  {devStore.developerMode
-                    ? "DEV ON"
-                    : devStore.networkBypass
-                      ? "MOCK"
-                      : devStore.wsBypass
-                        ? "WS OFF"
-                        : "LIVE"}
-                </Text>
-              </View>
-            </View>
-          </View>
+          className="px-4 py-2 bg-purple-600"
+        />
 
-          <View className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 uppercase tracking-wide">
-                WebSocket Status
-              </Text>
-              <WebSocketStatus />
-            </View>
-          </View>
+        <Button
+          variant="primary"
+          title="🎯 Fit Route"
+          onPress={() => {
+            const state = actions.getCurrentState();
+            const points: { latitude: number; longitude: number }[] = [];
+            if (state.location.userLatitude && state.location.userLongitude)
+              points.push({ 
+                latitude: state.location.userLatitude, 
+                longitude: state.location.userLongitude 
+              });
+            if (state.location.destinationLatitude && state.location.destinationLongitude)
+              points.push({
+                latitude: state.location.destinationLatitude,
+                longitude: state.location.destinationLongitude,
+              });
+            if (state.realtime.driverLocation)
+              points.push({
+                latitude: state.realtime.driverLocation.latitude,
+                longitude: state.realtime.driverLocation.longitude,
+              });
 
-          <DevModeIndicator />
-          <NotificationSettings />
-          <VenezuelanPaymentSelector />
-          <DriverFlowControls />
-          <RideStatusControls />
-          <WebSocketTestingControls />
-          <PerformanceMetrics />
-          <BaseSimulationControls />
-        </Reanimated.View>
-      )}
+            
+          }}
+          className="px-4 py-2 bg-indigo-600"
+        />
+      </View>
     </View>
   );
 };
 
 const WebSocketTestingControls: React.FC = () => {
-  const { rideId, matchedDriver } = useMapFlow() as any;
-  const { showSuccess, showError } = useUI();
-
-  const simulateRideAccepted = () => {
-    if (!rideId || !matchedDriver) {
-      showError("Error", "No hay rideId o conductor seleccionado");
-      return;
+  const { user } = useUserStore();
+  
+  const handleConnect = async () => {
+    try {
+      if (!user) {
+        console.warn('[WebSocket] No user available');
+        return;
+      }
+      
+      const token = await tokenManager.getAccessToken();
+      if (!token) {
+        console.warn('[WebSocket] No token available');
+        return;
+      }
+      
+      await websocketService.connect(user.id.toString(), token);
+    } catch (error) {
+      console.error('[WebSocket] Connection failed:', error);
     }
-    websocketService.simulateRideAccepted(rideId, matchedDriver.id, 5);
-    showSuccess("Simulado", "Ride accepted enviado");
-  };
-
-  const simulateRideRejected = () => {
-    if (!rideId || !matchedDriver) {
-      showError("Error", "No hay rideId o conductor seleccionado");
-      return;
-    }
-    websocketService.simulateRideRejected(
-      rideId,
-      matchedDriver.id,
-      "Conductor ocupado",
-    );
-    showSuccess("Simulado", "Ride rejected enviado");
-  };
-
-  const simulateDriverArrived = () => {
-    if (!rideId) {
-      showError("Error", "No hay rideId");
-      return;
-    }
-    websocketService.simulateRideArrived(rideId, 456);
-    showSuccess("Simulado", "Driver arrived enviado");
-  };
-
-  const simulateRideStarted = () => {
-    if (!rideId) {
-      showError("Error", "No hay rideId");
-      return;
-    }
-    websocketService.simulateRideStarted(rideId, 456);
-    showSuccess("Simulado", "Ride started enviado");
-  };
-
-  const simulateRideCompleted = () => {
-    if (!rideId) {
-      showError("Error", "No hay rideId");
-      return;
-    }
-    websocketService.simulateRideCompleted(rideId, 456);
-    showSuccess("Simulado", "Ride completed enviado");
-  };
-
-  const simulateRideCancelled = () => {
-    if (!rideId) {
-      showError("Error", "No hay rideId");
-      return;
-    }
-    websocketService.simulateRideCancelled(rideId, 456);
-    showSuccess("Simulado", "Ride cancelled enviado");
-  };
-
-  const simulateDriverRequest = () => {
-    if (!rideId) {
-      showError("Error", "No hay rideId");
-      return;
-    }
-    websocketService.simulateDriverRideRequest(
-      rideId,
-      123,
-      "Dirección de prueba",
-    );
-    showSuccess("Simulado", "Driver ride request enviado");
   };
 
   return (
-    <View className="px-4 py-3 border-b border-gray-100 dark:border-gray-700">
-      <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 mb-2">
-        🔌 WebSocket Testing (New Events)
+    <View className="px-4 py-3">
+      <Text className="font-JakartaBold text-xs text-gray-700 dark:text-gray-200 mb-2 uppercase tracking-wide">
+        WebSocket Testing
       </Text>
-      <View className="space-y-1">
-        <Button
-          variant="success"
-          title="✅ Ride Accepted"
-          onPress={simulateRideAccepted}
-          className="px-3 py-2"
-        />
+      <View className="space-y-2">
         <Button
           variant="primary"
-          title="📍 Driver Arrived"
-          onPress={simulateDriverArrived}
-          className="px-3 py-2 bg-blue-500"
-        />
-        <Button
-          variant="primary"
-          title="▶️ Ride Started"
-          onPress={simulateRideStarted}
-          className="px-3 py-2 bg-purple-500"
-        />
-        <Button
-          variant="primary"
-          title="✅ Ride Completed"
-          onPress={simulateRideCompleted}
-          className="px-3 py-2 bg-indigo-500"
-        />
-        <Button
-          variant="secondary"
-          title="❌ Ride Cancelled"
-          onPress={simulateRideCancelled}
-          className="px-3 py-2"
+          title="🔌 Connect WebSocket"
+          onPress={handleConnect}
+          className="px-4 py-2"
         />
         <Button
           variant="danger"
-          title="🚫 Ride Rejected"
-          onPress={simulateRideRejected}
-          className="px-3 py-2"
+          title="🔌 Disconnect WebSocket"
+          onPress={() => {
+            websocketService.disconnect();
+          }}
+          className="px-4 py-2"
         />
-        <Button
-          variant="secondary"
-          title="👨‍🚗 Driver Request"
-          onPress={simulateDriverRequest}
-          className="px-3 py-2"
-        />
-        <View className="mt-2 p-2 bg-gray-50 dark:bg-gray-800 rounded">
-          <Text className="text-xs text-gray-600 dark:text-gray-400">
-            Ride ID: {rideId || "N/A"}
-          </Text>
-          <Text className="text-xs text-gray-600 dark:text-gray-400">
-            Driver ID: {matchedDriver?.id || "N/A"}
-          </Text>
-        </View>
       </View>
     </View>
   );
 };
 
 const UnifiedFlowDemo: React.FC = () => {
-  const {
-    startWithCustomerStep,
-    step,
-    isActive,
-    confirmedOrigin,
-    confirmedDestination,
-  } = useMapFlow();
-  const hasInitialized = React.useRef(false);
-  const realtime = useRealtimeStore();
-  const ui = useUI();
-
-  React.useEffect(() => {
-    const initializeFlow = async () => {
-      if (!hasInitialized.current) {
-        try {
-          const config = startWithCustomerStep(FLOW_STEPS.SELECCION_SERVICIO);
-          if (config) {
-          }
-          hasInitialized.current = true;
-        } catch (error) {
-        }
-      }
-    };
-    initializeFlow();
-  }, []);
+  const { showLoading, showError, showSuccess } = useUI();
+  const devStore = useDevStore();
 
   return (
-    <View style={styles.container}>
-      <AppHeader
-        title="Flujo Unificado Demo"
-        subtitle="Sistema de navegación modular"
-        showHamburgerMenu={true}
-      />
+    <View className="flex-1 bg-white">
+      <AppHeader title="Unified Flow Demo" />
       
-      <UnifiedFlowWrapper role="customer" renderStep={quietRenderStep}>
-        <SimulationControls />
-      </UnifiedFlowWrapper>
+      <UnifiedFlowWrapper
+        role="customer"
+        renderStep={quietRenderStep}
+        usePagerView={true}
+        enablePagerViewForSteps={[
+          FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE,
+          FLOW_STEPS.CUSTOMER_TRANSPORT_SELECCION_VEHICULO,
+          FLOW_STEPS.CUSTOMER_TRANSPORT_METODOLOGIA_PAGO,
+        ]}
+        onStepChange={(step) => {
+          log.stepChange.debug('Step changed', { data: step });
+        }}
+        onPageChange={(pageIndex) => {
+          log.pageChange.debug('Page changed', { data: pageIndex });
+        }}
+      />
+
+      {/* Developer Controls */}
+      {/* {devStore.developerMode && (
+        <View className="absolute bottom-0 left-0 right-0 bg-white border-t border-gray-200 max-h-96">
+          <View className="flex-row flex-wrap">
+            <DriverFlowControls />
+            <RideStatusControls />
+            <SimulationControls />
+            <WebSocketTestingControls />
+            <WebSocketStatus />
+            <NotificationSettings />
+            <VenezuelanPaymentSelector />
+            <PerformanceMetrics />
+            <DevModeIndicator />
+          </View>
+        </View>
+      )} */}
     </View>
   );
 };
@@ -431,15 +253,8 @@ const UnifiedFlowDemo: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#FFFFFF",
+    backgroundColor: '#fff',
   },
 });
 
-export default function UnifiedFlowDemoExport() {
-  return (
-    <>
-      <Stack.Screen options={{ headerShown: false }} />
-      <UnifiedFlowDemo />
-    </>
-  );
-}
+export default UnifiedFlowDemo;

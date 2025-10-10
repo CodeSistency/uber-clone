@@ -7,7 +7,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverDeliveryPickupOrder: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -20,12 +20,12 @@ const DriverDeliveryPickupOrder: React.FC = () => {
       const active = useRealtimeStore.getState().activeRide as any;
       const id = active?.orderId || active?.ride_id || active?.id || 0;
       if (id) await driverDeliveryService.pickup(id, generateIdempotencyKey());
-      goTo(FLOW_STEPS.DRIVER_DELIVERY_EN_CAMINO_ENTREGA);
+      goTo(FLOW_STEPS.DRIVER_DELIVERY.EN_CAMINO_ENTREGA);
     } catch {
       // Optional: toast error
     } finally {
       setLoading(false);
-    }
+    } 
   };
 
   return (

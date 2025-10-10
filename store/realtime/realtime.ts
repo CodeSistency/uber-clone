@@ -102,3 +102,13 @@ export const useRealtimeStore = create<RealtimeStore>((set, get) => ({
     set(() => ({ rideSummary: summary }));
   },
 }));
+
+export const selectConnectionStatus = (state: RealtimeStore) =>
+  state.connectionStatus;
+export const selectActiveRide = (state: RealtimeStore) => state.activeRide;
+export const selectDriverLocation = (state: RealtimeStore) =>
+  state.driverLocation;
+export const selectRideStatus = (state: RealtimeStore) => state.rideStatus;
+export const selectIsTracking = (state: RealtimeStore) => state.isTracking;
+export const selectSimulationEnabled = (state: RealtimeStore) =>
+  state.simulationEnabled;

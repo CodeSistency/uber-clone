@@ -8,7 +8,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverMandadoManage: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -22,7 +22,7 @@ const DriverMandadoManage: React.FC = () => {
       const id = (useRealtimeStore.getState().activeRide as any)?.id || 0;
       if (id) driverErrandService.updateShopping(id, parseFloat(itemsCost));
     } catch {}
-    goTo(FLOW_STEPS.DRIVER_MANDADO_EN_CAMINO_DESTINO);
+    goTo(FLOW_STEPS.DRIVER_MANDADO.EN_CAMINO_DESTINO);
   };
 
   return (

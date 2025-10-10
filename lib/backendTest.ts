@@ -3,8 +3,8 @@
  * Utility functions to test backend API and WebSocket connections
  */
 
-import { fetchAPI } from "./fetch";
 import { log } from "./logger";
+import { fetchAPI } from "./api";
 
 export interface BackendTestResult {
   endpoint: string;
@@ -36,13 +36,16 @@ export async function testAPIConnectivity(): Promise<BackendTestResult[]> {
     const startTime = Date.now();
 
     try {
-      log.info("BackendTest", `Testing API endpoint: ${endpoint.path}`, {
-        description: endpoint.description,
+      log.info(`Testing API endpoint: ${endpoint.path}`, {
+        component: "BackendTest",
+        data: {
+          description: endpoint.description,
+        }
       });
 
       const response = await fetchAPI(endpoint.path, {
         method: "GET",
-        skipAuth: true, // Skip auth for basic connectivity tests
+        requiresAuth: false, // Skip auth for basic connectivity tests
       });
 
       const responseTime = Date.now() - startTime;
@@ -54,13 +57,12 @@ export async function testAPIConnectivity(): Promise<BackendTestResult[]> {
         statusCode: 200, // Assume success if no error thrown
       });
 
-      log.info(
-        "BackendTest",
-        `✅ API endpoint ${endpoint.path} is accessible`,
-        {
+      log.info(`✅ API endpoint ${endpoint.path} is accessible`, {
+        component: "BackendTest",
+        data: {
           responseTime: `${responseTime}ms`,
-        },
-      );
+        }
+      });
     } catch (error) {
       const responseTime = Date.now() - startTime;
       const errorMessage =
@@ -73,9 +75,12 @@ export async function testAPIConnectivity(): Promise<BackendTestResult[]> {
         error: errorMessage,
       });
 
-      log.warn("BackendTest", `❌ API endpoint ${endpoint.path} failed`, {
-        error: errorMessage,
-        responseTime: `${responseTime}ms`,
+      log.warn(`❌ API endpoint ${endpoint.path} failed`, {
+        component: "BackendTest",
+        data: {
+          error: errorMessage,
+          responseTime: `${responseTime}ms`,
+        }
       });
     }
   }
@@ -98,9 +103,12 @@ export async function testChatAPIConnectivity(): Promise<BackendTestResult[]> {
     const startTime = Date.now();
 
     try {
-      log.info("BackendTest", `Testing chat API endpoint: ${endpoint.path}`, {
-        method: endpoint.method,
-        description: endpoint.description,
+      log.info(`Testing chat API endpoint: ${endpoint.path}`, {
+        component: "BackendTest",
+        data: {
+          method: endpoint.method,
+          description: endpoint.description,
+        }
       });
 
       const response = await fetchAPI(endpoint.path, {
@@ -116,13 +124,12 @@ export async function testChatAPIConnectivity(): Promise<BackendTestResult[]> {
         statusCode: 200,
       });
 
-      log.info(
-        "BackendTest",
-        `✅ Chat API endpoint ${endpoint.path} is accessible`,
-        {
+      log.info(`✅ Chat API endpoint ${endpoint.path} is accessible`, {
+        component: "BackendTest",
+        data: {
           responseTime: `${responseTime}ms`,
-        },
-      );
+        }
+      });
     } catch (error) {
       const responseTime = Date.now() - startTime;
       const errorMessage =
@@ -135,9 +142,12 @@ export async function testChatAPIConnectivity(): Promise<BackendTestResult[]> {
         error: errorMessage,
       });
 
-      log.warn("BackendTest", `❌ Chat API endpoint ${endpoint.path} failed`, {
-        error: errorMessage,
-        responseTime: `${responseTime}ms`,
+      log.warn(`❌ Chat API endpoint ${endpoint.path} failed`, {
+        component: "BackendTest",
+        data: {
+          error: errorMessage,
+          responseTime: `${responseTime}ms`,
+        }
       });
     }
   }
@@ -152,9 +162,12 @@ export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> 
   const startTime = Date.now();
 
   try {
-    log.info("BackendTest", "Testing WebSocket connectivity", {
-      namespace: "/uber-realtime",
-      url: process.env.EXPO_PUBLIC_WS_URL || "http://localhost:3000",
+    log.info("Testing WebSocket connectivity", {
+      component: "BackendTest",
+      data: {
+        namespace: "/uber-realtime",
+        url: process.env.EXPO_PUBLIC_WS_URL || "http://localhost:3000",
+      }
     });
 
     // Import websocketService dynamically to avoid circular imports
@@ -191,9 +204,12 @@ export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> 
               responseTime,
             });
 
-            log.info("BackendTest", "✅ WebSocket connection successful", {
-              namespace: "/uber-realtime",
-              responseTime: `${responseTime}ms`,
+            log.info("✅ WebSocket connection successful", {
+              component: "BackendTest",
+              data: {
+                namespace: "/uber-realtime",
+                responseTime: `${responseTime}ms`,
+              }
             });
           });
 
@@ -212,9 +228,12 @@ export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> 
               error: error.message || "Connection failed",
             });
 
-            log.warn("BackendTest", "❌ WebSocket connection failed", {
-              error: error.message || "Connection failed",
-              responseTime: `${responseTime}ms`,
+            log.warn("❌ WebSocket connection failed", {
+              component: "BackendTest",
+              data: {
+                error: error.message || "Connection failed",
+                responseTime: `${responseTime}ms`,
+              }
             });
           });
 
@@ -241,9 +260,12 @@ export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> 
     const errorMessage =
       error instanceof Error ? error.message : "Unknown error";
 
-    log.error("BackendTest", "WebSocket test failed", {
-      error: errorMessage,
-      responseTime: `${responseTime}ms`,
+    log.error("WebSocket test failed", {
+      component: "BackendTest",
+      data: {
+        error: errorMessage,
+        responseTime: `${responseTime}ms`,
+      }
     });
 
     return {
@@ -259,10 +281,9 @@ export async function testWebSocketConnectivity(): Promise<WebSocketTestResult> 
  * Run comprehensive backend connectivity test
  */
 export async function runBackendConnectivityTest() {
-  log.info(
-    "BackendTest",
-    "🚀 Starting comprehensive backend connectivity test",
-  );
+  log.info("🚀 Starting comprehensive backend connectivity test", {
+    component: "BackendTest"
+  });
 
   const results = {
     api: await testAPIConnectivity(),
@@ -274,14 +295,17 @@ export async function runBackendConnectivityTest() {
   const apiSuccess = results.api.filter((test) => test.success).length;
   const chatSuccess = results.chat.filter((test) => test.success).length;
 
-  log.info("BackendTest", "📊 Backend connectivity test completed", {
-    apiTests: `${apiSuccess}/${results.api.length}`,
-    chatTests: `${chatSuccess}/${results.chat.length}`,
-    websocketConnected: results.websocket.connected,
-    totalResponseTime:
-      results.api.reduce((sum, test) => sum + test.responseTime, 0) +
-      results.chat.reduce((sum, test) => sum + test.responseTime, 0) +
-      results.websocket.responseTime,
+  log.info("📊 Backend connectivity test completed", {
+    component: "BackendTest",
+    data: {
+      apiTests: `${apiSuccess}/${results.api.length}`,
+      chatTests: `${chatSuccess}/${results.chat.length}`,
+      websocketConnected: results.websocket.connected,
+      totalResponseTime:
+        results.api.reduce((sum, test) => sum + test.responseTime, 0) +
+        results.chat.reduce((sum, test) => sum + test.responseTime, 0) +
+        results.websocket.responseTime,
+    }
   });
 
   return results;

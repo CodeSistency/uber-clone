@@ -8,7 +8,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverMandadoFinish: React.FC = () => {
   const { startWithDriverStep } = useMapFlow();
@@ -29,7 +29,7 @@ const DriverMandadoFinish: React.FC = () => {
     } catch (e) {
       // No showError por no bloquear, paso a rating igual
     }
-    startWithDriverStep(FLOW_STEPS.DRIVER_FINALIZACION_RATING as any);
+    startWithDriverStep(FLOW_STEPS.DRIVER_FINALIZACION_RATING);
   };
 
   return (

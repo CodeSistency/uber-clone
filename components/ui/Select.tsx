@@ -11,11 +11,13 @@ type SelectVariant = "neutral" | "primary";
 
 export interface SelectProps {
   value: string | null;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  onValueChange?: (value: string) => void;
   options: SelectOption[];
   placeholder?: string;
   className?: string;
   variant?: SelectVariant;
+  disabled?: boolean;
 }
 
 const optionContainerMap: Record<SelectVariant, string> = {
@@ -31,10 +33,12 @@ const optionTextMap: Record<SelectVariant, string> = {
 export const Select: React.FC<SelectProps> = ({
   value,
   onChange,
+  onValueChange,
   options,
   placeholder = "Select",
   className = "",
   variant = "neutral",
+  disabled = false,
 }) => {
   const [open, setOpen] = useState(false);
   const selected = options.find((o) => o.value === value);
@@ -42,11 +46,12 @@ export const Select: React.FC<SelectProps> = ({
   return (
     <View accessible accessibilityRole="menu">
       <TouchableOpacity
-        onPress={() => setOpen(true)}
+        onPress={() => !disabled && setOpen(true)}
         accessibilityRole="button"
         accessibilityLabel={placeholder}
         accessibilityHint="Abre el selector"
-        className={`rounded-2xl px-4 py-4 border border-neutral-200 dark:border-brand-primaryDark ${optionContainerMap[variant]} ${className}`}
+        disabled={disabled}
+        className={`rounded-2xl px-4 py-4 border border-neutral-200 dark:border-brand-primaryDark ${optionContainerMap[variant]} ${disabled ? 'opacity-50' : ''} ${className}`}
       >
         <Text
           className={`font-JakartaSemiBold text-base ${
@@ -81,7 +86,10 @@ export const Select: React.FC<SelectProps> = ({
               return (
                 <TouchableOpacity
                   onPress={() => {
-                    onChange(item.value);
+                    const handler = onValueChange || onChange;
+                    if (handler) {
+                      handler(item.value);
+                    }
                     setOpen(false);
                   }}
                   accessibilityRole="button"

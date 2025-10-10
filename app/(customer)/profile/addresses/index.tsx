@@ -108,7 +108,7 @@ export default function AddressesScreen() {
                               </Text>
                               {address.isDefault && (
                                 <Badge
-                                  text="Default"
+                                  label="Default"
                                   className="ml-2 bg-green-100 text-green-800"
                                 />
                               )}
@@ -185,6 +185,7 @@ export default function AddressesScreen() {
     </SafeAreaView>
   );
 }
+
 
 
 

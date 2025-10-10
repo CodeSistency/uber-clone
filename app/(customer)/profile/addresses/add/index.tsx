@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Alert } from 'react-native';
+import { View, Text, ScrollView, Alert, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -121,7 +121,7 @@ export default function AddAddressScreen() {
               <Select
                 options={ADDRESS_TYPES}
                 value={formData.type}
-                onValueChange={(value) => handleInputChange('type', value)}
+                onValueChange={(value: string) => handleInputChange('type', value)}
                 placeholder="Select address type"
                 className="bg-white"
               />
@@ -240,6 +240,7 @@ export default function AddAddressScreen() {
     </SafeAreaView>
   );
 }
+
 
 
 

@@ -10,7 +10,7 @@ export default function CompletionSuccess() {
 
   useEffect(() => {
     const t = setTimeout(
-      () => router.replace("/(root)/(tabs)/home" as any),
+      () => router.replace("/(customer)/unified-flow-demo" as any),
       1200,
     );
     return () => clearTimeout(t);

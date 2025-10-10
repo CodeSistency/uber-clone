@@ -165,6 +165,7 @@ export interface ActionButtonProps {
   variant: 'primary' | 'secondary' | 'success' | 'warning';
   onPress: () => void;
   disabled?: boolean;
+  className?: string;
 }
 
 export interface EmailInputProps {
@@ -291,6 +292,7 @@ export const WALLET_ENDPOINTS = {
   LIMITS: '/api/user/wallet/limits',
   STATS: '/api/user/wallet/stats',
 } as const;
+
 
 
 

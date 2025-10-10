@@ -5,11 +5,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppHeader } from '@/components/common';
 import { Card, Button, TextField } from '@/components/ui';
-import { useProfileData, useProfileActions } from '@/store/profile';
+import { useProfileData, useProfileActions, useIsProfileLoading } from '@/store/profile';
 
 export default function ChangeEmailScreen() {
   const profileData = useProfileData();
-  const { requestEmailChange, isLoading } = useProfileActions();
+  const { requestEmailChange } = useProfileActions();
+  const isLoading = useIsProfileLoading();
 
   const [formData, setFormData] = useState({
     currentEmail: profileData?.email || '',

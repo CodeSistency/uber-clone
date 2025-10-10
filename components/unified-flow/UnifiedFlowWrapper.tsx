@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import { View, Text, Platform } from "react-native";
 
 import {
@@ -8,7 +8,6 @@ import {
   parcelClient,
 } from "@/app/services/flowClientService";
 import Map, { MapHandle } from "@/components/Map";
-import InlineBottomSheet from "@/components/ui/InlineBottomSheet";
 import { useUI } from "@/components/UIWrapper";
 import { loadNearbyRestaurants, Restaurant } from "@/constants/dummyData";
 import {
@@ -18,9 +17,18 @@ import {
 import { MapFlowProvider } from "@/context/MapFlowContext";
 import { useMapController } from "@/hooks/useMapController";
 import { useMapFlow } from "@/hooks/useMapFlow";
+import { useMapFlowPagerWithSteps } from "@/hooks/useMapFlowPagerWithSteps";
+import { useUnifiedFlowSelectors, useBasicFlowSelectors } from "@/hooks/useMapFlowSelectors";
 import { useRealtimeStore, useLocationStore } from "@/store";
 import { useDevStore } from "@/store/dev/dev";
-import { MapFlowStep } from "@/store/mapFlow/mapFlow";
+import { MapFlowStep } from '@/store';
+import { usePerformanceMonitor, useErrorMonitor } from "@/hooks/usePerformanceMonitor";
+import { DiagnosticsDashboard } from "@/components/diagnostics/DiagnosticsDashboard";
+import GorhomMapFlowBottomSheet from "../ui/GorhomMapFlowBottomSheet";
+import FloatingReopenButton from "../ui/FloatingReopenButton";
+import { DebugInfo, MapDebugInfo } from "./DebugInfo";
+import { log } from "@/lib/logger";
+import BottomSheetErrorBoundary from "./BottomSheetErrorBoundary";
 
 // 🎨 Importar configuración de mapas
 
@@ -28,22 +36,202 @@ interface UnifiedFlowWrapperProps {
   role?: "customer" | "driver";
   renderStep: (step: MapFlowStep) => React.ReactNode;
   children?: React.ReactNode;
+  
+  // Nuevas props para PagerView
+  usePagerView?: boolean;
+  enablePagerViewForSteps?: MapFlowStep[];
+  onStepChange?: (step: MapFlowStep) => void;
+  onPageChange?: (pageIndex: number) => void;
+  pagerAnimationType?: 'slide' | 'fade';
+  pagerEnableSwipe?: boolean;
+  pagerShowPageIndicator?: boolean;
 }
 
 const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
   role = "customer",
   renderStep,
   children,
+  // Nuevas props para PagerView
+  usePagerView = true, // 🆕 Activar PagerView por defecto
+  enablePagerViewForSteps = [],
+  onStepChange,
+  onPageChange,
+  pagerAnimationType = 'slide',
+  pagerEnableSwipe = true,
+  pagerShowPageIndicator = true,
 }) => {
+  // Performance monitoring
+  const { startRender, endRender } = usePerformanceMonitor('UnifiedFlowWrapper');
+  const { reportError } = useErrorMonitor('UnifiedFlowWrapper');
+  
   const flow = useMapFlow();
   const map = useMapController();
+  const devStore = useDevStore();
+  
+  // 🆕 Selectors optimizados
+  const { flow: flowState, bottomSheet, pager } = useUnifiedFlowSelectors();
+  
+  // Performance monitoring
+  React.useEffect(() => {
+    startRender();
+    return () => endRender();
+  }, [flow.step, flow.role, flow.service]);
+  
+  // 🐛 DEBUG: Logging para identificar problema de renderizado
+  React.useEffect(() => {
+    log.unifiedFlow.debug('Debug render', {
+      data: {
+        step: flow.step,
+        role: flow.role,
+        service: flow.service,
+        renderStepType: typeof renderStep
+      }
+    });
+  }, [flow.step, flow.role, flow.service, renderStep]);
+  
+  // 🆕 Hook para PagerView
+  const pagerHook = useMapFlowPagerWithSteps();
+  
+  // 🆕 Estado para el botón flotante de reapertura (now using global state)
+  const bottomSheetClosed = flow.flow.bottomSheetManuallyClosed;
+  const showFloatingButton = flow.flow.showReopenButton;
+  const previousStepRef = React.useRef<MapFlowStep | null>(null);
+
+  const canClose = bottomSheet.bottomSheetAllowDrag && bottomSheet.bottomSheetAllowClose;
+
+  // 🆕 Funciones para manejar el cierre y reapertura del BottomSheet
+  const handleBottomSheetClose = useCallback(() => {
+    log.bottomSheetClose.debug('BottomSheet close attempt', {
+      data: {
+        canClose,
+        allowDrag: bottomSheet.bottomSheetAllowDrag,
+        allowClose: bottomSheet.bottomSheetAllowClose,
+        currentStep: flowState.step,
+        bottomSheetVisible: bottomSheet.bottomSheetVisible,
+      }
+    });
+
+    if (!canClose) {
+      log.bottomSheetClose.debug('BottomSheet close ignored because canClose is false');
+      // Reforzar la visibilidad original y evitar cambios de estado locales
+      flow.updateStepBottomSheet(flowState.step, { visible: true, allowClose: false });
+      return;
+    }
+
+    flow.setBottomSheetManualClose(true);
+    flow.setShowReopenButton(true);
+  }, [canClose, flow, flowState.step, bottomSheet]);
+
+  const handleReopenBottomSheet = useCallback(() => {
+    log.bottomSheetReopen.debug('Reopening BottomSheet', {
+      data: {
+        bottomSheetClosed,
+        showFloatingButton,
+        step: flow.step,
+      }
+    });
+
+    flow.setBottomSheetManualClose(false);
+    flow.setShowReopenButton(false);
+    // Forzar la reapertura del BottomSheet usando updateStepBottomSheet
+    flow.updateStepBottomSheet(flow.step, { visible: true });
+  }, [flow, bottomSheetClosed, showFloatingButton]);
+  
+  // 🆕 Determinar si usar PagerView para el paso actual
+  const resolvedPagerSteps = enablePagerViewForSteps.length > 0
+    ? enablePagerViewForSteps
+    : pagerHook.pagerSteps;
+  const shouldUsePagerView = Boolean(
+    usePagerView &&
+    pagerHook.shouldUsePager &&
+    resolvedPagerSteps.length > 0 &&
+    (enablePagerViewForSteps.length === 0 || enablePagerViewForSteps.includes(flow.step))
+  );
+
+  // 🆕 Obtener pasos para PagerView
+  const pagerSteps = resolvedPagerSteps;
+
+  // 🔍 LOG: Estado del PagerView en UnifiedFlowWrapper
+  log.pagerView.debug('PagerView State', {
+    data: {
+      usePagerViewProp: usePagerView,
+      shouldUsePagerView,
+      hookShouldUsePager: pagerHook.shouldUsePager,
+      currentStep: flow.step,
+      enablePagerViewForSteps: enablePagerViewForSteps.length,
+      pagerStepsCount: pagerSteps.length,
+      pagerSteps,
+      pagerHookState: {
+        currentPageIndex: pagerHook.currentPageIndex,
+        totalPages: pagerHook.totalPages,
+        isTransitioning: pagerHook.isTransitioning,
+        usePagerView: pagerHook.usePagerView
+      }
+    }
+  });
+
+  // Debug: Estado del Flow
+  log.unifiedFlow.debug('Flow State', {
+    data: {
+      isActive: flow.isActive,
+      step: flow.step,
+      bottomSheetVisible: flow.bottomSheetVisible,
+      bottomSheetMinHeight: flow.bottomSheetMinHeight,
+      bottomSheetMaxHeight: flow.bottomSheetMaxHeight,
+      bottomSheetInitialHeight: flow.bottomSheetInitialHeight,
+      shouldUsePagerView,
+      pagerSteps: pagerSteps.length
+    }
+  });
 
   // Auto-start si no está activo
   React.useEffect(() => {
-    // No longer auto-starting flow here since it's handled by the parent component
+    if (!flow.isActive) {
+      log.unifiedFlow.debug('Auto-starting flow');
+      flow.start('customer');
+    }
   }, [flow.isActive, flow, role]);
+  
+  // 🆕 Resetear el estado del botón flotante cuando cambia el paso o el flow lo oculta
+  React.useEffect(() => {
+    if (!flow.bottomSheetVisible && (bottomSheetClosed || showFloatingButton)) {
+      log.unifiedFlow.debug('BottomSheet hidden by flow, resetting local state');
+      flow.resetBottomSheetLocalState();
+    }
+  }, [flow.bottomSheetVisible, bottomSheetClosed, showFloatingButton, flow]);
 
-  const sheetVisible = flow.bottomSheetVisible;
+  React.useEffect(() => {
+    if (previousStepRef.current !== flow.step) {
+      log.stepChange.debug('Step changed, resetting close state if needed', {
+        data: {
+          previousStep: previousStepRef.current,
+          nextStep: flow.step,
+          wasClosed: bottomSheetClosed,
+        }
+      });
+
+      previousStepRef.current = flow.step;
+
+      if (bottomSheetClosed || showFloatingButton) {
+        flow.resetBottomSheetLocalState();
+      }
+    }
+  }, [flow.step, bottomSheetClosed, showFloatingButton, flow]);
+
+  // 🆕 Usar estado local para controlar la visibilidad del BottomSheet
+  const sheetVisible = flow.bottomSheetVisible && (!bottomSheetClosed || !canClose);
+  
+  // 🔍 LOG: Estado de visibilidad del BottomSheet
+  log.unifiedFlow.debug('Visibility State', {
+    data: {
+      flowBottomSheetVisible: flow.bottomSheetVisible,
+      bottomSheetClosed,
+      canClose,
+      sheetVisible,
+      step: flow.step,
+      isActive: flow.isActive
+    }
+  });
   const minH = flow.bottomSheetMinHeight;
   const maxH = flow.bottomSheetMaxHeight;
   const initH = flow.bottomSheetInitialHeight;
@@ -53,6 +241,22 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
   const transitionDuration = flow.transitionDuration;
   const snapPoints = flow.bottomSheetSnapPoints;
   const handleHeight = flow.bottomSheetHandleHeight;
+
+  // 🔍 LOG: Estado del BottomSheet
+  log.unifiedFlow.debug('BottomSheet State', {
+    data: {
+      sheetVisible,
+      step: flow.step,
+      service: flow.service,
+      role: flow.role,
+      minH,
+      maxH,
+      initH,
+      allowDrag,
+      snapPoints,
+      handleHeight
+    }
+  });
 
   // 🎨 Configuración del mapa con tema dark moderno
   const mapConfig: Partial<MapConfiguration> = useMemo(
@@ -75,7 +279,19 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
   );
 
   const content = useMemo(() => {
-    return renderStep(flow.step);
+    const renderedContent = renderStep(flow.step);
+    
+    // 🔍 LOG: Verificar contenido renderizado
+    log.unifiedFlow.debug('Content Analysis', {
+      data: {
+        step: flow.step,
+        hasContent: !!renderedContent,
+        contentType: typeof renderedContent,
+        contentKeys: renderedContent ? Object.keys(renderedContent) : null
+      }
+    });
+    
+    return renderedContent;
   }, [renderStep, flow.step]);
 
   // Toast on step transitions (demo visibility)
@@ -364,104 +580,80 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
           mapConfig={mapConfig}
         />
 
-        {/* Debug Info - Temporal para verificar estilos */}
-        <View
-          style={{
-            position: "absolute",
-            top: 100,
-            left: 10,
-            backgroundColor: "rgba(0,0,0,0.8)",
-            padding: 10,
-            borderRadius: 8,
-            zIndex: 1000,
-          }}
-        >
-          <Text style={{ color: "white", fontSize: 12 }}>
-            🎨 Map Style: {mapConfig.theme}
-          </Text>
-          <Text style={{ color: "white", fontSize: 12 }}>
-            🌙 Custom Style: {mapConfig.customStyle?.name || "None"}
-          </Text>
-          <Text style={{ color: "white", fontSize: 12 }}>
-            📱 UI Style: {mapConfig.userInterfaceStyle}
-          </Text>
-        </View>
-
-        {/* Debug Info - Remove in production */}
-        <View
-          style={{
-            position: "absolute",
-            top: 50,
-            left: 10,
-            backgroundColor: "rgba(0,0,0,0.7)",
-            padding: 8,
-            borderRadius: 4,
-            zIndex: 1000,
-          }}
-        >
-          <Text style={{ color: "white", fontSize: 12 }}>
-            Step: {flow.step}
-          </Text>
-          <Text style={{ color: "white", fontSize: 12 }}>
-            Service: {flow.service || "None"}
-          </Text>
-          <Text style={{ color: "white", fontSize: 12 }}>
-            Role: {flow.role}
-          </Text>
-        </View>
+        {/* Debug Info - Optimizado con selectors */}
+        <DebugInfo />
+        <MapDebugInfo mapConfig={mapConfig} />
 
         {sheetVisible ? (
-          <InlineBottomSheet
-            visible={sheetVisible}
-            minHeight={minH}
-            maxHeight={maxH}
-            initialHeight={initH}
-            allowDrag={allowDrag}
-            snapPoints={snapPoints}
-            className={className}
-            // Gradient background like services-hub.tsx
-            useGradient
-            useBlur
-            blurIntensity={50}
-            blurTint={ui.theme === "dark" ? "dark" : "light"}
-            blurFallbackColor={
-              ui.theme === "dark"
-                ? "rgba(0,0,0,0.35)"
-                : "rgba(255,255,255,0.25)"
-            }
-            gradientColors={
-              ui.theme === "dark"
-                ? ([
-                    "rgba(0,0,0,0.92)",
-                    "rgba(0,0,0,0.78)",
-                    "rgba(18,18,18,0.66)",
-                    "rgba(30,30,30,0.64)",
-                  ] as const)
-                : ([
-                    "rgba(20,20,20,0.9)",
-                    "rgba(50,50,50,0.75)",
-                    "rgba(160,160,160,0.55)",
-                    "rgba(235,235,235,0.55)",
-                  ] as const)
-            }
-          >
-            {content}
-          </InlineBottomSheet>
-        ) : (
-          // When bottom sheet is hidden, render content directly over the full screen
-          <View
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 10,
+          <BottomSheetErrorBoundary
+            onError={(error, errorInfo) => {
+              log.error('BottomSheet error caught', { data: { error: error.message, errorInfo } });
+            }}
+            onRetry={() => {
+              log.info('BottomSheet error retry requested');
+              // El error boundary se reseteará automáticamente
+            }}
+            onClose={() => {
+              log.info('BottomSheet error close requested');
+              handleBottomSheetClose();
+            }}
+            onReport={() => {
+              log.info('BottomSheet error report requested');
+              // Aquí podrías implementar reporte de errores
             }}
           >
-            {content}
-          </View>
-        )}
+            <GorhomMapFlowBottomSheet
+              visible={sheetVisible}
+              minHeight={flow.bottomSheetMinHeight}
+              maxHeight={flow.bottomSheetMaxHeight}
+              initialHeight={flow.bottomSheetInitialHeight}
+              showHandle={flow.flow.bottomSheetShowHandle}
+              allowDrag={flow.bottomSheetAllowDrag}
+              allowClose={flow.bottomSheetAllowClose && canClose}
+              onClose={handleBottomSheetClose}
+              step={flow.step}
+              useGradient={flow.flow.bottomSheetUseGradient}
+              useBlur={flow.flow.bottomSheetUseBlur}
+              bottomBar={flow.flow.bottomSheetBottomBar}
+              snapPoints={flow.bottomSheetSnapPoints?.map(p => `${p}%`)}
+              enableOverDrag={flow.bottomSheetAllowDrag}
+              enablePanDownToClose={flow.bottomSheetAllowClose && canClose}
+              // 🆕 Nuevas props para PagerView
+              usePagerView={shouldUsePagerView}
+              pagerSteps={pagerSteps}
+              onStepChange={(newStep) => {
+                log.stepChange.debug('Step change', { data: newStep });
+                onStepChange?.(newStep);
+                pagerHook.goToPagerStep(newStep);
+              }}
+              onPageChange={(pageIndex) => {
+                log.pageChange.debug('Page change', { data: pageIndex });
+                onPageChange?.(pageIndex);
+                pagerHook.setCurrentPageIndex(pageIndex);
+              }}
+              enableSwipe={pagerEnableSwipe}
+              showPageIndicator={pagerShowPageIndicator}
+              animationType={pagerAnimationType}
+            >
+              {content}
+            </GorhomMapFlowBottomSheet>
+          </BottomSheetErrorBoundary>
+        ) : null}
+        
+        {/* 🆕 Botón flotante para reabrir el BottomSheet */}
+        <FloatingReopenButton
+          visible={showFloatingButton && canClose}
+          onPress={handleReopenBottomSheet}
+          position="bottom-right"
+          size={56}
+          color="#FFFFFF"
+          backgroundColor="#0286FF"
+          iconName="chevron-up"
+          animationDuration={300}
+        />
+        
+        {/* 🆕 Diagnostics Dashboard */}
+        {devStore.developerMode && <DiagnosticsDashboard />}
       </View>
       {/* Overlay children rendered above everything (e.g., simulation panel) */}
       {children}

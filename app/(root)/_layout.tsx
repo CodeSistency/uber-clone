@@ -33,7 +33,6 @@ const Layout = () => {
         name="driver-unified-flow-demo"
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="map-flows-demo" options={{ headerShown: false }} />
       <Stack.Screen name="rating-screen" options={{ headerShown: false }} />
       <Stack.Screen name="unified-flow-demo" options={{ headerShown: false }} />
       <Stack.Screen name="vehicle-selection" options={{ headerShown: false }} />

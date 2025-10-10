@@ -4,10 +4,10 @@ import { driverTransportService } from "@/app/services/driverTransportService";
 import { driverDeliveryService } from "@/app/services/driverDeliveryService";
 import { driverErrandService } from "@/app/services/driverErrandService";
 import { driverParcelService } from "@/app/services/driverParcelService";
-import { useMapFlowStore, FLOW_STEPS } from "@/store/mapFlow/mapFlow";
 import { useDriverConfigStore } from "@/store/driverConfig/driverConfig";
-import { useRealtimeStore } from "@/store";
+import { useMapFlowStore, useRealtimeStore } from "@/store";
 import { websocketService } from "@/app/services/websocketService";
+import { DriverFlowStep, FLOW_STEPS } from "@/store/mapFlow";
 
 /**
  * Driver Request Handler
@@ -31,11 +31,15 @@ export class DriverRequestHandler {
   async handleIncomingRequest(data: any): Promise<void> {
     const requestId = `request_${data?.rideId || data?.id || 'unknown'}_${Date.now()}`;
     
-    log.info("DriverRequestHandler", "Processing incoming driver request", {
-      requestId,
-      rideId: data?.rideId || data?.id,
-      service: data?.service,
-      area: data?.area,
+    log.info("Processing incoming driver request", {
+      component: "DriverRequestHandler",
+      action: "handleIncomingRequest",
+      data: {
+        requestId,
+        rideId: data?.rideId || data?.id,
+        service: data?.service,
+        area: data?.area,
+      }
     });
 
     try {
@@ -49,16 +53,25 @@ export class DriverRequestHandler {
       const { shouldAutoAccept, flowStep } = await this.evaluateRequest(data);
 
       if (shouldAutoAccept) {
-        log.info("DriverRequestHandler", "Auto-accepting request", { requestId });
+        log.info("Auto-accepting request", { 
+          component: "DriverRequestHandler",
+          data: { requestId }
+        });
         await this.autoAcceptRide(data);
       } else {
-        log.info("DriverRequestHandler", "Manual acceptance required", { requestId });
+        log.info("Manual acceptance required", { 
+          component: "DriverRequestHandler",
+          data: { requestId }
+        });
         this.navigateToFlow(flowStep);
       }
     } catch (error) {
-      log.error("DriverRequestHandler", "Error handling incoming request", {
-        requestId,
-        error: error instanceof Error ? error.message : "Unknown error",
+      log.error("Error handling incoming request", {
+        component: "DriverRequestHandler",
+        data: {
+          requestId,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }
       });
       throw error;
     }
@@ -71,13 +84,19 @@ export class DriverRequestHandler {
     try {
       if (data?.ride) {
         useRealtimeStore.getState().setActiveRide(data.ride);
-        log.debug("DriverRequestHandler", "Active ride context stored", {
-          rideId: data.ride.ride_id || data.ride.id,
+        log.debug("Active ride context stored", {
+          component: "DriverRequestHandler",
+          data: {
+            rideId: data.ride.ride_id || data.ride.id,
+          }
         });
       }
     } catch (error) {
-      log.warn("DriverRequestHandler", "Failed to store active ride context", {
-        error: error instanceof Error ? error.message : "Unknown error",
+      log.warn("Failed to store active ride context", {
+        component: "DriverRequestHandler",
+        data: {
+          error: error instanceof Error ? error.message : "Unknown error",
+        }
       });
     }
   }
@@ -100,13 +119,19 @@ export class DriverRequestHandler {
         priority: "high",
       });
 
-      log.debug("DriverRequestHandler", "Driver notification created", {
-        rideId: data?.rideId || data?.id,
-        service: data?.service,
+      log.debug("Driver notification created", {
+        component: "DriverRequestHandler",
+        data: {
+          rideId: data?.rideId || data?.id,
+          service: data?.service,
+        }
       });
     } catch (error) {
-      log.error("DriverRequestHandler", "Failed to create notification", {
-        error: error instanceof Error ? error.message : "Unknown error",
+      log.error("Failed to create notification", {
+        component: "DriverRequestHandler",
+        data: {
+          error: error instanceof Error ? error.message : "Unknown error",
+        }
       });
     }
   }
@@ -133,10 +158,13 @@ export class DriverRequestHandler {
 
     // Check if driver location is available
     if (!driverLoc || !pickupLat || !pickupLng) {
-      log.warn("DriverRequestHandler", "Cannot evaluate auto-accept - missing location data", {
-        hasDriverLoc: !!driverLoc,
-        hasPickupLat: !!pickupLat,
-        hasPickupLng: !!pickupLng,
+      log.warn("Cannot evaluate auto-accept - missing location data", {
+        component: "DriverRequestHandler",
+        data: {
+          hasDriverLoc: !!driverLoc,
+          hasPickupLat: !!pickupLat,
+          hasPickupLng: !!pickupLng,
+        }
       });
       return {
         shouldAutoAccept: false,
@@ -154,11 +182,14 @@ export class DriverRequestHandler {
 
     const withinRadius = distance <= (prefs.autoAcceptRadius || 5);
 
-    log.debug("DriverRequestHandler", "Auto-accept evaluation", {
-      distance,
-      autoAcceptRadius: prefs.autoAcceptRadius || 5,
-      withinRadius,
-      shouldAutoAccept: prefs.autoAccept && withinRadius,
+    log.debug("Auto-accept evaluation", {
+      component: "DriverRequestHandler",
+      data: {
+        distance,
+        autoAcceptRadius: prefs.autoAcceptRadius || 5,
+        withinRadius,
+        shouldAutoAccept: prefs.autoAccept && withinRadius,
+      }
     });
 
     return {
@@ -204,19 +235,25 @@ export class DriverRequestHandler {
 
       // Navigate to appropriate step
       const goTo = useMapFlowStore.getState().goTo;
-      const nextStep = this.getNextStepForService(service);
+      const nextStep = this.getNextStepForService(service) as any;
       goTo(nextStep);
 
-      log.info("DriverRequestHandler", "Ride auto-accepted successfully", {
-        rideId: id,
-        service,
-        nextStep,
+      log.info("Ride auto-accepted successfully", {
+        component: "DriverRequestHandler",
+        data: {
+          rideId: id,
+          service,
+          nextStep,
+        }
       });
     } catch (error) {
-      log.error("DriverRequestHandler", "Failed to auto-accept ride", {
-        rideId: id,
-        service,
-        error: error instanceof Error ? error.message : "Unknown error",
+      log.error("Failed to auto-accept ride", {
+        component: "DriverRequestHandler",
+        data: {
+          rideId: id,
+          service,
+          error: error instanceof Error ? error.message : "Unknown error",
+        }
       });
       
       // Fallback to manual acceptance
@@ -232,12 +269,15 @@ export class DriverRequestHandler {
     const startDriverStep = useMapFlowStore.getState().startWithDriverStep;
     const flowStep = this.getFlowStepForService(service);
     
-    log.debug("DriverRequestHandler", "Navigating to flow step", {
-      service,
-      flowStep,
+    log.debug("Navigating to flow step", {
+      component: "DriverRequestHandler",
+      data: {
+        service,
+        flowStep,
+      }
     });
     
-    startDriverStep(flowStep);
+    startDriverStep(flowStep as DriverFlowStep);
   }
 
   /**

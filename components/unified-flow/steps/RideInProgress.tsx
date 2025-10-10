@@ -5,6 +5,7 @@ import CustomButton from "@/components/CustomButton";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useAutoNavigation } from "@/hooks/useAutoNavigation";
+import { useRideSelectors, useBasicFlowSelectors } from "@/hooks/useMapFlowSelectors";
 import { useRealtimeStore } from "@/store/realtime/realtime";
 import { websocketService } from "@/app/services/websocketService";
 import { websocketEventManager } from "@/lib/websocketEventManager";
@@ -27,24 +28,23 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
   onCallDriver,
   onEmergency,
 }) => {
-  const {
-    back,
-    matchedDriver,
-    rideId: storeRideId,
-    confirmedDestination,
-  } = useMapFlow();
+  const { back } = useMapFlow();
   const { navigationState } = useAutoNavigation(); // 🚀 NUEVO: Hook de navegación automática
-  const activeRide = useRealtimeStore((state) => state.activeRide);
-
+  
+  // 🆕 Selectors optimizados
+  const rideSelectors = useRideSelectors();
+  const basicSelectors = useBasicFlowSelectors();
+  
   // Usar selectores del hook de Zustand para obtener datos en tiempo real
   const driverLocation = useRealtimeStore((state) => state.driverLocation);
   const connectionStatus = useRealtimeStore((state) => state.connectionStatus);
+  const activeRide = useRealtimeStore((state) => state.activeRide);
 
   // Usar datos reales del store
-  const actualRideId = rideId || storeRideId;
-  const actualDriverName = matchedDriver?.title || driverName || "Conductor";
+  const actualRideId = rideId || rideSelectors.rideId;
+  const actualDriverName = rideSelectors.matchedDriver?.name || driverName || "Conductor";
   const actualDestination =
-    confirmedDestination?.address || destination || "Destino";
+    rideSelectors.confirmedDestination?.address || destination || "Destino";
 
   // Estado local para información en tiempo real
   const [dynamicEta, setDynamicEta] = useState<number>(estimatedTime);
@@ -170,10 +170,10 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
       setGpsUpdatesCount((prev) => prev + 1);
 
       // Calcular ETA dinámico con coordenadas reales del destino
-      const destinationCoords = confirmedDestination?.location || {
-        latitude: confirmedDestination?.latitude,
-        longitude: confirmedDestination?.longitude,
-      };
+      const destinationCoords = rideSelectors.confirmedDestination ? {
+        latitude: rideSelectors.confirmedDestination.latitude,
+        longitude: rideSelectors.confirmedDestination.longitude,
+      } : undefined;
 
       const etaResult = calculateDynamicEta(
         newLocation.latitude,
@@ -204,7 +204,7 @@ const RideInProgress: React.FC<RideInProgressProps> = ({
       );
       
     };
-  }, [actualRideId, confirmedDestination]);
+  }, [actualRideId, rideSelectors.confirmedDestination]);
 
   // 🚀 NUEVO: Listeners para eventos del viaje en progreso
   useEffect(() => {

@@ -1,12 +1,28 @@
+/**
+ * @deprecated This file is deprecated. Use the new modular map system instead.
+ * 
+ * Migration guide:
+ * - Use RouteCalculator from '@/lib/map/routeCalculator' for route calculations
+ * - Use RegionCalculator from '@/lib/map/regionCalculator' for region calculations  
+ * - Use MarkerGenerator from '@/lib/map/markerGenerator' for marker generation
+ * - Use useMapRoutes hook from '@/hooks/useMapRoutes' for route management
+ * - Use useMapMarkers hook from '@/hooks/useMapMarkers' for marker management
+ * 
+ * See docs/map-system-api.md for complete migration guide.
+ */
+
 import { Driver, MarkerData } from "@/types/type";
 import { endpoints } from "@/lib/endpoints";
 import { DARK_MODERN_STYLE } from "@/constants/mapStyles";
 
 // Debug function para verificar estilos del mapa
 export const debugMapStyles = () => {
-  
+  console.warn('[DEPRECATED] debugMapStyles is deprecated. Use the new map system instead.');
 };
 
+/**
+ * @deprecated Use MarkerGenerator.generateDriverMarkers instead
+ */
 export const generateMarkersFromData = ({
   data,
   userLatitude,
@@ -16,6 +32,7 @@ export const generateMarkersFromData = ({
   userLatitude: number;
   userLongitude: number;
 }): MarkerData[] => {
+  console.warn('[DEPRECATED] generateMarkersFromData is deprecated. Use MarkerGenerator.generateDriverMarkers instead.');
   
   return data.map((driver, index) => {
     const latOffset = (Math.random() - 0.5) * 0.01; // Random offset between -0.005 and 0.005
@@ -43,6 +60,9 @@ export const generateMarkersFromData = ({
   });
 };
 
+/**
+ * @deprecated Use RegionCalculator.calculateRouteRegion instead
+ */
 export const calculateRegion = ({
   userLatitude,
   userLongitude,
@@ -54,6 +74,8 @@ export const calculateRegion = ({
   destinationLatitude?: number | null;
   destinationLongitude?: number | null;
 }) => {
+  console.warn('[DEPRECATED] calculateRegion is deprecated. Use RegionCalculator.calculateRouteRegion instead.');
+  
   if (!userLatitude || !userLongitude) {
     return {
       latitude: 37.78825,
@@ -91,6 +113,9 @@ export const calculateRegion = ({
   };
 };
 
+/**
+ * @deprecated Use RouteCalculator for route calculations instead
+ */
 export const calculateDriverTimes = async ({
   markers,
   userLatitude,
@@ -104,6 +129,8 @@ export const calculateDriverTimes = async ({
   destinationLatitude: number | null;
   destinationLongitude: number | null;
 }) => {
+  console.warn('[DEPRECATED] calculateDriverTimes is deprecated. Use RouteCalculator for route calculations instead.');
+  
   if (
     !userLatitude ||
     !userLongitude ||

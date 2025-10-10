@@ -6,7 +6,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
 import { useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverMandadoNavigateToDestination: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -24,7 +24,7 @@ const DriverMandadoNavigateToDestination: React.FC = () => {
   };
 
   const handleDelivered = () => {
-    goTo(FLOW_STEPS.DRIVER_MANDADO_ENTREGAR_MANDADO);
+    goTo(FLOW_STEPS.DRIVER_MANDADO.ENTREGAR_MANDADO);
   };
 
   return (

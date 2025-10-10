@@ -460,10 +460,10 @@ const DriverConfirmation: React.FC = () => {
             📍 Origen: Calle 123, Bogotá
           </Text>
           <Text className="font-Jakarta text-gray-600">
-            �� Destino: Carrera 45, Medellín
+           Destino: Carrera 45, Medellín
           </Text>
           <Text className="font-Jakarta text-gray-600">
-            �� Distancia: 15.2 km
+             Distancia: 15.2 km
           </Text>
         </View>
       </View>

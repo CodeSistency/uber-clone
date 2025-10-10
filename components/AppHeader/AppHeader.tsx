@@ -9,8 +9,7 @@ import {
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRouter } from "expo-router";
 
-import { useCustomerDrawer } from "@/hooks/useCustomerDrawer";
-import { useDriverDrawer } from "@/hooks/useDriverDrawer";
+import { useDrawer } from "@/components/drawer";
 
 interface ActionButton {
   icon: React.ComponentType<any>;
@@ -18,7 +17,7 @@ interface ActionButton {
   variant?: "primary" | "secondary" | "danger";
 }
 
-interface AppHeaderProps {
+export interface AppHeaderProps {
   // Configuración básica
   title: string;
   subtitle?: string;
@@ -58,18 +57,11 @@ const AppHeader: React.FC<AppHeaderProps> = ({
 }) => {
   const router = useRouter();
   
-  // Detectar contexto automáticamente basado en la ruta actual
-  const currentRoute = router.pathname || "";
-  const isCustomerContext = currentRoute.includes("(customer)");
-  const isDriverContext = currentRoute.includes("(driver)");
-  
-  // Usar el hook apropiado según el contexto
-  const customerDrawer = useCustomerDrawer();
-  const driverDrawer = useDriverDrawer();
-  
-  const drawer = isCustomerContext ? customerDrawer : driverDrawer;
+  // Usar el hook useDrawer que detecta automáticamente el módulo actual
+  const drawer = useDrawer();
   
   const handleHamburgerPress = () => {
+    console.log('[AppHeader] Hamburger pressed - opening drawer');
     if (showHamburgerMenu) {
       drawer.open();
     }
@@ -94,8 +86,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
     }
   };
   
+  console.log('[AppHeader] Rendering with showHamburgerMenu:', showHamburgerMenu);
+
   return (
-    <SafeAreaView style={[styles.container, getHeaderStyle(), className]}>
+    <SafeAreaView style={[styles.container, getHeaderStyle()]} className={className}>
       <View style={styles.header}>
         {/* Left side - Back button or Hamburger */}
         <View style={styles.leftSection}>
@@ -109,7 +103,10 @@ const AppHeader: React.FC<AppHeaderProps> = ({
           )}
           
           {showHamburgerMenu && (
-            <Pressable style={styles.hamburgerButton} onPress={handleHamburgerPress}>
+            <Pressable 
+              style={styles.hamburgerButton} 
+              onPress={handleHamburgerPress}
+            >
               <View style={styles.hamburgerLine} />
               <View style={[styles.hamburgerLine, styles.hamburgerLineMiddle]} />
               <View style={styles.hamburgerLine} />
@@ -263,6 +260,7 @@ const styles = StyleSheet.create({
 });
 
 export default AppHeader;
+
 
 
 

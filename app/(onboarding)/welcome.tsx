@@ -16,7 +16,7 @@ export default function Welcome() {
   const handleStartExploring = () => {
     
     // Don't reset onboarding here - keep the completion status
-    router.replace("/(root)/(tabs)/home");
+    router.replace("/");
   };
 
   const handleViewProfile = () => {

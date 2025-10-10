@@ -4,7 +4,14 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 
 import { Button, Card, Badge, Glass } from "@/components/ui";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { useRealtimeStore, useDevStore, useNotificationStore } from "@/store";
+import { useMapFlowActions } from "@/hooks/useMapFlowActions";
+import { useDebugSelectors, useRideSelectors } from "@/hooks/useMapFlowSelectors";
+import { useDevStore, useNotificationStore } from "@/store";
+import {
+  useRealtimeStore,
+  selectSimulationEnabled,
+  selectDriverLocation,
+} from "@/store/realtime/realtime";
 import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 // Componente para manejar errores en el flujo
@@ -143,6 +150,8 @@ export const VenezuelanPaymentSelector: React.FC = () => {
 // Componente para controles del flujo de conductor
 export const DriverFlowControls: React.FC = () => {
   const { startWithDriverStep } = useMapFlow();
+  const actions = useMapFlowActions();
+  const debugSelectors = useDebugSelectors();
 
   const driverStates = [
     {
@@ -270,6 +279,7 @@ export const DevModeIndicator: React.FC = () => {
 // Componente para controles de ride status
 export const RideStatusControls: React.FC = () => {
   const realtime = useRealtimeStore();
+  const rideSelectors = useRideSelectors();
 
   const rideStatuses = [
     { status: "accepted", label: "Accept", color: "bg-blue-500" },
@@ -306,6 +316,7 @@ export const RideStatusControls: React.FC = () => {
 // Componente para controles de simulación
 export const SimulationControls: React.FC = () => {
   const realtime = useRealtimeStore();
+  const actions = useMapFlowActions();
 
   return (
     <View className="px-4 py-3">
@@ -330,19 +341,15 @@ export const SimulationControls: React.FC = () => {
           variant="primary"
           title="📍 Move Driver"
           onPress={() => {
-            const { userLatitude, userLongitude } =
-              require("@/store").useLocationStore.getState();
-            const baseLat = userLatitude || 40.7128;
-            const baseLng = userLongitude || -74.006;
+            const state = actions.getCurrentState();
+            const baseLat = state.location.userLatitude || 40.7128;
+            const baseLng = state.location.userLongitude || -74.006;
             const jitter = () => (Math.random() - 0.5) * 0.003;
-            require("@/store")
-              .useRealtimeStore.getState()
-              .updateDriverLocation({
-                latitude: baseLat + jitter(),
-                longitude: baseLng + jitter(),
-                timestamp: new Date(),
-              });
-            
+            actions.updateDriverLocation({
+              latitude: baseLat + jitter(),
+              longitude: baseLng + jitter(),
+              timestamp: new Date(),
+            });
           }}
           className="px-4 py-2 bg-purple-600"
         />
@@ -351,26 +358,22 @@ export const SimulationControls: React.FC = () => {
           variant="primary"
           title="🎯 Fit Route"
           onPress={() => {
-            const {
-              userLatitude,
-              userLongitude,
-              destinationLatitude,
-              destinationLongitude,
-            } = require("@/store").useLocationStore.getState();
+            const state = actions.getCurrentState();
             const points: { latitude: number; longitude: number }[] = [];
-            if (userLatitude && userLongitude)
-              points.push({ latitude: userLatitude, longitude: userLongitude });
-            if (destinationLatitude && destinationLongitude)
-              points.push({
-                latitude: destinationLatitude,
-                longitude: destinationLongitude,
+            if (state.location.userLatitude && state.location.userLongitude)
+              points.push({ 
+                latitude: state.location.userLatitude, 
+                longitude: state.location.userLongitude 
               });
-            const driverLoc =
-              require("@/store").useRealtimeStore.getState().driverLocation;
-            if (driverLoc)
+            if (state.location.destinationLatitude && state.location.destinationLongitude)
               points.push({
-                latitude: driverLoc.latitude,
-                longitude: driverLoc.longitude,
+                latitude: state.location.destinationLatitude,
+                longitude: state.location.destinationLongitude,
+              });
+            if (state.realtime.driverLocation)
+              points.push({
+                latitude: state.realtime.driverLocation.latitude,
+                longitude: state.realtime.driverLocation.longitude,
               });
 
             

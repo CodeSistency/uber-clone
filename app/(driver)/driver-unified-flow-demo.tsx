@@ -9,37 +9,17 @@ import {
 
 import { AppHeader } from "@/components/AppHeader";
 import FlowHeader from "@/components/unified-flow/FlowHeader";
-import DriverAvailability from "@/components/unified-flow/steps/Client/Delivery/DriverAvailability";
-import DriverDeliveryConfirmFinish from "@/components/unified-flow/steps/Driver/Delivery/DriverDeliveryConfirmFinish";
-import DriverDeliveryNavigateToBusiness from "@/components/unified-flow/steps/Driver/Delivery/DriverDeliveryNavigateToBusiness";
-import DriverDeliveryPickupOrder from "@/components/unified-flow/steps/Driver/Delivery/DriverDeliveryPickupOrder";
-import DriverDeliveryToCustomer from "@/components/unified-flow/steps/Driver/Delivery/DriverDeliveryToCustomer";
-import DriverFinalizationRating from "@/components/unified-flow/steps/Driver/DriverFinalizationRating";
-import DriverIncomingRequest from "@/components/unified-flow/steps/Driver/DriverIncomingRequest";
-import DriverTransportEarnings from "@/components/unified-flow/steps/Driver/DriverTransportEarnings";
-import DriverTransportRating from "@/components/unified-flow/steps/Driver/DriverTransportRating";
-import DriverEnvioDeliveryConfirm from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioDeliveryConfirm";
-import DriverEnvioNavigateToDestination from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioNavigateToDestination";
-import DriverEnvioNavigateToOrigin from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioNavigateToOrigin";
-import DriverEnvioPickupPackage from "@/components/unified-flow/steps/Driver/Envio/DriverEnvioPickupPackage";
-import DriverMandadoFinish from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoFinish";
-import DriverMandadoManage from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoManage";
-import DriverMandadoNavigateToDestination from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoNavigateToDestination";
-import DriverMandadoNavigateToOriginChat from "@/components/unified-flow/steps/Driver/Mandado/DriverMandadoNavigateToOriginChat";
-import DriverTransportAcceptReject from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportAcceptReject";
-import DriverTransportArrivedAtOrigin from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportArrivedAtOrigin";
-import DriverTransportEndPayment from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportEndPayment";
-import DriverTransportInProgress from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportInProgress";
-import DriverTransportNavigateToOrigin from "@/components/unified-flow/steps/Driver/Viaje/DriverTransportNavigateToOrigin";
 import UnifiedFlowWrapper from "@/components/unified-flow/UnifiedFlowWrapper";
+import { stepRegistry, componentMapper } from "@/components/unified-flow/registry";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { FLOW_STEPS } from "@/lib/unified-flow/constants";
-import { MapFlowStep } from "@/store/mapFlow/mapFlow";
+import { log } from "@/lib/logger";
+import { MapFlowStep } from "@/store";
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 
 // Componente para pasos por defecto con navegación hacia atrás
-const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
+const DefaultStep: React.FC<{ step: MapFlowStep }> = React.memo(({ step }) => {
   const { back } = useMapFlow();
 
   return (
@@ -57,92 +37,32 @@ const DefaultStep: React.FC<{ step: MapFlowStep }> = ({ step }) => {
       </View>
     </View>
   );
-};
+});
 
-// Función helper para crear un renderStep completamente type-safe
-const createTypeSafeRenderStep = (
-  stepMappings: Partial<Record<MapFlowStep, () => React.ReactNode>>,
-) => {
+DefaultStep.displayName = "DefaultStep";
+
+const createTypeSafeRenderStep = () => {
+  // Configurar mapper
+  componentMapper.setDefaultComponent(() => <DefaultStep step="DRIVER_DISPONIBILIDAD" />);
+
+  // Crear función de renderizado
   return (step: MapFlowStep) => {
-    const renderFn = stepMappings[step];
-    if (renderFn) {
-      return renderFn();
-    }
-    return <DefaultStep step={step} />;
+    log.unifiedFlow.debug('Render step called', { data: step });
+    
+    const renderFn = componentMapper.createMapper({
+      role: 'driver',
+      fallbackToDefault: true,
+      showDebugInfo: __DEV__,
+    });
+    
+    const result = renderFn(step);
+    log.unifiedFlow.debug('Render result', { data: result });
+    return result;
   };
 };
 
-// Mapeo type-safe de pasos a componentes
-const STEP_COMPONENTS: Partial<Record<MapFlowStep, () => React.ReactNode>> = {
-  // Driver availability
-  [FLOW_STEPS.DRIVER_DISPONIBILIDAD]: () => <DriverAvailability />,
-
-  // Transport
-  [FLOW_STEPS.DRIVER_TRANSPORT_RECIBIR_SOLICITUD]: () => (
-    <DriverIncomingRequest />
-  ),
-  [FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN]: () => (
-    <DriverTransportNavigateToOrigin />
-  ),
-  [FLOW_STEPS.DRIVER_TRANSPORT_EN_ORIGEN]: () => (
-    <DriverTransportArrivedAtOrigin />
-  ),
-  [FLOW_STEPS.DRIVER_TRANSPORT_INICIAR_VIAJE]: () => (
-    <DriverTransportInProgress />
-  ),
-  [FLOW_STEPS.DRIVER_TRANSPORT_EN_VIAJE]: () => <DriverTransportInProgress />,
-  [FLOW_STEPS.DRIVER_TRANSPORT_COMPLETAR_VIAJE]: () => (
-    <DriverTransportEndPayment />
-  ),
-  // Rating step for transport rides
-  [FLOW_STEPS.DRIVER_FINALIZACION_RATING]: () => <DriverTransportRating />,
-
-  // Delivery
-  [FLOW_STEPS.DRIVER_DELIVERY_RECIBIR_SOLICITUD]: () => (
-    <DriverIncomingRequest />
-  ),
-  [FLOW_STEPS.DRIVER_DELIVERY_PREPARAR_PEDIDO]: () => (
-    <DriverDeliveryNavigateToBusiness />
-  ),
-  [FLOW_STEPS.DRIVER_DELIVERY_RECOGER_PEDIDO]: () => (
-    <DriverDeliveryPickupOrder />
-  ),
-  [FLOW_STEPS.DRIVER_DELIVERY_EN_CAMINO_ENTREGA]: () => (
-    <DriverDeliveryToCustomer />
-  ),
-  [FLOW_STEPS.DRIVER_DELIVERY_ENTREGAR_PEDIDO]: () => (
-    <DriverDeliveryConfirmFinish />
-  ),
-
-  // Mandado
-  [FLOW_STEPS.DRIVER_MANDADO_RECIBIR_SOLICITUD]: () => (
-    <DriverIncomingRequest />
-  ),
-  [FLOW_STEPS.DRIVER_MANDADO_EN_CAMINO_ORIGEN]: () => (
-    <DriverMandadoNavigateToOriginChat />
-  ),
-  [FLOW_STEPS.DRIVER_MANDADO_RECOGER_PRODUCTOS]: () => <DriverMandadoManage />,
-  [FLOW_STEPS.DRIVER_MANDADO_EN_CAMINO_DESTINO]: () => (
-    <DriverMandadoNavigateToDestination />
-  ),
-  [FLOW_STEPS.DRIVER_MANDADO_ENTREGAR_MANDADO]: () => <DriverMandadoFinish />,
-
-  // Envío
-  [FLOW_STEPS.DRIVER_ENVIO_RECIBIR_SOLICITUD]: () => <DriverIncomingRequest />,
-  [FLOW_STEPS.DRIVER_ENVIO_EN_CAMINO_ORIGEN]: () => (
-    <DriverEnvioNavigateToOrigin />
-  ),
-  [FLOW_STEPS.DRIVER_ENVIO_RECOGER_PAQUETE]: () => <DriverEnvioPickupPackage />,
-  [FLOW_STEPS.DRIVER_ENVIO_EN_CAMINO_DESTINO]: () => (
-    <DriverEnvioNavigateToDestination />
-  ),
-  [FLOW_STEPS.DRIVER_ENVIO_ENTREGAR_PAQUETE]: () => (
-    <DriverEnvioDeliveryConfirm />
-  ),
-};
-
-// Crear la función renderStep usando el helper type-safe
-const renderStep = createTypeSafeRenderStep(STEP_COMPONENTS);
+// Crear la función renderStep usando el registry centralizado
+const renderStep = createTypeSafeRenderStep();
 
 // Función para renderizar pasos sin logging (para uso en UnifiedFlowWrapper)
 const quietRenderStep = (step: MapFlowStep) => {

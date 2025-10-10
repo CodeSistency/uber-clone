@@ -176,7 +176,7 @@ export interface VerificationCodeResponse {
 }
 
 // Error Types
-export interface ApiError {
+export interface ApiErrorResponse {
   statusCode: number;
   message: string | string[];
   error: string;
@@ -311,6 +311,7 @@ export class RateLimitError extends ApiError {
     this.retryAfter = retryAfter;
   }
 }
+
 
 
 

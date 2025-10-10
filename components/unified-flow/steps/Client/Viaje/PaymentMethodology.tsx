@@ -157,7 +157,24 @@ const PaymentMethodology: React.FC = () => {
   const [showAddModal, setShowAddModal] = useState(false);
 
   // Wallet data
-  const { balance, hasWallet, hasSufficientBalance, formattedBalance, loadWalletData } = walletStore;
+  const { balance, currency, isLoading: walletLoading } = walletStore;
+  
+  // Computed wallet properties
+  const hasWallet = balance > 0;
+  const hasSufficientBalance = (amount: number) => balance >= amount;
+  const formattedBalance = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+  }).format(balance);
+  
+  const loadWalletData = async () => {
+    try {
+      await walletStore.fetchWallet();
+    } catch (error) {
+      console.error('Error loading wallet data:', error);
+    }
+  };
 
   // Load wallet data on mount
   React.useEffect(() => {
@@ -609,10 +626,10 @@ const PaymentMethodology: React.FC = () => {
           </View>
 
           {/* Wallet Balance Indicator */}
-          {hasWallet && balance && (
+          {hasWallet && balance > 0 && (
             <WalletBalanceIndicator
-              balance={balance.amount}
-              currency={balance.currency}
+              balance={balance}
+              currency={currency}
               onRecargar={() => {
                 // TODO: Navigate to wallet recharge screen
                 showSuccess("Funcionalidad próximamente", "Recarga de wallet estará disponible pronto");
@@ -663,8 +680,8 @@ const PaymentMethodology: React.FC = () => {
                 onSelectMethod={handlePaymentMethodChange}
                 className="mb-4"
                 showWalletBalance={hasWallet}
-                walletBalance={balance?.amount || 0}
-                walletCurrency={balance?.currency || "VES"}
+                walletBalance={balance || 0}
+                walletCurrency={currency || "VES"}
                 hasSufficientWalletBalance={hasSufficientBalance(estimatedFare)}
               />
 

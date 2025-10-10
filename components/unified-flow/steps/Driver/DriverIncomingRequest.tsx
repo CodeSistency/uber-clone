@@ -18,7 +18,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useRealtimeStore } from "@/store";
 import { useDriverStateStore } from "@/store/driverState/driverState";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverIncomingRequest: React.FC = () => {
   const { goTo, startWithDriverStep } = useMapFlow();
@@ -253,7 +253,7 @@ const DriverIncomingRequest: React.FC = () => {
       } as any);
 
       showSuccess("¡Solicitud aceptada!", "Dirígete al punto de recogida");
-      goTo(FLOW_STEPS.DRIVER_TRANSPORT_EN_CAMINO_ORIGEN);
+      goTo(FLOW_STEPS.DRIVER_TRANSPORT.EN_CAMINO_ORIGEN);
     } catch (error) {
       
       showError("Error", "No se pudo aceptar la solicitud. Intenta de nuevo.");

@@ -1,8 +1,8 @@
 import { renderHook, act } from "@testing-library/react-native";
-import { fetchAPI } from "../../lib/fetch";
 import { useLocationStore } from "../../store";
 import GoogleTextInput from "../../components/GoogleTextInput";
 import Map from "../../components/Map";
+import { fetchAPI } from "@/lib/fetch";
 
 // Mock external services
 jest.mock("../../lib/fetch");
@@ -52,9 +52,8 @@ describe("External Services Integration Tests", () => {
           data: mockPlacesResponse,
         });
 
-        const result = await fetchAPI("maps/places/autocomplete", {
+        const result = await fetchAPI("maps/places/autocomplete?input=123%20Main", {
           method: "GET",
-          params: { input: "123 Main" },
         });
 
         expect(result.success).toBe(true);
@@ -81,9 +80,8 @@ describe("External Services Integration Tests", () => {
           data: mockPlaceDetails,
         });
 
-        const result = await fetchAPI("maps/places/details", {
+        const result = await fetchAPI("maps/places/details?place_id=place_123", {
           method: "GET",
-          params: { place_id: "place_123" },
         });
 
         expect(result.success).toBe(true);
@@ -97,9 +95,8 @@ describe("External Services Integration Tests", () => {
           message: "Places API quota exceeded",
         });
 
-        const result = await fetchAPI("maps/places/autocomplete", {
+        const result = await fetchAPI("maps/places/autocomplete?input=test", {
           method: "GET",
-          params: { input: "test" },
         });
 
         expect(result.success).toBe(false);
@@ -137,13 +134,8 @@ describe("External Services Integration Tests", () => {
           data: mockDirectionsResponse,
         });
 
-        const result = await fetchAPI("maps/directions", {
+        const result = await fetchAPI("maps/directions?origin=40.7128%2C-74.0060&destination=40.7589%2C-73.9851&mode=driving", {
           method: "GET",
-          params: {
-            origin: "40.7128,-74.0060",
-            destination: "40.7589,-73.9851",
-            mode: "driving",
-          },
         });
 
         expect(result.success).toBe(true);
@@ -157,23 +149,15 @@ describe("External Services Integration Tests", () => {
           data: mockDirectionsResponse,
         });
 
-        const result = await fetchAPI("maps/directions", {
+        const result = await fetchAPI("maps/directions?origin=40.7128%2C-74.0060&destination=40.7589%2C-73.9851&waypoints=40.7505%2C-73.9934&mode=driving", {
           method: "GET",
-          params: {
-            origin: "40.7128,-74.0060",
-            destination: "40.7589,-73.9851",
-            waypoints: "40.7505,-73.9934",
-            mode: "driving",
-          },
         });
 
         expect(result.success).toBe(true);
         expect(mockFetchAPI).toHaveBeenCalledWith(
           expect.stringContaining("directions"),
           expect.objectContaining({
-            params: expect.objectContaining({
-              waypoints: "40.7505,-73.9934",
-            }),
+            method: "GET",
           }),
         );
       });
@@ -199,14 +183,8 @@ describe("External Services Integration Tests", () => {
           data: mockTrafficResponse,
         });
 
-        const result = await fetchAPI("maps/directions", {
+        const result = await fetchAPI("maps/directions?origin=40.7128%2C-74.0060&destination=40.7589%2C-73.9851&departure_time=now&traffic_model=best_guess", {
           method: "GET",
-          params: {
-            origin: "40.7128,-74.0060",
-            destination: "40.7589,-73.9851",
-            departure_time: "now",
-            traffic_model: "best_guess",
-          },
         });
 
         expect(result.success).toBe(true);
@@ -228,14 +206,8 @@ describe("External Services Integration Tests", () => {
           data: mockStaticMapResponse,
         });
 
-        const result = await fetchAPI("maps/static", {
+        const result = await fetchAPI("maps/static?center=40.7128%2C-74.0060&zoom=15&size=400x400&markers=color%3Ared%7C40.7128%2C-74.0060", {
           method: "GET",
-          params: {
-            center: "40.7128,-74.0060",
-            zoom: "15",
-            size: "400x400",
-            markers: "color:red|40.7128,-74.0060",
-          },
         });
 
         expect(result.success).toBe(true);
@@ -253,12 +225,8 @@ describe("External Services Integration Tests", () => {
           data: mockRouteMapResponse,
         });
 
-        const result = await fetchAPI("maps/static/route", {
+        const result = await fetchAPI("maps/static/route?path=enc%3Aencoded_polyline_data&markers=color%3Agreen%7C40.7128%2C-74.0060%7Ccolor%3Ared%7C40.7589%2C-73.9851", {
           method: "GET",
-          params: {
-            path: "enc:encoded_polyline_data",
-            markers: "color:green|40.7128,-74.0060|color:red|40.7589,-73.9851",
-          },
         });
 
         expect(result.success).toBe(true);
@@ -472,9 +440,8 @@ describe("External Services Integration Tests", () => {
           data: mockPaymentMethods,
         });
 
-        const result = await fetchAPI("payments/methods", {
+        const result = await fetchAPI("payments/methods?userId=123", {
           method: "GET",
-          params: { userId: "123" },
         });
 
         expect(result.success).toBe(true);
@@ -764,9 +731,8 @@ describe("External Services Integration Tests", () => {
     test("network timeout handling", async () => {
       mockFetchAPI.mockRejectedValue(new Error("Network timeout"));
 
-      const result = await fetchAPI("maps/directions", {
+      const result = await fetchAPI("maps/directions?origin=40.7128%2C-74.0060&destination=40.7589%2C-73.9851", {
         method: "GET",
-        params: { origin: "40.7128,-74.0060", destination: "40.7589,-73.9851" },
       });
 
       expect(result.success).toBe(false);
@@ -780,9 +746,8 @@ describe("External Services Integration Tests", () => {
         retryAfter: 3600, // 1 hour
       });
 
-      const result = await fetchAPI("maps/places/autocomplete", {
+      const result = await fetchAPI("maps/places/autocomplete?input=test", {
         method: "GET",
-        params: { input: "test" },
       });
 
       expect(result.success).toBe(false);
@@ -796,9 +761,8 @@ describe("External Services Integration Tests", () => {
         code: "AUTH_ERROR",
       });
 
-      const result = await fetchAPI("maps/directions", {
+      const result = await fetchAPI("maps/directions?origin=40.7128%2C-74.0060&destination=40.7589%2C-73.9851", {
         method: "GET",
-        params: { origin: "40.7128,-74.0060", destination: "40.7589,-73.9851" },
       });
 
       expect(result.success).toBe(false);

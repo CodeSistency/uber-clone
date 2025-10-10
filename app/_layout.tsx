@@ -22,6 +22,7 @@ import {
 } from "@/lib/endpoints";
 import { useUserStore } from "@/store";
 import { useDevStore } from "@/store";
+import { registerAllSteps } from "@/components/unified-flow/registry";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -133,6 +134,17 @@ export default function RootLayout() {
       const { loadFromStorage } = require("@/store").useDevStore.getState();
       loadFromStorage?.();
     } catch {}
+  }, []);
+
+  // Register all step components once
+  useEffect(() => {
+    try {
+      registerAllSteps();
+    } catch (error) {
+      if (__DEV__) {
+        console.error('[App] Error registering step components:', error);
+      }
+    }
   }, []);
 
   // Connect WebSocket when authenticated

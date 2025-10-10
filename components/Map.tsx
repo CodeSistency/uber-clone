@@ -1,41 +1,41 @@
 import React, {
-  useEffect,
-  useState,
   forwardRef,
   useImperativeHandle,
   useRef,
   useMemo,
   useCallback,
+  useEffect,
   memo,
 } from "react";
 import { ActivityIndicator, Text, View, Platform } from "react-native";
 import MapView, {
-  Marker,
-  Polyline,
   PROVIDER_GOOGLE,
   Region,
   LatLng,
 } from "react-native-maps";
 
-import { icons } from "@/constants";
 import { Restaurant } from "@/constants/dummyData";
 import {
   getMapStyle,
   validateMapConfig,
   DARK_MODERN_STYLE,
-  MAP_COLORS,
   type MapConfiguration,
 } from "@/constants/mapStyles";
-import { endpoints } from "@/lib/endpoints";
-import { useFetch } from "@/lib/fetch";
-import {
-  calculateDriverTimes,
-  calculateRegion,
-  generateMarkersFromData,
-  debugMapStyles,
-} from "@/lib/map";
-import { useDriverStore, useLocationStore, useRealtimeStore } from "@/store";
-import { Driver, MarkerData } from "@/types/type";
+import { useLocationStore, useDriverStore, useRealtimeStore } from "@/store";
+import { useMapRoutes } from "@/hooks/useMapRoutes";
+import { useMapMarkers } from "@/hooks/useMapMarkers";
+import { useMapClustering } from "@/hooks/useMapClustering";
+import { useAlternativeRoutes } from "@/hooks/useAlternativeRoutes";
+import { useOfflineMaps } from "@/hooks/useOfflineMaps";
+import { useMapAnimations } from "@/hooks/useMapAnimations";
+import { RegionCalculator } from "@/lib/map/regionCalculator";
+
+import MapMarkers from "./Map/MapMarkers";
+import MapRoute from "./Map/MapRoute";
+import ClusteredMarkers from "./Map/ClusteredMarkers";
+import AlternativeRoutes from "./Map/AlternativeRoutes";
+import RouteSelector from "./Map/RouteSelector";
+import type { Coordinates, MarkerCluster } from "@/types/map";
 
 // 🎨 Importar sistema de estilos de mapas
 
@@ -82,192 +82,59 @@ const Map = forwardRef<MapHandle, MapProps>(
     }: MapProps,
     ref,
   ) => {
-    // Debug estilos del mapa al inicio
-    React.useEffect(() => {
-      debugMapStyles();
-    }, []);
-
     const mapRef = useRef<MapView | null>(null);
-    const {
-      userLongitude,
-      userLatitude,
-      destinationLatitude,
-      destinationLongitude,
-    } = useLocationStore();
-    const { selectedDriver, setDrivers } = useDriverStore();
+    
+    // Estado desde stores
+    const userLocation = useLocationStore(state => 
+      state.userLatitude && state.userLongitude
+        ? { latitude: state.userLatitude, longitude: state.userLongitude }
+        : null
+    );
+    
+    const destination = useLocationStore(state =>
+      state.destinationLatitude && state.destinationLongitude
+        ? { latitude: state.destinationLatitude, longitude: state.destinationLongitude }
+        : null
+    );
 
-    const { data: drivers, loading, error } = useFetch<any>("driver");
-    const [markers, setMarkers] = useState<MarkerData[]>([]);
-    const [routeCoordinates, setRouteCoordinates] = useState<
-      { latitude: number; longitude: number }[]
-    >([]);
-    const [manualRoute, setManualRoute] = useState<boolean>(false);
-    const [navPickup, setNavPickup] = useState<LatLng | null>(null);
-    const [navDestination, setNavDestination] = useState<LatLng | null>(null);
+    const { selectedDriver } = useDriverStore();
     const { driverLocation } = useRealtimeStore();
 
-    // Function to get route coordinates from Google Directions API
-    const getRouteCoordinates = async (
-      originLat: number,
-      originLng: number,
-      destLat: number,
-      destLng: number,
-    ) => {
-      try {
+    // Hooks especializados
+    const { route, isLoading: isRouteLoading } = useMapRoutes(userLocation, destination);
+    const { markers, loading: isMarkersLoading } = useMapMarkers(userLocation);
 
-        const response = await fetch(
-          endpoints.googleMaps.directions("json", {
-            origin: `${originLat},${originLng}`,
-            destination: `${destLat},${destLng}`,
-          }),
-          {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-            },
-          },
-        );
+    // Nuevas features
+    const { clusters, updateClusters, expandCluster } = useMapClustering(markers, true);
+    const { routes, selectedRoute, selectedRouteIndex, selectRoute, calculateRoutes } = useAlternativeRoutes();
+    const { isInitialized: isOfflineInitialized } = useOfflineMaps();
+    const mapAnimations = useMapAnimations(mapRef as React.RefObject<any>);
 
-        const data = await response.json();
+    // Región calculada
+    const region = RegionCalculator.calculateRouteRegion(userLocation, destination);
 
-        if (data.status === "OK" && data.routes && data.routes[0]) {
-          const points = data.routes[0].overview_polyline.points;
-          const decodedPoints = decodePolyline(points);
-
-          setRouteCoordinates(decodedPoints);
-        } else {
-          setRouteCoordinates([]);
-        }
-      } catch (error) {
-        setRouteCoordinates([]);
-      }
-    };
-
-    // Function to decode Google Maps polyline
-    const decodePolyline = (encoded: string) => {
-      const points: { latitude: number; longitude: number }[] = [];
-      let index = 0,
-        lat = 0,
-        lng = 0;
-
-      while (index < encoded.length) {
-        let shift = 0,
-          result = 0;
-        let byte;
-
-        // Decode latitude
-        do {
-          byte = encoded.charCodeAt(index++) - 63;
-          result |= (byte & 0x1f) << shift;
-          shift += 5;
-        } while (byte >= 0x20);
-
-        const deltaLat = result & 1 ? ~(result >> 1) : result >> 1;
-        lat += deltaLat;
-
-        shift = 0;
-        result = 0;
-
-        // Decode longitude
-        do {
-          byte = encoded.charCodeAt(index++) - 63;
-          result |= (byte & 0x1f) << shift;
-          shift += 5;
-        } while (byte >= 0x20);
-
-        const deltaLng = result & 1 ? ~(result >> 1) : result >> 1;
-        lng += deltaLng;
-
-        points.push({
-          latitude: lat / 100000,
-          longitude: lng / 100000,
-        });
-      }
-
-      return points;
-    };
-
-    // Get route when origin or destination changes
-    useEffect(() => {
-      if (
-        userLatitude &&
-        userLongitude &&
-        destinationLatitude &&
-        destinationLongitude
-      ) {
-        if (manualRoute) {
-          // When manual route is set via controller, skip auto calculation
-          return;
-        }
-        getRouteCoordinates(
-          userLatitude,
-          userLongitude,
-          destinationLatitude,
-          destinationLongitude,
-        );
-      } else {
-        setRouteCoordinates([]);
-      }
-    }, [
-      userLatitude,
-      userLongitude,
-      destinationLatitude,
-      destinationLongitude,
-      manualRoute,
-    ]);
-
-    useEffect(() => {
-      // Handle both array format and object format from backend
-      const driversArray = Array.isArray(drivers)
-        ? drivers
-        : drivers?.data || [];
-
-      if (Array.isArray(driversArray) && driversArray.length > 0) {
-        if (!userLatitude || !userLongitude) return;
-
-        const newMarkers = generateMarkersFromData({
-          data: driversArray,
-          userLatitude,
-          userLongitude,
-        });
-
-        setMarkers(newMarkers);
-
-        // Set basic drivers to store immediately for UI display
-        setDrivers(newMarkers as MarkerData[]);
-      }
-    }, [drivers, userLatitude, userLongitude]);
-
-    useEffect(() => {
-      if (
-        markers.length > 0 &&
-        destinationLatitude !== undefined &&
-        destinationLongitude !== undefined
-      ) {
-        calculateDriverTimes({
-          markers,
-          userLatitude,
-          userLongitude,
-          destinationLatitude,
-          destinationLongitude,
-        }).then((driversWithTimes) => {
-          if (driversWithTimes && driversWithTimes.length > 0) {
-            // Update existing drivers with time and price information
-            setDrivers(driversWithTimes as MarkerData[]);
-          }
-        });
-      }
-    }, [markers, destinationLatitude, destinationLongitude]);
-
-    const region = calculateRegion({
-      userLatitude,
-      userLongitude,
-      destinationLatitude,
-      destinationLongitude,
-    });
+    // 🎨 Configuración del mapa con tema dark moderno
+    const defaultMapConfig: Partial<MapConfiguration> = useMemo(
+      () => ({
+        theme: "dark",
+        customStyle: DARK_MODERN_STYLE,
+        userInterfaceStyle: "dark",
+        mapType: Platform.OS === "ios" ? "mutedStandard" : "standard",
+        showsPointsOfInterest: false,
+        showsTraffic: false,
+        showsCompass: true,
+        showsScale: false,
+        showsMyLocationButton: false,
+        tintColor: "#00FF88", // Verde neón para acentos
+        routeColor: "#4285F4", // Azul Google para rutas
+        trailColor: "#FFE014", // Amarillo neón para trails
+        predictionColor: "#00FF88", // Verde neón para predicciones
+      }),
+      [],
+    );
 
     // 🎨 Configuración validada del mapa
-    const validatedMapConfig = validateMapConfig(mapConfig || {});
+    const validatedMapConfig = validateMapConfig({ ...defaultMapConfig, ...mapConfig });
 
     const mapStyleJson = getMapStyle(validatedMapConfig);
 
@@ -282,6 +149,30 @@ const Map = forwardRef<MapHandle, MapProps>(
         customMapStyle: mapStyleJson,
       });
     }, [mapStyleJson, validatedMapConfig.mapId]);
+
+    // Event handlers para nuevas features
+    const handleRegionChange = useCallback((region: Region) => {
+      // Actualizar clusters en cambio de región
+      const zoom = Math.log2(360 / region.latitudeDelta);
+      updateClusters(region, zoom);
+    }, [updateClusters]);
+
+    const handleClusterPress = useCallback((cluster: MarkerCluster) => {
+      const zoom = expandCluster(parseInt(cluster.id.replace('cluster-', '')));
+      mapAnimations.animateToLocation(cluster.coordinate, zoom);
+    }, [expandCluster, mapAnimations]);
+
+    const handleMarkerPress = useCallback((marker: any) => {
+      // Handle individual marker press
+      console.log('Marker pressed:', marker);
+    }, []);
+
+    // Calcular rutas alternativas cuando hay origen y destino
+    useEffect(() => {
+      if (userLocation && destination) {
+        calculateRoutes(userLocation, destination, 3);
+      }
+    }, [userLocation, destination, calculateRoutes]);
 
     // Expose imperative map controls - must be declared unconditionally before any return
     useImperativeHandle(
@@ -300,37 +191,31 @@ const Map = forwardRef<MapHandle, MapProps>(
           mapRef.current?.setCamera(config);
         },
         setRoutePolyline: (poly: LatLng[]) => {
-          setManualRoute(true);
-          setRouteCoordinates(poly);
+          // TODO: Implement manual route setting
+          console.log('Manual route set:', poly);
         },
         clearRoutePolyline: () => {
-          setManualRoute(false);
-          setRouteCoordinates([]);
+          // TODO: Implement manual route clearing
+          console.log('Manual route cleared');
         },
         setNavMarkers: ({ pickup, destination }) => {
-          if (typeof pickup !== "undefined") setNavPickup(pickup ?? null);
-          if (typeof destination !== "undefined")
-            setNavDestination(destination ?? null);
+          // TODO: Implement navigation markers
+          console.log('Nav markers set:', { pickup, destination });
         },
       }),
       [],
     );
 
-    if (loading || (!userLatitude && !userLongitude))
+    if (isMarkersLoading || !userLocation) {
       return (
         <View className="flex justify-between items-center w-full">
           <ActivityIndicator size="small" color="#000" />
         </View>
       );
-
-    if (error)
-      return (
-        <View className="flex justify-between items-center w-full">
-          <Text>Error: {error}</Text>
-        </View>
-      );
+    }
 
     return (
+      <>
       <MapView
         ref={(r) => {
           mapRef.current = r;
@@ -341,6 +226,7 @@ const Map = forwardRef<MapHandle, MapProps>(
         customMapStyle={validatedMapConfig.mapId ? undefined : mapStyleJson}
         userInterfaceStyle={validatedMapConfig.userInterfaceStyle}
         onMapReady={handleMapReady}
+        onRegionChangeComplete={handleRegionChange}
         // 🎛️ Configuración de controles y elementos
         showsUserLocation={validatedMapConfig.showsUserLocation}
         showsPointsOfInterest={validatedMapConfig.showsPointsOfInterest}
@@ -362,107 +248,63 @@ const Map = forwardRef<MapHandle, MapProps>(
         // 📍 Región inicial
         initialRegion={region}
       >
-        {/* Transport mode markers */}
-        {serviceType === "transport" &&
-          markers.map((marker, index) => (
-            <Marker
-              key={marker.id}
-              coordinate={{
-                latitude: marker.latitude,
-                longitude: marker.longitude,
-              }}
-              title={marker.title}
-              image={
-                selectedDriver === +marker.id
-                  ? icons.selectedMarker
-                  : icons.marker
-              }
-            />
-          ))}
+        {/* Clustered Markers */}
+        <ClusteredMarkers
+          clusters={clusters}
+          selectedDriver={selectedDriver}
+          onMarkerPress={handleMarkerPress}
+          onClusterPress={handleClusterPress}
+        />
 
-        {/* Delivery mode markers */}
-        {serviceType === "delivery" &&
-          restaurants.map((restaurant, index) => (
-            <Marker
-              key={restaurant.id}
-              coordinate={{
-                latitude: restaurant.location.latitude,
-                longitude: restaurant.location.longitude,
-              }}
-              title={restaurant.name}
-              description={`${restaurant.category} • ${restaurant.rating}★ • ${restaurant.deliveryTime}`}
-            >
-              <View className="bg-brand-primary dark:bg-brand-primaryDark rounded-full p-2 shadow-lg border-2 border-primary-500">
-                <Text className="text-lg">{restaurant.image}</Text>
-              </View>
-            </Marker>
-          ))}
-
-        {userLatitude && userLongitude && (
-          <Marker
-            key="origin"
-            coordinate={{
-              latitude: userLatitude,
-              longitude: userLongitude,
-            }}
-            title="Origin"
-            image={icons.point}
+        {/* Fallback to regular markers if no clustering */}
+        {clusters.length === 0 && (
+          <MapMarkers
+            serviceType={serviceType}
+            markers={markers}
+            selectedDriver={selectedDriver}
+            userLocation={userLocation}
+            destination={destination}
+            driverLocation={driverLocation}
+            restaurants={restaurants}
+          />
+        )}
+        
+        {/* Alternative Routes */}
+        {routes.length > 0 && (
+          <AlternativeRoutes
+            routes={routes}
+            selectedIndex={selectedRouteIndex}
+            onRoutePress={selectRoute}
           />
         )}
 
-        {destinationLatitude && destinationLongitude && (
-          <Marker
-            key="destination"
-            coordinate={{
-              latitude: destinationLatitude,
-              longitude: destinationLongitude,
-            }}
-            title="Destination"
-            image={icons.pin}
+        {/* Single Route (fallback) */}
+        {routes.length === 0 && route && (
+          <MapRoute
+            polyline={route.polyline}
+            color={validatedMapConfig.routeColor}
           />
         )}
 
-        {navPickup && (
-          <Marker
-            key="nav_pickup"
-            coordinate={navPickup}
-            title="Pickup"
-            image={icons.point}
-          />
-        )}
-
-        {navDestination && (
-          <Marker
-            key="nav_destination"
-            coordinate={navDestination}
-            title="Destination"
-            image={icons.pin}
-          />
-        )}
-
-        {routeCoordinates.length > 0 && (
-          <Polyline
-            coordinates={routeCoordinates}
-            strokeColor={validatedMapConfig.routeColor}
-            strokeWidth={4}
-            lineDashPattern={[0]}
-          />
-        )}
-
-        {/* Live driver marker (real-time) */}
-        {driverLocation && (
-          <Marker
-            key="live_driver"
-            coordinate={{
-              latitude: driverLocation.latitude,
-              longitude: driverLocation.longitude,
-            }}
-            title="Driver"
-            image={icons.selectedMarker}
+        {/* Selected Route */}
+        {selectedRoute && (
+          <MapRoute
+            polyline={selectedRoute.polyline}
+            color={validatedMapConfig.routeColor}
           />
         )}
       </MapView>
-    );
+
+      {/* Route Selector UI */}
+      {routes.length > 0 && (
+        <RouteSelector
+          routes={routes}
+          selectedIndex={selectedRouteIndex}
+          onSelectRoute={selectRoute}
+        />
+      )}
+    </>
+  );
   },
 );
 

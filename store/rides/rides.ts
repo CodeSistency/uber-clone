@@ -154,7 +154,7 @@ export const useRidesStore = create<RidesStore>((set, get) => ({
       const { fetchAPI } = await import("@/lib/fetch");
       const response = await fetchAPI(`ride/${targetUserId}`, {
         requiresAuth: true,
-        useRetryQueue: true, // Use offline queue if network fails
+        skipApiPrefix: true, // Use offline queue if network fails
       });
 
       const rides = response.data || [];

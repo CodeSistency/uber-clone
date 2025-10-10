@@ -40,4 +40,4 @@ export {
   FlowRole,
   FlowStep,
   MapFlowStep,
-} from "./mapFlow/mapFlow";
+} from "./mapFlow";

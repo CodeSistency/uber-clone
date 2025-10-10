@@ -19,7 +19,7 @@ const DriverDiagnostics: React.FC = () => {
   useEffect(() => {
     // Verificar conexión WebSocket
     const checkConnection = () => {
-      setWsConnected(websocketService.isConnected());
+      setWsConnected(websocketService.isConnected);
     };
 
     checkConnection();

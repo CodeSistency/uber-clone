@@ -37,10 +37,10 @@ export default function OnboardingIndex() {
     );
   }
 
-  // If onboarding is completed, redirect to home
+  // If onboarding is completed, redirect to main index to handle user mode selection
   if (isCompleted) {
     
-    return <Redirect href="/(root)/(tabs)/home" />;
+    return <Redirect href="/" />;
   }
 
   const safeStep =

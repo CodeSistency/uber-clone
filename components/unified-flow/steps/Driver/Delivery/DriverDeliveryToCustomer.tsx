@@ -8,7 +8,7 @@ import FlowHeader from "@/components/unified-flow/FlowHeader";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapNavigation } from "@/hooks/useMapNavigation";
 import { useChatStore, useRealtimeStore } from "@/store";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow";
 
 const DriverDeliveryToCustomer: React.FC = () => {
   const { goTo } = useMapFlow();
@@ -61,7 +61,7 @@ const DriverDeliveryToCustomer: React.FC = () => {
   };
 
   const handleDelivered = () => {
-    goTo(FLOW_STEPS.DRIVER_DELIVERY_ENTREGAR_PEDIDO);
+    goTo(FLOW_STEPS.DRIVER_DELIVERY.ENTREGAR_PEDIDO);
   };
 
   return (

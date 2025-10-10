@@ -1,384 +1,151 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+/**
+ * Sistema de logging condicional para la aplicación
+ * Solo muestra logs en desarrollo (__DEV__) para optimizar performance
+ */
 
-export enum LogLevel {
-  DEBUG = 0,
-  INFO = 1,
-  WARN = 2,
-  ERROR = 3,
-  CRITICAL = 4,
-}
+export const isDev = __DEV__;
 
-export interface LogEntry {
-  id: string;
-  timestamp: Date;
-  level: LogLevel;
-  category: string;
-  message: string;
+export interface LogContext {
+  component?: string;
+  action?: string;
   data?: any;
-  userId?: string;
-  sessionId?: string;
-  stackTrace?: string;
 }
 
-export class Logger {
-  private static instance: Logger;
-  private logs: LogEntry[] = [];
-  private maxLogsInMemory = 1000;
-  private logLevel: LogLevel = LogLevel.DEBUG;
-  private isDevelopment = __DEV__;
-  private sessionId: string;
+export interface LogOptions {
+  level: 'debug' | 'info' | 'warn' | 'error';
+  context?: LogContext;
+  force?: boolean; // Forzar log incluso en producción
+}
 
-  private constructor() {
-    this.sessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-    this.loadPersistedLogs();
+class Logger {
+  private formatMessage(level: string, message: string, context?: LogContext): string {
+    const timestamp = new Date().toISOString().split('T')[1].split('.')[0];
+    const contextStr = context ? `[${context.component || 'App'}${context.action ? `:${context.action}` : ''}]` : '[App]';
+    return `${timestamp} ${contextStr} ${message}`;
   }
 
-  static getInstance(): Logger {
-    if (!Logger.instance) {
-      Logger.instance = new Logger();
+  private shouldLog(level: string, force?: boolean): boolean {
+    if (force) return true;
+    if (!isDev) return false;
+    
+    // En desarrollo, mostrar todos los logs
+    return true;
+  }
+
+  debug(message: string, context?: LogContext, force?: boolean): void {
+    if (!this.shouldLog('debug', force)) return;
+    
+    const formattedMessage = this.formatMessage('DEBUG', message, context);
+    console.log(formattedMessage);
+    
+    if (context?.data) {
+      console.log('  Data:', context.data);
     }
-    return Logger.instance;
   }
 
-  setLogLevel(level: LogLevel): void {
-    this.logLevel = level;
-    this.info("Logger", "Log level changed", { newLevel: level });
+  info(message: string, context?: LogContext, force?: boolean): void {
+    if (!this.shouldLog('info', force)) return;
+    
+    const formattedMessage = this.formatMessage('INFO', message, context);
+    console.info(formattedMessage);
+    
+    if (context?.data) {
+      console.info('  Data:', context.data);
+    }
   }
 
-  private shouldLog(level: LogLevel): boolean {
-    return level >= this.logLevel;
+  warn(message: string, context?: LogContext, force?: boolean): void {
+    // Warnings siempre se muestran
+    const formattedMessage = this.formatMessage('WARN', message, context);
+    console.warn(formattedMessage);
+    
+    if (context?.data) {
+      console.warn('  Data:', context.data);
+    }
   }
 
-  private createLogEntry(
-    level: LogLevel,
-    category: string,
-    message: string,
-    data?: any,
-    stackTrace?: string,
-  ): LogEntry {
+  error(message: string, context?: LogContext, force?: boolean): void {
+    // Errores siempre se muestran
+    const formattedMessage = this.formatMessage('ERROR', message, context);
+    console.error(formattedMessage);
+    
+    if (context?.data) {
+      console.error('  Data:', context.data);
+    }
+  }
+
+  // Métodos de conveniencia para componentes específicos
+  component(componentName: string) {
     return {
-      id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-      timestamp: new Date(),
-      level,
-      category,
-      message,
-      data,
-      sessionId: this.sessionId,
-      stackTrace,
+      debug: (message: string, data?: any) => this.debug(message, { component: componentName, data }),
+      info: (message: string, data?: any) => this.info(message, { component: componentName, data }),
+      warn: (message: string, data?: any) => this.warn(message, { component: componentName, data }),
+      error: (message: string, data?: any) => this.error(message, { component: componentName, data }),
     };
   }
 
-  private addLog(entry: LogEntry): void {
-    // Add to memory
-    this.logs.unshift(entry);
-    if (this.logs.length > this.maxLogsInMemory) {
-      this.logs = this.logs.slice(0, this.maxLogsInMemory);
-    }
-
-    // Persist critical logs
-    if (entry.level >= LogLevel.ERROR) {
-      this.persistLog(entry);
-    }
-
-    // Console output with enhanced formatting
-    this.outputToConsole(entry);
-  }
-
-  private outputToConsole(entry: LogEntry): void {
-    const timestamp = entry.timestamp.toISOString();
-    const levelStr = LogLevel[entry.level];
-    const prefix = `[${timestamp}] [${levelStr}] [${entry.category}]`;
-
-    const message = entry.data
-      ? `${entry.message} ${JSON.stringify(entry.data, null, 2)}`
-      : entry.message;
-
-    switch (entry.level) {
-      case LogLevel.DEBUG:
-        console.debug(`${prefix} ${message}`, entry.data || "");
-        break;
-      case LogLevel.INFO:
-        console.info(`${prefix} ${message}`, entry.data || "");
-        break;
-      case LogLevel.WARN:
-        
-        break;
-      case LogLevel.ERROR:
-      case LogLevel.CRITICAL:
-        
-        break;
-    }
-  }
-
-  private async persistLog(entry: LogEntry): Promise<void> {
-    try {
-      const persistedLogs =
-        (await AsyncStorage.getItem("uber_app_logs")) || "[]";
-      const logs = JSON.parse(persistedLogs);
-
-      logs.unshift({
-        ...entry,
-        timestamp: entry.timestamp.toISOString(), // Convert to string for storage
-      });
-
-      // Keep only last 500 persisted logs
-      if (logs.length > 500) {
-        logs.splice(500);
-      }
-
-      await AsyncStorage.setItem("uber_app_logs", JSON.stringify(logs));
-    } catch (error) {
-      
-    }
-  }
-
-  private async loadPersistedLogs(): Promise<void> {
-    try {
-      const persistedLogs = await AsyncStorage.getItem("uber_app_logs");
-      if (persistedLogs) {
-        const logs = JSON.parse(persistedLogs);
-        // Convert timestamp strings back to Date objects
-        this.logs = logs.map((log: any) => ({
-          ...log,
-          timestamp: new Date(log.timestamp),
-        }));
-      }
-    } catch (error) {
-      
-    }
-  }
-
-  debug(category: string, message: string, data?: any): void {
-    if (this.shouldLog(LogLevel.DEBUG)) {
-      const entry = this.createLogEntry(
-        LogLevel.DEBUG,
-        category,
-        message,
-        data,
-      );
-      this.addLog(entry);
-    }
-  }
-
-  info(category: string, message: string, data?: any): void {
-    if (this.shouldLog(LogLevel.INFO)) {
-      const entry = this.createLogEntry(LogLevel.INFO, category, message, data);
-      this.addLog(entry);
-    }
-  }
-
-  warn(category: string, message: string, data?: any): void {
-    if (this.shouldLog(LogLevel.WARN)) {
-      const entry = this.createLogEntry(LogLevel.WARN, category, message, data);
-      this.addLog(entry);
-    }
-  }
-
-  error(category: string, message: string, data?: any, error?: Error): void {
-    if (this.shouldLog(LogLevel.ERROR)) {
-      const entry = this.createLogEntry(
-        LogLevel.ERROR,
-        category,
-        message,
-        data,
-        error?.stack,
-      );
-      this.addLog(entry);
-    }
-  }
-
-  critical(category: string, message: string, data?: any, error?: Error): void {
-    if (this.shouldLog(LogLevel.CRITICAL)) {
-      const entry = this.createLogEntry(
-        LogLevel.CRITICAL,
-        category,
-        message,
-        data,
-        error?.stack,
-      );
-      this.addLog(entry);
-    }
-  }
-
-  // Performance logging
-  performance(
-    category: string,
-    operation: string,
-    startTime: number,
-    metadata?: any,
-  ): void {
-    const duration = Date.now() - startTime;
-    const level = duration > 5000 ? LogLevel.WARN : LogLevel.INFO;
-
-    if (this.shouldLog(level)) {
-      const entry = this.createLogEntry(
-        level,
-        category,
-        `Performance: ${operation}`,
-        {
-          duration,
-          ...metadata,
-        },
-      );
-      this.addLog(entry);
-    }
-  }
-
-  // Network logging
-  network(
-    category: string,
-    method: string,
-    url: string,
-    statusCode?: number,
-    duration?: number,
-    error?: any,
-  ): void {
-    const level =
-      statusCode && statusCode >= 400
-        ? LogLevel.ERROR
-        : error
-          ? LogLevel.WARN
-          : LogLevel.DEBUG;
-
-    if (this.shouldLog(level)) {
-      const entry = this.createLogEntry(
-        level,
-        category,
-        `Network: ${method} ${url}`,
-        {
-          statusCode,
-          duration,
-          error: error?.message,
-        },
-      );
-      this.addLog(entry);
-    }
-  }
-
-  // WebSocket logging
-  websocket(category: string, event: string, data?: any, error?: any): void {
-    const level = error ? LogLevel.ERROR : LogLevel.DEBUG;
-
-    if (this.shouldLog(level)) {
-      const entry = this.createLogEntry(
-        level,
-        category,
-        `WebSocket: ${event}`,
-        data,
-        error?.stack,
-      );
-      this.addLog(entry);
-    }
-  }
-
-  // User action logging
-  userAction(category: string, action: string, details?: any): void {
-    if (this.shouldLog(LogLevel.INFO)) {
-      const entry = this.createLogEntry(
-        LogLevel.INFO,
-        category,
-        `User Action: ${action}`,
-        details,
-      );
-      this.addLog(entry);
-    }
-  }
-
-  // Get logs for debugging
-  getLogs(level?: LogLevel, category?: string, limit = 100): LogEntry[] {
-    let filteredLogs = this.logs;
-
-    if (level !== undefined) {
-      filteredLogs = filteredLogs.filter((log) => log.level >= level);
-    }
-
-    if (category) {
-      filteredLogs = filteredLogs.filter((log) => log.category === category);
-    }
-
-    return filteredLogs.slice(0, limit);
-  }
-
-  // Clear logs
-  clearLogs(): void {
-    this.logs = [];
-    AsyncStorage.removeItem("uber_app_logs");
-    this.info("Logger", "Logs cleared");
-  }
-
-  // Export logs for debugging
-  exportLogs(): Promise<string> {
-    return new Promise((resolve) => {
-      AsyncStorage.getItem("uber_app_logs").then((persistedLogs) => {
-        const allLogs = {
-          memoryLogs: this.logs,
-          persistedLogs: persistedLogs ? JSON.parse(persistedLogs) : [],
-          sessionId: this.sessionId,
-          timestamp: new Date().toISOString(),
-        };
-        resolve(JSON.stringify(allLogs, null, 2));
-      });
-    });
-  }
-
-  // Get log statistics
-  getStats(): {
-    total: number;
-    byLevel: Record<string, number>;
-    byCategory: Record<string, number>;
-  } {
-    const stats = {
-      total: this.logs.length,
-      byLevel: {} as Record<string, number>,
-      byCategory: {} as Record<string, number>,
+  // Métodos de conveniencia para acciones específicas
+  action(actionName: string) {
+    return {
+      debug: (message: string, data?: any) => this.debug(message, { action: actionName, data }),
+      info: (message: string, data?: any) => this.info(message, { action: actionName, data }),
+      warn: (message: string, data?: any) => this.warn(message, { action: actionName, data }),
+      error: (message: string, data?: any) => this.error(message, { action: actionName, data }),
     };
+  }
 
-    this.logs.forEach((log) => {
-      const levelStr = LogLevel[log.level];
-      stats.byLevel[levelStr] = (stats.byLevel[levelStr] || 0) + 1;
-      stats.byCategory[log.category] =
-        (stats.byCategory[log.category] || 0) + 1;
+  // Método para logging de performance
+  performance(operation: string, startTime: number, context?: LogContext): void {
+    const duration = performance.now() - startTime;
+    this.debug(`Performance: ${operation} took ${duration.toFixed(2)}ms`, context);
+  }
+
+  // Método para logging de estado
+  state(component: string, stateName: string, oldState: any, newState: any): void {
+    this.debug(`State change: ${stateName}`, {
+      component,
+      action: 'stateChange',
+      data: { oldState, newState }
     });
+  }
 
-    return stats;
+  // Método para logging de renderizado
+  render(component: string, props?: any): void {
+    this.debug(`Component rendered`, {
+      component,
+      action: 'render',
+      data: props
+    });
   }
 }
 
-// Export singleton instance
-export const logger = Logger.getInstance();
+// Instancia singleton del logger
+export const logger = new Logger();
 
-// Convenience functions
+// Exportar métodos de conveniencia
 export const log = {
-  debug: (category: string, message: string, data?: any) =>
-    logger.debug(category, message, data),
-  info: (category: string, message: string, data?: any) =>
-    logger.info(category, message, data),
-  warn: (category: string, message: string, data?: any) =>
-    logger.warn(category, message, data),
-  error: (category: string, message: string, data?: any, error?: Error) =>
-    logger.error(category, message, data, error),
-  critical: (category: string, message: string, data?: any, error?: Error) =>
-    logger.critical(category, message, data, error),
-
-  performance: (
-    category: string,
-    operation: string,
-    startTime: number,
-    metadata?: any,
-  ) => logger.performance(category, operation, startTime, metadata),
-
-  network: (
-    category: string,
-    method: string,
-    url: string,
-    statusCode?: number,
-    duration?: number,
-    error?: any,
-  ) => logger.network(category, method, url, statusCode, duration, error),
-
-  websocket: (category: string, event: string, data?: any, error?: any) =>
-    logger.websocket(category, event, data, error),
-
-  userAction: (category: string, action: string, details?: any) =>
-    logger.userAction(category, action, details),
+  debug: (message: string, context?: LogContext) => logger.debug(message, context),
+  info: (message: string, context?: LogContext) => logger.info(message, context),
+  warn: (message: string, context?: LogContext) => logger.warn(message, context),
+  error: (message: string, context?: LogContext) => logger.error(message, context),
+  
+  // Métodos específicos para componentes comunes
+  unifiedFlow: logger.component('UnifiedFlowWrapper'),
+  bottomSheet: logger.component('GorhomMapFlowBottomSheet'),
+  pagerView: logger.component('MapFlowPagerView'),
+  registry: logger.component('StepRegistry'),
+  
+  // Métodos específicos para acciones comunes
+  stepChange: logger.action('stepChange'),
+  pageChange: logger.action('pageChange'),
+  bottomSheetClose: logger.action('bottomSheetClose'),
+  bottomSheetReopen: logger.action('bottomSheetReopen'),
+  
+  // Métodos de utilidad
+  performance: logger.performance.bind(logger),
+  state: logger.state.bind(logger),
+  render: logger.render.bind(logger),
 };
+
+// Exportar el logger completo para casos avanzados
+export default logger;

@@ -6,7 +6,7 @@ import { errandClient } from "@/app/services/flowClientService";
 import ChatModal from "@/components/ChatModal";
 import { useUI } from "@/components/UIWrapper";
 import { useMapFlow } from "@/hooks/useMapFlow";
-import { FLOW_STEPS } from "@/store/mapFlow/mapFlow";
+import { FLOW_STEPS } from "@/store/mapFlow/constants";
 
 import FlowHeader from "../../../FlowHeader";
 
@@ -17,7 +17,7 @@ const MandadoCommsAndConfirm: React.FC = () => {
 
   const handleConfirm = () => {
     showSuccess("Mandado confirmado", "El conductor irá por los productos");
-    goTo(FLOW_STEPS.CUSTOMER_MANDADO_FINALIZACION);
+    goTo(FLOW_STEPS.CUSTOMER_MANDADO.FINALIZACION);
   };
 
   return (
@@ -58,7 +58,9 @@ const MandadoCommsAndConfirm: React.FC = () => {
         onClose={() => setChatOpen(false)}
         driverName="Juan Pérez"
         rideId="demo-ride-123"
-        onSendMessage={(message) => }
+        onSendMessage={(message) => {
+          console.log('Sending message:', message);
+        }}
         messages={[]}
       />
 
