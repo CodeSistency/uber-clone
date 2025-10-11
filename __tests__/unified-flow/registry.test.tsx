@@ -24,10 +24,9 @@ describe('StepRegistry', () => {
         role: 'customer',
       });
 
-      const registered = stepRegistry.get(FLOW_STEPS.SELECCION_SERVICIO);
+      const registered = stepRegistry.getComponent(FLOW_STEPS.SELECCION_SERVICIO, 'customer');
       expect(registered).toBeDefined();
-      expect(registered?.component).toBe(component);
-      expect(registered?.metadata.role).toBe('customer');
+      expect(registered).toBe(component);
     });
 
     it('should overwrite existing registration', () => {
@@ -37,9 +36,8 @@ describe('StepRegistry', () => {
       stepRegistry.register(FLOW_STEPS.SELECCION_SERVICIO, component1, { role: 'customer' });
       stepRegistry.register(FLOW_STEPS.SELECCION_SERVICIO, component2, { role: 'driver' });
 
-      const registered = stepRegistry.get(FLOW_STEPS.SELECCION_SERVICIO);
-      expect(registered?.component).toBe(component2);
-      expect(registered?.metadata.role).toBe('driver');
+      const registered = stepRegistry.getComponent(FLOW_STEPS.SELECCION_SERVICIO, 'driver');
+      expect(registered).toBe(component2);
     });
 
     it('should handle multiple registrations', () => {
@@ -47,23 +45,23 @@ describe('StepRegistry', () => {
       stepRegistry.register(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE, () => <MockTransportDefinition />, { role: 'customer' });
       stepRegistry.register(FLOW_STEPS.CUSTOMER_TRANSPORT_GESTION_CONFIRMACION, () => <MockDriverConfirmation />, { role: 'customer' });
 
-      expect(stepRegistry.getStats().total).toBe(3);
+      expect(stepRegistry.getStats().totalSteps).toBe(3);
     });
   });
 
   describe('get', () => {
     it('should return undefined for unregistered step', () => {
-      const result = stepRegistry.get('UNKNOWN_STEP' as any);
-      expect(result).toBeUndefined();
+      const result = stepRegistry.getComponent('UNKNOWN_STEP' as any);
+      expect(result).toBeNull();
     });
 
     it('should return registered component', () => {
       const component = () => <MockServiceSelection />;
       stepRegistry.register(FLOW_STEPS.SELECCION_SERVICIO, component, { role: 'customer' });
 
-      const result = stepRegistry.get(FLOW_STEPS.SELECCION_SERVICIO);
+      const result = stepRegistry.getComponent(FLOW_STEPS.SELECCION_SERVICIO, 'customer');
       expect(result).toBeDefined();
-      expect(result?.component).toBe(component);
+      expect(result).toBe(component);
     });
   });
 
@@ -72,10 +70,10 @@ describe('StepRegistry', () => {
       stepRegistry.register(FLOW_STEPS.SELECCION_SERVICIO, () => <MockServiceSelection />, { role: 'customer' });
       stepRegistry.register(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE, () => <MockTransportDefinition />, { role: 'customer' });
 
-      const all = stepRegistry.getAll();
+      const all = stepRegistry.getRegisteredSteps();
       expect(all).toHaveLength(2);
-      expect(all[0].step).toBe(FLOW_STEPS.SELECCION_SERVICIO);
-      expect(all[1].step).toBe(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE);
+      expect(all).toContain(FLOW_STEPS.SELECCION_SERVICIO);
+      expect(all).toContain(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE);
     });
   });
 
@@ -85,27 +83,25 @@ describe('StepRegistry', () => {
       stepRegistry.register(FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE, () => <MockTransportDefinition />, { role: 'customer' });
 
       const stats = stepRegistry.getStats();
-      expect(stats.total).toBe(2);
-      expect(stats.byRole.customer).toBe(2);
-      expect(stats.byRole.driver).toBe(0);
+      expect(stats.totalSteps).toBe(2);
+      expect(stats.totalComponents).toBe(2);
     });
   });
 
   describe('clear', () => {
     it('should clear all registrations', () => {
       stepRegistry.register(FLOW_STEPS.SELECCION_SERVICIO, () => <MockServiceSelection />, { role: 'customer' });
-      expect(stepRegistry.getStats().total).toBe(1);
+      expect(stepRegistry.getStats().totalSteps).toBe(1);
 
       stepRegistry.clear();
-      expect(stepRegistry.getStats().total).toBe(0);
+      expect(stepRegistry.getStats().totalSteps).toBe(0);
     });
   });
 });
 
 describe('ComponentMapper', () => {
   beforeEach(() => {
-    // Limpiar el mapper antes de cada test
-    componentMapper.clear();
+    // ComponentMapper no tiene método clear, se resetea automáticamente
   });
 
   describe('createMapper', () => {
@@ -175,7 +171,7 @@ describe('ComponentMapper', () => {
       const defaultComponent = () => <div>Default</div>;
       componentMapper.setDefaultComponent(defaultComponent);
 
-      componentMapper.clear();
+      // ComponentMapper no tiene método clear
 
       const mapper = componentMapper.createMapper({
         role: 'customer',
@@ -191,7 +187,7 @@ describe('ComponentMapper', () => {
 describe('Registry Integration', () => {
   beforeEach(() => {
     stepRegistry.clear();
-    componentMapper.clear();
+    // ComponentMapper no tiene método clear
   });
 
   it('should work together to render components', () => {

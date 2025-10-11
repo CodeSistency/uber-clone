@@ -76,9 +76,13 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
     }
 
     try {
-      log.info("ChatDiagnostics", "Starting chat functionality test", {
-        rideId,
-        orderId,
+      log.info("Starting chat functionality test", {
+        component: "ChatDiagnostics",
+        action: "start_chat_test",
+        data: {
+          rideId,
+          orderId,
+        }
       });
 
       // Test sending a message
@@ -104,10 +108,12 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       log.error(
-        "ChatDiagnostics",
         "Chat functionality test failed",
-        { error: errorMessage },
-        error instanceof Error ? error : undefined,
+        {
+          component: "ChatDiagnostics",
+          action: "chat_test_failed",
+          data: { error: errorMessage }
+        }
       );
       Alert.alert("Test Failed", errorMessage);
     }
@@ -140,7 +146,10 @@ export const ChatDiagnostics: React.FC<ChatDiagnosticsProps> = ({
   };
 
   const reconnectWebSocket = () => {
-    log.info("ChatDiagnostics", "Manual WebSocket reconnection triggered");
+    log.info("Manual WebSocket reconnection triggered", {
+      component: "ChatDiagnostics",
+      action: "manual_reconnection"
+    });
     websocketService.connect("user-id", "token");
     setTimeout(() => collectDiagnosticData(), 2000);
   };

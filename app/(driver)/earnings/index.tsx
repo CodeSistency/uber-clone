@@ -165,7 +165,7 @@ const DriverEarningsDashboard = () => {
                 <Card className="flex-1">
                   <View className="items-center">
                     <Text className="text-2xl font-JakartaBold text-primary-600">
-                      {formatNumber(earningsSummary.totalTrips)}
+                      {formatNumber(earningsSummary.completedTrips)}
                     </Text>
                     <Text className="text-xs text-secondary-600 font-JakartaMedium mt-1">
                       Trips
@@ -176,7 +176,7 @@ const DriverEarningsDashboard = () => {
                 <Card className="flex-1">
                   <View className="items-center">
                     <Text className="text-2xl font-JakartaBold text-success-600">
-                      {earningsSummary.averageRating?.toFixed(1) || "0.0"}
+                      {earningsSummary.averageEarningsPerTrip?.toFixed(1) || "0.0"}
                     </Text>
                     <Text className="text-xs text-secondary-600 font-JakartaMedium mt-1">
                       Rating
@@ -187,7 +187,7 @@ const DriverEarningsDashboard = () => {
                 <Card className="flex-1">
                   <View className="items-center">
                     <Text className="text-2xl font-JakartaBold text-warning-600">
-                      {formatCurrency(earningsSummary.averagePerTrip)}
+                      {formatCurrency(earningsSummary.averageEarningsPerTrip)}
                     </Text>
                     <Text className="text-xs text-secondary-600 font-JakartaMedium mt-1">
                       Avg/Trip
@@ -248,14 +248,14 @@ const DriverEarningsDashboard = () => {
                   >
                     <View className="flex-1">
                       <Text className="font-JakartaMedium text-sm">
-                        {new Date(trip.date).toLocaleDateString()}
+                        {new Date(trip.completedAt).toLocaleDateString()}
                       </Text>
                       <Text className="text-secondary-600 text-xs">
-                        {trip.distance} • {trip.duration}
+                        {trip.amount} • {trip.status}
                       </Text>
                     </View>
                     <Text className="font-JakartaBold text-success-600">
-                      {formatCurrency(trip.earnings)}
+                      {formatCurrency(trip.netEarning)}
                     </Text>
                   </View>
                 ))}
@@ -294,7 +294,7 @@ const DriverEarningsDashboard = () => {
                       {promo.description}
                     </Text>
                     <Text className="text-primary-700 font-JakartaBold text-xs mt-2">
-                      Expires: {new Date(promo.expiresAt).toLocaleDateString()}
+                      Expires: {new Date(promo.endDate).toLocaleDateString()}
                     </Text>
                   </View>
                 ))}
@@ -344,7 +344,7 @@ const DriverEarningsDashboard = () => {
                     </Text>
                     <View className="flex-row items-center justify-between mt-2">
                       <Text className="text-warning-700 text-xs">
-                        Progress: {challenge.currentProgress}/{challenge.target}
+                        Progress: {challenge.current}/{challenge.target}
                       </Text>
                       <Text className="text-warning-700 font-JakartaBold text-xs">
                         {formatCurrency(challenge.reward)}

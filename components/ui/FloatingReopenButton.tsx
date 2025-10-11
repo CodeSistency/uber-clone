@@ -1,6 +1,14 @@
 import React, { useEffect, useRef } from 'react';
-import { View, TouchableOpacity, Animated, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { 
+  useAnimatedStyle, 
+  useSharedValue, 
+  withTiming,
+  withSpring,
+  withSequence
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 interface FloatingReopenButtonProps {
   visible: boolean;
@@ -23,41 +31,43 @@ const FloatingReopenButton: React.FC<FloatingReopenButtonProps> = ({
   iconName = 'chevron-up',
   animationDuration = 300,
 }) => {
-  const fadeAnim = useRef(new Animated.Value(0)).current;
-  const scaleAnim = useRef(new Animated.Value(0.8)).current;
-
+  // 🔧 Valores animados con Reanimated
+  const opacity = useSharedValue(0);
+  const scale = useSharedValue(0.8);
+  const translateY = useSharedValue(20);
+  
+  // Efecto de aparición/desaparición
   useEffect(() => {
     if (visible) {
-      // Fade in animation
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 1,
-          duration: animationDuration,
-          useNativeDriver: true,
-        }),
-        Animated.spring(scaleAnim, {
-          toValue: 1,
-          tension: 100,
-          friction: 8,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      opacity.value = withTiming(1, { duration: animationDuration });
+      scale.value = withSpring(1, { damping: 12, stiffness: 200 });
+      translateY.value = withSpring(0, { damping: 15, stiffness: 150 });
     } else {
-      // Fade out animation
-      Animated.parallel([
-        Animated.timing(fadeAnim, {
-          toValue: 0,
-          duration: animationDuration,
-          useNativeDriver: true,
-        }),
-        Animated.timing(scaleAnim, {
-          toValue: 0.8,
-          duration: animationDuration,
-          useNativeDriver: true,
-        }),
-      ]).start();
+      opacity.value = withTiming(0, { duration: animationDuration });
+      scale.value = withTiming(0.8, { duration: animationDuration });
+      translateY.value = withTiming(20, { duration: animationDuration });
     }
-  }, [visible, fadeAnim, scaleAnim, animationDuration]);
+  }, [visible, animationDuration, opacity, scale, translateY]);
+  
+  // 🔧 Gesture para feedback táctil
+  const tap = Gesture.Tap()
+    .onBegin(() => {
+      scale.value = withSequence(
+        withTiming(0.85, { duration: 100 }),
+        withSpring(1, { damping: 10, stiffness: 200 })
+      );
+    })
+    .onEnd(() => {
+      onPress();
+    });
+  
+  const animatedStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+    transform: [
+      { scale: scale.value },
+      { translateY: translateY.value }
+    ],
+  }));
 
   const getPositionStyle = () => {
     const baseStyle = {
@@ -102,42 +112,25 @@ const FloatingReopenButton: React.FC<FloatingReopenButtonProps> = ({
   if (!visible) return null;
 
   return (
-    <Animated.View
-      style={[
-        getPositionStyle(),
-        {
-          opacity: fadeAnim,
-          transform: [{ scale: scaleAnim }],
-        },
-      ]}
-    >
-      <TouchableOpacity
-        onPress={onPress}
-        style={[
-          styles.button,
-          {
-            width: size,
-            height: size,
-            borderRadius: size / 2,
-            backgroundColor,
-            shadowColor: '#000',
-            shadowOffset: {
-              width: 0,
-              height: 4,
-            },
-            shadowOpacity: 0.3,
-            shadowRadius: 8,
-            elevation: 8,
+    <Animated.View style={[getPositionStyle(), animatedStyle]}>
+      <GestureDetector gesture={tap}>
+        <Animated.View style={[styles.button, { 
+          width: size, 
+          height: size, 
+          borderRadius: size / 2,
+          backgroundColor,
+          shadowColor: '#000',
+          shadowOffset: {
+            width: 0,
+            height: 4,
           },
-        ]}
-        activeOpacity={0.8}
-      >
-        <Ionicons
-          name={iconName}
-          size={size * 0.4}
-          color={color}
-        />
-      </TouchableOpacity>
+          shadowOpacity: 0.3,
+          shadowRadius: 8,
+          elevation: 8,
+        }]}>
+          <Ionicons name={iconName} size={size * 0.4} color={color} />
+        </Animated.View>
+      </GestureDetector>
     </Animated.View>
   );
 };

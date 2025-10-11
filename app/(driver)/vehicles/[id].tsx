@@ -183,6 +183,7 @@ const DriverVehicleDetails = () => {
     setIsSubmitting(true);
     try {
       const updateData = {
+        id: vehicle.id,
         make: editData.make,
         model: editData.model,
         year: parseInt(editData.year),
@@ -263,7 +264,7 @@ const DriverVehicleDetails = () => {
     if (!vehicle) return;
 
     try {
-      await updateVehicle(vehicle.id, { status: newStatus as any });
+      await updateVehicle(vehicle.id, { id: vehicle.id, status: newStatus as any });
       showSuccess(
         "Status Updated",
         `Vehicle has been ${newStatus === "active" ? "activated" : "deactivated"} successfully`,

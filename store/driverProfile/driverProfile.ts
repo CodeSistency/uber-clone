@@ -7,6 +7,7 @@ import type {
   UpdateVehicleRequest,
   DocumentType,
   DocumentStatus,
+  VehicleVerificationStatus,
 } from "@/types/driver";
 import { driverService } from "@/app/services/driverService";
 import { vehicleService } from "@/app/services/vehicleService";
@@ -145,6 +146,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         averageRating: profileData.averageRating,
         status: profileData.isVerified ? "active" : "inactive",
         isOnline: false, // This would come from status endpoint
+        isAvailable: false, // This would come from status endpoint
         currentLocation: profileData.currentLocation || {
           latitude: 0,
           longitude: 0,
@@ -185,6 +187,7 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         averageRating: 4.8,
         status: "active" as const,
         isOnline: true,
+        isAvailable: true,
         currentLocation: {
           latitude: 25.7617,
           longitude: -80.1918,
@@ -225,6 +228,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         model: vehicle.model,
         year: vehicle.year,
         licensePlate: vehicle.licensePlate,
+        plateNumber: vehicle.licensePlate,
+        vin: vehicle.vin || `VIN${Date.now()}`,
         color: vehicle.color,
         seats: vehicle.seats,
         status: vehicle.status,
@@ -233,7 +238,16 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         insuranceExpiry: vehicle.insuranceExpiry,
         registrationNumber: vehicle.registrationNumber,
         registrationExpiry: vehicle.registrationExpiry,
-        vehiclePhotos: vehicle.vehiclePhotos,
+        isVerified: vehicle.isVerified || false,
+        verificationStatus: vehicle.verificationStatus || {
+          overall: 'pending',
+          documents: 'pending',
+          vehicle: 'pending',
+          background: 'pending'
+        },
+        photos: vehicle.photos || [],
+        documents: vehicle.documents || [],
+        vehiclePhotos: vehicle.vehiclePhotos || [],
         createdAt: vehicle.createdAt,
         updatedAt: vehicle.updatedAt,
       }));
@@ -271,6 +285,8 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         model: newVehicle.model,
         year: newVehicle.year,
         licensePlate: newVehicle.licensePlate,
+        plateNumber: newVehicle.plateNumber,
+        vin: newVehicle.vin,
         color: newVehicle.color,
         seats: newVehicle.seats,
         status: newVehicle.status,
@@ -279,7 +295,20 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         insuranceExpiry: newVehicle.insuranceExpiry,
         registrationNumber: newVehicle.registrationNumber,
         registrationExpiry: newVehicle.registrationExpiry,
-        vehiclePhotos: newVehicle.vehiclePhotos,
+        isVerified: newVehicle.isVerified || false,
+        verificationStatus: newVehicle.verificationStatus || {
+          vehicleId: newVehicle.id,
+          overallStatus: 'pending',
+          requiredDocuments: [],
+          completedDocuments: [],
+          missingDocuments: [],
+          vehicleInspection: 'pending',
+          backgroundCheck: 'pending',
+          lastUpdated: new Date()
+        } as VehicleVerificationStatus,
+        photos: newVehicle.photos || [],
+        documents: newVehicle.documents || [],
+        vehiclePhotos: newVehicle.vehiclePhotos || [],
         createdAt: newVehicle.createdAt,
         updatedAt: newVehicle.updatedAt,
       };
@@ -299,6 +328,20 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         id: `vehicle_${Date.now()}`,
         driverId: "current_driver", // This should come from auth
         status: "pending",
+        isVerified: false,
+        verificationStatus: {
+          vehicleId: `vehicle_${Date.now()}`,
+          overallStatus: 'pending',
+          requiredDocuments: [],
+          completedDocuments: [],
+          missingDocuments: [],
+          vehicleInspection: 'pending',
+          backgroundCheck: 'pending',
+          lastUpdated: new Date()
+        } as VehicleVerificationStatus,
+        photos: [],
+        documents: [],
+        vehiclePhotos: [],
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -472,8 +515,10 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
 
       // Call real API
       const uploadRequest = {
+        driverId: state.profile?.id || '',
         type,
         file,
+        fileName: `document_${Date.now()}`,
         description,
       };
 
@@ -518,6 +563,10 @@ export const useDriverProfileStore = create<DriverProfileState>((set, get) => ({
         uploadedAt: new Date(),
         isRequired: true,
         description,
+        fileName: `document_${Date.now()}`,
+        fileUrl: "",
+        fileSize: 0,
+        mimeType: "application/octet-stream",
       };
       const updatedDocuments = [...state.documents, newDocument];
       state.setDocuments(updatedDocuments);

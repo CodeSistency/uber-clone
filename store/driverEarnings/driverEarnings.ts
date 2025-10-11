@@ -92,9 +92,13 @@ export const useDriverEarningsStore = create<DriverEarningsState>(
           earningsSummary: {
             ...summary,
             totalEarnings,
-            totalTrips,
-            averageRating: 4.5, // Default rating, should come from service
-            averagePerTrip,
+            todayEarnings: summary.today?.earnings || 0,
+            weekEarnings: summary.week?.earnings || 0,
+            monthEarnings: summary.month?.earnings || 0,
+            completedTrips: totalTrips,
+            averageEarningsPerTrip: averagePerTrip,
+            bonuses: 0,
+            tips: 0,
           },
           totalEarnings,
           totalTrips,

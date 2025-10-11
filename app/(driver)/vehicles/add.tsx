@@ -158,14 +158,17 @@ const DriverAddVehicle = () => {
     setIsSubmitting(true);
     try {
       const vehicleData = {
+        driverId: useDriverProfileStore.getState().profile?.id || "",
         make: formData.make,
         model: formData.model,
         year: parseInt(formData.year),
-        licensePlate: formData.licensePlate.toUpperCase(),
         color: formData.color,
+        plateNumber: formData.licensePlate.toUpperCase(),
+        licensePlate: formData.licensePlate.toUpperCase(),
+        vin: `VIN${Date.now()}`,
         seats: parseInt(formData.seats),
-        insurancePolicyNumber: formData.insurancePolicyNumber,
         insuranceProvider: formData.insuranceProvider,
+        insurancePolicyNumber: formData.insurancePolicyNumber,
         insuranceExpiry: formData.insuranceExpiry
           ? new Date(formData.insuranceExpiry)
           : new Date(),

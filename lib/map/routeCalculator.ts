@@ -5,10 +5,10 @@ import type {
   RouteOptions, 
   RouteCalculationResult,
   GoogleDirectionsResponse,
-  RouteErrorCode,
   AlternativeRoute,
   AlternativeRoutesResult
 } from '@/types/map';
+import { RouteErrorCode } from '@/types/map';
 
 class RouteCalculator {
   private cache = new Map<string, CalculatedRoute>();
@@ -167,7 +167,7 @@ class RouteCalculator {
           origin: `${origin.latitude},${origin.longitude}`,
           destination: `${destination.latitude},${destination.longitude}`,
           mode,
-          alternatives: true,
+          alternatives: 'true',
         })
       );
 

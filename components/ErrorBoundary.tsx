@@ -48,19 +48,20 @@ export class ErrorBoundary extends Component<
       `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Log the error with detailed information
-    log.critical(
-      "ErrorBoundary",
+    log.error(
       "JavaScript error caught by boundary",
       {
+        component: "ErrorBoundary",
+        action: "error_caught",
+        data: {
         errorId,
         errorMessage: error.message,
         errorStack: error.stack,
         errorName: error.name,
         componentStack: errorInfo.componentStack,
         timestamp: new Date().toISOString(),
-      },
-      error,
-    );
+      }
+    });
 
     // Update state with error info
     this.setState({
@@ -75,17 +76,18 @@ export class ErrorBoundary extends Component<
         this.props.onError(error, errorInfo);
       } catch (callbackError) {
         log.error(
-          "ErrorBoundary",
           "Error in onError callback",
           {
+            component: "ErrorBoundary",
+            action: "callback_error",
+            data: {
             errorId,
             callbackError:
               callbackError instanceof Error
                 ? callbackError.message
                 : String(callbackError),
-          },
-          callbackError instanceof Error ? callbackError : undefined,
-        );
+          }
+        });
       }
     }
 
@@ -112,9 +114,13 @@ export class ErrorBoundary extends Component<
   }
 
   handleRetry = () => {
-    log.info("ErrorBoundary", "User triggered error boundary retry", {
-      errorId: this.state.errorId,
-      previousError: this.state.error?.message,
+    log.info("User triggered error boundary retry", {
+      component: "ErrorBoundary",
+      action: "retry_triggered",
+      data: {
+        errorId: this.state.errorId,
+        previousError: this.state.error?.message,
+      }
     });
 
     this.setState({
@@ -136,10 +142,14 @@ export class ErrorBoundary extends Component<
         {
           text: "Report",
           onPress: () => {
-            log.info("ErrorBoundary", "User reported error", {
-              errorId,
-              errorMessage: error?.message,
-              userAction: "reported_error",
+            log.info("User reported error", {
+              component: "ErrorBoundary",
+              action: "error_reported",
+              data: {
+                errorId,
+                errorMessage: error?.message,
+                userAction: "reported_error",
+              }
             });
 
             Alert.alert(
@@ -224,18 +234,19 @@ export const useErrorHandler = () => {
   return (error: Error, errorInfo?: { componentStack?: string }) => {
     const errorId = `async_error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.critical(
-      "useErrorHandler",
+    log.error(
       "Async error caught",
       {
+        component: "useErrorHandler",
+        action: "async_error_caught",
+        data: {
         errorId,
         errorMessage: error.message,
         errorStack: error.stack,
         componentStack: errorInfo?.componentStack,
         source: "async_error_handler",
-      },
-      error,
-    );
+      }
+    });
 
     // In development, show alert
     if (__DEV__) {

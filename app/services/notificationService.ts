@@ -23,7 +23,11 @@ export class NotificationService {
 
   async initialize(): Promise<void> {
     try {
-      log.info("NotificationService", "Initializing notification service");
+      log.info("Initializing notification service", {
+        component: "NotificationService",
+        action: "initialize",
+        data: {}
+      });
 
       // Initialize Firebase service for push notifications
       await firebaseService.requestPermissions();
@@ -32,7 +36,11 @@ export class NotificationService {
       // Request permissions using Firebase service
       const hasPermission = await firebaseService.requestPermissions();
       if (!hasPermission) {
-        log.warn("NotificationService", "Notification permissions not granted");
+        log.warn("Notification permissions not granted", {
+          component: "NotificationService",
+          action: "initialize",
+          data: {}
+        });
         throw new Error("Notification permissions not granted");
       }
 
@@ -50,49 +58,61 @@ export class NotificationService {
       // Set up notification listeners
       this.setupNotificationListeners();
 
-      log.info(
-        "NotificationService",
-        "Notification service initialized successfully",
-      );
+      log.info("Notification service initialized successfully", {
+        component: "NotificationService",
+        action: "initialize",
+        data: {}
+      });
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to initialize notification service",
-        {
+      log.error("Failed to initialize notification service", {
+        component: "NotificationService",
+        action: "initialize",
+        data: {
           error: (error as Error)?.message,
         },
-        error instanceof Error ? error : undefined,
-      );
+      });
       throw error;
     }
   }
 
   private setupNotificationListeners(): void {
-    log.info("NotificationService", "Setting up notification listeners");
+    log.info("Setting up notification listeners", {
+      component: "NotificationService",
+      action: "setupNotificationListeners",
+      data: {}
+    });
 
     // Handle notification received while app is foreground
     Notifications.addNotificationReceivedListener((notification: any) => {
       const notificationData = notification.request?.content;
       const { title, body, data } = notificationData || {};
 
-      log.info("NotificationService", "Notification received via service", {
-        timestamp: new Date().toISOString(),
-        title,
-        body,
-        data,
-        notificationId: notification.request?.identifier,
-        source: "notification_service",
-        isForeground: true,
-        categoryIdentifier: notification.request?.content?.categoryIdentifier,
+      log.info("Notification received via service", {
+        component: "NotificationService",
+        action: "notificationReceived",
+        data: {
+          timestamp: new Date().toISOString(),
+          title,
+          body,
+          data,
+          notificationId: notification.request?.identifier,
+          source: "notification_service",
+          isForeground: true,
+          categoryIdentifier: notification.request?.content?.categoryIdentifier,
+        },
       });
 
       // Log additional metadata
-      log.debug("NotificationService", "Notification metadata", {
-        sound: notification.request?.content?.sound,
-        badge: notification.request?.content?.badge,
-        priority: notification.request?.content?.priority,
-        subtitle: notification.request?.content?.subtitle,
-        attachments: notification.request?.content?.attachments?.length || 0,
+      log.debug("Notification metadata", {
+        component: "NotificationService",
+        action: "notificationReceived",
+        data: {
+          sound: notification.request?.content?.sound,
+          badge: notification.request?.content?.badge,
+          priority: notification.request?.content?.priority,
+          subtitle: notification.request?.content?.subtitle,
+          attachments: notification.request?.content?.attachments?.length || 0,
+        },
       });
 
       this.handleNotificationReceived(notification);
@@ -103,28 +123,36 @@ export class NotificationService {
       const notificationData = response.notification?.request?.content;
       const { title, body, data } = notificationData || {};
 
-      log.info("NotificationService", "Notification interaction via service", {
-        timestamp: new Date().toISOString(),
-        title,
-        body,
-        data,
-        notificationId: response.notification?.request?.identifier,
-        actionIdentifier: response.actionIdentifier,
-        source: "notification_service",
-        interactionType:
-          response.actionIdentifier === "default"
-            ? "tap"
-            : response.actionIdentifier,
-        userInput: response.userText || null,
+      log.info("Notification interaction via service", {
+        component: "NotificationService",
+        action: "notification_interaction",
+        data: {
+          timestamp: new Date().toISOString(),
+          title,
+          body,
+          data,
+          notificationId: response.notification?.request?.identifier,
+          actionIdentifier: response.actionIdentifier,
+          source: "notification_service",
+          interactionType:
+            response.actionIdentifier === "default"
+              ? "tap"
+              : response.actionIdentifier,
+          userInput: response.userText || null,
+        }
       });
 
       // Log interaction analytics
-      log.info("NotificationService", "Interaction analytics", {
-        notificationType: data?.type,
-        rideId: data?.rideId,
-        userId: data?.userId,
-        timestamp: new Date().toISOString(),
-        deviceInfo: "iOS/Android", // Could get from device
+      log.info("Interaction analytics", {
+        component: "NotificationService",
+        action: "interaction_analytics",
+        data: {
+          notificationType: data?.type,
+          rideId: data?.rideId,
+          userId: data?.userId,
+          timestamp: new Date().toISOString(),
+          deviceInfo: "iOS/Android", // Could get from device
+        }
       });
 
       this.handleNotificationTapped(response);
@@ -137,10 +165,14 @@ export class NotificationService {
     data?: any,
   ): Promise<void> {
     try {
-      log.info("NotificationService", "Sending local notification", {
-        title,
-        body,
-        data,
+      log.info("Sending local notification", {
+        component: "NotificationService",
+        action: "send_local_notification",
+        data: {
+          title,
+          body,
+          data,
+        }
       });
 
       // Send local notification
@@ -155,8 +187,12 @@ export class NotificationService {
         trigger: null, // Send immediately
       });
 
-      log.info("NotificationService", "Local notification sent", {
-        notificationId,
+      log.info("Local notification sent", {
+        component: "NotificationService",
+        action: "local_notification_sent",
+        data: {
+          notificationId,
+        }
       });
 
       // Also add to notification store for persistence
@@ -180,16 +216,15 @@ export class NotificationService {
         );
       }
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to send local notification",
-        {
+      log.error("Failed to send local notification", {
+        component: "NotificationService",
+        action: "send_local_notification_failed",
+        data: {
           title,
           body,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
       throw error;
     }
   }
@@ -203,14 +238,18 @@ export class NotificationService {
     const notificationId = `scheduled_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info("NotificationService", "Scheduling local notification", {
-        notificationId,
-        title,
-        bodyLength: body.length,
-        delayInSeconds,
-        hasData: !!data,
-        soundEnabled: this.shouldPlaySound(),
-        vibrationEnabled: this.shouldVibrate(),
+      log.info("Scheduling local notification", {
+        component: "NotificationService",
+        action: "schedule_notification",
+        data: {
+          notificationId,
+          title,
+          bodyLength: body.length,
+          delayInSeconds,
+          hasData: !!data,
+          soundEnabled: this.shouldPlaySound(),
+          vibrationEnabled: this.shouldVibrate(),
+        }
       });
 
       // PRODUCTION-READY: Use real expo-notifications
@@ -231,10 +270,10 @@ export class NotificationService {
           },
         });
 
-      log.info(
-        "NotificationService",
-        "Local notification scheduled successfully",
-        {
+      log.info("Local notification scheduled successfully", {
+        component: "NotificationService",
+        action: "notification_scheduled",
+        data: {
           notificationId,
           scheduledId: scheduledNotificationId,
           title,
@@ -242,8 +281,8 @@ export class NotificationService {
           triggerTime: new Date(
             Date.now() + delayInSeconds * 1000,
           ).toISOString(),
-        },
-      );
+        }
+      });
 
       // Also add to our notification store for app-internal tracking
       const notificationData = {
@@ -261,27 +300,26 @@ export class NotificationService {
 
       return scheduledNotificationId;
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to schedule local notification",
-        {
+      log.error("Failed to schedule local notification", {
+        component: "NotificationService",
+        action: "schedule_notification_failed",
+        data: {
           notificationId,
           title,
           delayInSeconds,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Fallback: Create notification in store only (without scheduling)
-      log.warn(
-        "NotificationService",
-        "Using fallback notification (not scheduled)",
-        {
+      log.warn("Using fallback notification (not scheduled)", {
+        component: "NotificationService",
+        action: "fallback_notification",
+        data: {
           notificationId,
           reason: "expo-notifications scheduling failed",
-        },
-      );
+        }
+      });
 
       const notificationData = {
         id: notificationId,
@@ -302,75 +340,82 @@ export class NotificationService {
 
   async cancelNotification(notificationId: string): Promise<void> {
     try {
-      log.info("NotificationService", "Cancelling scheduled notification", {
-        notificationId,
-        platform: Platform.OS,
+      log.info("Cancelling scheduled notification", {
+        component: "NotificationService",
+        action: "cancel_notification",
+        data: {
+          notificationId,
+          platform: Platform.OS,
+        }
       });
 
       // PRODUCTION-READY: Cancel using expo-notifications
       await Notifications.cancelScheduledNotificationAsync(notificationId);
 
-      log.info("NotificationService", "Notification cancelled successfully", {
-        notificationId,
+      log.info("Notification cancelled successfully", {
+        component: "NotificationService",
+        action: "notification_cancelled",
+        data: {
+          notificationId,
+        }
       });
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to cancel notification",
-        {
+      log.error("Failed to cancel notification", {
+        component: "NotificationService",
+        action: "cancel_notification_failed",
+        data: {
           notificationId,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Don't throw - cancellation failures shouldn't break the app
-      log.warn(
-        "NotificationService",
-        "Continuing despite cancellation failure",
-        {
+      log.warn("Continuing despite cancellation failure", {
+        component: "NotificationService",
+        action: "cancellation_failure_handled",
+        data: {
           notificationId,
           reason: "Non-critical operation",
-        },
-      );
+        }
+      });
     }
   }
 
   async cancelAllNotifications(): Promise<void> {
     try {
-      log.info(
-        "NotificationService",
-        "Cancelling all scheduled notifications",
-        {
+      log.info("Cancelling all scheduled notifications", {
+        component: "NotificationService",
+        action: "cancel_all_notifications",
+        data: {
           platform: Platform.OS,
-        },
-      );
+        }
+      });
 
       // PRODUCTION-READY: Cancel all using expo-notifications
       await Notifications.cancelAllScheduledNotificationsAsync();
 
-      log.info(
-        "NotificationService",
-        "All scheduled notifications cancelled successfully",
-      );
+      log.info("All scheduled notifications cancelled successfully", {
+        component: "NotificationService",
+        action: "all_notifications_cancelled",
+        data: {}
+      });
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to cancel all notifications",
-        {
+      log.error("Failed to cancel all notifications", {
+        component: "NotificationService",
+        action: "cancel_all_notifications_failed",
+        data: {
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Don't throw - this is a cleanup operation
-      log.warn(
-        "NotificationService",
-        "Continuing despite failure to cancel all notifications",
-        {
+      log.warn("Continuing despite failure to cancel all notifications", {
+        component: "NotificationService",
+        action: "cancel_all_failure_handled",
+        data: {
           reason: "Cleanup operation - non-critical",
-        },
-      );
+        }
+      });
     }
   }
 
@@ -378,44 +423,51 @@ export class NotificationService {
     const tokenRequestId = `device_token_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info("NotificationService", "Requesting FCM device token", {
-        tokenRequestId,
-        platform: Platform.OS,
-        hasFirebaseService: !!firebaseService,
+      log.info("Requesting FCM device token", {
+        component: "NotificationService",
+        action: "request_fcm_token",
+        data: {
+          tokenRequestId,
+          platform: Platform.OS,
+          hasFirebaseService: !!firebaseService,
+        }
       });
 
       // Use Firebase service to get FCM token
       const token = await firebaseService.getFCMToken();
 
       if (token) {
-        log.info(
-          "NotificationService",
-          "FCM device token retrieved successfully",
-          {
+        log.info("FCM device token retrieved successfully", {
+          component: "NotificationService",
+          action: "fcm_token_retrieved",
+          data: {
             tokenRequestId,
             tokenLength: token.length,
             tokenPrefix: token.substring(0, 20) + "...",
             platform: Platform.OS,
-          },
-        );
+          }
+        });
       } else {
-        log.warn("NotificationService", "FCM device token retrieval failed", {
-          tokenRequestId,
-          reason: "Token is null or undefined",
+        log.warn("FCM device token retrieval failed", {
+          component: "NotificationService",
+          action: "fcm_token_retrieval_failed",
+          data: {
+            tokenRequestId,
+            reason: "Token is null or undefined",
+          }
         });
       }
 
       return token;
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to get device token",
-        {
+      log.error("Failed to get device token", {
+        component: "NotificationService",
+        action: "device_token_error",
+        data: {
           tokenRequestId,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
       return null;
     }
   }
@@ -436,12 +488,16 @@ export class NotificationService {
     const notificationId = `push_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info("NotificationService", "Sending push notification", {
-        notificationId,
-        title,
-        bodyLength: body.length,
-        hasData: !!data,
-        options: options || {},
+      log.info("Sending push notification", {
+        component: "NotificationService",
+        action: "send_push_notification",
+        data: {
+          notificationId,
+          title,
+          bodyLength: body.length,
+          hasData: !!data,
+          options: options || {},
+        }
       });
 
       // PRODUCTION-READY: Send immediate push notification
@@ -452,11 +508,15 @@ export class NotificationService {
         ...options,
       });
 
-      log.info("NotificationService", "Push notification sent successfully", {
-        notificationId,
-        pushId: pushNotificationId,
-        title,
-        immediate: true,
+      log.info("Push notification sent successfully", {
+        component: "NotificationService",
+        action: "push_notification_sent",
+        data: {
+          notificationId,
+          pushId: pushNotificationId,
+          title,
+          immediate: true,
+        }
       });
 
       // Also add to notification store
@@ -479,26 +539,25 @@ export class NotificationService {
 
       return pushNotificationId;
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to send push notification",
-        {
+      log.error("Failed to send push notification", {
+        component: "NotificationService",
+        action: "push_notification_failed",
+        data: {
           notificationId,
           title,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Fallback: Just add to store without sending push
-      log.warn(
-        "NotificationService",
-        "Using fallback notification (no push sent)",
-        {
+      log.warn("Using fallback notification (no push sent)", {
+        component: "NotificationService",
+        action: "fallback_push_notification",
+        data: {
           notificationId,
           reason: "expo-notifications present failed",
-        },
-      );
+        }
+      });
 
       const notificationData = {
         id: notificationId,
@@ -519,38 +578,45 @@ export class NotificationService {
 
   async setBadgeCount(count: number): Promise<void> {
     try {
-      log.info("NotificationService", "Setting badge count", {
-        count,
-        platform: Platform.OS,
+      log.info("Setting badge count", {
+        component: "NotificationService",
+        action: "set_badge_count",
+        data: {
+          count,
+          platform: Platform.OS,
+        }
       });
 
       // PRODUCTION-READY: Set badge count using expo-notifications
       await Notifications.setBadgeCountAsync(count);
 
-      log.info("NotificationService", "Badge count set successfully", {
-        count,
-        platform: Platform.OS,
+      log.info("Badge count set successfully", {
+        component: "NotificationService",
+        action: "badge_count_set",
+        data: {
+          count,
+          platform: Platform.OS,
+        }
       });
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Failed to set badge count",
-        {
+      log.error("Failed to set badge count", {
+        component: "NotificationService",
+        action: "badge_count_failed",
+        data: {
           count,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Don't throw - badge setting failures shouldn't break the app
-      log.warn(
-        "NotificationService",
-        "Continuing despite badge count failure",
-        {
+      log.warn("Continuing despite badge count failure", {
+        component: "NotificationService",
+        action: "badge_count_failure_handled",
+        data: {
           count,
           reason: "Non-critical UI operation",
-        },
-      );
+        }
+      });
     }
   }
 
@@ -572,10 +638,11 @@ export class NotificationService {
     useNotificationStore.getState().addNotification(notificationData);
 
     // TODO: Trigger haptic feedback when expo-haptics is available
-    log.debug(
-      "NotificationService",
-      "Would trigger haptic feedback for notification",
-    );
+    log.debug("Would trigger haptic feedback for notification", {
+      component: "NotificationService",
+      action: "triggerHapticFeedback",
+      data: {}
+    });
 
     // // Original implementation (commented until expo-notifications/haptics is available)
     // // Trigger haptic feedback for high priority notifications
@@ -608,7 +675,11 @@ export class NotificationService {
   private handleNotificationNavigation = (data: any): void => {
     // This will be implemented when we integrate with navigation
     // For now, just log the navigation intent
-    log.info("NotificationService", "Navigation requested for", { data });
+    log.info("Navigation requested for", { 
+      component: "NotificationService",
+      action: "navigation_requested",
+      data: { data }
+    });
   };
 
   private shouldPlaySound(): boolean {
@@ -690,10 +761,14 @@ export class NotificationService {
     data?: any;
     type?: "foreground" | "background";
   }): void {
-    log.info("NotificationService", "Simulating notification via service", {
-      timestamp: new Date().toISOString(),
-      ...notificationData,
-      source: "notification_service_simulation",
+    log.info("Simulating notification via service", {
+      component: "NotificationService",
+      action: "simulate_notification",
+      data: {
+        timestamp: new Date().toISOString(),
+        ...notificationData,
+        source: "notification_service_simulation",
+      }
     });
 
     // Create a mock notification response similar to Expo's format
@@ -714,18 +789,30 @@ export class NotificationService {
       userText: null,
     };
 
-    log.debug("NotificationService", "Mock notification created", {
-      id: mockResponse.notification.request.identifier,
-      type: notificationData.type,
+    log.debug("Mock notification created", {
+      component: "NotificationService",
+      action: "mock_notification_created",
+      data: {
+        id: mockResponse.notification.request.identifier,
+        type: notificationData.type,
+      }
     });
 
     // Simulate calling the handler based on type
     if (notificationData.type === "background") {
-      log.debug("NotificationService", "Triggering background tap simulation");
+      log.debug("Triggering background tap simulation", {
+        component: "NotificationService",
+        action: "simulateNotification",
+        data: {}
+      });
       // In a real scenario, this would trigger the notification response listener
     }
 
-    log.info("NotificationService", "Notification simulation completed");
+    log.info("Notification simulation completed", {
+      component: "NotificationService",
+      action: "simulateNotification",
+      data: {}
+    });
   }
 
   // Cleanup method
@@ -735,16 +822,19 @@ export class NotificationService {
         this.notificationHandler = null;
       }
       await this.cancelAllNotifications();
-      log.info("NotificationService", "Cleanup completed");
+      log.info("Cleanup completed", {
+        component: "NotificationService",
+        action: "cleanup",
+        data: {}
+      });
     } catch (error) {
-      log.error(
-        "NotificationService",
-        "Cleanup failed",
-        {
+      log.error("Cleanup failed", {
+        component: "NotificationService",
+        action: "cleanup_failed",
+        data: {
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
     }
   }
 }

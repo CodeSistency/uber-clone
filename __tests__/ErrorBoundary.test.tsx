@@ -101,7 +101,7 @@ describe("ErrorBoundary", () => {
         </ErrorBoundary>,
       );
 
-      expect(log.critical).toHaveBeenCalledWith(
+      expect(log.error).toHaveBeenCalledWith(
         "ErrorBoundary",
         "JavaScript error caught by boundary",
         expect.objectContaining({
@@ -282,7 +282,7 @@ describe("useErrorHandler", () => {
 
     render(<TestComponent />);
 
-    expect(log.critical).toHaveBeenCalledWith(
+    expect(log.error).toHaveBeenCalledWith(
       "useErrorHandler",
       "Async error caught",
       expect.objectContaining({

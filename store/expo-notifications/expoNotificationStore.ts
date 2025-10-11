@@ -42,10 +42,14 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
     // ========== ACCIONES ==========
 
     addNotification: (notification: ExpoNotificationData) => {
-      log.info("[ExpoNotificationStore]", "Adding notification", {
-        id: notification.id,
-        type: notification.type,
-        title: notification.title,
+      log.info("Adding notification", {
+        component: "ExpoNotificationStore",
+        action: "add_notification",
+        data: {
+          id: notification.id,
+          type: notification.type,
+          title: notification.title,
+        }
       });
 
       set((state) => {
@@ -80,11 +84,15 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
         // Calcular nuevo contador de no leídas
         const newUnreadCount = newNotifications.filter((n) => !n.isRead).length;
 
-        log.debug("[ExpoNotificationStore]", "Notification added", {
-          totalNotifications: newNotifications.length,
-          unreadCount: newUnreadCount,
-          wasUpdate: existingIndex >= 0,
-          cleanedOld: state.notifications.length - newNotifications.length,
+        log.debug("Notification added", {
+          component: "ExpoNotificationStore",
+          action: "notification_added",
+          data: {
+            totalNotifications: newNotifications.length,
+            unreadCount: newUnreadCount,
+            wasUpdate: existingIndex >= 0,
+            cleanedOld: state.notifications.length - newNotifications.length,
+          }
         });
 
         return {
@@ -95,8 +103,10 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
     },
 
     markAsRead: (notificationId: string) => {
-      log.debug("[ExpoNotificationStore]", "Marking notification as read", {
-        notificationId,
+      log.debug("Marking notification as read", {
+        component: "ExpoNotificationStore",
+        action: "mark_as_read",
+        data: { notificationId }
       });
 
       set((state) => {
@@ -110,8 +120,10 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
           (n) => !n.isRead,
         ).length;
 
-        log.debug("[ExpoNotificationStore]", "Notification marked as read", {
-          unreadCount: newUnreadCount,
+        log.debug("Notification marked as read", {
+          component: "ExpoNotificationStore",
+          action: "notification_marked_read",
+          data: { unreadCount: newUnreadCount }
         });
 
         return {
@@ -122,7 +134,10 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
     },
 
     markAllAsRead: () => {
-      log.info("[ExpoNotificationStore]", "Marking all notifications as read");
+      log.info("Marking all notifications as read", {
+        component: "ExpoNotificationStore",
+        action: "mark_all_as_read"
+      });
 
       set((state) => ({
         notifications: state.notifications.map((notification) => ({
@@ -134,7 +149,10 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
     },
 
     clearNotifications: () => {
-      log.info("[ExpoNotificationStore]", "Clearing all notifications");
+      log.info("Clearing all notifications", {
+        component: "ExpoNotificationStore",
+        action: "clear_all_notifications"
+      });
 
       set(() => ({
         notifications: [],
@@ -143,8 +161,10 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
     },
 
     removeNotification: (notificationId: string) => {
-      log.debug("[ExpoNotificationStore]", "Removing notification", {
-        notificationId,
+      log.debug("Removing notification", {
+        component: "ExpoNotificationStore",
+        action: "remove_notification",
+        data: { notificationId }
       });
 
       set((state) => {
@@ -168,29 +188,34 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
     },
 
     updatePreferences: (preferences: ExpoNotificationPreferences) => {
-      log.info("[ExpoNotificationStore]", "Updating preferences", {
-        pushEnabled: preferences.pushEnabled,
-        soundEnabled: preferences.soundEnabled,
-        vibrationEnabled: preferences.vibrationEnabled,
+      log.info("Updating preferences", {
+        component: "ExpoNotificationStore",
+        action: "update_preferences",
+        data: {
+          pushEnabled: preferences.pushEnabled,
+          soundEnabled: preferences.soundEnabled,
+          vibrationEnabled: preferences.vibrationEnabled,
+        }
       });
 
       set(() => ({ preferences }));
     },
 
     setToken: (token: ExpoPushToken | null) => {
-      log.info("[ExpoNotificationStore]", "Setting push token", {
-        hasToken: !!token,
-        tokenType: token?.type,
+      log.info("Setting push token", {
+        component: "ExpoNotificationStore",
+        action: "set_token",
+        data: { hasToken: !!token, tokenType: token?.type }
       });
 
       set(() => ({ token }));
     },
 
     setPermissions: (permissions: ExpoNotificationPermissions | null) => {
-      log.info("[ExpoNotificationStore]", "Setting permissions", {
-        hasPermissions: !!permissions,
-        granted: permissions?.granted,
-        status: permissions?.status,
+      log.info("Setting permissions", {
+        component: "ExpoNotificationStore",
+        action: "set_permissions",
+        data: { hasPermissions: !!permissions, granted: permissions?.granted, status: permissions?.status }
       });
 
       set(() => ({ permissions }));
@@ -202,14 +227,14 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
 
     setError: (error: string | null) => {
       if (error) {
-        log.error("[ExpoNotificationStore]", "Setting error", { error });
+        log.error("Setting error", { component: "ExpoNotificationStore", action: "set_error", data: { error } });
       }
 
       set(() => ({ error }));
     },
 
     syncWithServer: async () => {
-      log.info("[ExpoNotificationStore]", "Starting server sync");
+      log.info("Starting server sync", { component: "ExpoNotificationStore", action: "sync_start" });
 
       set(() => ({ isLoading: true, error: null }));
 
@@ -226,11 +251,13 @@ export const useExpoNotificationStore = create<ExpoNotificationStore>(
           isLoading: false,
         }));
 
-        log.info("[ExpoNotificationStore]", "Server sync completed");
+        log.info("Server sync completed", { component: "ExpoNotificationStore", action: "sync_completed" });
       } catch (error) {
         const errorMessage = (error as Error)?.message || "Sync failed";
-        log.error("[ExpoNotificationStore]", "Server sync failed", {
-          error: errorMessage,
+        log.error("Server sync failed", {
+          component: "ExpoNotificationStore",
+          action: "sync_failed",
+          data: { error: errorMessage }
         });
 
         set(() => ({

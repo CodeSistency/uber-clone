@@ -6,7 +6,7 @@ import { driverParcelService } from "@/app/services/driverParcelService";
 import { driverTransportService } from "@/app/services/driverTransportService";
 import { locationTrackingService } from "@/app/services/locationTrackingService";
 import { endpoints } from "@/lib/endpoints";
-import { log, LogLevel } from "@/lib/logger";
+import { log } from "@/lib/logger";
 import { generateIdempotencyKey } from "@/lib/utils";
 import { websocketEventManager } from "@/lib/websocketEventManager";
 import { 
@@ -68,32 +68,44 @@ export class WebSocketService {
 
     // PRODUCTION-READY: No more development bypass
     // The WebSocket will always attempt real connection
-    log.info("WebSocketService", "Production WebSocket connection initiated", {
-      connectionId,
-      environment: __DEV__ ? "development" : "production",
-      wsUrl: endpoints.websocket.url(),
+    log.info("Production WebSocket connection initiated", {
+      component: "WebSocketService",
+      action: "connect",
+      data: {
+        connectionId,
+        environment: __DEV__ ? "development" : "production",
+        wsUrl: endpoints.websocket.url(),
+      },
     });
 
     return new Promise((resolve, reject) => {
       try {
-        log.debug("WebSocketService", "Initializing socket connection", {
-          connectionId,
-          userId: userId.substring(0, 8) + "...",
-          timeout: 10000,
+        log.debug("Initializing socket connection", {
+          component: "WebSocketService",
+          action: "connect",
+          data: {
+            connectionId,
+            userId: userId.substring(0, 8) + "...",
+            timeout: 10000,
+          },
         });
 
         // ✅ FIXED: Use proper namespace handling
         const finalWsUrl = endpoints.websocket.fullUrl();
 
 
-        log.info("WebSocketService", "Connection attempt initiated", {
-          connectionId,
-          userId: userId.substring(0, 8) + "...", // Log partial userId for privacy
-          baseUrl: endpoints.websocket.url(),
-          namespace: endpoints.websocket.namespace,
-          finalWsUrl,
-          devMode: useDevStore.getState().developerMode,
-          wsBypass: useDevStore.getState().wsBypass,
+        log.info("Connection attempt initiated", {
+          component: "WebSocketService",
+          action: "connect",
+          data: {
+            connectionId,
+            userId: userId.substring(0, 8) + "...", // Log partial userId for privacy
+            baseUrl: endpoints.websocket.url(),
+            namespace: endpoints.websocket.namespace,
+            finalWsUrl,
+            devMode: useDevStore.getState().developerMode,
+            wsBypass: useDevStore.getState().wsBypass,
+          },
         });
 
         this.socket = io(finalWsUrl, {
@@ -132,14 +144,18 @@ export class WebSocketService {
 
           
 
-          log.info("WebSocketService", "Successfully connected to server", {
-            connectionId,
-            connectionTime,
-            socketId: this.socket?.id,
-            transport: this.socket?.io?.engine?.transport?.name,
-            readyState: this.socket?.io?.engine?.readyState,
-            reconnectAttempts: this.reconnectAttempts,
-            queuedMessages: this.messageQueue.length,
+          log.info("Successfully connected to server", {
+            component: "WebSocketService",
+            action: "connection_success",
+            data: {
+              connectionId,
+              connectionTime,
+              socketId: this.socket?.id,
+              transport: this.socket?.io?.engine?.transport?.name,
+              readyState: this.socket?.io?.engine?.readyState,
+              reconnectAttempts: this.reconnectAttempts,
+              queuedMessages: this.messageQueue.length,
+            }
           });
 
           this.reconnectAttempts = 0;
@@ -149,9 +165,13 @@ export class WebSocketService {
 
           // Process any queued messages
           if (this.messageQueue.length > 0) {
-            log.info("WebSocketService", "Processing queued messages", {
-              connectionId,
-              messageCount: this.messageQueue.length,
+            log.info("Processing queued messages", {
+              component: "WebSocketService",
+              action: "process_queued_messages",
+              data: {
+                connectionId,
+                messageCount: this.messageQueue.length,
+              }
             });
             this.processMessageQueue();
           }
@@ -160,72 +180,70 @@ export class WebSocketService {
           try {
             locationTrackingService.setWebSocketUpdateCallback(
               (rideId: number, location: any) => {
-                log.debug(
-                  "WebSocketService",
-                  "Location tracking callback triggered",
-                  {
+                log.debug("Location tracking callback triggered", {
+                  component: "WebSocketService",
+                  action: "location_tracking_callback",
+                  data: {
                     connectionId,
                     rideId,
                     location: {
                       lat: location?.latitude,
                       lng: location?.longitude,
                     },
-                  },
-                );
+                  }
+                });
                 this.updateDriverLocation(rideId, location);
               },
             );
-            log.debug(
-              "WebSocketService",
-              "Location tracking callback registered",
-              { connectionId },
-            );
+            log.debug("Location tracking callback registered", {
+              component: "WebSocketService",
+              action: "location_tracking_registered",
+              data: { connectionId }
+            });
           } catch (error) {
             const errorMessage =
               error instanceof Error ? error.message : "Unknown error";
-            log.error(
-              "WebSocketService",
-              "Failed to register location tracking callback",
-              {
+            log.error("Failed to register location tracking callback", {
+              component: "WebSocketService",
+              action: "location_tracking_callback_failed",
+              data: {
                 connectionId,
                 error: errorMessage,
-              },
-              error instanceof Error ? error : undefined,
-            );
+              }
+            });
           }
 
-          log.performance(
-            "WebSocketService",
-            "WebSocket connection established",
-            startTime,
-            {
+          log.debug("WebSocket connection established", {
+            component: "WebSocketService",
+            action: "connection_established",
+            data: {
               connectionId,
               userId: userId.substring(0, 8) + "...",
-            },
-          );
+              startTime
+            }
+          });
 
           resolve();
         });
 
         this.socket.on("disconnect", (reason: any) => {
-          log.websocket(
-            "WebSocketService",
-            "disconnected",
-            {
+          log.info("WebSocket disconnected", {
+            component: "WebSocketService",
+            action: "disconnected",
+            data: {
               connectionId,
               reason,
               wasConnected: true,
-            },
-            reason instanceof Error ? reason : undefined,
-          );
+            }
+          });
           this.handleDisconnect(reason);
         });
 
         this.socket.on("connect_error", (error: any) => {
-          log.websocket(
-            "WebSocketService",
-            "connection_error",
-            {
+          log.error("WebSocket connection error", {
+            component: "WebSocketService",
+            action: "connection_error",
+            data: {
               connectionId,
               error: error.message,
               errorType: error.type,
@@ -236,9 +254,8 @@ export class WebSocketService {
                 : "disconnected",
               socketId: this.socket?.id,
               ioEngine: this.socket?.io?.engine?.transport?.name,
-            },
-            error,
-          );
+            }
+          });
 
           
 
@@ -248,48 +265,50 @@ export class WebSocketService {
 
         // Additional error handling events
         this.socket.on("error", (error: any) => {
-          log.websocket(
-            "WebSocketService",
-            "socket_error",
-            {
+          log.error("WebSocket socket error", {
+            component: "WebSocketService",
+            action: "socket_error",
+            data: {
               connectionId,
               error: error.message,
-            },
-            error,
-          );
+            }
+          });
           this.handleSocketError(error);
         });
 
         this.socket.on("reconnect_error", (error: any) => {
-          log.websocket(
-            "WebSocketService",
-            "reconnect_error",
-            {
+          log.error("WebSocket reconnect error", {
+            component: "WebSocketService",
+            action: "reconnect_error",
+            data: {
               connectionId,
               error: error.message,
               attemptNumber: this.reconnectAttempts,
-            },
-            error,
-          );
+            }
+          });
           this.handleReconnectionError(error);
         });
 
         this.socket.on("reconnect_failed", () => {
-          log.critical(
-            "WebSocketService",
-            "Reconnection failed after all attempts",
-            {
+          log.error("Reconnection failed after all attempts", {
+            component: "WebSocketService",
+            action: "reconnection_failed",
+            data: {
               connectionId,
               maxAttempts: this.maxReconnectAttempts,
               totalAttempts: this.reconnectAttempts,
-            },
-          );
+            }
+          });
           this.handleReconnectionFailed();
         });
 
         this.socket.on("ping", () => {
-          log.debug("WebSocketService", "Ping received from server", {
-            connectionId,
+          log.debug("Ping received from server", {
+            component: "WebSocketService",
+            action: "ping_received",
+            data: {
+              connectionId,
+            }
           });
         });
 
@@ -320,11 +339,15 @@ export class WebSocketService {
         this.setupMessageHandlers();
 
         // Initiate the actual connection
-        log.info("WebSocketService", "Initiating connection now", {
-          connectionId,
-          finalWsUrl,
-          socketExists: !!this.socket,
-          timestamp: new Date().toISOString(),
+        log.info("Initiating connection now", {
+          component: "WebSocketService",
+          action: "initiating_connection",
+          data: {
+            connectionId,
+            finalWsUrl,
+            socketExists: !!this.socket,
+            timestamp: new Date().toISOString(),
+          }
         });
 
         this.socket.connect();
@@ -364,11 +387,15 @@ export class WebSocketService {
       const roomId = `ride_${rideId}`;
       roomTracker.joinRoom(roomId, 'ride', { rideId });
       
-      log.info("WebSocketService", "Joined ride room", {
-        roomId,
-        rideId,
-        userId: this.userId,
-        totalActiveRooms: roomTracker.getActiveRooms().length,
+      log.info("Joined ride room", {
+        component: "WebSocketService",
+        action: "joined_ride_room",
+        data: {
+          roomId,
+          rideId,
+          userId: this.userId,
+          totalActiveRooms: roomTracker.getActiveRooms().length,
+        }
       });
     } else {
       
@@ -385,10 +412,14 @@ export class WebSocketService {
       const roomId = `driver_${driverId}`;
       roomTracker.joinRoom(roomId, 'driver', { driverId });
       
-      log.info("WebSocketService", "Joined driver room", {
-        roomId,
-        driverId,
-        totalActiveRooms: roomTracker.getActiveRooms().length,
+      log.info("Joined driver room", {
+        component: "WebSocketService",
+        action: "joined_driver_room",
+        data: {
+          roomId,
+          driverId,
+          totalActiveRooms: roomTracker.getActiveRooms().length,
+        }
       });
     } else {
       
@@ -405,11 +436,15 @@ export class WebSocketService {
       const roomId = `ride_${rideId}`;
       roomTracker.leaveRoom(roomId);
       
-      log.info("WebSocketService", "Left ride room", {
-        roomId,
-        rideId,
-        userId: this.userId,
-        totalActiveRooms: roomTracker.getActiveRooms().length,
+      log.info("Left ride room", {
+        component: "WebSocketService",
+        action: "left_ride_room",
+        data: {
+          roomId,
+          rideId,
+          userId: this.userId,
+          totalActiveRooms: roomTracker.getActiveRooms().length,
+        }
       });
     } else {
       
@@ -426,10 +461,14 @@ export class WebSocketService {
       const roomId = `driver_${driverId}`;
       roomTracker.leaveRoom(roomId);
       
-      log.info("WebSocketService", "Left driver room", {
-        roomId,
-        driverId,
-        totalActiveRooms: roomTracker.getActiveRooms().length,
+      log.info("Left driver room", {
+        component: "WebSocketService",
+        action: "left_driver_room",
+        data: {
+          roomId,
+          driverId,
+          totalActiveRooms: roomTracker.getActiveRooms().length,
+        }
       });
     } else {
       
@@ -480,12 +519,16 @@ export class WebSocketService {
   sendMessage(rideId: number, message: string): void {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.debug("WebSocketService", "Send message initiated", {
-      messageId,
-      rideId,
-      messageLength: message.length,
-      isConnected: this.socket?.connected,
-      environment: __DEV__ ? "development" : "production",
+    log.debug("Send message initiated", {
+      component: "WebSocketService",
+      action: "send_message_initiated",
+      data: {
+        messageId,
+        rideId,
+        messageLength: message.length,
+        isConnected: this.socket?.connected,
+        environment: __DEV__ ? "development" : "production",
+      }
     });
 
     // PRODUCTION-READY: Always attempt to send messages
@@ -503,12 +546,16 @@ export class WebSocketService {
     const timeSinceLastMessage = now - this.lastMessageTime;
 
     if (timeSinceLastMessage < this.messageRateLimit) {
-      log.warn("WebSocketService", "Message rate limited, queuing", {
-        messageId,
-        rideId,
-        timeSinceLast: timeSinceLastMessage,
-        rateLimit: this.messageRateLimit,
-        queueSize: this.messageQueue.length + 1,
+      log.warn("Message rate limited, queuing", {
+        component: "WebSocketService",
+        action: "rate_limit",
+        data: {
+          messageId,
+          rideId,
+          timeSinceLast: timeSinceLastMessage,
+          rateLimit: this.messageRateLimit,
+          queueSize: this.messageQueue.length + 1,
+        }
       });
       this.queueMessage("chat:message", messageData);
       return;
@@ -520,32 +567,39 @@ export class WebSocketService {
         this.lastMessageTime = now;
         this.performanceMetrics.messagesSent++;
 
-        log.info("WebSocketService", "Message sent successfully", {
-          messageId,
-          rideId,
-          messageLength: message.length,
-          timeSinceLast: timeSinceLastMessage,
+        log.info("Message sent successfully", {
+        component: "WebSocketService",
+        action: "message_sent",
+        data: {
+            messageId,
+            rideId,
+            messageLength: message.length,
+            timeSinceLast: timeSinceLastMessage,
+          }
         });
       } catch (error) {
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        log.error(
-          "WebSocketService",
-          "Failed to send message",
-          {
+        log.error("Failed to send message", {
+          component: "WebSocketService",
+          action: "message_send_failed",
+          data: {
             messageId,
             rideId,
             error: errorMessage,
-          },
-          error instanceof Error ? error : undefined,
-        );
+          }
+        });
         this.queueMessage("chat:message", messageData);
       }
     } else {
-      log.warn("WebSocketService", "Socket not connected, queuing message", {
-        messageId,
-        rideId,
-        queueSize: this.messageQueue.length + 1,
+      log.warn("Socket not connected, queuing message", {
+        component: "WebSocketService",
+        action: "message_queued",
+        data: {
+          messageId,
+          rideId,
+          queueSize: this.messageQueue.length + 1,
+        }
       });
       this.queueMessage("chat:message", messageData);
     }
@@ -1090,20 +1144,20 @@ export class WebSocketService {
       // Agregar notificación al store
       useNotificationStore.getState().addNotification(notification);
 
-      log.info(
-        "WebSocketService",
-        "Driver notification created for ride request",
-        {
+      log.info("Driver notification created for ride request", {
+        component: "WebSocketService",
+        action: "notification_created",
+        data: {
           rideId: data.rideId,
           notificationId: notification.id,
-        },
-      );
+        }
+      });
     } catch (error) {
-      log.error(
-        "WebSocketService",
-        "Error creating driver notification:",
-        error,
-      );
+      log.error("Error creating driver notification", {
+        component: "WebSocketService",
+        action: "notification_error",
+        data: { error: error instanceof Error ? error.message : String(error) }
+      });
     }
   }
 
@@ -1183,12 +1237,16 @@ export class WebSocketService {
   }
 
   private handleNewMessage(data: any): void {
-    log.debug("WebSocketService", "Handling new message from WebSocket", {
-      messageId: data.id,
-      rideId: data.rideId,
-      orderId: data.orderId,
-      senderId: data.senderId,
-      messageLength: data.message?.length || data.messageText?.length || 0,
+    log.debug("Handling new message from WebSocket", {
+      component: "WebSocketService",
+      action: "handle_new_message",
+      data: {
+        messageId: data.id,
+        rideId: data.rideId,
+        orderId: data.orderId,
+        senderId: data.senderId,
+        messageLength: data.message?.length || data.messageText?.length || 0,
+      }
     });
 
     // Convert WebSocket data to ChatMessage format
@@ -1232,10 +1290,14 @@ export class WebSocketService {
         priority: "normal",
       });
 
-      log.info("WebSocketService", "Notification created for new message", {
-        messageId: data.id,
-        chatId,
-        currentChatId,
+      log.info("Notification created for new message", {
+        component: "WebSocketService",
+        action: "notification_created",
+        data: {
+          messageId: data.id,
+          chatId,
+          currentChatId,
+        }
       });
     }
   }
@@ -1640,9 +1702,12 @@ export class WebSocketService {
     
 
     log.info(
-      "WebSocketService",
       "Handling WebSocket disconnect",
-      disconnectContext,
+      {
+        component: "WebSocketService",
+        action: "handle_disconnect",
+        data: disconnectContext
+      }
     );
 
     // Track disconnect in performance metrics
@@ -1650,9 +1715,13 @@ export class WebSocketService {
 
     // Stop heartbeat with logging
     if (this.heartbeatInterval) {
-      log.debug("WebSocketService", "Stopping heartbeat interval", {
-        disconnectId,
-        hadHeartbeat: true,
+      log.debug("Stopping heartbeat interval", {
+        component: "WebSocketService",
+        action: "stop_heartbeat",
+        data: {
+          disconnectId,
+          hadHeartbeat: true,
+        }
       });
       clearInterval(this.heartbeatInterval);
       this.heartbeatInterval = null;
@@ -1664,35 +1733,47 @@ export class WebSocketService {
     // Determine reconnection strategy
     const shouldReconnect = this.shouldAttemptReconnection(reason);
 
-    log.info("WebSocketService", "Reconnection strategy determined", {
-      disconnectId,
-      reason,
-      shouldReconnect,
-      reconnectCriteria: {
-        isValidReason:
-          !reason ||
-          ![
-            "io server disconnect",
-            "io client disconnect",
-            "ping timeout",
-          ].includes(reason),
-        underMaxAttempts: this.reconnectAttempts < this.maxReconnectAttempts,
-        hasValidToken: true, // Token validation handled in connect method
-      },
+    log.info("Reconnection strategy determined", {
+      component: "WebSocketService",
+      action: "reconnection_strategy",
+      data: {
+        disconnectId,
+        reason,
+        shouldReconnect,
+        reconnectCriteria: {
+          isValidReason:
+            !reason ||
+            ![
+              "io server disconnect",
+              "io client disconnect",
+              "ping timeout",
+            ].includes(reason),
+          underMaxAttempts: this.reconnectAttempts < this.maxReconnectAttempts,
+          hasValidToken: true, // Token validation handled in connect method
+        }
+      }
     });
 
     // Only attempt reconnection for certain disconnect reasons
     if (shouldReconnect) {
-      log.info("WebSocketService", "Initiating reconnection attempt", {
-        disconnectId,
-        attemptNumber: this.reconnectAttempts + 1,
+      log.info("Initiating reconnection attempt", {
+        component: "WebSocketService",
+        action: "reconnection_attempt",
+        data: {
+          disconnectId,
+          attemptNumber: this.reconnectAttempts + 1,
+        }
       });
       this.attemptReconnection();
     } else {
-      log.warn("WebSocketService", "Skipping reconnection", {
-        disconnectId,
-        reason,
-        finalReconnectAttempts: this.reconnectAttempts,
+      log.warn("Skipping reconnection", {
+        component: "WebSocketService",
+        action: "skip_reconnection",
+        data: {
+          disconnectId,
+          reason,
+          finalReconnectAttempts: this.reconnectAttempts,
+        }
       });
 
       // Notify user about permanent disconnection
@@ -1845,16 +1926,16 @@ export class WebSocketService {
 
     // Check if we've exceeded max attempts
     if (this.reconnectAttempts >= this.maxReconnectAttempts) {
-      log.critical(
-        "WebSocketService",
-        "Maximum reconnection attempts exceeded",
-        {
+      log.error("Maximum reconnection attempts exceeded", {
+        component: "WebSocketService",
+        action: "max_reconnection_attempts",
+        data: {
           reconnectAttemptId,
           maxAttempts: this.maxReconnectAttempts,
           totalAttempts: this.reconnectAttempts,
           reason: "Reconnection limit reached",
-        },
-      );
+        }
+      });
       this.handleReconnectionFailed();
       return;
     }
@@ -1867,13 +1948,16 @@ export class WebSocketService {
     const jitter = Math.random() * 0.3 * baseDelay; // Add up to 30% jitter
     const delay = Math.min(baseDelay + jitter, 30000); // Max 30 seconds
 
-    log.info("WebSocketService", "Scheduling reconnection attempt", {
-      reconnectAttemptId,
-      attemptNumber: this.reconnectAttempts,
-      maxAttempts: this.maxReconnectAttempts,
-      delayMs: Math.round(delay),
-      baseDelayMs: Math.round(baseDelay),
-      jitterMs: Math.round(jitter),
+    log.info("Scheduling reconnection attempt", {
+      component: "WebSocketService",
+      action: "schedule_reconnection",
+      data: {
+        reconnectAttemptId,
+        attemptNumber: this.reconnectAttempts,
+        maxAttempts: this.maxReconnectAttempts,
+        delayMs: Math.round(delay),
+        baseDelayMs: Math.round(baseDelay),
+        jitterMs: Math.round(jitter),
       exponentialFactor: 1.5 ** (this.reconnectAttempts - 1),
       nextAttemptDelay:
         this.reconnectAttempts < this.maxReconnectAttempts
@@ -1882,18 +1966,22 @@ export class WebSocketService {
               30000,
             )
           : null,
-    });
+        }
+      });
 
     // Create reconnection notification for user awareness (after 2 attempts)
     if (this.reconnectAttempts > 2) {
       log.info(
-        "WebSocketService",
         "Creating user notification for reconnection attempt",
         {
-          reconnectAttemptId,
-          attemptNumber: this.reconnectAttempts,
-          notificationId: `ws_reconnecting_${this.reconnectAttempts}_${Date.now()}`,
-        },
+          component: "WebSocketService",
+          action: "reconnection_notification",
+          data: {
+            reconnectAttemptId,
+            attemptNumber: this.reconnectAttempts,
+            notificationId: `ws_reconnecting_${this.reconnectAttempts}_${Date.now()}`,
+          }
+        }
       );
 
       useNotificationStore.getState().addNotification({
@@ -1921,51 +2009,58 @@ export class WebSocketService {
         this.reconnectAttempts <= this.maxReconnectAttempts;
 
       if (shouldAttempt) {
-        log.info(
-          "WebSocketService",
-          "Executing scheduled reconnection attempt",
-          {
+        log.info("Executing scheduled reconnection attempt", {
+          component: "WebSocketService",
+          action: "execute_reconnection",
+          data: {
             reconnectAttemptId,
             attemptNumber: this.reconnectAttempts,
             socketExists: !!this.socket,
             socketConnected: this.socket?.connected || false,
             withinAttemptLimit:
               this.reconnectAttempts <= this.maxReconnectAttempts,
-          },
-        );
+          }
+        });
 
         try {
           if (this.socket) {
             this.socket.connect();
           } else {
-            log.warn("WebSocketService", "Cannot reconnect - socket is null", {
-              reconnectAttemptId,
+            log.warn("Cannot reconnect - socket is null", {
+              component: "WebSocketService",
+              action: "reconnection_failed",
+              data: {
+                reconnectAttemptId,
+              }
             });
             return;
           }
-          log.debug("WebSocketService", "Reconnection attempt initiated", {
-            reconnectAttemptId,
-            attemptNumber: this.reconnectAttempts,
+          log.debug("Reconnection attempt initiated", {
+            component: "WebSocketService",
+            action: "reconnection_initiated",
+            data: {
+              reconnectAttemptId,
+              attemptNumber: this.reconnectAttempts,
+            }
           });
         } catch (error) {
           const errorMessage =
             error instanceof Error ? error.message : "Unknown error";
-          log.error(
-            "WebSocketService",
-            "Failed to execute reconnection attempt",
-            {
+          log.error("Failed to execute reconnection attempt", {
+            component: "WebSocketService",
+            action: "reconnection_error",
+            data: {
               reconnectAttemptId,
               attemptNumber: this.reconnectAttempts,
               error: errorMessage,
-            },
-            error instanceof Error ? error : undefined,
-          );
+            }
+          });
         }
       } else {
-        log.warn(
-          "WebSocketService",
-          "Skipping reconnection attempt - conditions not met",
-          {
+        log.warn("Skipping reconnection attempt - conditions not met", {
+          component: "WebSocketService",
+          action: "skip_reconnection_conditions",
+          data: {
             reconnectAttemptId,
             attemptNumber: this.reconnectAttempts,
             reason: {
@@ -1973,9 +2068,9 @@ export class WebSocketService {
               socketConnected: this.socket?.connected || false,
               withinAttemptLimit:
                 this.reconnectAttempts <= this.maxReconnectAttempts,
-            },
-          },
-        );
+            }
+          }
+        });
       }
     }, delay);
   }

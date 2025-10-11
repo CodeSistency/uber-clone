@@ -7,11 +7,15 @@ import { Platform } from "react-native";
 import { config } from "@/lib/config";
 import { log } from "@/lib/logger";
 
-log.info("FirebaseService", "Initializing Firebase service", {
-  platform: Platform.OS,
-  hasFirebaseConfig: !!config.firebase,
-  deviceName: Device.deviceName,
-  deviceType: Device.deviceType,
+log.info("Initializing Firebase service", {
+  component: "FirebaseService",
+  action: "initialize",
+  data: {
+    platform: Platform.OS,
+    hasFirebaseConfig: !!config.firebase,
+    deviceName: Device.deviceName,
+    deviceType: Device.deviceType,
+  },
 });
 
 // Configure notification handler
@@ -179,31 +183,43 @@ export class FirebaseService {
     const tokenRequestId = `fcm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const startTime = Date.now();
 
-    log.info("FirebaseService", "FCM token request initiated", {
-      tokenRequestId,
-      hasCachedToken: !!this.fcmToken,
-      cachedTokenLength: this.fcmToken?.length || 0,
-      deviceType: Platform.OS,
-      firebaseInitialized,
-      isRetrying: this.isRetrying,
+    log.info("FCM token request initiated", {
+      component: "FirebaseService",
+      action: "getFCMToken",
+      data: {
+        tokenRequestId,
+        hasCachedToken: !!this.fcmToken,
+        cachedTokenLength: this.fcmToken?.length || 0,
+        deviceType: Platform.OS,
+        firebaseInitialized,
+        isRetrying: this.isRetrying,
+      },
     });
 
     try {
       // Check if we already have a cached token
       const cachedToken = await SecureStore.getItemAsync("fcm_token");
       if (cachedToken && this.fcmToken) {
-        log.info("FirebaseService", "Using cached FCM token", {
-          tokenRequestId,
-          tokenLength: cachedToken.length,
-          tokenPrefix: cachedToken.substring(0, 20) + "...",
+        log.info("Using cached FCM token", {
+          component: "FirebaseService",
+          action: "getFCMToken",
+          data: {
+            tokenRequestId,
+            tokenLength: cachedToken.length,
+            tokenPrefix: cachedToken.substring(0, 20) + "...",
+          },
         });
         return cachedToken;
       }
 
       if (cachedToken && !this.fcmToken) {
-        log.info("FirebaseService", "Restoring FCM token from cache", {
-          tokenRequestId,
-          tokenLength: cachedToken.length,
+        log.info("Restoring FCM token from cache", {
+          component: "FirebaseService",
+          action: "getFCMToken",
+          data: {
+            tokenRequestId,
+            tokenLength: cachedToken.length,
+          },
         });
         this.fcmToken = cachedToken;
         return cachedToken;
@@ -211,23 +227,27 @@ export class FirebaseService {
 
       // Prevent infinite loops
       if (this.isRetrying) {
-        log.warn(
-          "FirebaseService",
-          "Already retrying, skipping to avoid infinite loop",
-          {
+        log.warn("Already retrying, skipping to avoid infinite loop", {
+          component: "FirebaseService",
+          action: "getFCMToken",
+          data: {
             tokenRequestId,
             retryAttempt: this.retryCount,
           },
-        );
+        });
         return null;
       }
 
       // Request permissions first
       const hasPermission = await this.requestPermissions();
       if (!hasPermission) {
-        log.warn("FirebaseService", "No notification permissions granted", {
-          tokenRequestId,
-          reason: "User denied permissions",
+        log.warn("No notification permissions granted", {
+          component: "FirebaseService",
+          action: "getFCMToken",
+          data: {
+            tokenRequestId,
+            reason: "User denied permissions",
+          },
         });
         return null;
       }
@@ -235,14 +255,14 @@ export class FirebaseService {
       // Check if we have Firebase config for FCM
       const firebaseConfig = config.firebase;
       if (!firebaseConfig || !firebaseConfig.apiKey) {
-        log.warn(
-          "FirebaseService",
-          "No Firebase config - using Expo push tokens only",
-          {
+        log.warn("No Firebase config - using Expo push tokens only", {
+          component: "FirebaseService",
+          action: "getFCMToken",
+          data: {
             tokenRequestId,
             note: "Push notifications will work but may have limitations in production",
           },
-        );
+        });
         // Continue anyway - Expo can still provide push tokens
       }
 

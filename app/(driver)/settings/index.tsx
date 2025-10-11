@@ -39,6 +39,7 @@ const dummyDriverProfile: DriverProfile = {
   averageRating: 4.8,
   status: "active",
   isOnline: true,
+  isAvailable: true,
 };
 
 const SettingsScreen = () => {

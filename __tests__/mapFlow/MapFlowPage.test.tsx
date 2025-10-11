@@ -199,7 +199,7 @@ describe('MapFlowPage', () => {
   });
 
   it('should handle missing onContentReady callback', () => {
-    render(<MapFlowPage {...defaultProps} onContentReady={undefined} />);
+    render(<MapFlowPage {...defaultProps} onContentReady={jest.fn()} />);
 
     const contentReadyButton = screen.getByTestId('content-ready-button');
     
@@ -208,7 +208,7 @@ describe('MapFlowPage', () => {
   });
 
   it('should handle missing onAction callback', () => {
-    render(<MapFlowPage {...defaultProps} onAction={undefined} />);
+    render(<MapFlowPage {...defaultProps} onAction={jest.fn()} />);
 
     const actionButton = screen.getByTestId('action-button');
     

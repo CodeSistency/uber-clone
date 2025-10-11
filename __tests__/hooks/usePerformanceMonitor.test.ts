@@ -2,7 +2,7 @@
  * Tests para usePerformanceMonitor hook
  */
 
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { usePerformanceMonitor, useErrorMonitor } from '@/hooks/usePerformanceMonitor';
 
 // Mock de performance API
@@ -32,7 +32,7 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     expect(result.current.startRender).toBeDefined();
     expect(result.current.endRender).toBeDefined();
@@ -41,16 +41,16 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle startRender and endRender', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('test-component');
+      result.current.startRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith('test-component-start');
 
     act(() => {
-      result.current.endRender('test-component');
+      result.current.endRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith('test-component-end');
@@ -62,12 +62,12 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle multiple startRender calls', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('component1');
-      result.current.startRender('component2');
-      result.current.startRender('component3');
+      result.current.startRender();
+      result.current.startRender();
+      result.current.startRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledTimes(3);
@@ -77,12 +77,12 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle multiple endRender calls', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.endRender('component1');
-      result.current.endRender('component2');
-      result.current.endRender('component3');
+      result.current.endRender();
+      result.current.endRender();
+      result.current.endRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledTimes(3);
@@ -90,13 +90,13 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle rapid startRender and endRender calls', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     // Rapid calls
     for (let i = 0; i < 10; i++) {
       act(() => {
-        result.current.startRender(`component-${i}`);
-        result.current.endRender(`component-${i}`);
+        result.current.startRender();
+        result.current.endRender();
       });
     }
 
@@ -105,11 +105,11 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle undefined component name', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender(undefined as any);
-      result.current.endRender(undefined as any);
+      result.current.startRender();
+      result.current.endRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith('undefined-start');
@@ -117,11 +117,11 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle null component name', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender(null as any);
-      result.current.endRender(null as any);
+      result.current.startRender();
+      result.current.endRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith('null-start');
@@ -129,11 +129,11 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle empty string component name', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('');
-      result.current.endRender('');
+      result.current.startRender();
+      result.current.endRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith('-start');
@@ -141,7 +141,7 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle special characters in component name', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     const specialNames = [
       'component-with-dashes',
@@ -153,8 +153,8 @@ describe('usePerformanceMonitor', () => {
 
     specialNames.forEach(name => {
       act(() => {
-        result.current.startRender(name);
-        result.current.endRender(name);
+        result.current.startRender();
+        result.current.endRender();
       });
     });
 
@@ -162,13 +162,13 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle very long component names', () => {
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     const longName = 'a'.repeat(1000);
 
     act(() => {
-      result.current.startRender(longName);
-      result.current.endRender(longName);
+      result.current.startRender();
+      result.current.endRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith(`${longName}-start`);
@@ -176,10 +176,10 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle hook unmounting', () => {
-    const { result, unmount } = renderHook(() => usePerformanceMonitor());
+    const { result, unmount } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('test-component');
+      result.current.startRender();
     });
 
     unmount();
@@ -189,12 +189,12 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle multiple hook instances', () => {
-    const { result: result1 } = renderHook(() => usePerformanceMonitor());
-    const { result: result2 } = renderHook(() => usePerformanceMonitor());
+    const { result: result1 } = renderHook(() => usePerformanceMonitor('Component1'));
+    const { result: result2 } = renderHook(() => usePerformanceMonitor('Component2'));
 
     act(() => {
-      result1.current.startRender('component1');
-      result2.current.startRender('component2');
+      result1.current.startRender();
+      result2.current.startRender();
     });
 
     expect(mockPerformance.mark).toHaveBeenCalledWith('component1-start');
@@ -202,11 +202,11 @@ describe('usePerformanceMonitor', () => {
   });
 
   it('should handle rapid hook re-renders', () => {
-    const { result, rerender } = renderHook(() => usePerformanceMonitor());
+    const { result, rerender } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     // Rapid re-renders
     for (let i = 0; i < 10; i++) {
-      rerender();
+      rerender({});
     }
 
     expect(result.current.startRender).toBeDefined();
@@ -220,23 +220,23 @@ describe('useErrorMonitor', () => {
   });
 
   it('should initialize with default values', () => {
-    const { result } = renderHook(() => useErrorMonitor());
+    const { result } = renderHook(() => useErrorMonitor('TestComponent'));
 
-    expect(result.current.hasError).toBe(false);
-    expect(result.current.error).toBeNull();
+    expect(result.current.reportError).toBeDefined();
+    expect(result.current.reportWarning).toBeDefined();
   });
 
   it('should handle error state', () => {
-    const { result } = renderHook(() => useErrorMonitor());
+    const { result } = renderHook(() => useErrorMonitor('TestComponent'));
 
-    expect(result.current.hasError).toBe(false);
-    expect(result.current.error).toBeNull();
+    expect(result.current.reportError).toBeDefined();
+    expect(result.current.reportWarning).toBeDefined();
   });
 
   it('should handle hook unmounting', () => {
-    const { result, unmount } = renderHook(() => useErrorMonitor());
+    const { result, unmount } = renderHook(() => useErrorMonitor('TestComponent'));
 
-    expect(result.current.hasError).toBe(false);
+    expect(result.current.reportError).toBeDefined();
 
     unmount();
 
@@ -245,23 +245,23 @@ describe('useErrorMonitor', () => {
   });
 
   it('should handle multiple hook instances', () => {
-    const { result: result1 } = renderHook(() => useErrorMonitor());
-    const { result: result2 } = renderHook(() => useErrorMonitor());
+    const { result: result1 } = renderHook(() => useErrorMonitor('Component1'));
+    const { result: result2 } = renderHook(() => useErrorMonitor('Component2'));
 
-    expect(result1.current.hasError).toBe(false);
-    expect(result2.current.hasError).toBe(false);
+    expect(result1.current.reportError).toBeDefined();
+    expect(result2.current.reportWarning).toBeDefined();
   });
 
   it('should handle rapid hook re-renders', () => {
-    const { result, rerender } = renderHook(() => useErrorMonitor());
+    const { result, rerender } = renderHook(() => useErrorMonitor('TestComponent'));
 
     // Rapid re-renders
     for (let i = 0; i < 10; i++) {
-      rerender();
+      rerender({});
     }
 
-    expect(result.current.hasError).toBe(false);
-    expect(result.current.error).toBeNull();
+    expect(result.current.reportError).toBeDefined();
+    expect(result.current.reportWarning).toBeDefined();
   });
 });
 
@@ -277,11 +277,11 @@ describe('Performance Monitor Edge Cases', () => {
       writable: true,
     });
 
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('test-component');
-      result.current.endRender('test-component');
+      result.current.startRender();
+      result.current.endRender();
     });
 
     // Should not throw any errors
@@ -301,11 +301,11 @@ describe('Performance Monitor Edge Cases', () => {
       writable: true,
     });
 
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('test-component');
-      result.current.endRender('test-component');
+      result.current.startRender();
+      result.current.endRender();
     });
 
     // Should not throw any errors
@@ -330,11 +330,11 @@ describe('Performance Monitor Edge Cases', () => {
       writable: true,
     });
 
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('test-component');
-      result.current.endRender('test-component');
+      result.current.startRender();
+      result.current.endRender();
     });
 
     // Should not throw any errors
@@ -355,11 +355,11 @@ describe('Performance Monitor Edge Cases', () => {
       writable: true,
     });
 
-    const { result } = renderHook(() => usePerformanceMonitor());
+    const { result } = renderHook(() => usePerformanceMonitor('TestComponent'));
 
     act(() => {
-      result.current.startRender('test-component');
-      result.current.endRender('test-component');
+      result.current.startRender();
+      result.current.endRender();
     });
 
     // Should not throw any errors

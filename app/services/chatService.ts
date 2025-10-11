@@ -20,10 +20,14 @@ export class ChatService {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info("ChatService", "Sending message via REST API", {
-        messageId,
-        rideId,
-        messageLength: messageText.length,
+      log.info("Sending message via REST API", {
+        component: "ChatService",
+        action: "sendMessage",
+        data: {
+          messageId,
+          rideId,
+          messageLength: messageText.length,
+        },
       });
 
       // Validate message
@@ -43,10 +47,14 @@ export class ChatService {
         body: JSON.stringify(messageData),
       });
 
-      log.info("ChatService", "Message sent successfully via REST API", {
-        messageId,
-        rideId,
-        responseId: response.id,
+      log.info("Message sent successfully via REST API", {
+        component: "ChatService",
+        action: "sendMessage",
+        data: {
+          messageId,
+          rideId,
+          responseId: response.id,
+        },
       });
 
       // Convert response to ChatMessage format for local store
@@ -71,14 +79,16 @@ export class ChatService {
       return chatMessage;
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to send message",
         {
-          messageId,
-          rideId,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "sendMessage",
+          data: {
+            messageId,
+            rideId,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -86,7 +96,11 @@ export class ChatService {
 
   async markMessagesRead(rideId: number): Promise<void> {
     try {
-      log.info("ChatService", "Marking messages as read", { rideId });
+      log.info("Marking messages as read", {
+        component: "ChatService",
+        action: "markMessagesRead",
+        data: { rideId }
+      });
 
       useChatStore.getState().markMessagesRead(rideId);
 
@@ -94,13 +108,15 @@ export class ChatService {
       // This would typically be an API call or WebSocket message
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to mark messages as read",
         {
-          rideId,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "markMessagesRead",
+          data: {
+            rideId,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -111,9 +127,13 @@ export class ChatService {
     limit: number = 50,
   ): Promise<ChatMessage[]> {
     try {
-      log.info("ChatService", "Loading message history from API", {
-        rideId,
-        limit,
+      log.info("Loading message history from API", {
+        component: "ChatService",
+        action: "getMessageHistory",
+        data: {
+          rideId,
+          limit,
+        },
       });
 
       // Load from REST API
@@ -134,9 +154,13 @@ export class ChatService {
         sender: msg.sender,
       }));
 
-      log.info("ChatService", "Message history loaded successfully", {
-        rideId,
-        messageCount: messages.length,
+      log.info("Message history loaded successfully", {
+        component: "ChatService",
+        action: "getMessageHistory",
+        data: {
+          rideId,
+          messageCount: messages.length,
+        },
       });
 
       // Load into store
@@ -145,14 +169,16 @@ export class ChatService {
       return messages;
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to load message history",
         {
-          rideId,
-          limit,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "getMessageHistory",
+          data: {
+            rideId,
+            limit,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -165,10 +191,14 @@ export class ChatService {
     const messageId = `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     try {
-      log.info("ChatService", "Sending message to order via REST API", {
-        messageId,
-        orderId,
-        messageLength: messageText.length,
+      log.info("Sending message to order via REST API", {
+        component: "ChatService",
+        action: "sendMessageToOrder",
+        data: {
+          messageId,
+          orderId,
+          messageLength: messageText.length,
+        },
       });
 
       // Validate message
@@ -188,10 +218,14 @@ export class ChatService {
         body: JSON.stringify(messageData),
       });
 
-      log.info("ChatService", "Order message sent successfully via REST API", {
-        messageId,
-        orderId,
-        responseId: response.id,
+      log.info("Order message sent successfully via REST API", {
+        component: "ChatService",
+        action: "sendMessageToOrder",
+        data: {
+          messageId,
+          orderId,
+          responseId: response.id,
+        },
       });
 
       // Convert response to ChatMessage format for local store
@@ -217,14 +251,16 @@ export class ChatService {
       return chatMessage;
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to send message to order",
         {
-          messageId,
-          orderId,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "sendMessageToOrder",
+          data: {
+            messageId,
+            orderId,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -235,9 +271,13 @@ export class ChatService {
     limit: number = 50,
   ): Promise<ChatMessage[]> {
     try {
-      log.info("ChatService", "Loading order message history from API", {
-        orderId,
-        limit,
+      log.info("Loading order message history from API", {
+        component: "ChatService",
+        action: "loadOrderMessageHistory",
+        data: {
+          orderId,
+          limit,
+        },
       });
 
       // Load from REST API
@@ -258,9 +298,13 @@ export class ChatService {
         sender: msg.sender,
       }));
 
-      log.info("ChatService", "Order message history loaded successfully", {
-        orderId,
-        messageCount: messages.length,
+      log.info("Order message history loaded successfully", {
+        component: "ChatService",
+        action: "loadOrderMessageHistory",
+        data: {
+          orderId,
+          messageCount: messages.length,
+        },
       });
 
       // Load into store (using orderId as rideId for compatibility)
@@ -270,14 +314,16 @@ export class ChatService {
       return messages;
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to load order message history",
         {
-          orderId,
-          limit,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "loadOrderMessageHistory",
+          data: {
+            orderId,
+            limit,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -295,14 +341,16 @@ export class ChatService {
       useChatStore.getState().setTyping(isTyping);
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to send typing indicator",
         {
-          rideId,
-          isTyping,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "sendTypingIndicator",
+          data: {
+            rideId,
+            isTyping,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -310,9 +358,13 @@ export class ChatService {
 
   async shareLocation(rideId: number, location: LocationData): Promise<void> {
     try {
-      log.info("ChatService", "Sharing location", {
-        rideId,
-        location: { lat: location.latitude, lng: location.longitude },
+      log.info("Sharing location", {
+        component: "ChatService",
+        action: "shareLocation",
+        data: {
+          rideId,
+          location: { lat: location.latitude, lng: location.longitude },
+        },
       });
 
       const locationMessage: ChatMessage = {
@@ -331,18 +383,24 @@ export class ChatService {
 
       // TODO: Send location via WebSocket or API
       // websocketService.shareLocation(rideId, location);
-      log.warn("ChatService", "Location sharing via API not implemented yet", {
-        rideId,
+      log.warn("Location sharing via API not implemented yet", {
+        component: "ChatService",
+        action: "shareLocation",
+        data: {
+          rideId,
+        },
       });
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to share location",
         {
-          rideId,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "shareLocation",
+          data: {
+            rideId,
+            error: (error as Error)?.message,
+          },
+        }
       );
       throw error;
     }
@@ -359,24 +417,30 @@ export class ChatService {
     try {
       // Connect to the correct WebSocket namespace according to docs
       // Note: This should be handled by the WebSocketService
-      log.debug("ChatService", "Broadcasting message via WebSocket", {
-        rideId,
-        orderId,
-        messageLength: message.length,
+      log.debug("Broadcasting message via WebSocket", {
+        component: "ChatService",
+        action: "broadcastMessageViaWebSocket",
+        data: {
+          rideId,
+          orderId,
+          messageLength: message.length,
+        },
       });
 
       // TODO: Implement WebSocket broadcasting according to new API
       // The WebSocket events should be updated in websocketService.ts
     } catch (error) {
       log.error(
-        "ChatService",
         "Failed to broadcast message via WebSocket",
         {
-          rideId,
-          orderId,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatService",
+          action: "broadcastMessageViaWebSocket",
+          data: {
+            rideId,
+            orderId,
+            error: (error as Error)?.message,
+          },
+        }
       );
     }
   }
@@ -402,12 +466,20 @@ export class ChatService {
   }
 
   setActiveChat(rideId: number): void {
-    log.info("ChatService", "Setting active chat", { rideId });
+    log.info("Setting active chat", {
+      component: "ChatService",
+      action: "setActiveChat",
+      data: { rideId }
+    });
     useChatStore.getState().setActiveChat(rideId);
   }
 
   clearChat(rideId: number): void {
-    log.info("ChatService", "Clearing chat", { rideId });
+    log.info("Clearing chat", {
+      component: "ChatService",
+      action: "clearChat",
+      data: { rideId }
+    });
     useChatStore.getState().clearChat(rideId);
   }
 
@@ -486,7 +558,11 @@ export class ChatService {
 
   // Cleanup method
   cleanup(): void {
-    log.info("ChatService", "Cleaning up chat service");
+    log.info("Cleaning up chat service", {
+      component: "ChatService",
+      action: "cleanup",
+      data: {}
+    });
 
     // Clear all typing timeouts
     this.typingTimeouts.forEach((timeout) => {

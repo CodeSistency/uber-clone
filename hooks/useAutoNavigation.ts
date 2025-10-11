@@ -2,7 +2,7 @@ import { useEffect, useCallback } from "react";
 import { websocketEventManager } from "@/lib/websocketEventManager";
 import { useMapFlow } from "./useMapFlow";
 import { useRealtimeStore } from "@/store/realtime/realtime";
-import { log, LogLevel } from "@/lib/logger";
+import { log } from "@/lib/logger";
 
 /**
  * Hook personalizado para navegación automática basada en eventos WebSocket
@@ -33,9 +33,12 @@ export const useAutoNavigation = () => {
     "ride:accepted": (data: any) => {
       if (validateEventForRide(data, "accepted")) {
         log.info(
-          "useAutoNavigation",
           "🚨 ride:accepted - Auto-navigating to driver arrival",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "ride_accepted",
+            data: { data }
+          }
         );
         next(); // Va a ConductorEncontrado -> ConductorLlego
       }
@@ -44,9 +47,12 @@ export const useAutoNavigation = () => {
     "ride:rejected": (data: any) => {
       if (validateEventForRide(data, "rejected")) {
         log.info(
-          "useAutoNavigation",
           "🚨 ride:rejected - Auto-navigating back to driver search",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "ride_rejected",
+            data: { data }
+          }
         );
         back(); // Vuelve a BUSCANDO_CONDUCTOR
       }
@@ -56,9 +62,12 @@ export const useAutoNavigation = () => {
     "ride:arrived": (data: any) => {
       if (validateEventForRide(data, "arrived")) {
         log.info(
-          "useAutoNavigation",
           "🚨 ride:arrived - Auto-navigating to driver arrived",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "ride_arrived",
+            data: { data }
+          }
         );
         // Navegar a ConductorLlego (este paso depende del flow actual)
         // En el flow del cliente, esto sería desde ViajeEnCurso
@@ -68,9 +77,12 @@ export const useAutoNavigation = () => {
     "ride:started": (data: any) => {
       if (validateEventForRide(data, "started")) {
         log.info(
-          "useAutoNavigation",
           "🚨 ride:started - Ride officially started",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "ride_started",
+            data: { data }
+          }
         );
         // Actualizar estado pero no navegar automáticamente
         realtime.updateRideStatus(rideId, "in_progress");
@@ -80,9 +92,12 @@ export const useAutoNavigation = () => {
     "ride:completed": (data: any) => {
       if (validateEventForRide(data, "completed")) {
         log.info(
-          "useAutoNavigation",
           "🚨 ride:completed - Auto-navigating to ride completed",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "ride_completed",
+            data: { data }
+          }
         );
         // Navegar a ViajeCompletado
         // Esto dependería del flow actual del cliente
@@ -92,9 +107,12 @@ export const useAutoNavigation = () => {
     "ride:cancelled": (data: any) => {
       if (validateEventForRide(data, "cancelled")) {
         log.info(
-          "useAutoNavigation",
           "🚨 ride:cancelled - Auto-navigating to cancellation",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "ride_cancelled",
+            data: { data }
+          }
         );
         // Navegar a pantalla de viaje cancelado
         back(); // O a pantalla específica de cancelación
@@ -106,9 +124,12 @@ export const useAutoNavigation = () => {
       // Este evento ya se maneja en DriverAvailability y DriverIncomingRequest
       // No necesitamos navegación automática aquí
       log.debug(
-        "useAutoNavigation",
         "📨 ride:requested received (handled by other components)",
-        { data },
+        {
+          component: "useAutoNavigation",
+          action: "ride_requested",
+          data: { data }
+        }
       );
     },
 
@@ -117,9 +138,12 @@ export const useAutoNavigation = () => {
       // Este evento ya se maneja en RideInProgress
       // Solo logging para debugging
       log.debug(
-        "useAutoNavigation",
         "📍 driverLocationUpdate received (handled by RideInProgress)",
-        { data },
+        {
+          component: "useAutoNavigation",
+          action: "driver_location_update",
+          data: { data }
+        }
       );
     },
   };
@@ -133,9 +157,12 @@ export const useAutoNavigation = () => {
       // Validar que tenemos un rideId
       if (!rideId && !data.rideId) {
         log.warn(
-          "useAutoNavigation",
           "No rideId available for event validation",
-          { data },
+          {
+            component: "useAutoNavigation",
+            action: "validation_warning",
+            data: { data }
+          }
         );
         return false;
       }
@@ -143,17 +170,23 @@ export const useAutoNavigation = () => {
       // Validar que el evento corresponde a este viaje
       const eventRideId = data.rideId || data.id;
       if (eventRideId !== rideId) {
-        log.debug("useAutoNavigation", "Event for different ride, ignoring", {
-          eventRideId,
-          currentRideId: rideId,
+        log.debug("Event for different ride, ignoring", {
+          component: "useAutoNavigation",
+          action: "event_ignored",
+          data: {
+            eventRideId,
+            currentRideId: rideId,
+          }
         });
         return false;
       }
 
       // Validar que tenemos un viaje activo
       if (!activeRide) {
-        log.warn("useAutoNavigation", "No active ride for navigation", {
-          data,
+        log.warn("No active ride for navigation", {
+          component: "useAutoNavigation",
+          action: "no_active_ride",
+          data: { data }
         });
         return false;
       }
@@ -165,10 +198,14 @@ export const useAutoNavigation = () => {
           expectedStatus,
         );
         if (!isValidTransition) {
-          log.warn("useAutoNavigation", "Invalid state transition", {
-            currentStatus: activeRide.status,
-            expectedStatus,
-            data,
+          log.warn("Invalid state transition", {
+            component: "useAutoNavigation",
+            action: "invalid_transition",
+            data: {
+              currentStatus: activeRide.status,
+              expectedStatus,
+              data,
+            }
           });
           return false;
         }
@@ -204,13 +241,17 @@ export const useAutoNavigation = () => {
    */
   const handleTransitionError = useCallback(
     (error: any, event: string, data: any) => {
-      log.error("useAutoNavigation", `Error in auto-navigation for ${event}:`, {
-        error: error.message,
-        event,
-        data,
-        currentStep,
-        rideId,
-        activeRide: activeRide?.status,
+      log.error(`Error in auto-navigation for ${event}`, {
+        component: "useAutoNavigation",
+        action: "transition_error",
+        data: {
+          error: error.message,
+          event,
+          data,
+          currentStep,
+          rideId,
+          activeRide: activeRide?.status,
+        }
       });
 
       // En caso de error, no hacer navegación automática
@@ -224,15 +265,19 @@ export const useAutoNavigation = () => {
    */
   useEffect(() => {
     if (!rideId) {
-      log.debug(
-        "useAutoNavigation",
-        "No rideId, skipping auto-navigation setup",
-      );
+      log.debug("No rideId, skipping auto-navigation setup", {
+        component: "useAutoNavigation",
+        action: "setup_skipped"
+      });
       return;
     }
 
-    log.info("useAutoNavigation", "Setting up auto-navigation listeners", {
-      rideId,
+    log.info("Setting up auto-navigation listeners", {
+      component: "useAutoNavigation",
+      action: "setup_listeners",
+      data: {
+        rideId,
+      }
     });
 
     // Configurar listeners para cada evento de transición
@@ -257,7 +302,10 @@ export const useAutoNavigation = () => {
 
     // Cleanup al desmontar o cambiar rideId
     return () => {
-      log.info("useAutoNavigation", "Cleaning up auto-navigation listeners");
+      log.info("Cleaning up auto-navigation listeners", {
+        component: "useAutoNavigation",
+        action: "cleanup_listeners"
+      });
       cleanupFunctions.forEach((cleanup) => cleanup());
     };
   }, [rideId, validateEventForRide, handleTransitionError]);
@@ -267,15 +315,15 @@ export const useAutoNavigation = () => {
    */
   const forceNavigate = useCallback(
     (direction: "next" | "back", reason?: string) => {
-      log.info(
-        "useAutoNavigation",
-        `Manual navigation triggered: ${direction}`,
-        {
+      log.info(`Manual navigation triggered: ${direction}`, {
+        component: "useAutoNavigation",
+        action: "manual_navigation",
+        data: {
           reason,
           currentStep,
           rideId,
-        },
-      );
+        }
+      });
 
       if (direction === "next") {
         next();

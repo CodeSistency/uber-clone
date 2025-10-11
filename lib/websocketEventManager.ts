@@ -1,4 +1,4 @@
-import { log, LogLevel } from "./logger";
+import { log } from "./logger";
 
 /**
  * WebSocket Event Manager
@@ -27,7 +27,10 @@ export class WebSocketEventManager {
    * Constructor privado para singleton
    */
   private constructor() {
-    log.info("WebSocketEventManager", "Initialized WebSocket Event Manager");
+    log.info("Initialized WebSocket Event Manager", {
+      component: "WebSocketEventManager",
+      action: "initialized"
+    });
   }
 
   /**
@@ -40,8 +43,12 @@ export class WebSocketEventManager {
       if (!this.listeners.has(event)) {
         this.listeners.set(event, []);
         log.debug(
-          "WebSocketEventManager",
           `Created listener array for event: ${event}`,
+          {
+            component: "WebSocketEventManager",
+            action: "create_listener_array",
+            data: { event }
+          }
         );
       }
 
@@ -49,20 +56,34 @@ export class WebSocketEventManager {
       if (!callbacks.includes(callback)) {
         callbacks.push(callback);
         log.debug(
-          "WebSocketEventManager",
           `Added listener for event: ${event} (total: ${callbacks.length})`,
+          {
+            component: "WebSocketEventManager",
+            action: "add_listener",
+            data: { event, total: callbacks.length }
+          }
         );
       } else {
         log.warn(
-          "WebSocketEventManager",
           `Listener already registered for event: ${event}`,
+          {
+            component: "WebSocketEventManager",
+            action: "listener_already_registered",
+            data: { event }
+          }
         );
       }
     } catch (error) {
       log.error(
-        "WebSocketEventManager",
         `Error registering listener for event ${event}:`,
-        error,
+        {
+          component: "WebSocketEventManager",
+          action: "register_listener_error",
+          data: { 
+            event, 
+            error: error instanceof Error ? error.message : String(error) 
+          }
+        }
       );
       throw error;
     }
@@ -78,8 +99,12 @@ export class WebSocketEventManager {
       const callbacks = this.listeners.get(event);
       if (!callbacks) {
         log.warn(
-          "WebSocketEventManager",
           `No listeners found for event: ${event}`,
+          {
+            component: "WebSocketEventManager",
+            action: "no_listeners_found",
+            data: { event }
+          }
         );
         return;
       }
@@ -88,29 +113,47 @@ export class WebSocketEventManager {
       if (index > -1) {
         callbacks.splice(index, 1);
         log.debug(
-          "WebSocketEventManager",
           `Removed listener for event: ${event} (remaining: ${callbacks.length})`,
+          {
+            component: "WebSocketEventManager",
+            action: "remove_listener",
+            data: { event, remaining: callbacks.length }
+          }
         );
 
         // Limpiar el array si no quedan listeners
         if (callbacks.length === 0) {
           this.listeners.delete(event);
           log.debug(
-            "WebSocketEventManager",
             `Cleaned up empty listener array for event: ${event}`,
+            {
+              component: "WebSocketEventManager",
+              action: "cleanup_empty_array",
+              data: { event }
+            }
           );
         }
       } else {
         log.warn(
-          "WebSocketEventManager",
           `Listener not found for event: ${event}`,
+          {
+            component: "WebSocketEventManager",
+            action: "listener_not_found",
+            data: { event }
+          }
         );
       }
     } catch (error) {
       log.error(
-        "WebSocketEventManager",
         `Error removing listener for event ${event}:`,
-        error,
+        {
+          component: "WebSocketEventManager",
+          action: "remove_listener_error",
+          data: { 
+            event, 
+            error: error instanceof Error ? error.message : String(error) 
+          }
+        }
       );
       throw error;
     }
@@ -130,13 +173,21 @@ export class WebSocketEventManager {
 
       const callbacks = this.listeners.get(event);
       if (!callbacks || callbacks.length === 0) {
-        log.debug("WebSocketEventManager", `No listeners for event: ${event}`);
+        log.debug(`No listeners for event: ${event}`, {
+          component: "WebSocketEventManager",
+          action: "no_listeners",
+          data: { event }
+        });
         return;
       }
 
       log.debug(
-        "WebSocketEventManager",
         `Emitting event: ${event} to ${callbacks.length} listeners`,
+        {
+          component: "WebSocketEventManager",
+          action: "emit_event",
+          data: { event, listenerCount: callbacks.length }
+        }
       );
 
       // Ejecutar todos los callbacks
@@ -149,9 +200,16 @@ export class WebSocketEventManager {
           }
         } catch (error) {
           log.error(
-            "WebSocketEventManager",
             `Error in listener ${index} for event ${event}:`,
-            error,
+            {
+              component: "WebSocketEventManager",
+              action: "listener_error",
+              data: { 
+                event, 
+                listenerIndex: index,
+                error: error instanceof Error ? error.message : String(error) 
+              }
+            }
           );
           // No throw aquí para no detener otros listeners
         }
@@ -162,22 +220,38 @@ export class WebSocketEventManager {
         .then(() => {
           const duration = Date.now() - startTime;
           log.debug(
-            "WebSocketEventManager",
             `Event ${event} emitted successfully in ${duration}ms`,
+            {
+              component: "WebSocketEventManager",
+              action: "event_emitted_success",
+              data: { event, duration }
+            }
           );
         })
         .catch((error) => {
           log.error(
-            "WebSocketEventManager",
             `Error in async listeners for event ${event}:`,
-            error,
+            {
+              component: "WebSocketEventManager",
+              action: "async_listeners_error",
+              data: { 
+                event,
+                error: error instanceof Error ? error.message : String(error) 
+              }
+            }
           );
         });
     } catch (error) {
       log.error(
-        "WebSocketEventManager",
         `Error emitting event ${event}:`,
-        error,
+        {
+          component: "WebSocketEventManager",
+          action: "emit_event_error",
+          data: { 
+            event,
+            error: error instanceof Error ? error.message : String(error) 
+          }
+        }
       );
       throw error;
     }
@@ -210,7 +284,10 @@ export class WebSocketEventManager {
    */
   clearAllListeners(): void {
     this.listeners.clear();
-    log.info("WebSocketEventManager", "Cleared all listeners");
+    log.info("Cleared all listeners", {
+      component: "WebSocketEventManager",
+      action: "clear_all_listeners"
+    });
   }
 
   /**

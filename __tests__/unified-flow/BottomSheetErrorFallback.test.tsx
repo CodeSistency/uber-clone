@@ -9,6 +9,7 @@ import BottomSheetErrorFallback from '@/components/unified-flow/BottomSheetError
 
 describe('BottomSheetErrorFallback', () => {
   const mockError = new Error('Test error message');
+  const mockErrorInfo = { componentStack: 'Test component stack' };
   const mockResetErrorBoundary = jest.fn();
 
   beforeEach(() => {
@@ -19,7 +20,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -34,7 +35,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={customError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -45,7 +46,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -59,7 +60,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -85,7 +86,7 @@ describe('BottomSheetErrorFallback', () => {
       const { unmount } = render(
         <BottomSheetErrorFallback
           error={error}
-          resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
         />
       );
 
@@ -101,7 +102,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithUndefinedMessage}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -115,7 +116,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithNullMessage}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -129,7 +130,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={longError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -143,7 +144,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithStack}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -154,7 +155,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={undefined as any}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -168,7 +169,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={null as any}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -182,7 +183,7 @@ describe('BottomSheetErrorFallback', () => {
     const { unmount } = render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -198,7 +199,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={mockError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -225,7 +226,7 @@ describe('BottomSheetErrorFallback', () => {
       const { unmount } = render(
         <BottomSheetErrorFallback
           error={error}
-          resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
         />
       );
 
@@ -242,7 +243,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={customError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -256,7 +257,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={circularError}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -270,7 +271,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithFunction}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -284,7 +285,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithDate}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -298,7 +299,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithArray}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 
@@ -312,7 +313,7 @@ describe('BottomSheetErrorFallback', () => {
     render(
       <BottomSheetErrorFallback
         error={errorWithObject}
-        resetErrorBoundary={mockResetErrorBoundary}
+        errorInfo={mockErrorInfo}
       />
     );
 

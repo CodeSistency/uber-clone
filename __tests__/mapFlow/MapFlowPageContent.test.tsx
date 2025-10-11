@@ -173,8 +173,8 @@ describe('MapFlowPageContent', () => {
   });
 
   it('should handle development mode', () => {
-    const originalDev = global.__DEV__;
-    global.__DEV__ = true;
+    const originalDev = (global as any).__DEV__;
+    (global as any).__DEV__ = true;
 
     const { componentMapper } = require('@/components/unified-flow/registry');
     componentMapper.createMapper.mockReturnValue(() => <MockServiceSelection />);
@@ -187,12 +187,12 @@ describe('MapFlowPageContent', () => {
       showDebugInfo: true,
     });
 
-    global.__DEV__ = originalDev;
+    (global as any).__DEV__ = originalDev;
   });
 
   it('should handle production mode', () => {
-    const originalDev = global.__DEV__;
-    global.__DEV__ = false;
+    const originalDev = (global as any).__DEV__;
+    (global as any).__DEV__ = false;
 
     const { componentMapper } = require('@/components/unified-flow/registry');
     componentMapper.createMapper.mockReturnValue(() => <MockServiceSelection />);
@@ -205,7 +205,7 @@ describe('MapFlowPageContent', () => {
       showDebugInfo: false,
     });
 
-    global.__DEV__ = originalDev;
+    (global as any).__DEV__ = originalDev;
   });
 
   it('should handle step changes', () => {

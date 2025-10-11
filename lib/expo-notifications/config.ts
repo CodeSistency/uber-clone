@@ -96,12 +96,16 @@ class ExpoNotificationConfigManager {
       ),
     };
 
-    log.info("ExpoNotificationConfig", "Configuration built", {
-      platform: Platform.OS,
-      projectId: config.projectId,
-      appName: config.appName,
-      hasAndroidConfig: !!config.android,
-      hasIosConfig: !!config.ios,
+    log.info("Configuration built", {
+      component: "ExpoNotificationConfig",
+      action: "config_built",
+      data: {
+        platform: Platform.OS,
+        projectId: config.projectId,
+        appName: config.appName,
+        hasAndroidConfig: !!config.android,
+        hasIosConfig: !!config.ios,
+      }
     });
 
     return config;
@@ -229,10 +233,14 @@ class ExpoNotificationConfigManager {
       }),
     });
 
-    log.info("ExpoNotificationConfig", "Notification handler configured", {
-      showInForeground: config.showInForeground,
-      playSound: config.playSound,
-      showBadge: config.showBadge,
+    log.info("Notification handler configured", {
+      component: "ExpoNotificationConfig",
+      action: "handler_configured",
+      data: {
+        showInForeground: config.showInForeground,
+        playSound: config.playSound,
+        showBadge: config.showBadge,
+      }
     });
   }
 
@@ -258,34 +266,37 @@ class ExpoNotificationConfigManager {
             sound: channel.sound === "default" ? "default" : undefined,
           });
 
-          log.debug("ExpoNotificationConfig", "Android channel created", {
-            channelId: channel.id,
-            name: channel.name,
-            importance: channel.importance,
+          log.debug("Android channel created", {
+            component: "ExpoNotificationConfig",
+            action: "channel_created",
+            data: {
+              channelId: channel.id,
+              name: channel.name,
+              importance: channel.importance,
+            }
           });
         }
       }
 
-      log.info(
-        "ExpoNotificationConfig",
-        "Android notification channels setup complete",
-        {
+      log.info("Android notification channels setup complete", {
+        component: "ExpoNotificationConfig",
+        action: "channels_setup_complete",
+        data: {
           channelGroupsCount: this.config.android.channelGroups.length,
           totalChannels: this.config.android.channelGroups.reduce(
             (sum, group) => sum + group.channels.length,
             0,
           ),
-        },
-      );
+        }
+      });
     } catch (error) {
-      log.error(
-        "ExpoNotificationConfig",
-        "Failed to setup Android channels",
-        {
+      log.error("Failed to setup Android channels", {
+        component: "ExpoNotificationConfig",
+        action: "channels_setup_failed",
+        data: {
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
       throw error;
     }
   }

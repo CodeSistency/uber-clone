@@ -38,14 +38,16 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         const errorMessage =
           error instanceof Error ? error.message : "Failed to load chat";
         log.error(
-          "useChat",
           "Failed to initialize chat",
           {
-            rideId,
-            orderId,
-            error: errorMessage,
-          },
-          error instanceof Error ? error : undefined,
+            component: "useChat",
+            action: "initialize",
+            data: {
+              rideId,
+              orderId,
+              error: errorMessage,
+            },
+          }
         );
         setError(errorMessage);
       }
@@ -79,13 +81,15 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         }
       } catch (error) {
         log.error(
-          "useChat",
           "Failed to load chat history",
           {
-            rideId,
-            error: error instanceof Error ? error.message : "Unknown error",
-          },
-          error instanceof Error ? error : undefined,
+            component: "useChat",
+            action: "loadHistory",
+            data: {
+              rideId,
+              error: error instanceof Error ? error.message : "Unknown error",
+            },
+          }
         );
         setError(
           error instanceof Error ? error.message : "Failed to load messages",
@@ -127,13 +131,15 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         }
       } catch (error) {
         log.error(
-          "useChat",
           "Failed to load order chat history",
           {
-            orderId: chatOrderId,
-            error: (error as Error)?.message,
-          },
-          error instanceof Error ? error : undefined,
+            component: "useChat",
+            action: "loadOrderHistory",
+            data: {
+              orderId: chatOrderId,
+              error: (error as Error)?.message,
+            },
+          }
         );
         setError(
           error instanceof Error ? error.message : "Failed to load messages",
@@ -167,25 +173,31 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
           );
         }
 
-        log.info("useChat", "Message sent successfully", {
-          messageId: sentMessage?.id,
-          rideId,
-          orderId,
-          messageLength: messageText.length,
+        log.info("Message sent successfully", {
+          component: "useChat",
+          action: "sendMessage",
+          data: {
+            messageId: sentMessage?.id,
+            rideId,
+            orderId,
+            messageLength: messageText.length,
+          },
         });
 
         // Message is already added to store by chatService
         // WebSocket will broadcast to other participants
       } catch (error) {
         log.error(
-          "useChat",
           "Failed to send message",
           {
-            rideId,
-            orderId,
-            error: (error as Error)?.message,
-          },
-          error instanceof Error ? error : undefined,
+            component: "useChat",
+            action: "sendMessage",
+            data: {
+              rideId,
+              orderId,
+              error: (error as Error)?.message,
+            },
+          }
         );
         setError(
           error instanceof Error ? error.message : "Failed to send message",
@@ -209,16 +221,18 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
         await chatService.shareLocation(rideId, location);
       } catch (error) {
         log.error(
-          "useChat",
           "Failed to share location",
           {
-            rideId,
-            error:
-              error instanceof Error
-                ? error.message
-                : "Failed to share location",
-          },
-          error instanceof Error ? error : undefined,
+            component: "useChat",
+            action: "shareLocation",
+            data: {
+              rideId,
+              error:
+                error instanceof Error
+                  ? error.message
+                  : "Failed to share location",
+            },
+          }
         );
         setError(
           error instanceof Error ? error.message : "Failed to share location",
@@ -237,16 +251,18 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
       await chatService.markMessagesRead(rideId);
     } catch (error) {
       log.error(
-        "useChat",
         "Failed to mark messages as read",
         {
-          rideId,
-          error:
-            error instanceof Error
-              ? error.message
-              : "Failed to mark messages as read",
-        },
-        error instanceof Error ? error : undefined,
+          component: "useChat",
+          action: "markAsRead",
+          data: {
+            rideId,
+            error:
+              error instanceof Error
+                ? error.message
+                : "Failed to mark messages as read",
+          },
+        }
       );
       setError(
         error instanceof Error
@@ -279,14 +295,16 @@ export const useChat = (rideId: number | null, orderId?: number | null) => {
       clearChat(chatId);
     } catch (error) {
       log.error(
-        "useChat",
         "Failed to clear chat",
         {
-          chatId,
-          chatType,
-          error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
+          component: "useChat",
+          action: "clearChat",
+          data: {
+            chatId,
+            chatType,
+            error: (error as Error)?.message,
+          },
+        }
       );
       setError(error instanceof Error ? error.message : "Failed to clear chat");
     }

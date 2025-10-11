@@ -62,10 +62,12 @@ export class DriverService {
       
       // Return default status for non-drivers
       return {
+        driverId: "unknown",
         isOnline: false,
         isAvailable: false,
         status: "offline",
-        lastOnlineTime: null,
+        lastSeen: new Date(),
+        lastOnlineTime: undefined,
         totalOnlineTime: 0,
         connectionHistory: [],
         isDriver: false,

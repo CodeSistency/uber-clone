@@ -47,7 +47,7 @@ export const useBottomSheetTransition = (config: BottomSheetTransitionConfig = {
 
   // Configuración de animación basada en el easing
   const getAnimationConfig = useCallback((toValue: number) => {
-    if (easing === 'spring') {
+    if (easing === 'spring' as any) {
       return withSpring(toValue, springConfig);
     }
     

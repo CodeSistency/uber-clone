@@ -48,11 +48,15 @@ export class RoomTracker {
       existingRoom.isActive = true;
       existingRoom.metadata = { ...existingRoom.metadata, ...metadata };
       
-      log.debug("RoomTracker", "Updated existing room", {
-        roomId,
-        roomType,
-        joinedAt: existingRoom.joinedAt,
-        lastActivity: existingRoom.lastActivity,
+      log.debug("Updated existing room", {
+        component: "RoomTracker",
+        action: "update_existing_room",
+        data: {
+          roomId,
+          roomType,
+          joinedAt: existingRoom.joinedAt,
+          lastActivity: existingRoom.lastActivity,
+        }
       });
     } else {
       // Create new room
@@ -67,11 +71,15 @@ export class RoomTracker {
 
       this.rooms.set(roomId, roomInfo);
       
-      log.info("RoomTracker", "Joined new room", {
-        roomId,
-        roomType,
-        totalRooms: this.rooms.size,
-        metadata,
+      log.info("Joined new room", {
+        component: "RoomTracker",
+        action: "join_new_room",
+        data: {
+          roomId,
+          roomType,
+          totalRooms: this.rooms.size,
+          metadata,
+        }
       });
     }
   }
@@ -94,14 +102,22 @@ export class RoomTracker {
         this.roomHistory = this.roomHistory.slice(0, this.maxHistorySize);
       }
       
-      log.info("RoomTracker", "Left room", {
-        roomId,
-        roomType: room.roomType,
-        duration: Date.now() - room.joinedAt.getTime(),
-        totalActiveRooms: this.getActiveRooms().length,
+      log.info("Left room", {
+        component: "RoomTracker",
+        action: "left_room",
+        data: {
+          roomId,
+          roomType: room.roomType,
+          duration: Date.now() - room.joinedAt.getTime(),
+          totalActiveRooms: this.getActiveRooms().length,
+        }
       });
     } else {
-      log.warn("RoomTracker", "Attempted to leave unknown room", { roomId });
+      log.warn("Attempted to leave unknown room", {
+        component: "RoomTracker",
+        action: "leave_unknown_room",
+        data: { roomId }
+      });
     }
   }
 
@@ -159,10 +175,14 @@ export class RoomTracker {
     }
 
     if (cleanedCount > 0) {
-      log.info("RoomTracker", "Cleaned up inactive rooms", {
-        cleanedCount,
-        remainingRooms: this.rooms.size,
-        maxAgeMinutes,
+      log.info("Cleaned up inactive rooms", {
+        component: "RoomTracker",
+        action: "cleanup_inactive_rooms",
+        data: {
+          cleanedCount,
+          remainingRooms: this.rooms.size,
+          maxAgeMinutes,
+        }
       });
     }
   }
@@ -217,7 +237,11 @@ export class RoomTracker {
     this.rooms.clear();
     this.roomHistory = [];
     
-    log.info("RoomTracker", "Cleared all room data", { roomCount });
+    log.info("Cleared all room data", {
+      component: "RoomTracker",
+      action: "clear_all_room_data",
+      data: { roomCount }
+    });
   }
 
   /**
@@ -238,8 +262,12 @@ export class RoomTracker {
       this.leaveRoom(roomId);
     }
     
-    log.info("RoomTracker", "Disconnected from all rooms", {
-      disconnectedCount: disconnectedRooms.length,
+    log.info("Disconnected from all rooms", {
+      component: "RoomTracker",
+      action: "disconnect_all_rooms",
+      data: {
+        disconnectedCount: disconnectedRooms.length,
+      }
     });
     
     return disconnectedRooms;

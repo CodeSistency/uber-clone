@@ -255,23 +255,29 @@ export const chatStorage = {
       const limitedMessages = messages.slice(-100);
       await storage.setItem(key, JSON.stringify(limitedMessages));
 
-      log.debug("ChatStorage", "Chat history saved", {
-        chatId,
-        chatType,
-        messageCount: limitedMessages.length,
+      log.debug("Chat history saved", {
+        component: "ChatStorage",
+        action: "saveChatHistory",
+        data: {
+          chatId,
+          chatType,
+          messageCount: limitedMessages.length,
+        },
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       log.error(
-        "ChatStorage",
         "Failed to save chat history",
         {
-          chatId,
-          chatType,
-          error: errorMessage,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatStorage",
+          action: "saveChatHistory",
+          data: {
+            chatId,
+            chatType,
+            error: errorMessage,
+          },
+        }
       );
       throw error;
     }
@@ -287,11 +293,15 @@ export const chatStorage = {
 
       if (data) {
         const messages = JSON.parse(data);
-        log.debug("ChatStorage", "Chat history loaded", {
+      log.debug("Chat history loaded", {
+        component: "ChatStorage",
+        action: "getChatHistory",
+        data: {
           chatId,
           chatType,
           messageCount: messages.length,
-        });
+        },
+      });
         return messages;
       }
 
@@ -300,14 +310,16 @@ export const chatStorage = {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       log.error(
-        "ChatStorage",
         "Failed to get chat history",
         {
-          chatId,
-          chatType,
-          error: errorMessage,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatStorage",
+          action: "getChatHistory",
+          data: {
+            chatId,
+            chatType,
+            error: errorMessage,
+          },
+        }
       );
       return [];
     }
@@ -324,8 +336,12 @@ export const chatStorage = {
         const data = await storage.getItem(oldKey);
         messages = data ? JSON.parse(data) : [];
       } catch (error) {
-        log.warn("ChatStorage", "Old chat history format not found", {
-          rideId,
+        log.warn("Old chat history format not found", {
+          component: "ChatStorage",
+          action: "getChatHistory",
+          data: {
+            rideId,
+          },
         });
       }
     }
@@ -345,14 +361,16 @@ export const chatStorage = {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       log.error(
-        "ChatStorage",
         "Failed to add message",
         {
-          chatId,
-          chatType,
-          error: errorMessage,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatStorage",
+          action: "addMessage",
+          data: {
+            chatId,
+            chatType,
+            error: errorMessage,
+          },
+        }
       );
       throw error;
     }
@@ -366,22 +384,28 @@ export const chatStorage = {
       const key = `${STORAGE_KEYS.CHAT_HISTORY_PREFIX}${chatType}_${chatId}`;
       await storage.removeItem(key);
 
-      log.info("ChatStorage", "Chat history cleared", {
-        chatId,
-        chatType,
+      log.info("Chat history cleared", {
+        component: "ChatStorage",
+        action: "clearChatHistory",
+        data: {
+          chatId,
+          chatType,
+        },
       });
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       log.error(
-        "ChatStorage",
         "Failed to clear chat history",
         {
-          chatId,
-          chatType,
-          error: errorMessage,
-        },
-        error instanceof Error ? error : undefined,
+          component: "ChatStorage",
+          action: "clearChatHistory",
+          data: {
+            chatId,
+            chatType,
+            error: errorMessage,
+          },
+        }
       );
       throw error;
     }

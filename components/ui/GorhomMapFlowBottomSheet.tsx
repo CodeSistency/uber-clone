@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useEffect } from 'react';
 import { View, StyleSheet, Platform, LayoutChangeEvent } from 'react-native';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import MapFlowBlurBackground from './MapFlowBlurBackground';
@@ -18,6 +18,8 @@ import { MapFlowStep } from '@/store';
 import MapFlowPagerView from '../mapFlow/MapFlowPagerView';
 import { log } from '@/lib/logger';
 import { useBottomSheetTransition } from '@/hooks/useBottomSheetTransition';
+import { MapFlowBottomSheetProvider } from '@/context/MapFlowBottomSheetContext';
+import { useBottomSheetCloseAnimation } from '@/hooks/useBottomSheetCloseAnimation';
 
 interface GorhomMapFlowBottomSheetProps {
   visible: boolean;
@@ -36,7 +38,7 @@ interface GorhomMapFlowBottomSheetProps {
   testID?: string;
   step?: MapFlowStep;
   useGradient?: boolean;
-    useBlur?: boolean;
+  useBlur?: boolean;
   bottomBar?: React.ReactNode;
   
   // Nuevas props para PagerView
@@ -47,6 +49,9 @@ interface GorhomMapFlowBottomSheetProps {
   enableSwipe?: boolean;
   showPageIndicator?: boolean;
   animationType?: 'slide' | 'fade';
+  
+  // Nueva prop para modo de header
+  headerMode?: 'back' | 'close';
 }
 
 const GorhomMapFlowBottomSheet: React.FC<GorhomMapFlowBottomSheetProps> = ({
@@ -69,6 +74,8 @@ const GorhomMapFlowBottomSheet: React.FC<GorhomMapFlowBottomSheetProps> = ({
   enableSwipe = true,
   showPageIndicator = true,
   animationType = 'slide',
+  // Nueva prop para modo de header
+  headerMode = 'back',
 }) => {
   const hasCloseCallback = typeof onClose === 'function';
   const effectiveAllowClose = allowClose && allowDrag;
@@ -89,6 +96,10 @@ const GorhomMapFlowBottomSheet: React.FC<GorhomMapFlowBottomSheetProps> = ({
   // 🆕 Hook para PagerView
   const pagerHook = useMapFlowPagerWithSteps();
   
+  // 🆕 Hook para animación de cierre
+  const bottomSheetRef = useRef<BottomSheet>(null);
+  const { closeWithAnimation } = useBottomSheetCloseAnimation(bottomSheetRef as React.RefObject<BottomSheet>, onClose);
+  
   // 🆕 Determinar si usar PagerView
   const resolvedPagerSteps = pagerSteps.length > 0 ? pagerSteps : pagerHook.pagerSteps;
   const shouldUsePagerView = Boolean(
@@ -100,108 +111,125 @@ const GorhomMapFlowBottomSheet: React.FC<GorhomMapFlowBottomSheetProps> = ({
   // 🆕 Obtener pasos para PagerView
   const stepsToUse = resolvedPagerSteps;
   
-  log.pagerView.debug('PagerView State', {
-    data: {
-      usePagerViewProp: usePagerView,
-      shouldUsePagerView,
-      hookShouldUsePager: pagerHook.shouldUsePager,
-      pagerStepsLength: pagerSteps.length,
-      stepsToUseLength: stepsToUse.length,
-      stepsToUse,
-      currentStep: step,
-      pagerHookState: {
-        currentPageIndex: pagerHook.currentPageIndex,
-        totalPages: pagerHook.totalPages,
-        isTransitioning: pagerHook.isTransitioning,
-        usePagerView: pagerHook.usePagerView
+  // 🔧 Optimizar logging - solo en desarrollo
+  if (__DEV__) {
+    log.pagerView.debug('PagerView State', {
+      data: {
+        usePagerViewProp: usePagerView,
+        shouldUsePagerView,
+        hookShouldUsePager: pagerHook.shouldUsePager,
+        pagerStepsLength: pagerSteps.length,
+        stepsToUseLength: stepsToUse.length,
+        stepsToUse,
+        currentStep: step,
+        pagerHookState: {
+          currentPageIndex: pagerHook.currentPageIndex,
+          totalPages: pagerHook.totalPages,
+          isTransitioning: pagerHook.isTransitioning,
+          usePagerView: pagerHook.usePagerView
+        }
       }
-    }
-  });
+    });
+  }
   
   // 🔧 Lógica simplificada sin useMapFlowCriticalConfig
   const index = visible ? 0 : -1;
   const enableHandlePanningGesture = allowDrag;
   const enableContentPanningGesture = allowDrag;
   
-  // 🆕 Handle component con Progress Handle si es necesario
+  // 🔧 Optimizar handleStepPress con useCallback
+  const handleStepPress = useCallback((nextStep: MapFlowStep) => {
+    onStepChange?.(nextStep);
+    pagerHook.goToPagerStep(nextStep);
+  }, [onStepChange, pagerHook.goToPagerStep]);
+
+  // 🔧 Memoizar ProgressHandleComponent fuera del useMemo
+  const ProgressHandleComponent = React.memo(() => (
+    <MapFlowProgressHandle
+      currentStep={step || 'idle'}
+      currentPageIndex={pagerHook.currentPageIndex}
+      totalPages={pagerHook.totalPages}
+      steps={stepsToUse}
+      type={pagerHook.progressConfig?.progressStyle || 'dots'}
+      color={pagerHook.progressConfig?.progressColor || '#0286FF'}
+      onStepPress={handleStepPress}
+      onProgressPress={() => {}}
+    />
+  ));
+
+  // 🆕 Handle component optimizado con menos dependencias
   const handleComponent = useMemo(() => {
     if (!showHandle) {
       return null;
     }
     
     if (shouldUsePagerView && pagerHook.progressConfig) {
-      return () => (
-        <MapFlowProgressHandle
-          currentStep={step || 'idle'}
-          currentPageIndex={pagerHook.currentPageIndex}
-          totalPages={pagerHook.totalPages}
-          steps={stepsToUse}
-          type={pagerHook.progressConfig?.progressStyle || 'dots'}
-          color={pagerHook.progressConfig?.progressColor || '#0286FF'}
-          onStepPress={(nextStep) => {
-            onStepChange?.(nextStep);
-            pagerHook.goToPagerStep(nextStep);
-          }}
-          onProgressPress={() => {}}
-        />
-      );
+      return ProgressHandleComponent;
     }
     return undefined; // Usar handle por defecto
-  }, [
-    showHandle, 
-    shouldUsePagerView, 
-    step, 
-    pagerHook.currentPageIndex, 
-    pagerHook.totalPages, 
-    pagerHook.progressConfig,
-    stepsToUse,
-    onStepChange,
-    pagerHook.goToPagerStep
-  ]);
+  }, [showHandle, shouldUsePagerView, pagerHook.progressConfig?.progressStyle]);
 
-  log.bottomSheet.debug('Sheet Config', {
-    data: {
-      visible,
-      step,
-      index,
-      finalIndex: visible ? index : -1,
-      enableHandlePanningGesture,
-      enableContentPanningGesture,
-      hasHandleComponent: !!handleComponent,
-      allowDrag,
-    }
-  });
+  // 🔧 Optimizar logging - solo en desarrollo
+  if (__DEV__) {
+    log.bottomSheet.debug('Sheet Config', {
+      data: {
+        visible,
+        step,
+        index,
+        finalIndex: visible ? index : -1,
+        enableHandlePanningGesture,
+        enableContentPanningGesture,
+        hasHandleComponent: !!handleComponent,
+        allowDrag,
+      }
+    });
+  }
 
-  // 🔧 Snap points inteligentes
+  // 🔧 Snap points inteligentes con validación robusta
   const validSnapPoints = useMemo(() => {
     const providedSnapPoints = heights.snapPoints;
     
-    if (providedSnapPoints && providedSnapPoints.length > 0) {
-      const minSnapPoint = Math.min(...providedSnapPoints.map(p => parseInt(p.replace('%', ''))));
-      const snapPoints = providedSnapPoints.map(p => `${p}%`);
-      log.bottomSheet.debug('Using provided snap points', { data: { snapPoints, minSnapPoint } });
-      return snapPoints;
+    if (!providedSnapPoints || providedSnapPoints.length === 0) {
+      return ['25%', '50%', '75%'];
     }
     
-    const defaultSnapPoints = ['25%', '50%', '75%'];
-    log.bottomSheet.debug('Using default snap points', { data: defaultSnapPoints });
-    return defaultSnapPoints;
+    // Validar que sean porcentajes válidos
+    const validPoints = providedSnapPoints
+      .map(p => {
+        const num = parseInt(p.replace('%', ''));
+        return !isNaN(num) && num > 0 && num <= 100 ? `${num}%` : null;
+      })
+      .filter((p): p is string => p !== null);
+      
+    if (__DEV__) {
+      log.bottomSheet.debug('Snap points validation', { 
+        data: { 
+          provided: providedSnapPoints, 
+          valid: validPoints,
+          usingDefault: validPoints.length === 0
+        } 
+      });
+    }
+    
+    return validPoints.length > 0 ? validPoints : ['25%', '50%', '75%'];
   }, [heights.snapPoints]);
 
   const finalIndex = visible ? index : -1;
-  const bottomSheetRef = useRef<BottomSheet>(null);
 
-  log.bottomSheet.debug('Final State', {
-    data: {
-      visible,
-      index,
-      finalIndex,
-      willRender: finalIndex !== -1,
-      validSnapPoints,
-      platform: Platform.OS,
-      backgroundType: Platform.OS === 'android' ? 'dark-gradient' : 'blur+gradient'
-    }
-  });
+  // 🔧 Optimizar logging - solo en desarrollo
+  if (__DEV__) {
+    log.bottomSheet.debug('Final State', {
+      data: {
+        visible,
+        index,
+        finalIndex,
+        willRender: finalIndex !== -1,
+        validSnapPoints,
+        platform: Platform.OS,
+        backgroundType: Platform.OS === 'android' ? 'dark-gradient' : 'blur+gradient'
+      }
+    });
+  }
 
   const footerComponent = useMemo(() => {
     if (bottomBar) {
@@ -216,21 +244,49 @@ const GorhomMapFlowBottomSheet: React.FC<GorhomMapFlowBottomSheetProps> = ({
 
   const handleContentLayout = useCallback((event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
-    log.bottomSheet.debug('Content layout', {
-      data: {
-        width,
-        height,
-        shouldUsePagerView,
-        finalIndex,
-        visible,
-      }
-    });
+    if (__DEV__) {
+      log.bottomSheet.debug('Content layout', {
+        data: {
+          width,
+          height,
+          shouldUsePagerView,
+          finalIndex,
+          visible,
+        }
+      });
+    }
   }, [shouldUsePagerView, finalIndex, visible]);
+
+  // 🆕 Sincronizar cambios de paso con animación del PagerView
+  const pagerViewRef = useRef<any>(null);
+  
+  useEffect(() => {
+    if (shouldUsePagerView && pagerViewRef.current && step) {
+      const stepIndex = stepsToUse.findIndex(s => s === step);
+      if (stepIndex !== -1 && stepIndex !== pagerHook.currentPageIndex) {
+        // Animar a la página correspondiente
+        pagerViewRef.current.setPage(stepIndex);
+      }
+    }
+  }, [step, shouldUsePagerView, stepsToUse, pagerHook.currentPageIndex]);
+
+  // 🆕 Callback para cerrar con animación
+  const handleCloseWithAnimation = useCallback(() => {
+    closeWithAnimation(300);
+  }, [closeWithAnimation]);
+
+  // 🆕 Context value para FlowHeader
+  const contextValue = useMemo(() => ({
+    closeBottomSheet: handleCloseWithAnimation,
+    isCloseable: allowClose && allowDrag,
+    mode: headerMode,
+    isConnected: true,
+  }), [handleCloseWithAnimation, allowClose, allowDrag, headerMode]);
 
   const safeRenderPager = shouldUsePagerView && stepsToUse.length > 0 && pagerHook.totalPages > 0;
 
   // 🆕 Efecto para sincronizar transiciones con la visibilidad
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       transition.showBottomSheet(initialHeight);
     } else {
@@ -287,37 +343,48 @@ const GorhomMapFlowBottomSheet: React.FC<GorhomMapFlowBottomSheetProps> = ({
         }
       }}
       onChange={(nextIndex) => {
-        log.bottomSheet.debug('onChange', { data: nextIndex });
+        if (__DEV__) {
+          log.bottomSheet.debug('onChange', { data: nextIndex });
+        }
       }}
       onAnimate={(fromIndex, toIndex) => {
-        log.bottomSheet.debug('onAnimate', { data: { fromIndex, toIndex } });
+        if (__DEV__) {
+          log.bottomSheet.debug('onAnimate', { data: { fromIndex, toIndex } });
+        }
       }}
     >
       <BottomSheetView 
         style={[styles.transparentContent, transition.animatedContainerStyle]} 
         onLayout={handleContentLayout}
       >
-        {safeRenderPager ? (
-          <MapFlowPagerView
-            steps={stepsToUse}
-            currentStep={step || 'idle'}
-            onStepChange={(newStep) => {
-              log.pagerView.debug('PagerView step change', { data: newStep });
-              onStepChange?.(newStep);
-              pagerHook.goToPagerStep(newStep);
-            }}
-            onPageChange={(pageIndex) => {
-              log.pagerView.debug('PagerView page change', { data: pageIndex });
-              onPageChange?.(pageIndex);
-              pagerHook.setCurrentPageIndex(pageIndex);
-            }}
-            enableSwipe={enableSwipe && pagerHook.currentStepConfig?.enableSwipe}
-            showPageIndicator={showPageIndicator && pagerHook.currentStepConfig?.showProgress}
-            animationType={animationType}
-          />
-        ) : (
-          children
-        )}
+        <MapFlowBottomSheetProvider value={contextValue}>
+          {safeRenderPager ? (
+            <MapFlowPagerView
+              ref={pagerViewRef}
+              steps={stepsToUse}
+              currentStep={step || 'idle'}
+              onStepChange={(newStep) => {
+                if (__DEV__) {
+                  log.pagerView.debug('PagerView step change', { data: newStep });
+                }
+                onStepChange?.(newStep);
+                pagerHook.goToPagerStep(newStep);
+              }}
+              onPageChange={(pageIndex) => {
+                if (__DEV__) {
+                  log.pagerView.debug('PagerView page change', { data: pageIndex });
+                }
+                onPageChange?.(pageIndex);
+                pagerHook.setCurrentPageIndex(pageIndex);
+              }}
+              enableSwipe={enableSwipe && pagerHook.currentStepConfig?.enableSwipe}
+              showPageIndicator={showPageIndicator && pagerHook.currentStepConfig?.showProgress}
+              animationType="slide" // Forzar slide
+            />
+          ) : (
+            children
+          )}
+        </MapFlowBottomSheetProvider>
       </BottomSheetView>
     </BottomSheet>
   );

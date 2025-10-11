@@ -39,11 +39,15 @@ class ExpoTokenManager {
   async getPushToken(forceRefresh = false): Promise<ExpoPushToken | null> {
     const operationId = `token_get_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    log.info("ExpoTokenManager", "Getting push token", {
-      operationId,
-      forceRefresh,
-      hasCachedToken: !!this.currentToken,
-      platform: Platform.OS,
+    log.info("Getting push token", {
+      component: "ExpoTokenManager",
+      action: "get_token",
+      data: {
+        operationId,
+        forceRefresh,
+        hasCachedToken: !!this.currentToken,
+        platform: Platform.OS,
+      }
     });
 
     try {
@@ -51,8 +55,12 @@ class ExpoTokenManager {
       if (!forceRefresh && this.currentToken) {
         const isValid = await this.validateToken(this.currentToken);
         if (isValid) {
-          log.info("ExpoTokenManager", "Using cached valid token", {
-            operationId,
+          log.info("Using cached valid token", {
+            component: "ExpoTokenManager",
+            action: "use_cached_token",
+            data: {
+              operationId,
+            }
           });
           return this.currentToken;
         }
@@ -64,19 +72,23 @@ class ExpoTokenManager {
         const isValid = await this.validateToken(cachedToken);
         if (isValid) {
           this.currentToken = cachedToken;
-          log.info("ExpoTokenManager", "Using stored valid token", {
-            operationId,
-            tokenPrefix: cachedToken.data.substring(0, 20) + "...",
+          log.info("Using stored valid token", {
+            component: "ExpoTokenManager",
+            action: "use_stored_token",
+            data: {
+              operationId,
+              tokenPrefix: cachedToken.data.substring(0, 20) + "...",
+            }
           });
           return cachedToken;
         } else {
-          log.warn(
-            "ExpoTokenManager",
-            "Stored token is invalid, requesting new one",
-            {
+          log.warn("Stored token is invalid, requesting new one", {
+            component: "ExpoTokenManager",
+            action: "invalid_stored_token",
+            data: {
               operationId,
-            },
-          );
+            }
+          });
         }
       }
 
@@ -87,37 +99,48 @@ class ExpoTokenManager {
         this.currentToken = newToken;
         this.retryCount = 0; // Reset retry count on success
 
-        log.info("ExpoTokenManager", "New token obtained and stored", {
-          operationId,
-          tokenType: newToken.type,
-          tokenPrefix: newToken.data.substring(0, 20) + "...",
+        log.info("New token obtained and stored", {
+          component: "ExpoTokenManager",
+          action: "token_obtained",
+          data: {
+            operationId,
+            tokenType: newToken.type,
+            tokenPrefix: newToken.data.substring(0, 20) + "...",
+          }
         });
 
         return newToken;
       }
 
-      log.error("ExpoTokenManager", "Failed to obtain push token", {
-        operationId,
+      log.error("Failed to obtain push token", {
+        component: "ExpoTokenManager",
+        action: "token_failed",
+        data: {
+          operationId,
+        }
       });
       return null;
     } catch (error) {
-      log.error(
-        "ExpoTokenManager",
-        "Error getting push token",
-        {
+      log.error("Error getting push token", {
+        component: "ExpoTokenManager",
+        action: "token_error",
+        data: {
           operationId,
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Intentar retry si no hemos alcanzado el límite
       if (this.retryCount < this.maxRetries) {
         this.retryCount++;
-        log.info("ExpoTokenManager", "Retrying token request", {
-          operationId,
-          attempt: this.retryCount,
-          maxRetries: this.maxRetries,
+        log.info("Retrying token request", {
+          component: "ExpoTokenManager",
+          action: "retry_request",
+          data: {
+            operationId,
+            attempt: this.retryCount,
+            maxRetries: this.maxRetries,
+          }
         });
 
         // Esperar un poco antes del retry
@@ -151,17 +174,25 @@ class ExpoTokenManager {
         );
 
       if (!isUuid(projectId)) {
-        log.warn("ExpoTokenManager", "Missing or invalid EAS projectId", {
-          operationId,
-          projectId,
-          note: "Push tokens may not work in production builds without valid projectId",
+        log.warn("Missing or invalid EAS projectId", {
+          component: "ExpoTokenManager",
+          action: "invalid_project_id",
+          data: {
+            operationId,
+            projectId,
+            note: "Push tokens may not work in production builds without valid projectId",
+          }
         });
       }
 
-      log.info("ExpoTokenManager", "Requesting new Expo push token", {
-        operationId,
-        projectId: projectId ? "valid" : "missing",
-        platform: Platform.OS,
+      log.info("Requesting new Expo push token", {
+        component: "ExpoTokenManager",
+        action: "request_token",
+        data: {
+          operationId,
+          projectId: projectId ? "valid" : "missing",
+          platform: Platform.OS,
+        }
       });
 
       // Solicitar token usando Expo's built-in FCM support
@@ -174,26 +205,29 @@ class ExpoTokenManager {
         data: tokenResponse.data,
       };
 
-      log.info("ExpoTokenManager", "Expo push token obtained", {
-        operationId,
-        tokenType: token.type,
-        tokenLength: token.data.length,
-        tokenPrefix: token.data.substring(0, 20) + "...",
-        projectId: isUuid(projectId) ? "used" : "not_used",
+      log.info("Expo push token obtained", {
+        component: "ExpoTokenManager",
+        action: "token_obtained",
+        data: {
+          operationId,
+          tokenType: token.type,
+          tokenLength: token.data.length,
+          tokenPrefix: token.data.substring(0, 20) + "...",
+          projectId: isUuid(projectId) ? "used" : "not_used",
+        }
       });
 
       return token;
     } catch (error) {
-      log.error(
-        "ExpoTokenManager",
-        "Failed to request new token",
-        {
+      log.error("Failed to request new token", {
+        component: "ExpoTokenManager",
+        action: "request_token_failed",
+        data: {
           operationId,
           error: (error as Error)?.message,
           platform: Platform.OS,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
 
       // Manejar errores específicos
       if (error instanceof Error) {
@@ -225,9 +259,13 @@ class ExpoTokenManager {
         !token.data.startsWith("ExponentPushToken[") &&
         !token.data.startsWith("ExponentPushToken")
       ) {
-        log.warn("ExpoTokenManager", "Token format may be invalid", {
-          tokenPrefix: token.data.substring(0, 30) + "...",
-          startsWithExponent: token.data.startsWith("Exponent"),
+        log.warn("Token format may be invalid", {
+          component: "ExpoTokenManager",
+          action: "invalid_token_format",
+          data: {
+            tokenPrefix: token.data.substring(0, 30) + "...",
+            startsWithExponent: token.data.startsWith("Exponent"),
+          }
         });
         // No fallar por formato, podría ser token nativo
       }
@@ -241,9 +279,13 @@ class ExpoTokenManager {
         const maxAge = 30 * 24 * 60 * 60 * 1000; // 30 días
 
         if (tokenAge > maxAge) {
-          log.info("ExpoTokenManager", "Token is too old, should refresh", {
-            tokenAge: Math.round(tokenAge / (24 * 60 * 60 * 1000)),
-            maxAgeDays: 30,
+          log.info("Token is too old, should refresh", {
+            component: "ExpoTokenManager",
+            action: "token_too_old",
+            data: {
+              tokenAge: Math.round(tokenAge / (24 * 60 * 60 * 1000)),
+              maxAgeDays: 30,
+            }
           });
           return false;
         }
@@ -251,8 +293,12 @@ class ExpoTokenManager {
 
       return true;
     } catch (error) {
-      log.error("ExpoTokenManager", "Error validating token", {
-        error: (error as Error)?.message,
+      log.error("Error validating token", {
+        component: "ExpoTokenManager",
+        action: "validation_error",
+        data: {
+          error: (error as Error)?.message,
+        }
       });
       return false;
     }
@@ -284,19 +330,22 @@ class ExpoTokenManager {
         ),
       ]);
 
-      log.debug("ExpoTokenManager", "Token saved to secure storage", {
-        deviceType: tokenData.deviceType,
-        hasProjectId: !!tokenData.projectId,
+      log.debug("Token saved to secure storage", {
+        component: "ExpoTokenManager",
+        action: "token_saved",
+        data: {
+          deviceType: tokenData.deviceType,
+          hasProjectId: !!tokenData.projectId,
+        }
       });
     } catch (error) {
-      log.error(
-        "ExpoTokenManager",
-        "Failed to save token to storage",
-        {
+      log.error("Failed to save token to storage", {
+        component: "ExpoTokenManager",
+        action: "save_token_failed",
+        data: {
           error: (error as Error)?.message,
-        },
-        error instanceof Error ? error : undefined,
-      );
+        }
+      });
       throw error;
     }
   }
@@ -315,14 +364,21 @@ class ExpoTokenManager {
 
       // Validar estructura básica
       if (!token.type || !token.data) {
-        log.warn("ExpoTokenManager", "Invalid token structure in storage");
+        log.warn("Invalid token structure in storage", {
+          component: "ExpoTokenManager",
+          action: "invalid_token_structure"
+        });
         return null;
       }
 
       return token;
     } catch (error) {
-      log.error("ExpoTokenManager", "Failed to load token from storage", {
-        error: (error as Error)?.message,
+      log.error("Failed to load token from storage", {
+        component: "ExpoTokenManager",
+        action: "load_token_failed",
+        data: {
+          error: (error as Error)?.message,
+        }
       });
       return null;
     }
@@ -341,8 +397,12 @@ class ExpoTokenManager {
       const tokenData: ExpoTokenData = JSON.parse(tokenString);
       return tokenData;
     } catch (error) {
-      log.error("ExpoTokenManager", "Failed to load token data", {
-        error: (error as Error)?.message,
+      log.error("Failed to load token data", {
+        component: "ExpoTokenManager",
+        action: "load_data_failed",
+        data: {
+          error: (error as Error)?.message,
+        }
       });
       return null;
     }
@@ -353,7 +413,10 @@ class ExpoTokenManager {
    */
   async clearTokens(): Promise<void> {
     try {
-      log.info("ExpoTokenManager", "Clearing stored tokens");
+      log.info("Clearing stored tokens", {
+        component: "ExpoTokenManager",
+        action: "clear_tokens"
+      });
 
       await Promise.all([
         SecureStore.deleteItemAsync(this.TOKEN_KEY),
@@ -364,10 +427,17 @@ class ExpoTokenManager {
       this.currentToken = null;
       this.retryCount = 0;
 
-      log.info("ExpoTokenManager", "Tokens cleared successfully");
+      log.info("Tokens cleared successfully", {
+        component: "ExpoTokenManager",
+        action: "tokens_cleared"
+      });
     } catch (error) {
-      log.error("ExpoTokenManager", "Failed to clear tokens", {
-        error: (error as Error)?.message,
+      log.error("Failed to clear tokens", {
+        component: "ExpoTokenManager",
+        action: "clear_tokens_failed",
+        data: {
+          error: (error as Error)?.message,
+        }
       });
       throw error;
     }
@@ -378,18 +448,28 @@ class ExpoTokenManager {
    */
   async refreshToken(): Promise<ExpoPushToken | null> {
     if (this.isRefreshing) {
-      log.warn("ExpoTokenManager", "Token refresh already in progress");
+      log.warn("Token refresh already in progress", {
+        component: "ExpoTokenManager",
+        action: "refresh_already_in_progress"
+      });
       return this.currentToken;
     }
 
     try {
       this.isRefreshing = true;
-      log.info("ExpoTokenManager", "Starting token refresh");
+      log.info("Starting token refresh", {
+        component: "ExpoTokenManager",
+        action: "start_token_refresh"
+      });
 
       const newToken = await this.getPushToken(true);
 
-      log.info("ExpoTokenManager", "Token refresh completed", {
-        success: !!newToken,
+      log.info("Token refresh completed", {
+        component: "ExpoTokenManager",
+        action: "refresh_completed",
+        data: {
+          success: !!newToken,
+        }
       });
 
       return newToken;
@@ -411,15 +491,23 @@ class ExpoTokenManager {
         deviceId = `expo_device_${Date.now()}_${Math.random().toString(36).substring(2, 15)}`;
         await SecureStore.setItemAsync("expo_device_id", deviceId);
 
-        log.info("ExpoTokenManager", "New device ID generated", {
-          deviceId: deviceId.substring(0, 20) + "...",
+        log.info("New device ID generated", {
+          component: "ExpoTokenManager",
+          action: "device_id_generated",
+          data: {
+            deviceId: deviceId.substring(0, 20) + "...",
+          }
         });
       }
 
       return deviceId;
     } catch (error) {
-      log.error("ExpoTokenManager", "Failed to get device ID", {
-        error: (error as Error)?.message,
+      log.error("Failed to get device ID", {
+        component: "ExpoTokenManager",
+        action: "get_device_id_failed",
+        data: {
+          error: (error as Error)?.message,
+        }
       });
 
       // Fallback: generar ID temporal

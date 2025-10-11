@@ -1,10 +1,10 @@
-import React, { useRef, useCallback, useMemo, useEffect } from 'react';
+import React, { useRef, useCallback, useMemo, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { View, StyleSheet, LayoutChangeEvent } from 'react-native';
 import PagerView, { PagerViewOnPageSelectedEvent } from 'react-native-pager-view';
 import { MapFlowStep } from '@/store';
 import { useMapFlowStore } from '@/store/mapFlow/mapFlow';
 import MapFlowPage from './MapFlowPage';
-  import { useMapFlowPager } from './hooks/useMapFlowPager';
+import { useMapFlowPager } from './hooks/useMapFlowPager';
 
 interface MapFlowPagerViewProps {
   steps: MapFlowStep[];
@@ -16,7 +16,10 @@ interface MapFlowPagerViewProps {
   animationType?: 'slide' | 'fade';
 }
 
-const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
+// 🔧 Memoizar MapFlowPage para optimización
+const MemoizedMapFlowPage = React.memo(MapFlowPage);
+
+const MapFlowPagerView = forwardRef<PagerView, MapFlowPagerViewProps>(({
   steps,
   currentStep,
   onStepChange,
@@ -24,9 +27,12 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
   enableSwipe = true,
   showPageIndicator = true,
   animationType = 'slide'
-}) => {
-  const pagerRef = useRef<PagerView>(null);
+}, ref) => {
+  const localPagerRef = useRef<PagerView>(null);
   const { flow } = useMapFlowStore();
+  
+  // Combinar refs
+  useImperativeHandle(ref, () => localPagerRef.current!);
   
   const {
     currentPageIndex,
@@ -36,14 +42,12 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
     canNavigate
   } = useMapFlowPager(steps, currentStep);
 
-  // Encontrar el índice del paso actual
+  // 🔧 Optimizar logging - solo en desarrollo
   const currentStepIndex = useMemo(() => {
     const index = steps.findIndex(step => step === currentStep);
-    console.log('[PagerDiagnostics][MapFlowPagerView] Current step index computed:', {
-      currentStep,
-      index,
-      steps
-    });
+    if (__DEV__) {
+      console.log('[PagerView] Current step index:', { currentStep, index });
+    }
     return index;
   }, [steps, currentStep]);
 
@@ -52,7 +56,9 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
     const pageIndex = event.nativeEvent.position;
     const step = steps[pageIndex];
     
-    console.log('[PagerDiagnostics][MapFlowPagerView] Page selected:', { pageIndex, step });
+    if (__DEV__) {
+      console.log('[PagerView] Page selected:', { pageIndex, step });
+    }
     
     if (step && step !== currentStep) {
       onStepChange(step);
@@ -64,7 +70,9 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
   // Navegar a un paso específico
   const handleStepNavigation = useCallback((step: MapFlowStep) => {
     const stepIndex = steps.findIndex(s => s === step);
-    console.log('[PagerDiagnostics][MapFlowPagerView] handleStepNavigation:', { step, stepIndex, currentStepIndex });
+    if (__DEV__) {
+      console.log('[PagerView] Step navigation:', { step, stepIndex, currentStepIndex });
+    }
     if (stepIndex !== -1 && stepIndex !== currentStepIndex) {
       goToPage(stepIndex);
     }
@@ -73,42 +81,55 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
   // Sincronizar con cambios externos del paso
   useEffect(() => {
     if (currentStepIndex !== -1 && currentStepIndex !== currentPageIndex) {
-      console.log('[PagerDiagnostics][MapFlowPagerView] Syncing to external step:', {
-        currentStepIndex,
-        currentPageIndex,
-        steps
-      });
+      if (__DEV__) {
+        console.log('[PagerView] Syncing to external step:', {
+          currentStepIndex,
+          currentPageIndex,
+          steps
+        });
+      }
       goToPage(currentStepIndex);
     }
   }, [currentStepIndex, currentPageIndex, goToPage, steps]);
 
-  // Renderizar páginas
+  // 🔧 Optimizar renderPages con lazy loading
   const renderPages = useMemo(() => {
-    console.log('[PagerDiagnostics][MapFlowPagerView] Rendering pages:', {
-      steps,
-      currentPageIndex,
-      totalSteps: steps.length
-    });
+    if (__DEV__) {
+      console.log('[PagerView] Rendering pages:', {
+        steps,
+        currentPageIndex,
+        totalSteps: steps.length
+      });
+    }
     
     return steps.map((step, index) => {
-      console.log('[PagerDiagnostics][MapFlowPagerView] Creating page:', {
-        step,
-        index,
-        isActive: index === currentPageIndex,
-        isVisible: Math.abs(index - currentPageIndex) <= 1
-      });
+      // Solo renderizar página actual y adyacentes
+      const shouldRender = Math.abs(index - currentPageIndex) <= 1;
+      
+      if (!shouldRender) {
+        return <View key={step} style={{ flex: 1 }} />;
+      }
+      
+      if (__DEV__) {
+        console.log('[PagerView] Creating page:', {
+          step,
+          index,
+          isActive: index === currentPageIndex,
+          isVisible: shouldRender
+        });
+      }
       
       return (
-        <MapFlowPage
+        <MemoizedMapFlowPage
           key={step}
           step={step}
           isActive={index === currentPageIndex}
-          isVisible={Math.abs(index - currentPageIndex) <= 1} // Solo renderizar páginas adyacentes
+          isVisible={true}
           onContentReady={() => {
-            console.log('[PagerDiagnostics][MapFlowPagerView] Page content ready:', step);
+            if (__DEV__) console.log('[PagerView] Content ready:', step);
           }}
           onAction={(action, data) => {
-            console.log('[PagerDiagnostics][MapFlowPagerView] Page action:', { step, action, data });
+            if (__DEV__) console.log('[PagerView] Action:', { step, action });
             // Manejar acciones específicas del paso
           }}
         />
@@ -118,28 +139,31 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
 
   const handlePagerLayout = useCallback((event: LayoutChangeEvent) => {
     const { width, height } = event.nativeEvent.layout;
-    console.log('[PagerDiagnostics][MapFlowPagerView] Pager layout:', {
-      width,
-      height,
-      steps: steps.length,
-      currentPageIndex,
-      currentStepIndex
-    });
+    if (__DEV__) {
+      console.log('[PagerView] Pager layout:', {
+        width,
+        height,
+        steps: steps.length,
+        currentPageIndex,
+        currentStepIndex
+      });
+    }
   }, [steps.length, currentPageIndex, currentStepIndex]);
 
   return (
     <View style={styles.container} onLayout={handlePagerLayout}>
       <PagerView
-        ref={pagerRef}
+        ref={localPagerRef}
         style={styles.pagerView}
         initialPage={currentStepIndex}
         scrollEnabled={enableSwipe}
         onPageSelected={handlePageSelected}
-        // Optimización de performance
-        offscreenPageLimit={1}
-        // Configuración de gestos
+        // 🔧 Optimización de performance
+        offscreenPageLimit={1} // Solo mantener 1 página a cada lado en memoria
         keyboardDismissMode="on-drag"
         layoutDirection="ltr"
+        overdrag={false} // Deshabilitar overdrag para mejor performance
+        pageMargin={0} // Sin margen entre páginas
       >
         {renderPages}
       </PagerView>
@@ -147,7 +171,7 @@ const MapFlowPagerView: React.FC<MapFlowPagerViewProps> = ({
       {/* Page indicator removed - component not available */}
     </View>
   );
-};
+});
 
 const styles = StyleSheet.create({
   container: {

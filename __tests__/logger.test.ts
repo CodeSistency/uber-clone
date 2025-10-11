@@ -1,272 +1,333 @@
-import { logger, LogLevel } from "../lib/logger";
+/**
+ * Tests para el sistema de logging condicional
+ */
 
-// Mock AsyncStorage
-jest.mock("@react-native-async-storage/async-storage", () => ({
-  setItem: jest.fn(),
-  getItem: jest.fn(),
-  removeItem: jest.fn(),
-}));
+import { log, logger, isDev } from '@/lib/logger';
 
-describe("Logger", () => {
+// Mock de console methods
+const mockConsoleLog = jest.spyOn(console, 'log').mockImplementation(() => {});
+const mockConsoleInfo = jest.spyOn(console, 'info').mockImplementation(() => {});
+const mockConsoleWarn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+const mockConsoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+// Mock de __DEV__
+const originalDev = (global as any).__DEV__;
+
+describe('Logger System', () => {
   beforeEach(() => {
-    // Reset logger state before each test
-    logger.setLogLevel(LogLevel.DEBUG);
-    logger.clearLogs();
+    jest.clearAllMocks();
+    (global as any).__DEV__ = true; // Enable logging for tests
   });
 
-  describe("Basic Logging", () => {
-    it("should log debug messages", () => {
-      logger.debug("TestCategory", "Debug message", { key: "value" });
-
-      const logs = logger.getLogs(LogLevel.DEBUG);
-      expect(logs.length).toBeGreaterThan(0);
-      expect(logs[0].level).toBe(LogLevel.DEBUG);
-      expect(logs[0].category).toBe("TestCategory");
-      expect(logs[0].message).toBe("Debug message");
-      expect(logs[0].data).toEqual({ key: "value" });
-    });
-
-    it("should log info messages", () => {
-      logger.info("TestCategory", "Info message");
-
-      const logs = logger.getLogs(LogLevel.INFO);
-      expect(logs.length).toBeGreaterThan(0);
-      expect(logs[0].level).toBe(LogLevel.INFO);
-    });
-
-    it("should log warn messages", () => {
-      logger.warn("TestCategory", "Warning message");
-
-      const logs = logger.getLogs(LogLevel.WARN);
-      expect(logs.length).toBeGreaterThan(0);
-      expect(logs[0].level).toBe(LogLevel.WARN);
-    });
-
-    it("should log error messages with stack trace", () => {
-      const testError = new Error("Test error");
-      logger.error("TestCategory", "Error message", { code: 500 }, testError);
-
-      const logs = logger.getLogs(LogLevel.ERROR);
-      expect(logs.length).toBeGreaterThan(0);
-      expect(logs[0].level).toBe(LogLevel.ERROR);
-      expect(logs[0].stackTrace).toBe(testError.stack);
-    });
-
-    it("should log critical messages", () => {
-      const testError = new Error("Critical error");
-      logger.critical("TestCategory", "Critical message", undefined, testError);
-
-      const logs = logger.getLogs(LogLevel.CRITICAL);
-      expect(logs.length).toBeGreaterThan(0);
-      expect(logs[0].level).toBe(LogLevel.CRITICAL);
-    });
+  afterEach(() => {
+    (global as any).__DEV__ = originalDev;
   });
 
-  describe("Log Filtering", () => {
-    let testLogs: any[];
-
+  describe('Development Environment (__DEV__ = true)', () => {
     beforeEach(() => {
-      // Clear logs and capture only the test logs we add
-      logger.clearLogs();
-      logger.info("CategoryA", "Message A1");
-      logger.info("CategoryA", "Message A2");
-      logger.warn("CategoryB", "Message B1");
-      logger.error("CategoryA", "Message A3");
-      testLogs = logger.getLogs();
+      (global as any).__DEV__ = true;
     });
 
-    it("should filter by log level", () => {
-      const warnLogs = logger.getLogs(LogLevel.WARN);
-      const testWarnLogs = warnLogs.filter((log) =>
-        log.message.includes("Message"),
-      );
-      expect(testWarnLogs.length).toBe(1);
-      expect(testWarnLogs[0].message).toBe("Message B1");
-
-      const errorLogs = logger.getLogs(LogLevel.ERROR);
-      const testErrorLogs = errorLogs.filter((log) =>
-        log.message.includes("Message"),
-      );
-      expect(testErrorLogs.length).toBe(1);
-      expect(testErrorLogs[0].message).toBe("Message A3");
-    });
-
-    it("should filter by category", () => {
-      const categoryALogs = logger.getLogs(undefined, "CategoryA");
-      const testCategoryALogs = categoryALogs.filter((log) =>
-        log.message.includes("Message"),
-      );
-      expect(testCategoryALogs.length).toBe(3);
-
-      const categoryBLogs = logger.getLogs(undefined, "CategoryB");
-      const testCategoryBLogs = categoryBLogs.filter((log) =>
-        log.message.includes("Message"),
-      );
-      expect(testCategoryBLogs.length).toBe(1);
-    });
-
-    it("should filter by both level and category", () => {
-      const filteredLogs = logger.getLogs(LogLevel.INFO, "CategoryA");
-      const testFilteredLogs = filteredLogs.filter((log) =>
-        log.message.includes("Message"),
-      );
-      expect(testFilteredLogs.length).toBe(2);
-      expect(
-        testFilteredLogs.every((log) => log.category === "CategoryA"),
-      ).toBe(true);
-      expect(testFilteredLogs.every((log) => log.level === LogLevel.INFO)).toBe(
-        true,
+    it('should log debug messages', () => {
+      log.debug('Debug message', { component: 'TestComponent' });
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Debug message')
       );
     });
 
-    it("should limit results", () => {
-      const limitedLogs = logger.getLogs(undefined, undefined, 2);
-      expect(limitedLogs.length).toBe(2);
+    it('should log info messages', () => {
+      log.info('Info message', { component: 'TestComponent' });
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        expect.stringContaining('INFO'),
+        expect.stringContaining('Info message')
+      );
+    });
+
+    it('should log warn messages', () => {
+      log.warn('Warning message', { component: 'TestComponent' });
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        expect.stringContaining('WARN'),
+        expect.stringContaining('Warning message')
+      );
+    });
+
+    it('should log error messages', () => {
+      log.error('Error message', { component: 'TestComponent' });
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        expect.stringContaining('ERROR'),
+        expect.stringContaining('Error message')
+      );
+    });
+
+    it('should handle context data', () => {
+      const context = {
+        component: 'TestComponent',
+        action: 'testAction',
+        data: { key: 'value' }
+      };
+
+      log.debug('Test message', context);
+      
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Test message')
+      );
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        '  Data:',
+        { key: 'value' }
+      );
+    });
+
+    it('should handle all logger categories', () => {
+      // Test all categories exist and work
+      log.unifiedFlow.debug('test');
+      log.registry.info('test');
+      log.bottomSheet.warn('test');
+      log.bottomSheetClose.error('test');
+      log.bottomSheetReopen.debug('test');
+      log.pagerView.info('test');
+      log.stepChange.warn('test');
+      log.pageChange.error('test');
+
+      expect(mockConsoleLog).toHaveBeenCalledTimes(3); // debug calls
+      expect(mockConsoleInfo).toHaveBeenCalledTimes(2); // info calls
+      expect(mockConsoleWarn).toHaveBeenCalledTimes(2); // warn calls
+      expect(mockConsoleError).toHaveBeenCalledTimes(2); // error calls
     });
   });
 
-  describe("Performance Logging", () => {
-    it("should log performance metrics", () => {
-      const startTime = Date.now() - 1000; // 1 second ago
-      logger.performance("TestService", "testOperation", startTime, {
-        param: "value",
-      });
-
-      const logs = logger.getLogs();
-      const perfLog = logs.find((log) => log.message.includes("Performance"));
-      expect(perfLog).toBeDefined();
-      expect(perfLog?.data?.duration).toBeGreaterThanOrEqual(1000);
-      expect(perfLog?.data?.param).toBe("value");
+  describe('Production Environment (__DEV__ = false)', () => {
+    beforeEach(() => {
+      (global as any).__DEV__ = false;
     });
 
-    it("should warn for slow operations", () => {
-      const startTime = Date.now() - 6000; // 6 seconds ago
-      logger.performance("TestService", "slowOperation", startTime);
+    it('should not log any messages in production', () => {
+      log.debug('Debug message', { component: 'TestComponent' });
+      log.info('Info message', { component: 'TestComponent' });
+      log.warn('Warning message', { component: 'TestComponent' });
+      log.error('Error message', { component: 'TestComponent' });
 
-      const logs = logger.getLogs(LogLevel.WARN);
-      expect(logs.some((log) => log.message.includes("Performance"))).toBe(
-        true,
+      expect(mockConsoleLog).not.toHaveBeenCalled();
+      expect(mockConsoleInfo).not.toHaveBeenCalled();
+      expect(mockConsoleWarn).not.toHaveBeenCalled();
+      expect(mockConsoleError).not.toHaveBeenCalled();
+    });
+
+    it('should log when force is true', () => {
+      logger.debug('Force message', { component: 'TestComponent' }, true);
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Force message')
       );
     });
   });
 
-  describe("Network Logging", () => {
-    it("should log successful network requests", () => {
-      logger.network("APIService", "GET", "/api/users", 200, 150);
-
-      const logs = logger.getLogs(LogLevel.DEBUG);
-      const networkLog = logs.find((log) => log.message.includes("Network"));
-      expect(networkLog).toBeDefined();
-      expect(networkLog?.data?.statusCode).toBe(200);
-      expect(networkLog?.data?.duration).toBe(150);
+  describe('Logger Categories', () => {
+    beforeEach(() => {
+      (global as any).__DEV__ = true;
     });
 
-    it("should log failed network requests as errors", () => {
-      logger.network(
-        "APIService",
-        "POST",
-        "/api/users",
-        500,
-        200,
-        new Error("Server error"),
+    it('should have correct prefixes for each category', () => {
+      log.unifiedFlow.debug('test');
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('[UnifiedFlowWrapper]'),
+        expect.stringContaining('test')
       );
 
-      const logs = logger.getLogs(LogLevel.ERROR);
-      const networkLog = logs.find((log) => log.message.includes("Network"));
-      expect(networkLog).toBeDefined();
-      expect(networkLog?.data?.statusCode).toBe(500);
+      log.registry.info('test');
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        expect.stringContaining('[StepRegistry]'),
+        expect.stringContaining('test')
+      );
+
+      log.bottomSheet.warn('test');
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        expect.stringContaining('[GorhomMapFlowBottomSheet]'),
+        expect.stringContaining('test')
+      );
+
+      log.bottomSheetClose.error('test');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        expect.stringContaining('[bottomSheetClose]'),
+        expect.stringContaining('test')
+      );
+
+      log.bottomSheetReopen.debug('test');
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('[bottomSheetReopen]'),
+        expect.stringContaining('test')
+      );
+
+      log.pagerView.info('test');
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        expect.stringContaining('[MapFlowPagerView]'),
+        expect.stringContaining('test')
+      );
+
+      log.stepChange.warn('test');
+      expect(mockConsoleWarn).toHaveBeenCalledWith(
+        expect.stringContaining('[stepChange]'),
+        expect.stringContaining('test')
+      );
+
+      log.pageChange.error('test');
+      expect(mockConsoleError).toHaveBeenCalledWith(
+        expect.stringContaining('[pageChange]'),
+        expect.stringContaining('test')
+      );
     });
   });
 
-  describe("WebSocket Logging", () => {
-    it("should log WebSocket events", () => {
-      logger.websocket("WebSocketService", "connected", { userId: "123" });
-
-      const logs = logger.getLogs(LogLevel.DEBUG);
-      const wsLog = logs.find((log) => log.message.includes("WebSocket"));
-      expect(wsLog).toBeDefined();
-      expect(wsLog?.data?.userId).toBe("123");
+  describe('Utility Methods', () => {
+    beforeEach(() => {
+      (global as any).__DEV__ = true;
     });
 
-    it("should log WebSocket errors", () => {
-      const wsError = new Error("Connection failed");
-      logger.websocket(
-        "WebSocketService",
-        "connection_error",
-        { attempt: 1 },
-        wsError,
+    it('should log performance metrics', () => {
+      log.performance('testOperation', 100, { component: 'TestComponent' });
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Performance: testOperation took 100.00ms')
       );
+    });
 
-      const logs = logger.getLogs(LogLevel.ERROR);
-      const wsLog = logs.find((log) => log.message.includes("WebSocket"));
-      expect(wsLog).toBeDefined();
-      expect(wsLog?.stackTrace).toBe(wsError.stack);
+    it('should log state changes', () => {
+      const oldState = { count: 0 };
+      const newState = { count: 1 };
+      
+      log.state('TestComponent', 'count', oldState, newState);
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('State change: count')
+      );
+    });
+
+    it('should log component renders', () => {
+      const props = { title: 'Test' };
+      
+      log.render('TestComponent', props);
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Component rendered')
+      );
     });
   });
 
-  describe("User Action Logging", () => {
-    it("should log user actions", () => {
-      logger.userAction("UI", "button_pressed", {
-        buttonId: "submit",
-        screen: "login",
-      });
+  describe('Edge Cases', () => {
+    beforeEach(() => {
+      (global as any).__DEV__ = true;
+    });
 
-      const logs = logger.getLogs(LogLevel.INFO);
-      const actionLog = logs.find((log) => log.message.includes("User Action"));
-      expect(actionLog).toBeDefined();
-      expect(actionLog?.data?.buttonId).toBe("submit");
+    it('should handle undefined context', () => {
+      log.debug('test');
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('[App]'),
+        expect.stringContaining('test')
+      );
+    });
+
+    it('should handle empty string messages', () => {
+      log.info('');
+      expect(mockConsoleInfo).toHaveBeenCalledWith(
+        expect.stringContaining('[App]'),
+        expect.stringContaining('')
+      );
+    });
+
+    it('should handle complex objects in context data', () => {
+      const complexObject = {
+        nested: {
+          array: [1, 2, 3],
+          function: () => {},
+          date: new Date(),
+        },
+      };
+
+      log.debug('Complex object', { component: 'TestComponent', data: complexObject });
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('Complex object')
+      );
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        '  Data:',
+        complexObject
+      );
+    });
+
+    it('should handle circular references gracefully', () => {
+      const circularObject: any = { name: 'test' };
+      circularObject.self = circularObject;
+
+      // This should not throw an error
+      expect(() => {
+        log.debug('Circular object', { component: 'TestComponent', data: circularObject });
+      }).not.toThrow();
     });
   });
 
-  describe("Log Management", () => {
-    it("should clear logs", () => {
-      logger.info("Test", "Test message");
-      expect(logger.getLogs().length).toBeGreaterThan(0);
-
-      logger.clearLogs();
-      const logsAfterClear = logger.getLogs();
-      // May have internal logs from the clear operation itself
-      const userLogsAfterClear = logsAfterClear.filter((log) =>
-        log.message.includes("Test message"),
-      );
-      expect(userLogsAfterClear.length).toBe(0);
+  describe('Performance', () => {
+    beforeEach(() => {
+      (global as any).__DEV__ = true;
     });
 
-    it("should get log statistics", () => {
-      logger.clearLogs();
-      logger.info("CategoryA", "Message 1");
-      logger.warn("CategoryB", "Message 2");
-      logger.error("CategoryA", "Message 3");
-
-      const stats = logger.getStats();
-      // Should have at least the 3 messages we added
-      expect(stats.total).toBeGreaterThanOrEqual(3);
-      expect(stats.byLevel["INFO"]).toBeGreaterThanOrEqual(1);
-      expect(stats.byLevel["WARN"]).toBeGreaterThanOrEqual(1);
-      expect(stats.byLevel["ERROR"]).toBeGreaterThanOrEqual(1);
-      expect(stats.byCategory["CategoryA"]).toBeGreaterThanOrEqual(2);
-      expect(stats.byCategory["CategoryB"]).toBeGreaterThanOrEqual(1);
+    it('should not create unnecessary objects when logging is disabled', () => {
+      (global as any).__DEV__ = false;
+      
+      const startTime = performance.now();
+      
+      // Call many log functions
+      for (let i = 0; i < 1000; i++) {
+        log.debug(`Message ${i}`, { component: 'TestComponent' });
+        log.info(`Info ${i}`, { component: 'TestComponent' });
+        log.warn(`Warning ${i}`, { component: 'TestComponent' });
+        log.error(`Error ${i}`, { component: 'TestComponent' });
+      }
+      
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+      
+      // Should be very fast since no actual logging occurs
+      expect(duration).toBeLessThan(100); // Less than 100ms for 4000 calls
     });
   });
 
-  describe("Log Level Filtering", () => {
-    it("should respect log level settings", () => {
-      logger.setLogLevel(LogLevel.ERROR);
+  describe('Logger Instance', () => {
+    beforeEach(() => {
+      (global as any).__DEV__ = true;
+    });
 
-      logger.debug("Test", "Debug message"); // Should be filtered out
-      logger.info("Test", "Info message"); // Should be filtered out
-      logger.warn("Test", "Warn message"); // Should be filtered out
-      logger.error("Test", "Error message"); // Should be logged
+    it('should have all required methods', () => {
+      expect(typeof logger.debug).toBe('function');
+      expect(typeof logger.info).toBe('function');
+      expect(typeof logger.warn).toBe('function');
+      expect(typeof logger.error).toBe('function');
+      expect(typeof logger.performance).toBe('function');
+      expect(typeof logger.state).toBe('function');
+      expect(typeof logger.render).toBe('function');
+    });
 
-      const logs = logger.getLogs();
-      const errorLogs = logs.filter((log) =>
-        log.message.includes("Error message"),
+    it('should format messages correctly', () => {
+      const context = { component: 'TestComponent', action: 'testAction' };
+      
+      log.debug('Test message', context);
+      
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringMatching(/^\d{2}:\d{2}:\d{2} \[TestComponent:testAction\] Test message$/)
       );
-      expect(errorLogs.length).toBe(1);
-      expect(errorLogs[0].level).toBe(LogLevel.ERROR);
+    });
 
-      // Reset log level for other tests
-      logger.setLogLevel(LogLevel.DEBUG);
+    it('should handle timestamp formatting', () => {
+      const originalDate = Date;
+      const mockDate = jest.fn(() => new Date('2023-01-01T12:30:45.123Z'));
+      global.Date = mockDate as any;
+
+      log.debug('Test message');
+      
+      expect(mockConsoleLog).toHaveBeenCalledWith(
+        expect.stringContaining('12:30:45')
+      );
+
+      global.Date = originalDate;
+    });
+  });
+
+  describe('isDev Export', () => {
+    it('should export isDev correctly', () => {
+      expect(typeof isDev).toBe('boolean');
     });
   });
 });

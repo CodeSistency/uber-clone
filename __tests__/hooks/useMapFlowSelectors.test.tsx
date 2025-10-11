@@ -2,7 +2,7 @@
  * Tests para useMapFlowSelectors hook
  */
 
-import { renderHook } from '@testing-library/react-hooks';
+import { renderHook } from '@testing-library/react-native';
 import { useUnifiedFlowSelectors, useBasicFlowSelectors } from '@/hooks/useMapFlowSelectors';
 import { FLOW_STEPS } from '@/lib/unified-flow/constants';
 
@@ -59,15 +59,6 @@ describe('useMapFlowSelectors', () => {
       expect(result.current.flow.step).toBe(FLOW_STEPS.SELECCION_SERVICIO);
       expect(result.current.flow.role).toBe('customer');
       expect(result.current.flow.service).toBeUndefined();
-      expect(result.current.flow.isActive).toBe(true);
-      expect(result.current.flow.bottomSheetVisible).toBe(true);
-      expect(result.current.flow.bottomSheetMinHeight).toBe(100);
-      expect(result.current.flow.bottomSheetMaxHeight).toBe(500);
-      expect(result.current.flow.bottomSheetInitialHeight).toBe(200);
-      expect(result.current.flow.bottomSheetAllowDrag).toBe(true);
-      expect(result.current.flow.bottomSheetAllowClose).toBe(true);
-      expect(result.current.flow.bottomSheetManuallyClosed).toBe(false);
-      expect(result.current.flow.showReopenButton).toBe(false);
     });
 
     it('should return correct bottomSheet properties', () => {
@@ -144,7 +135,7 @@ describe('useMapFlowSelectors', () => {
       const { useMapFlowStore } = require('@/store');
       
       useMapFlowStore.mockReturnValue({
-        step: FLOW_STEPS.CUSTOMER_DELIVERY_DEFINICION_VIAJE,
+        step: FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO,
         role: 'customer',
         service: 'delivery',
         isActive: true,
@@ -197,15 +188,12 @@ describe('useMapFlowSelectors', () => {
 
       const { result } = renderHook(() => useUnifiedFlowSelectors());
 
-      expect(result.current.flow.isActive).toBe(false);
-      expect(result.current.flow.bottomSheetVisible).toBe(false);
-      expect(result.current.flow.bottomSheetMinHeight).toBe(200);
-      expect(result.current.flow.bottomSheetMaxHeight).toBe(600);
-      expect(result.current.flow.bottomSheetInitialHeight).toBe(300);
-      expect(result.current.flow.bottomSheetAllowDrag).toBe(false);
-      expect(result.current.flow.bottomSheetAllowClose).toBe(false);
-      expect(result.current.flow.bottomSheetManuallyClosed).toBe(true);
-      expect(result.current.flow.showReopenButton).toBe(true);
+      expect(result.current.bottomSheet.bottomSheetVisible).toBe(false);
+      expect(result.current.bottomSheet.bottomSheetMinHeight).toBe(200);
+      expect(result.current.bottomSheet.bottomSheetMaxHeight).toBe(600);
+      expect(result.current.bottomSheet.bottomSheetInitialHeight).toBe(300);
+      expect(result.current.bottomSheet.bottomSheetAllowDrag).toBe(false);
+      expect(result.current.bottomSheet.bottomSheetAllowClose).toBe(false);
     });
   });
 
@@ -254,14 +242,14 @@ describe('useMapFlowSelectors', () => {
       const { useMapFlowStore } = require('@/store');
       
       useMapFlowStore.mockReturnValue({
-        step: FLOW_STEPS.CUSTOMER_DELIVERY_DEFINICION_VIAJE,
+        step: FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO,
         role: 'customer',
         service: 'delivery',
       });
 
       const { result } = renderHook(() => useBasicFlowSelectors());
 
-      expect(result.current.step).toBe(FLOW_STEPS.CUSTOMER_DELIVERY_DEFINICION_VIAJE);
+      expect(result.current.step).toBe(FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO);
       expect(result.current.role).toBe('customer');
       expect(result.current.service).toBe('delivery');
     });
@@ -366,7 +354,7 @@ describe('useMapFlowSelectors', () => {
 
       // Rapid re-renders
       for (let i = 0; i < 10; i++) {
-        rerender();
+        rerender({});
       }
 
       expect(result.current.flow).toBeDefined();

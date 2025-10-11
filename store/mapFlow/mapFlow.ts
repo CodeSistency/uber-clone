@@ -160,7 +160,11 @@ export const useMapFlowStore = create<MapFlowState>(
       
       set({ 
         step,
-        flow: newFlow,
+        flow: {
+          ...newFlow,
+          bottomSheetManuallyClosed: false,
+          showReopenButton: false,
+        },
         bottomSheetVisible: newFlow.bottomSheetVisible,
         bottomSheetMinHeight: newFlow.bottomSheetMinHeight,
         bottomSheetMaxHeight: newFlow.bottomSheetMaxHeight,

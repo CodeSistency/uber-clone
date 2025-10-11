@@ -2,7 +2,7 @@
  * Tests para useMapFlowPagerWithSteps hook
  */
 
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { useMapFlowPagerWithSteps } from '@/hooks/useMapFlowPagerWithSteps';
 import { FLOW_STEPS } from '@/lib/unified-flow/constants';
 
@@ -246,7 +246,7 @@ describe('useMapFlowPagerWithSteps', () => {
 
     // Test with delivery service
     useMapFlowStore.mockReturnValue({
-      step: FLOW_STEPS.CUSTOMER_DELIVERY_DEFINICION_VIAJE,
+      step: FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO,
       role: 'customer',
       service: 'delivery',
     });
@@ -254,7 +254,7 @@ describe('useMapFlowPagerWithSteps', () => {
     const { result: deliveryResult } = renderHook(() => useMapFlowPagerWithSteps());
 
     act(() => {
-      deliveryResult.current.goToPagerStep(FLOW_STEPS.CUSTOMER_DELIVERY_DEFINICION_VIAJE);
+      deliveryResult.current.goToPagerStep(FLOW_STEPS.CUSTOMER_DELIVERY_BUSQUEDA_NEGOCIO);
     });
 
     expect(deliveryResult.current.currentPageIndex).toBe(0);
@@ -289,7 +289,7 @@ describe('useMapFlowPagerWithSteps', () => {
 
     // Rapid re-renders
     for (let i = 0; i < 10; i++) {
-      rerender();
+      rerender({});
     }
 
     expect(result.current.currentPageIndex).toBe(0);

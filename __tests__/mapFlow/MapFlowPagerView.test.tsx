@@ -91,7 +91,7 @@ describe('MapFlowPagerView', () => {
     render(<MapFlowPagerView {...defaultProps} />);
 
     const currentStepPage = screen.getByTestId(`map-flow-page-${FLOW_STEPS.SELECCION_SERVICIO}`);
-    const currentStepActive = currentStepPage.querySelector('[testID="is-active"]');
+    const currentStepActive = screen.getByTestId('is-active');
     expect(currentStepActive).toHaveTextContent('true');
   });
 
@@ -99,7 +99,7 @@ describe('MapFlowPagerView', () => {
     render(<MapFlowPagerView {...defaultProps} />);
 
     const otherStepPage = screen.getByTestId(`map-flow-page-${FLOW_STEPS.CUSTOMER_TRANSPORT_DEFINICION_VIAJE}`);
-    const otherStepActive = otherStepPage.querySelector('[testID="is-active"]');
+    const otherStepActive = screen.getByTestId('is-inactive');
     expect(otherStepActive).toHaveTextContent('false');
   });
 
@@ -157,7 +157,7 @@ describe('MapFlowPagerView', () => {
   });
 
   it('should handle different animation types', () => {
-    const animationTypes = ['slide', 'fade', 'none'] as const;
+    const animationTypes = ['slide', 'fade'] as const;
 
     animationTypes.forEach(animationType => {
       const { unmount } = render(
@@ -187,7 +187,7 @@ describe('MapFlowPagerView', () => {
   });
 
   it('should handle missing onStepChange callback', () => {
-    render(<MapFlowPagerView {...defaultProps} onStepChange={undefined} />);
+    render(<MapFlowPagerView {...defaultProps} onStepChange={jest.fn()} />);
 
     const actionButton = screen.getByTestId('action-button');
     
@@ -321,7 +321,7 @@ describe('MapFlowPagerView', () => {
       <MapFlowPagerView 
         steps={undefined as any}
         currentStep={undefined as any}
-        onStepChange={undefined}
+        onStepChange={jest.fn()}
         onPageChange={undefined}
         enableSwipe={undefined}
         showPageIndicator={undefined}

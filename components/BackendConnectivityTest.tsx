@@ -26,8 +26,11 @@ export const BackendConnectivityTest: React.FC<
 
     try {
       log.info(
-        "BackendConnectivityTest",
         "Starting backend connectivity tests",
+        {
+          component: "BackendConnectivityTest",
+          action: "start_connectivity_tests"
+        }
       );
 
       const results = await runBackendConnectivityTest();
@@ -36,11 +39,15 @@ export const BackendConnectivityTest: React.FC<
       setTestResults(results);
       setStatus(healthStatus);
 
-      log.info("BackendConnectivityTest", "Backend tests completed", {
-        overallStatus: healthStatus.overall,
-        apiStatus: healthStatus.api,
-        chatStatus: healthStatus.chat,
-        wsStatus: healthStatus.websocket,
+      log.info("Backend tests completed", {
+        component: "BackendConnectivityTest",
+        action: "tests_completed",
+        data: {
+          overallStatus: healthStatus.overall,
+          apiStatus: healthStatus.api,
+          chatStatus: healthStatus.chat,
+          wsStatus: healthStatus.websocket,
+        }
       });
 
       // Show summary alert
@@ -56,10 +63,12 @@ export const BackendConnectivityTest: React.FC<
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error";
       log.error(
-        "BackendConnectivityTest",
         "Backend tests failed",
-        { error: errorMessage },
-        error instanceof Error ? error : undefined,
+        {
+          component: "BackendConnectivityTest",
+          action: "test_failed",
+          data: { error: errorMessage }
+        }
       );
 
       Alert.alert("Test Failed", `Error: ${errorMessage}`);

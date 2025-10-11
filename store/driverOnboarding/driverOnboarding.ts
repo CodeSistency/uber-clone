@@ -3,6 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { driverService } from "@/app/services/driverService";
 import { vehicleService } from "@/app/services/vehicleService";
 import { documentService } from "@/app/services/documentService";
+import { useDriverProfileStore } from "@/store/driverProfile/driverProfile";
 
 // Types
 export interface OnboardingStep {
@@ -236,12 +237,15 @@ const submitOnboardingToBackend = async (
 
     // Create vehicle
     const vehicleData = {
+      driverId: useDriverProfileStore.getState().profile?.id || '',
       make: data.vehicleMake!,
       model: data.vehicleModel!,
       year: data.vehicleYear!,
       color: data.vehicleColor!,
       seats: data.vehicleSeats!,
       licensePlate: "", // Will be set later
+      plateNumber: "", // Will be set later
+      vin: `VIN${Date.now()}`,
       insurancePolicyNumber: data.insuranceNumber!,
       insuranceProvider: "", // Will be extracted from policy
       insuranceExpiry: data.insuranceExpiry
@@ -280,6 +284,7 @@ const submitOnboardingToBackend = async (
 
     for (const doc of documentsToUpload) {
       await documentService.uploadDocument({
+        driverId: useDriverProfileStore.getState().profile?.id || '',
         type: doc.type as any,
         file: doc.files[0], // Take first file
         fileName: `${doc.type}_document`,
@@ -291,8 +296,8 @@ const submitOnboardingToBackend = async (
 
     // Mark onboarding as complete
     const onboardingResult = await driverService.updateProfile({
-      onboardingCompleted: true,
-      onboardingCompletedAt: new Date().toISOString(),
+      status: 'active',
+      onboardingCompletedAt: new Date(),
     });
 
     

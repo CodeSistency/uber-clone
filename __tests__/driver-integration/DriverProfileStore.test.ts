@@ -75,6 +75,7 @@ describe("DriverProfileStore", () => {
         averageRating: 4.8,
         status: "active" as const,
         isOnline: true,
+        isAvailable: true,
         currentLocation: {
           latitude: 40.7128,
           longitude: -74.006,
@@ -178,12 +179,20 @@ describe("DriverProfileStore", () => {
       const { result } = renderHook(() => useDriverProfileStore());
 
       const newVehicleData = {
+        driverId: "driver123",
         make: "Honda",
         model: "Civic",
         year: 2021,
-        licensePlate: "XYZ789",
         color: "Blue",
+        plateNumber: "XYZ789",
+        licensePlate: "XYZ789",
+        vin: "VIN123456789",
         seats: 4,
+        insuranceProvider: "State Farm",
+        insurancePolicyNumber: "POL123456",
+        insuranceExpiry: new Date("2024-12-31"),
+        registrationNumber: "REG123456",
+        registrationExpiry: new Date("2024-12-31"),
       };
 
       const mockCreatedVehicle = {
@@ -191,8 +200,13 @@ describe("DriverProfileStore", () => {
         id: "vehicle_new",
         driverId: "driver123",
         status: "pending" as const,
+        isVerified: false,
+        verificationStatus: "pending" as const,
         createdAt: new Date(),
         updatedAt: new Date(),
+        photos: [],
+        documents: [],
+        vehiclePhotos: [],
       };
 
       vehicleService.createVehicle.mockResolvedValue(mockCreatedVehicle);
@@ -218,12 +232,31 @@ describe("DriverProfileStore", () => {
         make: "Toyota",
         model: "Camry",
         year: 2020,
-        licensePlate: "ABC123",
         color: "White",
+        plateNumber: "ABC123",
+        licensePlate: "ABC123",
+        vin: "VIN123456789",
         seats: 4,
         status: "active" as const,
+        insuranceProvider: "State Farm",
+        insurancePolicyNumber: "POL123456",
+        insuranceExpiry: new Date("2024-12-31"),
+        registrationNumber: "REG123456",
+        registrationExpiry: new Date("2024-12-31"),
+        vehiclePhotos: [],
+        isVerified: true,
+        verificationStatus: {
+          vehicleId: "vehicle1",
+          overallStatus: "verified" as const,
+          requiredDocuments: [],
+          completedDocuments: [],
+          missingDocuments: [],
+          lastUpdated: new Date(),
+        },
         createdAt: new Date(),
         updatedAt: new Date(),
+        photos: [],
+        documents: [],
       };
 
       act(() => {
@@ -239,7 +272,10 @@ describe("DriverProfileStore", () => {
       vehicleService.updateVehicle.mockResolvedValue(updatedVehicle);
 
       await act(async () => {
-        await result.current.updateVehicle("vehicle1", { status: "inactive" });
+        await result.current.updateVehicle("vehicle1", { 
+          id: "vehicle1",
+          status: "inactive" as const
+        });
       });
 
       expect(result.current.vehicles[0].status).toBe("inactive");
@@ -256,7 +292,7 @@ describe("DriverProfileStore", () => {
         {
           id: "doc1",
           driverId: "driver123",
-          type: "driver_license" as const,
+          type: "license" as const,
           name: "Driver License",
           status: "approved" as const,
           uploadedAt: new Date(),

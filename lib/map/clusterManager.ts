@@ -20,7 +20,7 @@ class ClusterManager {
       radius: this.options.radius,
       maxZoom: this.options.maxZoom,
       minZoom: this.options.minZoom,
-      extent: this.options.extent,
+      extent: (this.options.extent as unknown as [number, number, number, number]) || [-180, -90, 180, 90],
       nodeSize: this.options.nodeSize,
     });
   }
@@ -58,7 +58,7 @@ class ClusterManager {
       Math.floor(zoom)
     );
 
-    return clusters.map(cluster => {
+    return clusters.map((cluster: any) => {
       if (cluster.properties.cluster) {
         return {
           id: `cluster-${cluster.id}`,
@@ -80,7 +80,7 @@ class ClusterManager {
    */
   private getClusterChildren(clusterId: number): DriverMarker[] {
     const leaves = this.supercluster.getLeaves(clusterId, Infinity);
-    return leaves.map(leaf => leaf.properties.marker);
+    return leaves.map((leaf: any) => leaf.properties.marker);
   }
 
   /**
@@ -88,7 +88,7 @@ class ClusterManager {
    */
   private getAllMarkers(): DriverMarker[] {
     const points = this.supercluster.getLeaves(0, Infinity);
-    return points.map(point => point.properties.marker);
+    return points.map((point: any) => point.properties.marker);
   }
 
   /**
@@ -109,7 +109,7 @@ class ClusterManager {
       radius: this.options.radius,
       maxZoom: this.options.maxZoom,
       minZoom: this.options.minZoom,
-      extent: this.options.extent,
+      extent: (this.options.extent as unknown as [number, number, number, number]) || [-180, -90, 180, 90],
       nodeSize: this.options.nodeSize,
     });
   }
@@ -129,7 +129,7 @@ class ClusterManager {
       radius: this.options.radius,
       maxZoom: this.options.maxZoom,
       minZoom: this.options.minZoom,
-      extent: this.options.extent,
+      extent: (this.options.extent as unknown as [number, number, number, number]) || [-180, -90, 180, 90],
       nodeSize: this.options.nodeSize,
     });
   }

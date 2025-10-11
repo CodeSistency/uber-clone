@@ -218,8 +218,17 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
     }
   }, [flow.step, bottomSheetClosed, showFloatingButton, flow]);
 
-  // 🆕 Usar estado local para controlar la visibilidad del BottomSheet
-  const sheetVisible = flow.bottomSheetVisible && (!bottomSheetClosed || !canClose);
+  // 🔧 Mejorar lógica de visibilidad del sheet
+  const sheetVisible = useMemo(() => {
+    // Si el flow dice que debe estar visible
+    if (!flow.bottomSheetVisible) return false;
+    
+    // Si fue cerrado manualmente Y se permite cerrar, entonces ocultarlo
+    if (bottomSheetClosed && canClose) return false;
+    
+    // En cualquier otro caso, mostrarlo
+    return true;
+  }, [flow.bottomSheetVisible, bottomSheetClosed, canClose]);
   
   // 🔍 LOG: Estado de visibilidad del BottomSheet
   log.unifiedFlow.debug('Visibility State', {
@@ -642,7 +651,7 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
         
         {/* 🆕 Botón flotante para reabrir el BottomSheet */}
         <FloatingReopenButton
-          visible={showFloatingButton && canClose}
+          visible={bottomSheetClosed && flow.bottomSheetVisible && canClose}
           onPress={handleReopenBottomSheet}
           position="bottom-right"
           size={56}

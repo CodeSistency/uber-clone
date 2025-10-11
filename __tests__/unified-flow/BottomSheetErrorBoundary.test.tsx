@@ -135,7 +135,7 @@ describe('BottomSheetErrorBoundary', () => {
     console.error = jest.fn();
 
     render(
-      <BottomSheetErrorBoundary onReset={onReset}>
+      <BottomSheetErrorBoundary>
         <ErrorComponent shouldThrow={true} />
       </BottomSheetErrorBoundary>
     );

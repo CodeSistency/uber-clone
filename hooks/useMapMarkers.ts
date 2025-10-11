@@ -14,7 +14,7 @@ export const useMapMarkers = (userLocation: Coordinates | null) => {
       return;
     }
 
-    const driversArray = Array.isArray(drivers) ? drivers : drivers?.data || [];
+    const driversArray = Array.isArray(drivers) ? drivers : [];
     const newMarkers = MarkerGenerator.generateDriverMarkers(
       driversArray,
       userLocation

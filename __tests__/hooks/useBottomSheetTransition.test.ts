@@ -2,7 +2,7 @@
  * Tests para useBottomSheetTransition hook
  */
 
-import { renderHook, act } from '@testing-library/react-hooks';
+import { renderHook, act } from '@testing-library/react-native';
 import { useBottomSheetTransition } from '@/hooks/useBottomSheetTransition';
 
 // Mock de react-native-reanimated
@@ -211,7 +211,7 @@ describe('useBottomSheetTransition', () => {
     const initialShowBottomSheet = result.current.showBottomSheet;
     const initialHideBottomSheet = result.current.hideBottomSheet;
 
-    rerender();
+    rerender({});
 
     expect(result.current.showBottomSheet).toBe(initialShowBottomSheet);
     expect(result.current.hideBottomSheet).toBe(initialHideBottomSheet);

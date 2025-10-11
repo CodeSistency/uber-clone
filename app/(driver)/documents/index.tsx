@@ -300,17 +300,17 @@ const DriverDocuments = () => {
                           Document ID:
                         </Text>
                         <Text className="font-JakartaMedium text-sm">
-                          {document.number || document.id}
+                          {document.id}
                         </Text>
                       </View>
 
-                      {document.expiryDate && (
+                      {document.expiresAt && (
                         <View className="flex-row justify-between mb-2">
                           <Text className="text-secondary-600 text-sm">
                             Expires:
                           </Text>
                           <Text className="font-JakartaMedium text-sm">
-                            {new Date(document.expiryDate).toLocaleDateString()}
+                            {new Date(document.expiresAt).toLocaleDateString()}
                           </Text>
                         </View>
                       )}

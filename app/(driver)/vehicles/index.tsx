@@ -127,7 +127,7 @@ const DriverVehicles = () => {
       if (!vehicle) return;
 
       const newStatus = vehicle.status === "active" ? "inactive" : "active";
-      await updateVehicle(vehicleId, { status: newStatus });
+      await updateVehicle(vehicleId, { id: vehicleId, status: newStatus });
       showSuccess(
         "Success",
         `Vehicle ${newStatus === "active" ? "activated" : "deactivated"}`,

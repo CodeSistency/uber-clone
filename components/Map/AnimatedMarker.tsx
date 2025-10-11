@@ -69,7 +69,7 @@ const AnimatedMarker: React.FC<AnimatedMarkerProps> = ({
       description={description}
       image={image}
       onPress={handlePress}
-      opacity={opacity}
+      opacity={opacity as any}
     />
   );
 };
