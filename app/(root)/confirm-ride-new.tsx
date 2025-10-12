@@ -8,7 +8,7 @@ import Map from "@/components/Map";
 import ServiceLevelSelector from "@/components/ServiceLevelSelector";
 import { icons } from "@/constants";
 import { fetchAPI } from "@/lib/fetch";
-import { useDriverStore, useLocationStore, useUserStore } from "@/store";
+import { useDriverStore, useLocationStore, useUserStore, useMapFlowStore } from "@/store";
 import {
   DARK_MODERN_STYLE,
   type MapConfiguration,

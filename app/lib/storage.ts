@@ -1,4 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { MMKVStorageAdapter } from "@/lib/storage/storageAdapter";
+import { mmkvProvider } from "@/lib/storage/mmkvProvider";
+import { migrationManager } from "@/lib/storage/migrationManager";
 
 import { log } from "@/lib/logger";
 
@@ -51,14 +54,55 @@ export const STORAGE_KEYS = {
   APP_THEME: "app_theme",
 } as const;
 
+// Initialize storage adapter
+let storageAdapter: MMKVStorageAdapter;
+
+// Initialize storage with MMKV and fallback to AsyncStorage
+const initializeStorage = async () => {
+  try {
+    // Check if migration is needed and perform it
+    await migrationManager.checkAndMigrate();
+    
+    // Initialize MMKV storage adapter
+    storageAdapter = new MMKVStorageAdapter(mmkvProvider.user, true);
+    
+    log.info('Storage initialized with MMKV', {
+      component: 'Storage',
+      action: 'initializeStorage'
+    });
+  } catch (error) {
+    log.error('Failed to initialize MMKV storage, falling back to AsyncStorage', {
+      component: 'Storage',
+      action: 'initializeStorage',
+      data: {
+        error: error instanceof Error ? error.message : 'Unknown error'
+      }
+    });
+    
+    // Fallback to AsyncStorage adapter
+    storageAdapter = new MMKVStorageAdapter(mmkvProvider.user, true);
+  }
+};
+
+// Initialize storage immediately
+initializeStorage();
+
 // Generic storage functions
 export const storage = {
   // Set item
   setItem: async (key: string, value: string): Promise<void> => {
     try {
-      await AsyncStorage.setItem(key, value);
+      if (storageAdapter) {
+        await storageAdapter.setItem(key, value);
+      } else {
+        await AsyncStorage.setItem(key, value);
+      }
     } catch (error) {
-      
+      log.error('Storage setItem failed', {
+        component: 'Storage',
+        action: 'setItem',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   },
@@ -66,9 +110,17 @@ export const storage = {
   // Get item
   getItem: async (key: string): Promise<string | null> => {
     try {
-      return await AsyncStorage.getItem(key);
+      if (storageAdapter) {
+        return await storageAdapter.getItem(key);
+      } else {
+        return await AsyncStorage.getItem(key);
+      }
     } catch (error) {
-      
+      log.error('Storage getItem failed', {
+        component: 'Storage',
+        action: 'getItem',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       return null;
     }
   },
@@ -76,9 +128,17 @@ export const storage = {
   // Remove item
   removeItem: async (key: string): Promise<void> => {
     try {
-      await AsyncStorage.removeItem(key);
+      if (storageAdapter) {
+        await storageAdapter.removeItem(key);
+      } else {
+        await AsyncStorage.removeItem(key);
+      }
     } catch (error) {
-      
+      log.error('Storage removeItem failed', {
+        component: 'Storage',
+        action: 'removeItem',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
     }
   },
@@ -86,10 +146,169 @@ export const storage = {
   // Clear all storage
   clear: async (): Promise<void> => {
     try {
-      await AsyncStorage.clear();
+      if (storageAdapter) {
+        await storageAdapter.clear();
+      } else {
+        await AsyncStorage.clear();
+      }
     } catch (error) {
-      
+      log.error('Storage clear failed', {
+        component: 'Storage',
+        action: 'clear',
+        data: { error: error instanceof Error ? error.message : 'Unknown error' }
+      });
       throw error;
+    }
+  },
+
+  // Synchronous methods (MMKV only)
+  getString: (key: string): string | undefined => {
+    try {
+      if (storageAdapter) {
+        return storageAdapter.getString(key);
+      }
+      return undefined;
+    } catch (error) {
+      log.error('Storage getString failed', {
+        component: 'Storage',
+        action: 'getString',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+      return undefined;
+    }
+  },
+
+  setString: (key: string, value: string): void => {
+    try {
+      if (storageAdapter) {
+        storageAdapter.setString(key, value);
+      }
+    } catch (error) {
+      log.error('Storage setString failed', {
+        component: 'Storage',
+        action: 'setString',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+    }
+  },
+
+  getBoolean: (key: string): boolean | undefined => {
+    try {
+      if (storageAdapter) {
+        return storageAdapter.getBoolean(key);
+      }
+      return undefined;
+    } catch (error) {
+      log.error('Storage getBoolean failed', {
+        component: 'Storage',
+        action: 'getBoolean',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+      return undefined;
+    }
+  },
+
+  setBoolean: (key: string, value: boolean): void => {
+    try {
+      if (storageAdapter) {
+        storageAdapter.setBoolean(key, value);
+      }
+    } catch (error) {
+      log.error('Storage setBoolean failed', {
+        component: 'Storage',
+        action: 'setBoolean',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+    }
+  },
+
+  getNumber: (key: string): number | undefined => {
+    try {
+      if (storageAdapter) {
+        return storageAdapter.getNumber(key);
+      }
+      return undefined;
+    } catch (error) {
+      log.error('Storage getNumber failed', {
+        component: 'Storage',
+        action: 'getNumber',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+      return undefined;
+    }
+  },
+
+  setNumber: (key: string, value: number): void => {
+    try {
+      if (storageAdapter) {
+        storageAdapter.setNumber(key, value);
+      }
+    } catch (error) {
+      log.error('Storage setNumber failed', {
+        component: 'Storage',
+        action: 'setNumber',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+    }
+  },
+
+  delete: (key: string): void => {
+    try {
+      if (storageAdapter) {
+        storageAdapter.delete(key);
+      }
+    } catch (error) {
+      log.error('Storage delete failed', {
+        component: 'Storage',
+        action: 'delete',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+    }
+  },
+
+  contains: (key: string): boolean => {
+    try {
+      if (storageAdapter) {
+        return storageAdapter.contains(key);
+      }
+      return false;
+    } catch (error) {
+      log.error('Storage contains failed', {
+        component: 'Storage',
+        action: 'contains',
+        data: { key, error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+      return false;
+    }
+  },
+
+  getAllKeys: (): string[] => {
+    try {
+      if (storageAdapter) {
+        return storageAdapter.getAllKeys();
+      }
+      return [];
+    } catch (error) {
+      log.error('Storage getAllKeys failed', {
+        component: 'Storage',
+        action: 'getAllKeys',
+        data: { error: error instanceof Error ? error.message : 'Unknown error' }
+      });
+      return [];
+    }
+  },
+
+  clearAll: (): void => {
+    try {
+      if (storageAdapter) {
+        storageAdapter.clearAll();
+      }
+    } catch (error) {
+      log.error('Storage clearAll failed', {
+        component: 'Storage',
+        action: 'clearAll',
+        data: { error: error instanceof Error ? error.message : 'Unknown error' }
+      });
     }
   },
 };

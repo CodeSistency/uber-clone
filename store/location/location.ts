@@ -48,11 +48,7 @@ export const useLocationStore = create<{
       userAddress: address,
     }));
 
-    // if driver is selected and now new location is set, clear the selected driver
-    const { selectedDriver, clearSelectedDriver } = useDriverStore.getState();
-    if (selectedDriver) {
-      clearSelectedDriver();
-    }
+    // Note: Driver selection is handled in the MapFlow store, not here
   },
 
   setDestinationLocation: ({
@@ -70,11 +66,7 @@ export const useLocationStore = create<{
       destinationAddress: address,
     }));
 
-    // if driver is selected and now new location is set, clear the selected driver
-    const { selectedDriver, clearSelectedDriver } = useDriverStore.getState();
-    if (selectedDriver) {
-      clearSelectedDriver();
-    }
+    // Note: Driver selection is handled in the MapFlow store, not here
   },
 }));
 

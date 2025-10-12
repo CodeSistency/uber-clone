@@ -4,7 +4,16 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
 import { Button, Card, TextField } from "@/components/ui";
-import { useDriverProfileStore } from "@/store/driverProfile";
+import { 
+  useDriverDocuments, 
+  useDocumentStatus, 
+  useAllDocumentsApproved, 
+  usePendingDocumentsCount, 
+  useExpiringDocuments,
+  useIsDocumentsLoading, 
+  useDriverError,
+  useDriverStore
+} from "@/store";
 import { useUI } from "@/components/UIWrapper";
 import { useDriverNavigation } from "@/hooks/useDriverNavigation";
 
@@ -16,15 +25,22 @@ interface DocumentFormData {
 }
 
 const DriverDocuments = () => {
+  // Use optimized selectors from consolidated driver store
+  const documents = useDriverDocuments();
+  const documentStatus = useDocumentStatus();
+  const allDocumentsApproved = useAllDocumentsApproved();
+  const pendingDocumentsCount = usePendingDocumentsCount();
+  const expiringDocuments = useExpiringDocuments();
+  const isLoading = useIsDocumentsLoading();
+  const error = useDriverError();
+  
+  // Get actions from the consolidated store
   const {
-    documents,
-    isLoading,
-    error,
     fetchDocuments,
     uploadDocument,
     updateDocumentStatus,
     deleteDocument,
-  } = useDriverProfileStore();
+  } = useDriverStore();
 
   const { showError, showSuccess } = useUI();
   const { hasActiveRide, currentServiceType } = useDriverNavigation();

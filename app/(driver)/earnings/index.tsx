@@ -4,25 +4,41 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
 import { Button, Card } from "@/components/ui";
-import { useDriverEarningsStore } from "@/store/driverEarnings";
+import { 
+  useDriverEarnings, 
+  useTodayEarnings, 
+  useWeekEarnings, 
+  useMonthEarnings, 
+  useTotalEarnings,
+  useTripHistory,
+  usePromotions,
+  useChallenges,
+  useSelectedPeriod,
+  useIsEarningsLoading,
+  useDriverError,
+  useDriverStore
+} from "@/store";
 import { useUI } from "@/components/UIWrapper";
 
 const DriverEarningsDashboard = () => {
+  // Use optimized selectors from consolidated driver store
+  const earnings = useDriverEarnings();
+  const tripHistory = useTripHistory();
+  const promotions = usePromotions();
+  const challenges = useChallenges();
+  const selectedPeriod = useSelectedPeriod();
+  const isLoading = useIsEarningsLoading();
+  const error = useDriverError();
+  
+  // Get actions from the consolidated store
   const {
-    earningsSummary,
-    tripHistory,
-    promotions,
-    challenges,
-    isLoading,
-    error,
-    selectedPeriod,
     fetchEarningsSummary,
     fetchTripHistory,
     fetchPromotions,
     fetchChallenges,
     setSelectedPeriod,
     refreshEarnings,
-  } = useDriverEarningsStore();
+  } = useDriverStore();
 
   const { showError } = useUI();
   const [refreshing, setRefreshing] = useState(false);
@@ -96,7 +112,7 @@ const DriverEarningsDashboard = () => {
     }
   };
 
-  if (isLoading && !earningsSummary) {
+  if (isLoading && !earnings) {
     return (
       <SafeAreaView className="flex-1 bg-general-500 justify-center items-center">
         <Text className="text-lg">Loading earnings dashboard...</Text>
@@ -141,7 +157,7 @@ const DriverEarningsDashboard = () => {
           </View>
 
           {/* Earnings Summary Cards */}
-          {earningsSummary && (
+          {earnings && (
             <View className="space-y-4 mb-6">
               {/* Main Earnings Card */}
               <Card className="bg-gradient-to-r from-success-500 to-success-600 border-0">
@@ -151,7 +167,7 @@ const DriverEarningsDashboard = () => {
                       {getPeriodLabel()} Earnings
                     </Text>
                     <Text className="text-white text-2xl font-JakartaExtraBold mt-1">
-                      {formatCurrency(earningsSummary.totalEarnings)}
+                      {formatCurrency(earnings[selectedPeriod].total)}
                     </Text>
                   </View>
                   <View className="w-12 h-12 bg-white/20 rounded-full items-center justify-center">
@@ -165,7 +181,7 @@ const DriverEarningsDashboard = () => {
                 <Card className="flex-1">
                   <View className="items-center">
                     <Text className="text-2xl font-JakartaBold text-primary-600">
-                      {formatNumber(earningsSummary.completedTrips)}
+                      {formatNumber(earnings[selectedPeriod].trips)}
                     </Text>
                     <Text className="text-xs text-secondary-600 font-JakartaMedium mt-1">
                       Trips
@@ -176,10 +192,10 @@ const DriverEarningsDashboard = () => {
                 <Card className="flex-1">
                   <View className="items-center">
                     <Text className="text-2xl font-JakartaBold text-success-600">
-                      {earningsSummary.averageEarningsPerTrip?.toFixed(1) || "0.0"}
+                      {earnings[selectedPeriod].avg.toFixed(1)}
                     </Text>
                     <Text className="text-xs text-secondary-600 font-JakartaMedium mt-1">
-                      Rating
+                      Avg/Trip
                     </Text>
                   </View>
                 </Card>
@@ -187,10 +203,10 @@ const DriverEarningsDashboard = () => {
                 <Card className="flex-1">
                   <View className="items-center">
                     <Text className="text-2xl font-JakartaBold text-warning-600">
-                      {formatCurrency(earningsSummary.averageEarningsPerTrip)}
+                      {formatCurrency(earnings[selectedPeriod].avg)}
                     </Text>
                     <Text className="text-xs text-secondary-600 font-JakartaMedium mt-1">
-                      Avg/Trip
+                      Avg/Hour
                     </Text>
                   </View>
                 </Card>
@@ -248,14 +264,14 @@ const DriverEarningsDashboard = () => {
                   >
                     <View className="flex-1">
                       <Text className="font-JakartaMedium text-sm">
-                        {new Date(trip.completedAt).toLocaleDateString()}
+                        {new Date(trip.date).toLocaleDateString()}
                       </Text>
                       <Text className="text-secondary-600 text-xs">
-                        {trip.amount} • {trip.status}
+                        {trip.passengerName} • {trip.pickupLocation}
                       </Text>
                     </View>
                     <Text className="font-JakartaBold text-success-600">
-                      {formatCurrency(trip.netEarning)}
+                      {formatCurrency(trip.total)}
                     </Text>
                   </View>
                 ))}
@@ -288,7 +304,7 @@ const DriverEarningsDashboard = () => {
                     className="bg-primary-50 p-3 rounded-lg"
                   >
                     <Text className="font-JakartaBold text-primary-700 text-sm">
-                      {promo.title}
+                      {promo.name}
                     </Text>
                     <Text className="text-primary-600 text-xs mt-1">
                       {promo.description}
@@ -337,14 +353,14 @@ const DriverEarningsDashboard = () => {
                     className="bg-warning-50 p-3 rounded-lg"
                   >
                     <Text className="font-JakartaBold text-warning-700 text-sm">
-                      {challenge.title}
+                      {challenge.name}
                     </Text>
                     <Text className="text-warning-600 text-xs mt-1">
                       {challenge.description}
                     </Text>
                     <View className="flex-row items-center justify-between mt-2">
                       <Text className="text-warning-700 text-xs">
-                        Progress: {challenge.current}/{challenge.target}
+                        Progress: {challenge.progress}/{challenge.target}
                       </Text>
                       <Text className="text-warning-700 font-JakartaBold text-xs">
                         {formatCurrency(challenge.reward)}

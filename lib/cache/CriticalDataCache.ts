@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { mmkvProvider } from "@/lib/storage/mmkvProvider";
 
 export interface CachedLocation {
   id: string;
@@ -165,7 +165,7 @@ export class CriticalDataCache {
             dataToStore = await this.compressData(data);
           }
 
-          await AsyncStorage.setItem(key, JSON.stringify(dataToStore));
+          mmkvProvider.cache.set(key, JSON.stringify(dataToStore));
           
 
           this.debounceTimers.delete(key);
@@ -250,7 +250,7 @@ export class CriticalDataCache {
       // Keep only most recent/frequent locations
       const trimmed = existing.slice(0, this.MAX_LOCATIONS);
 
-      await AsyncStorage.setItem(this.LOCATIONS_KEY, JSON.stringify(trimmed));
+      mmkvProvider.cache.set(this.LOCATIONS_KEY, JSON.stringify(trimmed));
       this.notifyListeners("location_added", location);
 
       
@@ -400,7 +400,7 @@ export class CriticalDataCache {
       // Keep only most recent rides
       const trimmed = rides.slice(0, this.MAX_RIDES);
 
-      await AsyncStorage.setItem(this.RIDES_KEY, JSON.stringify(trimmed));
+      mmkvProvider.cache.set(this.RIDES_KEY, JSON.stringify(trimmed));
       this.notifyListeners("ride_cached", ride);
 
       
@@ -468,7 +468,7 @@ export class CriticalDataCache {
       // Keep only most recent drivers
       const trimmed = drivers.slice(0, this.MAX_DRIVERS);
 
-      await AsyncStorage.setItem(this.DRIVERS_KEY, JSON.stringify(trimmed));
+      mmkvProvider.cache.set(this.DRIVERS_KEY, JSON.stringify(trimmed));
       this.notifyListeners("driver_cached", driver);
 
       
@@ -503,7 +503,7 @@ export class CriticalDataCache {
   // Storage methods
   private async loadLocationsFromStorage(): Promise<CachedLocation[]> {
     try {
-      const stored = await AsyncStorage.getItem(this.LOCATIONS_KEY);
+      const stored = mmkvProvider.cache.getString(this.LOCATIONS_KEY);
       if (!stored) return [];
 
       const data = JSON.parse(stored);
@@ -549,7 +549,7 @@ export class CriticalDataCache {
 
   private async loadRidesFromStorage(): Promise<CachedRide[]> {
     try {
-      const stored = await AsyncStorage.getItem(this.RIDES_KEY);
+      const stored = mmkvProvider.cache.getString(this.RIDES_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
       
@@ -559,7 +559,7 @@ export class CriticalDataCache {
 
   private async loadDriversFromStorage(): Promise<CachedDriver[]> {
     try {
-      const stored = await AsyncStorage.getItem(this.DRIVERS_KEY);
+      const stored = mmkvProvider.cache.getString(this.DRIVERS_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
       
@@ -616,12 +616,10 @@ export class CriticalDataCache {
 
   async clearAllCache(): Promise<void> {
     try {
-      await Promise.all([
-        AsyncStorage.removeItem(this.LOCATIONS_KEY),
-        AsyncStorage.removeItem(this.RIDES_KEY),
-        AsyncStorage.removeItem(this.DRIVERS_KEY),
-        AsyncStorage.removeItem(this.FAVORITES_KEY),
-      ]);
+      mmkvProvider.cache.delete(this.LOCATIONS_KEY);
+      mmkvProvider.cache.delete(this.RIDES_KEY);
+      mmkvProvider.cache.delete(this.DRIVERS_KEY);
+      mmkvProvider.cache.delete(this.FAVORITES_KEY);
 
       this.notifyListeners("cache_cleared", null);
       
@@ -740,7 +738,7 @@ export class CriticalDataCache {
 
       if (existingIndex < 0) {
         favorites.unshift(location);
-        await AsyncStorage.setItem(
+        mmkvProvider.cache.set(
           this.FAVORITES_KEY,
           JSON.stringify(favorites),
         );
@@ -758,7 +756,7 @@ export class CriticalDataCache {
       const filtered = favorites.filter((fav) => fav.id !== locationId);
 
       if (filtered.length !== favorites.length) {
-        await AsyncStorage.setItem(
+        mmkvProvider.cache.set(
           this.FAVORITES_KEY,
           JSON.stringify(filtered),
         );
@@ -772,7 +770,7 @@ export class CriticalDataCache {
 
   async getFavorites(): Promise<CachedLocation[]> {
     try {
-      const stored = await AsyncStorage.getItem(this.FAVORITES_KEY);
+      const stored = mmkvProvider.cache.getString(this.FAVORITES_KEY);
       return stored ? JSON.parse(stored) : [];
     } catch (error) {
       

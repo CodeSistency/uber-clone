@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist, createJSONStorage } from "zustand/middleware";
+import { persist } from "zustand/middleware";
+import { mmkvStorage } from "@/lib/storage/zustandMMKVAdapter";
 import {
   paymentService,
   type GroupStatusResponse,
@@ -845,13 +846,14 @@ export const usePaymentStore = create<PaymentStore>()(
     }),
     {
       name: "payment-store",
-      storage: createJSONStorage(() => localStorage),
+      storage: mmkvStorage as any,
       // Only persist certain parts of the state
       partialize: (state) => ({
+        ...state,
         activeGroups: state.activeGroups,
         completedGroups: state.completedGroups.slice(0, 20), // Keep only last 20 completed
         stats: state.stats,
-      }),
+      } as PaymentStore),
     },
   ),
 );

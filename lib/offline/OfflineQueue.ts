@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { mmkvProvider } from "@/lib/storage/mmkvProvider";
 import { fetchAPI } from "../fetch";
 import { connectivityManager } from "../connectivity";
 
@@ -61,7 +61,7 @@ export class OfflineQueue {
 
   private async loadQueueFromStorage(): Promise<void> {
     try {
-      const stored = await AsyncStorage.getItem(this.STORAGE_KEY);
+      const stored = mmkvProvider.cache.getString(this.STORAGE_KEY);
       if (stored) {
         this.queue = JSON.parse(stored);
         
@@ -74,7 +74,7 @@ export class OfflineQueue {
 
   private async persistQueue(): Promise<void> {
     try {
-      await AsyncStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.queue));
+      mmkvProvider.cache.set(this.STORAGE_KEY, JSON.stringify(this.queue));
     } catch (error) {
       
     }

@@ -11,6 +11,20 @@ jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
+// Mock react-native-mmkv
+jest.mock("react-native-mmkv", () => ({
+  MMKV: jest.fn().mockImplementation(() => ({
+    getString: jest.fn(),
+    set: jest.fn(),
+    getNumber: jest.fn(),
+    getBoolean: jest.fn(),
+    delete: jest.fn(),
+    contains: jest.fn(),
+    getAllKeys: jest.fn(),
+    clearAll: jest.fn(),
+  })),
+}));
+
 // Mock Expo modules
 jest.mock("expo-constants", () => ({
   expoConfig: {

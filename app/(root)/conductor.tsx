@@ -19,7 +19,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import Map from "@/components/Map";
 import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
-import { useDriverStore } from "@/store";
+import { useDriverStore, useMapFlowStore } from "@/store";
 import {
   DARK_MODERN_STYLE,
   type MapConfiguration,

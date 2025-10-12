@@ -85,6 +85,17 @@ export default function RootLayout() {
       };
       initializeConnectivity();
 
+      // Initialize storage migration (MMKV migration from AsyncStorage)
+      const initializeStorage = async () => {
+        try {
+          const { migrationManager } = await import("@/lib/storage/migrationManager");
+          await migrationManager.checkAndMigrate();
+        } catch (error) {
+          console.error('[RootLayout] Storage migration failed:', error);
+        }
+      };
+      initializeStorage();
+
       // Initialize Firebase (highest priority)
       try {
         firebaseService.initializeFirebase().catch((error: any) => {

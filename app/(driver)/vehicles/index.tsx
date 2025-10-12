@@ -4,21 +4,32 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { router } from "expo-router";
 
 import { Button, Card } from "@/components/ui";
-import { useDriverProfileStore } from "@/store/driverProfile";
+import { 
+  useDriverVehicles, 
+  useActiveVehicle, 
+  useIsVehiclesLoading, 
+  useDriverError,
+  useDriverStore
+} from "@/store";
 import { useUI } from "@/components/UIWrapper";
 import { useDriverNavigation } from "@/hooks/useDriverNavigation";
 
 const DriverVehicles = () => {
+  // Use optimized selectors from consolidated driver store
+  const vehicles = useDriverVehicles();
+  const activeVehicle = useActiveVehicle();
+  const isLoading = useIsVehiclesLoading();
+  const error = useDriverError();
+  
+  // Get actions from the consolidated store
   const {
-    profile,
-    vehicles,
-    isLoading,
-    error,
     addVehicle,
     updateVehicle,
     deleteVehicle,
     fetchVehicles,
-  } = useDriverProfileStore();
+    activateVehicle,
+    deactivateVehicle,
+  } = useDriverStore();
   const { showError, showSuccess } = useUI();
   const { hasActiveRide, currentServiceType } = useDriverNavigation();
 
@@ -126,12 +137,13 @@ const DriverVehicles = () => {
       const vehicle = vehicles.find((v) => v.id === vehicleId);
       if (!vehicle) return;
 
-      const newStatus = vehicle.status === "active" ? "inactive" : "active";
-      await updateVehicle(vehicleId, { id: vehicleId, status: newStatus });
-      showSuccess(
-        "Success",
-        `Vehicle ${newStatus === "active" ? "activated" : "deactivated"}`,
-      );
+      if (vehicle.status === "active") {
+        await deactivateVehicle(vehicleId);
+        showSuccess("Success", "Vehicle deactivated");
+      } else {
+        await activateVehicle(vehicleId);
+        showSuccess("Success", "Vehicle activated");
+      }
     } catch (error) {
       showError("Error", "Failed to update vehicle status");
     }

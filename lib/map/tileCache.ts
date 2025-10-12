@@ -1,4 +1,4 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { mmkvProvider } from '@/lib/storage/mmkvProvider';
 import RNFS from 'react-native-fs';
 import type { MapTile, DownloadableRegion, CacheOptions, Coordinates } from '@/types/map';
 
@@ -205,7 +205,7 @@ class TileCache {
     try {
       await RNFS.unlink(this.cacheDir);
       await this.initialize();
-      await AsyncStorage.removeItem(this.CACHE_KEY);
+      mmkvProvider.cache.delete(this.CACHE_KEY);
     } catch (error) {
       console.error('[TileCache] Error clearing cache:', error);
     }
@@ -225,7 +225,7 @@ class TileCache {
         ...tile,
         cachedAt: new Date().toISOString(),
       };
-      await AsyncStorage.setItem(key, JSON.stringify(metadata));
+      mmkvProvider.cache.set(key, JSON.stringify(metadata));
     } catch (error) {
       console.error('[TileCache] Error saving tile metadata:', error);
     }
@@ -234,7 +234,7 @@ class TileCache {
   private async getTileMetadata(x: number, y: number, z: number): Promise<MapTile | null> {
     try {
       const key = `tile_${x}_${y}_${z}`;
-      const data = await AsyncStorage.getItem(key);
+      const data = mmkvProvider.cache.getString(key);
       return data ? JSON.parse(data) : null;
     } catch (error) {
       return null;
@@ -244,7 +244,7 @@ class TileCache {
   private async removeTileMetadata(x: number, y: number, z: number): Promise<void> {
     try {
       const key = `tile_${x}_${y}_${z}`;
-      await AsyncStorage.removeItem(key);
+      mmkvProvider.cache.delete(key);
     } catch (error) {
       console.error('[TileCache] Error removing tile metadata:', error);
     }
@@ -269,7 +269,7 @@ class TileCache {
         regions.push(region);
       }
 
-      await AsyncStorage.setItem('offline_regions', JSON.stringify(regions));
+      mmkvProvider.cache.set('offline_regions', JSON.stringify(regions));
     } catch (error) {
       console.error('[TileCache] Error saving region:', error);
     }
@@ -277,7 +277,7 @@ class TileCache {
 
   async getSavedRegions(): Promise<DownloadableRegion[]> {
     try {
-      const data = await AsyncStorage.getItem('offline_regions');
+      const data = mmkvProvider.cache.getString('offline_regions');
       return data ? JSON.parse(data) : [];
     } catch (error) {
       return [];

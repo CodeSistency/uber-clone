@@ -21,7 +21,7 @@ import {
   DARK_MODERN_STYLE,
   type MapConfiguration,
 } from "@/constants/mapStyles";
-import { useLocationStore, useDriverStore, useRealtimeStore } from "@/store";
+import { useLocationStore, useDriverStore, useRealtimeStore, useMapFlowStore } from "@/store";
 import { useMapRoutes } from "@/hooks/useMapRoutes";
 import { useMapMarkers } from "@/hooks/useMapMarkers";
 import { useMapClustering } from "@/hooks/useMapClustering";

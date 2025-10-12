@@ -13,7 +13,15 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { driverService } from "@/app/services/driverService";
 import type { DriverProfile } from "@/types/driver";
 import { useUI } from "@/components/UIWrapper";
-import { useDriverConfigStore } from "@/store";
+import { 
+  useDriverProfile, 
+  useDriverSettings, 
+  useAppSettings, 
+  useNavigationSettings, 
+  useSoundSettings, 
+  useRidePreferences,
+  useDriverStore
+} from "@/store";
 
 // Dummy data for development
 const dummyDriverProfile: DriverProfile = {
@@ -44,15 +52,31 @@ const dummyDriverProfile: DriverProfile = {
 
 const SettingsScreen = () => {
   const { theme } = useUI();
-  const { profile, documents, vehicles, serviceTypes, isLoading, error } =
-    useDriverConfigStore();
+  
+  // Use optimized selectors from consolidated driver store
+  const profile = useDriverProfile();
+  const settings = useDriverSettings();
+  const appSettings = useAppSettings();
+  const navigationSettings = useNavigationSettings();
+  const soundSettings = useSoundSettings();
+  const ridePreferences = useRidePreferences();
+  
+  // Get actions from the consolidated store
+  const {
+    updateAppSettings,
+    updateNavigationSettings,
+    updateSoundSettings,
+    updateRidePreferences,
+  } = useDriverStore();
 
   const [refreshing, setRefreshing] = useState(false);
   const [driverProfile, setDriverProfile] =
     useState<DriverProfile>(dummyDriverProfile);
-  const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const [autoAcceptRides, setAutoAcceptRides] = useState(false);
-  const [destinationFilter, setDestinationFilter] = useState(false);
+  
+  // Use settings from store instead of local state
+  const notificationsEnabled = appSettings.notifications.push;
+  const autoAcceptRides = ridePreferences.autoAccept;
+  const destinationFilter = ridePreferences.maxDistance > 0; // Simplified logic
 
   const handleRefresh = async () => {
     setRefreshing(true);
@@ -81,16 +105,16 @@ const SettingsScreen = () => {
           <View className="flex-row items-center">
             <View className="w-12 h-12 bg-brand-primary rounded-full items-center justify-center mr-3">
               <Text className="text-white font-JakartaBold text-lg">
-                {driverProfile.firstName[0]}
-                {driverProfile.lastName[0]}
+                {profile?.firstName?.[0] || driverProfile.firstName[0]}
+                {profile?.lastName?.[0] || driverProfile.lastName[0]}
               </Text>
             </View>
             <View>
               <Text className="font-JakartaBold text-black dark:text-white">
-                {driverProfile.firstName} {driverProfile.lastName}
+                {profile?.firstName || driverProfile.firstName} {profile?.lastName || driverProfile.lastName}
               </Text>
               <Text className="text-gray-600 dark:text-gray-400 text-sm">
-                {driverProfile.email}
+                {profile?.email || driverProfile.email}
               </Text>
             </View>
           </View>
@@ -133,7 +157,7 @@ const SettingsScreen = () => {
           <View className="flex-row items-center">
             <View
               className={`w-3 h-3 rounded-full mr-2 ${
-                driverProfile.isVerified ? "bg-green-500" : "bg-red-500"
+                profile?.isVerified || driverProfile.isVerified ? "bg-green-500" : "bg-red-500"
               }`}
             />
             <Text className="text-gray-400">›</Text>
@@ -215,7 +239,7 @@ const SettingsScreen = () => {
           </View>
           <Switch
             value={autoAcceptRides}
-            onValueChange={setAutoAcceptRides}
+            onValueChange={(value) => updateRidePreferences({ autoAccept: value })}
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={autoAcceptRides ? "#f5dd4b" : "#f4f3f4"}
           />
@@ -235,7 +259,7 @@ const SettingsScreen = () => {
           </View>
           <Switch
             value={destinationFilter}
-            onValueChange={setDestinationFilter}
+            onValueChange={(value) => updateRidePreferences({ maxDistance: value ? 50 : 0 })}
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={destinationFilter ? "#f5dd4b" : "#f4f3f4"}
           />
@@ -283,7 +307,7 @@ const SettingsScreen = () => {
           </View>
           <Switch
             value={notificationsEnabled}
-            onValueChange={setNotificationsEnabled}
+            onValueChange={(value) => updateAppSettings({ notifications: { ...appSettings.notifications, push: value } })}
             trackColor={{ false: "#767577", true: "#81b0ff" }}
             thumbColor={notificationsEnabled ? "#f5dd4b" : "#f4f3f4"}
           />

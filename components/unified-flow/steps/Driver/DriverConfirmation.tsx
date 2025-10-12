@@ -11,7 +11,7 @@ import {
   SplitPayment,
   createSplitPayment,
 } from "@/lib/paymentValidation";
-import { useRealtimeStore, useDriverStore, usePaymentStore } from "@/store";
+import { useRealtimeStore, useDriverStore, usePaymentStore, useMapFlowStore } from "@/store";
 import { FLOW_STEPS } from "@/lib/unified-flow/constants";
 
 import FlowHeader from "../../FlowHeader";

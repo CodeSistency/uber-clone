@@ -7,7 +7,7 @@ import DriverCard from "@/components/DriverCard";
 import RideLayout from "@/components/RideLayout";
 import ServiceLevelSelector from "@/components/ServiceLevelSelector";
 import { fetchAPI } from "@/lib/fetch";
-import { useDriverStore, useLocationStore, useUserStore } from "@/store";
+import { useDriverStore, useLocationStore, useUserStore, useMapFlowStore } from "@/store";
 import { useRealtimeStore } from "@/store";
 
 const ConfirmRide = () => {

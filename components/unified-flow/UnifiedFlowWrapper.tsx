@@ -18,7 +18,20 @@ import { MapFlowProvider } from "@/context/MapFlowContext";
 import { useMapController } from "@/hooks/useMapController";
 import { useMapFlow } from "@/hooks/useMapFlow";
 import { useMapFlowPagerWithSteps } from "@/hooks/useMapFlowPagerWithSteps";
-import { useUnifiedFlowSelectors, useBasicFlowSelectors } from "@/hooks/useMapFlowSelectors";
+import { 
+  useCurrentStep, 
+  useCurrentRole, 
+  useCurrentService,
+  useRideId,
+  useIsMatching,
+  useMatchedDriver,
+  useVariantState,
+  useIsPagerViewActive,
+  useCurrentPageIndex,
+  useTotalPages,
+  useStepConfig,
+  useStepBottomSheet
+} from "@/store/mapFlow/slices";
 import { useRealtimeStore, useLocationStore } from "@/store";
 import { useDevStore } from "@/store/dev/dev";
 import { MapFlowStep } from '@/store';
@@ -68,8 +81,38 @@ const UnifiedFlowWrapper: React.FC<UnifiedFlowWrapperProps> = ({
   const map = useMapController();
   const devStore = useDevStore();
   
-  // 🆕 Selectors optimizados
-  const { flow: flowState, bottomSheet, pager } = useUnifiedFlowSelectors();
+  // Use optimized selectors from store slices
+  const currentStep = useCurrentStep();
+  const currentRole = useCurrentRole();
+  const currentService = useCurrentService();
+  const rideId = useRideId();
+  const isMatching = useIsMatching();
+  const matchedDriver = useMatchedDriver();
+  const variantState = useVariantState();
+  const isPagerViewActive = useIsPagerViewActive();
+  const currentPageIndex = useCurrentPageIndex();
+  const totalPages = useTotalPages();
+  const stepConfig = useStepConfig(currentStep);
+  const bottomSheetConfig = useStepBottomSheet(currentStep);
+  
+  // Create flow state object for compatibility
+  const flowState = { step: currentStep, role: currentRole, service: currentService };
+  const bottomSheet = {
+    bottomSheetVisible: bottomSheetConfig.visible,
+    bottomSheetMinHeight: bottomSheetConfig.minHeight,
+    bottomSheetMaxHeight: bottomSheetConfig.maxHeight,
+    bottomSheetInitialHeight: bottomSheetConfig.initialHeight,
+    bottomSheetAllowDrag: bottomSheetConfig.allowDrag ?? true,
+    bottomSheetAllowClose: bottomSheetConfig.allowClose ?? true,
+    bottomSheetShowHandle: bottomSheetConfig.showHandle ?? true,
+    bottomSheetUseGradient: bottomSheetConfig.useGradient ?? false,
+    bottomSheetUseBlur: bottomSheetConfig.useBlur ?? false,
+    bottomSheetBottomBar: bottomSheetConfig.bottomBar ?? null,
+    bottomSheetClassName: bottomSheetConfig.className,
+    bottomSheetSnapPoints: bottomSheetConfig.snapPoints,
+    bottomSheetHandleHeight: bottomSheetConfig.handleHeight ?? 44,
+  };
+  const pager = variantState;
   
   // Performance monitoring
   React.useEffect(() => {

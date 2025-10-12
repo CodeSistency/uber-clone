@@ -5,7 +5,7 @@ import Payment from "@/components/Payment";
 import RideLayout from "@/components/RideLayout";
 import { icons } from "@/constants";
 import { formatTime } from "@/lib/utils";
-import { useDriverStore, useLocationStore, useUserStore } from "@/store";
+import { useDriverStore, useLocationStore, useUserStore, useMapFlowStore } from "@/store";
 
 const BookRide = () => {
   const { user } = useUserStore();

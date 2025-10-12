@@ -21,7 +21,7 @@ import InlineBottomSheet from "@/components/ui/InlineBottomSheet";
 import { useUI } from "@/components/UIWrapper";
 import { icons } from "@/constants";
 import { Restaurant, loadNearbyRestaurants } from "@/constants/dummyData";
-import { useDriverStore } from "@/store";
+import { useDriverStore, useMapFlowStore } from "@/store";
 import {
   DARK_MODERN_STYLE,
   type MapConfiguration,

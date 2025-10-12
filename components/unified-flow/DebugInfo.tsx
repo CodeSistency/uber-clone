@@ -1,13 +1,36 @@
 import React from 'react';
 import { View, Text } from 'react-native';
-import { useDebugSelectors } from '@/hooks/useMapFlowSelectors';
+import { 
+  useCurrentStep, 
+  useCurrentRole, 
+  useCurrentService,
+  useRideId,
+  useIsMatching,
+  useMatchedDriver,
+  useVariantState,
+  useIsPagerViewActive,
+  useCurrentPageIndex,
+  useTotalPages
+} from '@/store/mapFlow/slices';
+import { useMapFlowStore } from '@/store/mapFlow/mapFlow';
 
 /**
  * Componente de debug que muestra información del estado del MapFlow
  * Solo se renderiza en modo desarrollo
  */
 export const DebugInfo: React.FC = () => {
-  const debugInfo = useDebugSelectors();
+  // Use optimized selectors from store slices
+  const step = useCurrentStep();
+  const role = useCurrentRole();
+  const service = useCurrentService();
+  const rideId = useRideId();
+  const isMatching = useIsMatching();
+  const matchedDriver = useMatchedDriver();
+  const variantState = useVariantState();
+  const usePagerView = useIsPagerViewActive();
+  const currentPageIndex = useCurrentPageIndex();
+  const totalPages = useTotalPages();
+  const bottomSheetVisible = useMapFlowStore(s => s.flow.bottomSheetVisible);
 
   if (!__DEV__) {
     return null;
@@ -26,31 +49,31 @@ export const DebugInfo: React.FC = () => {
       }}
     >
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Step: {debugInfo.step}
+        Step: {step}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Service: {debugInfo.service || 'None'}
+        Service: {service || 'None'}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Role: {debugInfo.role}
+        Role: {role}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Ride ID: {debugInfo.rideId || 'None'}
+        Ride ID: {rideId || 'None'}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Matching: {debugInfo.isMatching ? 'Yes' : 'No'}
+        Matching: {isMatching ? 'Yes' : 'No'}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Driver: {debugInfo.matchedDriver?.name || 'None'}
+        Driver: {matchedDriver?.name || 'None'}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Bottom Sheet: {debugInfo.bottomSheetVisible ? 'Visible' : 'Hidden'}
+        Bottom Sheet: {bottomSheetVisible ? 'Visible' : 'Hidden'}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Pager: {debugInfo.usePagerView ? 'Active' : 'Inactive'}
+        Pager: {usePagerView ? 'Active' : 'Inactive'}
       </Text>
       <Text style={{ color: 'white', fontSize: 12 }}>
-        Page: {debugInfo.currentPageIndex + 1}/{debugInfo.totalPages}
+        Page: {currentPageIndex + 1}/{totalPages}
       </Text>
     </View>
   );
@@ -93,7 +116,7 @@ export const MapDebugInfo: React.FC<{ mapConfig: any }> = ({ mapConfig }) => {
  * Componente de debug para información de rendimiento
  */
 export const PerformanceDebugInfo: React.FC = () => {
-  const debugInfo = useDebugSelectors();
+  // Debug info is now handled by the main DebugInfo component
 
   if (!__DEV__) {
     return null;
